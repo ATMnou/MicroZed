@@ -1,0 +1,397 @@
+import 'package:flutter/material.dart';
+
+import '../data/db/database.dart';
+import '../data/repositories/lorebook_repository.dart';
+import 'lorebook_plot_picker_screen.dart';
+
+/// 항목 편집 중 상태(제목/키워드/내용 컨트롤러 + 펼침 여부).
+class _EntryForm {
+  _EntryForm({this.id, String title = '', String keywords = '', String content = ''})
+      : titleController = TextEditingController(text: title),
+        keywordsController = TextEditingController(text: keywords),
+        contentController = TextEditingController(text: content);
+
+  factory _EntryForm.fromEntry(LorebookEntry entry) => _EntryForm(
+        id: entry.id,
+        title: entry.title,
+        keywords: entry.keywords,
+        content: entry.content,
+      );
+
+  final int? id;
+  final TextEditingController titleController;
+  final TextEditingController keywordsController;
+  final TextEditingController contentController;
+  bool expanded = true;
+
+  void dispose() {
+    titleController.dispose();
+    keywordsController.dispose();
+    contentController.dispose();
+  }
+}
+
+/// 제작 탭의 '제작하기'(로어북 탭) 또는 로어북의 '...' 메뉴 > '수정'에서 나오는 편집 화면.
+/// 탭: 로어 정보 / 플롯 연결 ('설정' 탭은 빼고, 글자수/개수 제한도 두지 않는다).
+class LorebookEditScreen extends StatefulWidget {
+  const LorebookEditScreen({super.key, this.lorebookId});
+
+  final int? lorebookId;
+
+  @override
+  State<LorebookEditScreen> createState() => _LorebookEditScreenState();
+}
+
+class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  late final LorebookRepository _repository;
+
+  final _titleController = TextEditingController();
+  final _shortIntroController = TextEditingController();
+  List<_EntryForm> _entryForms = [];
+  bool _loading = true;
+  bool _saving = false;
+
+  static const _background = Color(0xFF141414);
+  static const _cardBg = Color(0xFF1E1E1E);
+  static const _borderGrey = Color(0xFF3A3A3A);
+  static const _purple = Color(0xFF7A6FF0);
+
+  bool get _isEditing => widget.lorebookId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _repository = LorebookRepository(AppDatabase.instance);
+    _load();
+  }
+
+  Future<void> _load() async {
+    if (widget.lorebookId != null) {
+      final lorebook = await _repository.getById(widget.lorebookId!);
+      final entries = await _repository.getEntries(widget.lorebookId!);
+      _titleController.text = lorebook?.title ?? '';
+      _shortIntroController.text = lorebook?.shortIntro ?? '';
+      _entryForms = entries.map((e) => _EntryForm.fromEntry(e)).toList();
+    }
+    if (_entryForms.isEmpty) {
+      _entryForms = [_EntryForm()];
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  void _addEntry() {
+    setState(() {
+      for (final form in _entryForms) {
+        form.expanded = false;
+      }
+      _entryForms.add(_EntryForm());
+    });
+  }
+
+  Future<void> _removeEntry(int index) async {
+    final form = _entryForms[index];
+    if (form.id != null) {
+      await _repository.deleteEntry(form.id!);
+    }
+    form.dispose();
+    if (mounted) setState(() => _entryForms.removeAt(index));
+  }
+
+  Future<void> _save() async {
+    if (_titleController.text.trim().isEmpty) return;
+    setState(() => _saving = true);
+    final lorebookId = await _repository.upsert(
+      id: widget.lorebookId,
+      title: _titleController.text.trim(),
+      shortIntro: _shortIntroController.text.trim(),
+    );
+    for (final form in _entryForms) {
+      final title = form.titleController.text.trim();
+      final keywords = form.keywordsController.text.trim();
+      final content = form.contentController.text.trim();
+      if (title.isEmpty && keywords.isEmpty && content.isEmpty) continue;
+      if (form.id == null) {
+        final newId = await _repository.addEntry(lorebookId);
+        await _repository.updateEntry(id: newId, title: title, keywords: keywords, content: content);
+      } else {
+        await _repository.updateEntry(id: form.id!, title: title, keywords: keywords, content: content);
+      }
+    }
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _titleController.dispose();
+    _shortIntroController.dispose();
+    for (final form in _entryForms) {
+      form.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _background,
+      appBar: AppBar(
+        backgroundColor: _background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.white, size: 22),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        titleSpacing: 0,
+        title: const Text('로어북', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: ElevatedButton(
+              onPressed: _loading || _saving ? null : _save,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _purple,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              ),
+              child: Text(_isEditing ? '수정' : '등록', style: const TextStyle(fontSize: 14)),
+            ),
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          indicatorSize: TabBarIndicatorSize.label,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white38,
+          labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          tabs: const [Tab(text: '로어 정보'), Tab(text: '플롯 연결')],
+        ),
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator(color: _purple))
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                _buildLoreInfoTab(),
+                widget.lorebookId == null
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Text(
+                            '로어북을 먼저 등록하면 플롯을 연결할 수 있어요.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white38, fontSize: 13),
+                          ),
+                        ),
+                      )
+                    : _PlotConnectTab(lorebookId: widget.lorebookId!, repository: _repository),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildLoreInfoTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const Text('소개글', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        const Text(
+          '소개글은 AI에게 전달되지 않아요.\n로어북을 관리하는 용도로 활용하세요.',
+          style: TextStyle(color: Colors.white38, fontSize: 12),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _plainField(label: '로어북 제목', controller: _titleController, required: true),
+              const SizedBox(height: 16),
+              _plainField(label: '짧은 소개', controller: _shortIntroController, maxLines: 3),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        const Text('항목', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        for (var i = 0; i < _entryForms.length; i++) ...[
+          _buildEntryCard(i),
+          const SizedBox(height: 12),
+        ],
+        OutlinedButton.icon(
+          onPressed: _addEntry,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.white,
+            side: const BorderSide(color: _borderGrey),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            minimumSize: const Size(double.infinity, 0),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+          icon: const Icon(Icons.add, size: 16),
+          label: const Text('항목 추가', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEntryCard(int index) {
+    final form = _entryForms[index];
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () => setState(() => form.expanded = !form.expanded),
+            child: Row(
+              children: [
+                Icon(
+                  form.expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.white54,
+                ),
+                const SizedBox(width: 4),
+                Text('항목 ${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () => _removeEntry(index),
+                  child: const Icon(Icons.delete_outline, color: Colors.white54, size: 20),
+                ),
+              ],
+            ),
+          ),
+          if (form.expanded) ...[
+            const SizedBox(height: 12),
+            _plainField(label: '제목', controller: form.titleController, hint: '제목을 입력하세요'),
+            const SizedBox(height: 16),
+            _plainField(
+              label: '키워드',
+              controller: form.keywordsController,
+              required: true,
+              maxLines: 2,
+              hint: '키워드를 쉼표(,)로 구분해서 입력해주세요.\n입력한 키워드가 언급되면 아래 작성한 내용이 AI에게 전달돼요.',
+            ),
+            const SizedBox(height: 16),
+            _plainField(
+              label: '내용',
+              controller: form.contentController,
+              required: true,
+              maxLines: 5,
+              hint: '키워드 언급 시 AI에게 전달할 내용을 입력해 주세요.',
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _plainField({
+    required String label,
+    required TextEditingController controller,
+    String? hint,
+    int maxLines = 1,
+    bool required = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            if (required) const Text('*', style: TextStyle(color: _purple, fontSize: 14, fontWeight: FontWeight.bold)),
+            Text(label, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+            filled: true,
+            fillColor: _background,
+            contentPadding: const EdgeInsets.all(12),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _borderGrey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: _purple),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PlotConnectTab extends StatelessWidget {
+  const _PlotConnectTab({required this.lorebookId, required this.repository});
+
+  final int lorebookId;
+  final LorebookRepository repository;
+
+  static const _borderGrey = Color(0xFF3A3A3A);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('플롯을 연결해 주세요', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          const Text(
+            '플롯을 연결하면 키워드가 언급될 때마다\n로어북의 세계관이 AI에게 전달돼요',
+            style: TextStyle(color: Colors.white38, fontSize: 12),
+          ),
+          const SizedBox(height: 12),
+          StreamBuilder<List<Plot>>(
+            stream: repository.watchLinkedPlots(lorebookId),
+            builder: (context, snapshot) {
+              final linked = snapshot.data ?? const [];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => LorebookPlotPickerScreen(lorebookId: lorebookId)),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: _borderGrey),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      minimumSize: const Size(double.infinity, 0),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    icon: const Icon(Icons.add, size: 16),
+                    label: Text('연결하기 (${linked.length})', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  ),
+                  if (linked.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    for (final plot in linked)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(plot.title, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                      ),
+                  ],
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

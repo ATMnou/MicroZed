@@ -356,7 +356,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get plotEditCharCountPlaceholder => '89/2,400자';
+  String plotEditCharCountLabel(Object count) {
+    return '$count자';
+  }
 
   @override
   String get plotEditBasicSettingsTitle => '기본 설정';

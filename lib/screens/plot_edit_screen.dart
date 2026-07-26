@@ -385,19 +385,20 @@ class _LabeledField extends StatelessWidget {
   const _LabeledField({
     required this.label,
     required this.controller,
-    this.maxLength,
+    this.showCharCount = false,
     this.maxLines = 1,
     this.required = false,
   });
 
   final String label;
   final TextEditingController controller;
-  final int? maxLength;
+  final bool showCharCount;
   final int maxLines;
   final bool required;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -406,13 +407,23 @@ class _LabeledField extends StatelessWidget {
         TextField(
           controller: controller,
           maxLines: maxLines,
-          maxLength: maxLength,
           style: const TextStyle(color: Colors.white, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
             fillColor: _PlotEditScreenState._background,
-            counterStyle: const TextStyle(color: Colors.white38, fontSize: 11),
             contentPadding: const EdgeInsets.all(12),
+            counter: showCharCount
+                ? AnimatedBuilder(
+                    animation: controller,
+                    builder: (context, _) => Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        l10n.plotEditCharCountLabel(controller.text.length),
+                        style: const TextStyle(color: Colors.white38, fontSize: 11),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: _PlotEditScreenState._borderGrey),
@@ -453,11 +464,6 @@ class _PromptTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Align(
-          alignment: Alignment.center,
-          child: Text(l10n.plotEditCharCountPlaceholder, style: const TextStyle(color: Colors.white38, fontSize: 12)),
-        ),
-        const SizedBox(height: 16),
         Text(l10n.plotEditBasicSettingsTitle, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         Container(
@@ -469,7 +475,7 @@ class _PromptTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _LabeledField(label: l10n.plotEditTitleFieldLabel, controller: titleController, maxLength: 20, required: true),
+              _LabeledField(label: l10n.plotEditTitleFieldLabel, controller: titleController, showCharCount: true, required: true),
               const SizedBox(height: 16),
               _LabeledField(label: l10n.plotEditDescriptionFieldLabel, controller: descController, maxLines: 4, required: true),
             ],
@@ -584,7 +590,7 @@ class _PromptTab extends StatelessWidget {
                   ),
           ),
           const SizedBox(height: 16),
-          _LabeledField(label: l10n.plotEditNameFieldLabel, controller: form.nameController, maxLength: 10, required: true),
+          _LabeledField(label: l10n.plotEditNameFieldLabel, controller: form.nameController, showCharCount: true, required: true),
           const SizedBox(height: 16),
           _LabeledField(label: l10n.plotEditDescriptionFieldLabel, controller: form.descController, maxLines: 3),
         ],
@@ -1424,15 +1430,23 @@ class _AboutTabState extends State<_AboutTab> {
             const SizedBox(height: 8),
             TextField(
               controller: widget.shortIntroController,
-              maxLength: 40,
               style: const TextStyle(color: Colors.white, fontSize: 14),
               decoration: InputDecoration(
                 hintText: l10n.plotEditShortIntroHint,
                 hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
                 filled: true,
                 fillColor: _PlotEditScreenState._background,
-                counterStyle: const TextStyle(color: Colors.white38, fontSize: 11),
                 contentPadding: const EdgeInsets.all(12),
+                counter: AnimatedBuilder(
+                  animation: widget.shortIntroController,
+                  builder: (context, _) => Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      l10n.plotEditCharCountLabel(widget.shortIntroController.text.length),
+                      style: const TextStyle(color: Colors.white38, fontSize: 11),
+                    ),
+                  ),
+                ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: const BorderSide(color: _PlotEditScreenState._borderGrey),

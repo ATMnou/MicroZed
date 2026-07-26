@@ -363,7 +363,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get plotEditCharCountPlaceholder => '89/2,400 chars';
+  String plotEditCharCountLabel(Object count) {
+    return '$count chars';
+  }
 
   @override
   String get plotEditBasicSettingsTitle => 'Basic settings';

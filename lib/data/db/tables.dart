@@ -13,10 +13,10 @@ enum MessageSender { character, narrator, user, image }
 /// 플롯(캐릭터 세트 + 프롬프트 + 소개). 제작 탭의 플롯 목록, 캐릭터 상세 화면, 플롯 편집 화면이 다루는 핵심 엔티티.
 class Plots extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get title => text().withLength(min: 1, max: 20)();
+  TextColumn get title => text()();
   TextColumn get description => text()();
   TextColumn get coverImagePath => text().nullable()();
-  TextColumn get shortIntro => text().withLength(max: 40).nullable()();
+  TextColumn get shortIntro => text().nullable()();
   TextColumn get hashtags => text().withDefault(const Constant(''))();
   IntColumn get visibility =>
       intEnum<PlotVisibility>().withDefault(const Constant(0))();
@@ -29,7 +29,7 @@ class Characters extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get plotId =>
       integer().references(Plots, #id, onDelete: KeyAction.cascade)();
-  TextColumn get name => text().withLength(min: 1, max: 10)();
+  TextColumn get name => text()();
   TextColumn get description => text().withDefault(const Constant(''))();
   TextColumn get imagePath => text().nullable()();
   BoolColumn get isRepresentative =>

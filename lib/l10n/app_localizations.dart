@@ -740,11 +740,11 @@ abstract class AppLocalizations {
   /// **'내보내기에 실패했어요: {error}'**
   String plotEditExportFailureMessage(Object error);
 
-  /// No description provided for @plotEditCharCountPlaceholder.
+  /// No description provided for @plotEditCharCountLabel.
   ///
   /// In ko, this message translates to:
-  /// **'89/2,400자'**
-  String get plotEditCharCountPlaceholder;
+  /// **'{count}자'**
+  String plotEditCharCountLabel(Object count);
 
   /// No description provided for @plotEditBasicSettingsTitle.
   ///

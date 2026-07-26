@@ -27,10 +27,6 @@ class $PlotsTable extends Plots with TableInfo<$PlotsTable, Plot> {
     'title',
     aliasedName,
     false,
-    additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 1,
-      maxTextLength: 20,
-    ),
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
@@ -64,7 +60,6 @@ class $PlotsTable extends Plots with TableInfo<$PlotsTable, Plot> {
     'short_intro',
     aliasedName,
     true,
-    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 40),
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
@@ -609,10 +604,6 @@ class $CharactersTable extends Characters
     'name',
     aliasedName,
     false,
-    additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 1,
-      maxTextLength: 10,
-    ),
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );

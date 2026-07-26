@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/db/database.dart';
 import '../data/local_image_store.dart';
 import '../data/repositories/conversation_profile_repository.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 
 /// 프로필 목록에서 대화 프로필을 누르면 나오는 상세 편집 화면.
@@ -84,6 +85,7 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
@@ -93,9 +95,9 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          '대화 프로필 편집',
-          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+        title: Text(
+          l10n.myPageEditProfileButton,
+          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
         actions: [
@@ -134,9 +136,9 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                 const SizedBox(height: 24),
                 Row(
                   children: [
-                    const Text('이름', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                    Text(l10n.plotEditNameFieldLabel, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
                     const SizedBox(width: 8),
-                    const Text('캐릭터가 날 이렇게 불러 거예요', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                    Text(l10n.profileEditNameDescription, style: const TextStyle(color: Colors.white38, fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -158,7 +160,7 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text('설명(선택)', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(l10n.profileEditDescriptionLabel, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _descController,
@@ -179,7 +181,7 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text('기본 대화 프로필', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(l10n.profileEditDefaultSectionTitle, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -189,13 +191,13 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                   ),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('새로운 대화 시작할 때 이 프로필 적용하기', style: TextStyle(color: Colors.white, fontSize: 13)),
-                            SizedBox(height: 4),
-                            Text('대화 중에 다른 프로필로 바꿀 수 있어요', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                            Text(l10n.profileEditApplyDefaultTitle, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                            const SizedBox(height: 4),
+                            Text(l10n.profileEditApplyDefaultDescription, style: const TextStyle(color: Colors.white38, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -222,7 +224,7 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('저장하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            child: Text(l10n.aiPresetSaveButton, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           ),
         ),
       ),

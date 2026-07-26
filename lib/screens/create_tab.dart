@@ -8,6 +8,7 @@ import '../data/import/character_card_source.dart';
 import '../data/import/plot_import_service.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../data/repositories/plot_repository.dart';
+import '../l10n/app_localizations.dart';
 import 'lorebook_detail_screen.dart';
 import 'lorebook_edit_screen.dart';
 import 'plot_edit_screen.dart';
@@ -94,16 +95,17 @@ class _CreateTabState extends State<CreateTab> {
     return StreamBuilder<List<PlotSummary>>(
       stream: _plotRepository.watchAll(),
       builder: (context, snapshot) {
+        final l10n = AppLocalizations.of(context)!;
         final allPlots = snapshot.data ?? const [];
         final plots = _filterPlots(allPlots);
         return Column(
           children: [
-            _buildSummaryRow(count: allPlots.length, total: '대화량 ${_totalConversations(allPlots)}'),
+            _buildSummaryRow(count: allPlots.length, total: l10n.conversationCountLabel(_totalConversations(allPlots))),
             Expanded(
               child: plots.isEmpty
                   ? Center(
                       child: Text(
-                        _query.trim().isEmpty ? '아직 만든 플롯이 없어요' : '검색 결과가 없어요',
+                        _query.trim().isEmpty ? l10n.homeNoPlotsYet : l10n.commonNoSearchResults,
                         style: const TextStyle(color: Colors.white38, fontSize: 13),
                       ),
                     )
@@ -119,17 +121,18 @@ class _CreateTabState extends State<CreateTab> {
     return StreamBuilder<List<LorebookSummary>>(
       stream: _lorebookRepository.watchAll(),
       builder: (context, snapshot) {
+        final l10n = AppLocalizations.of(context)!;
         final allLorebooks = snapshot.data ?? const [];
         final lorebooks = _filterLorebooks(allLorebooks);
         final totalConversations = allLorebooks.fold<int>(0, (sum, l) => sum + l.conversationCount);
         return Column(
           children: [
-            _buildSummaryRow(count: allLorebooks.length, total: '대화량 $totalConversations'),
+            _buildSummaryRow(count: allLorebooks.length, total: l10n.conversationCountLabel(totalConversations)),
             Expanded(
               child: lorebooks.isEmpty
                   ? Center(
                       child: Text(
-                        _query.trim().isEmpty ? '아직 만든 로어북이 없어요' : '검색 결과가 없어요',
+                        _query.trim().isEmpty ? l10n.createTabNoLorebooksYet : l10n.commonNoSearchResults,
                         style: const TextStyle(color: Colors.white38, fontSize: 13),
                       ),
                     )
@@ -140,15 +143,15 @@ class _CreateTabState extends State<CreateTab> {
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
+                            children: [
                               Text(
-                                '• 대화량은 해당 로어북이 연결된 플롯에서 생긴 대화의 총합이에요.',
-                                style: TextStyle(color: Colors.white38, fontSize: 12, height: 1.4),
+                                l10n.createTabLorebookNote1,
+                                style: const TextStyle(color: Colors.white38, fontSize: 12, height: 1.4),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
-                                '• 로어북을 수정하거나 삭제하면 연결된 모든 플롯에 즉시 반영돼요. 변경하실 때 꼭 한 번 더 확인해주세요.',
-                                style: TextStyle(color: Colors.white38, fontSize: 12, height: 1.4),
+                                l10n.createTabLorebookNote2,
+                                style: const TextStyle(color: Colors.white38, fontSize: 12, height: 1.4),
                               ),
                             ],
                           ),
@@ -163,6 +166,7 @@ class _CreateTabState extends State<CreateTab> {
   }
 
   Widget _buildTopTabs() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: _searching
@@ -175,7 +179,7 @@ class _CreateTabState extends State<CreateTab> {
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     onChanged: (v) => setState(() => _query = v),
                     decoration: InputDecoration(
-                      hintText: _activeTab == 0 ? '플롯 제목, 소개, 해시태그 검색' : '로어북 제목 검색',
+                      hintText: _activeTab == 0 ? l10n.searchHintPlot : l10n.searchHintLorebook,
                       hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
                       filled: true,
                       fillColor: const Color(0xFF1E1E1E),
@@ -194,7 +198,7 @@ class _CreateTabState extends State<CreateTab> {
                     _query = '';
                     _searchController.clear();
                   }),
-                  child: const Text('취소', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white70, fontSize: 14)),
                 ),
               ],
             )
@@ -203,7 +207,7 @@ class _CreateTabState extends State<CreateTab> {
                 GestureDetector(
                   onTap: () => setState(() => _activeTab = 0),
                   child: Text(
-                    '플롯',
+                    l10n.createTabPlotLabel,
                     style: TextStyle(
                       color: _activeTab == 0 ? Colors.white : Colors.white38,
                       fontSize: 18,
@@ -215,7 +219,7 @@ class _CreateTabState extends State<CreateTab> {
                 GestureDetector(
                   onTap: () => setState(() => _activeTab = 1),
                   child: Text(
-                    '로어북',
+                    l10n.createTabLorebookLabel,
                     style: TextStyle(
                       color: _activeTab == 1 ? Colors.white : Colors.white38,
                       fontSize: 16,
@@ -234,12 +238,13 @@ class _CreateTabState extends State<CreateTab> {
   }
 
   Widget _buildSummaryRow({required int count, required String total}) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text('총 $count개', style: const TextStyle(color: Colors.white70, fontSize: 13)),
+          Text(l10n.totalCountLabel(count), style: const TextStyle(color: Colors.white70, fontSize: 13)),
           const SizedBox(width: 12),
           Text(total, style: const TextStyle(color: Colors.white70, fontSize: 13)),
         ],
@@ -256,6 +261,7 @@ class _CreateTabState extends State<CreateTab> {
   }
 
   Widget _buildImportButton() {
+    final l10n = AppLocalizations.of(context)!;
     return OutlinedButton.icon(
       onPressed: _importing ? null : _showImportSheet,
       style: OutlinedButton.styleFrom(
@@ -272,11 +278,12 @@ class _CreateTabState extends State<CreateTab> {
               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
             )
           : const Icon(Icons.file_download_outlined, size: 18),
-      label: const Text('불러오기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+      label: Text(l10n.createTabImportButton, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
     );
   }
 
   Future<void> _showImportSheet() async {
+    final l10n = AppLocalizations.of(context)!;
     final choice = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
@@ -288,31 +295,31 @@ class _CreateTabState extends State<CreateTab> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'SillyTavern 카드 불러오기',
-                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                    l10n.createTabImportSheetTitle,
+                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
               ListTile(
                 leading: const Icon(Icons.folder_open_outlined, color: Colors.white),
-                title: const Text('파일에서 불러오기 (PNG/JSON)', style: TextStyle(color: Colors.white)),
-                subtitle: const Text(
-                  'SillyTavern 캐릭터 카드 파일을 선택해요',
-                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                title: Text(l10n.createTabImportFromFileTitle, style: const TextStyle(color: Colors.white)),
+                subtitle: Text(
+                  l10n.createTabImportFromFileSubtitle,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
                 onTap: () => Navigator.of(sheetContext).pop('file'),
               ),
               ListTile(
                 leading: const Icon(Icons.link, color: Colors.white),
-                title: const Text('링크(URL)에서 가져오기', style: TextStyle(color: Colors.white)),
-                subtitle: const Text(
-                  '카드 파일 링크나 사이트 주소를 붙여넣어요',
-                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                title: Text(l10n.createTabImportFromUrlTitle, style: const TextStyle(color: Colors.white)),
+                subtitle: Text(
+                  l10n.createTabImportFromUrlSubtitle,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
                 onTap: () => Navigator.of(sheetContext).pop('url'),
               ),
@@ -334,12 +341,13 @@ class _CreateTabState extends State<CreateTab> {
   }
 
   Future<String?> _askForUrl() async {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('링크에서 가져오기', style: TextStyle(color: Colors.white)),
+        title: Text(l10n.createTabImportUrlDialogTitle, style: const TextStyle(color: Colors.white)),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -354,11 +362,11 @@ class _CreateTabState extends State<CreateTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('취소', style: TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(controller.text),
-            child: const Text('가져오기', style: TextStyle(color: Color(0xFF7A6FF0))),
+            child: Text(l10n.createTabImportConfirmButton, style: const TextStyle(color: Color(0xFF7A6FF0))),
           ),
         ],
       ),
@@ -366,6 +374,7 @@ class _CreateTabState extends State<CreateTab> {
   }
 
   Future<void> _runImport(Future<ParsedCharacterCard?> Function() loader) async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _importing = true);
     try {
       final card = await loader();
@@ -374,9 +383,9 @@ class _CreateTabState extends State<CreateTab> {
       if (!mounted) return;
       if (!result.hadIntro) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('이 카드엔 오프닝 메시지가 없어서 인트로 탭을 비워뒀어요. "인트로" 탭에서 직접 작성해주세요.'),
-            duration: Duration(seconds: 5),
+          SnackBar(
+            content: Text(l10n.createTabNoIntroWarning),
+            duration: const Duration(seconds: 5),
           ),
         );
       }
@@ -384,7 +393,7 @@ class _CreateTabState extends State<CreateTab> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('불러오기에 실패했어요: $e')),
+        SnackBar(content: Text(l10n.createTabImportFailureMessage(e))),
       );
     } finally {
       if (mounted) setState(() => _importing = false);
@@ -392,6 +401,7 @@ class _CreateTabState extends State<CreateTab> {
   }
 
   Widget _buildCreateButton() {
+    final l10n = AppLocalizations.of(context)!;
     return ElevatedButton.icon(
       onPressed: () {
         if (_activeTab == 0) {
@@ -407,7 +417,7 @@ class _CreateTabState extends State<CreateTab> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
       icon: const Icon(Icons.add, size: 18),
-      label: const Text('제작하기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+      label: Text(l10n.createTabCreateButton, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
     );
   }
 }
@@ -418,6 +428,7 @@ class _PlotTile extends StatelessWidget {
   final PlotSummary data;
 
   void _showOptionsMenu(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
@@ -431,7 +442,7 @@ class _PlotTile extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.edit_outlined, color: Colors.white),
-                title: const Text('플롯 수정', style: TextStyle(color: Colors.white)),
+                title: Text(l10n.createTabEditPlotMenuItem, style: const TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   Navigator.of(context).push(
@@ -443,7 +454,7 @@ class _PlotTile extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.white),
-                title: const Text('삭제', style: TextStyle(color: Colors.white)),
+                title: Text(l10n.commonDelete, style: const TextStyle(color: Colors.white)),
                 onTap: () async {
                   await PlotRepository(AppDatabase.instance).deletePlot(data.plot.id);
                   if (sheetContext.mounted) Navigator.of(sheetContext).pop();
@@ -492,7 +503,7 @@ class _PlotTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '대화량 ${data.conversationCount}',
+                    AppLocalizations.of(context)!.conversationCountLabel(data.conversationCount),
                     style: const TextStyle(color: Colors.white38, fontSize: 13),
                   ),
                 ],
@@ -519,20 +530,21 @@ class _LorebookTile extends StatelessWidget {
   final LorebookSummary data;
 
   Future<void> _confirmDelete(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('로어북을 삭제할까요?', style: TextStyle(color: Colors.white)),
-        content: const Text('연결된 모든 플롯에 즉시 반영돼요.', style: TextStyle(color: Colors.white54)),
+        title: Text(l10n.createTabDeleteLorebookConfirmTitle, style: const TextStyle(color: Colors.white)),
+        content: Text(l10n.createTabDeleteLorebookConfirmContent, style: const TextStyle(color: Colors.white54)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('취소', style: TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('삭제', style: TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -566,7 +578,7 @@ class _LorebookTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '대화량 ${data.conversationCount} · 연결 플롯 ${data.linkedPlotCount}',
+                    AppLocalizations.of(context)!.lorebookTileStats(data.conversationCount, data.linkedPlotCount),
                     style: const TextStyle(color: Colors.white38, fontSize: 13),
                   ),
                 ],

@@ -14,6 +14,7 @@ import '../data/repositories/chat_session_repository.dart';
 import '../data/repositories/chat_turn_repository.dart';
 import '../data/repositories/conversation_profile_repository.dart';
 import '../data/repositories/plot_repository.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import '../widgets/start_fresh_dialog.dart';
 import '../widgets/start_fresh_from_here_dialog.dart';
@@ -166,7 +167,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (preset == null || plotId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('AI 프리셋을 먼저 선택해주세요')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.chatSelectPresetFirstMessage)),
         );
       }
       return;
@@ -180,7 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('AI 응답 생성에 실패했어요: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.chatGenerateFailureMessage(e))),
         );
       }
     } finally {
@@ -204,32 +205,33 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _openReviseDialog(int turnId) async {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
     final instruction = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('AI 수정', style: TextStyle(color: Colors.white)),
+        title: Text(l10n.chatReviseDialogTitle, style: const TextStyle(color: Colors.white)),
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLines: 3,
           style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
-            hintText: '어떻게 고칠지 알려주세요 (예: 더 짧게)',
-            hintStyle: TextStyle(color: Colors.white38),
-            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF3A3A3A))),
-            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: _bubblePurple)),
+          decoration: InputDecoration(
+            hintText: l10n.chatReviseDialogHint,
+            hintStyle: const TextStyle(color: Colors.white38),
+            enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF3A3A3A))),
+            focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: _bubblePurple)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('취소', style: TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: const Text('수정하기', style: TextStyle(color: _bubblePurple)),
+            child: Text(l10n.chatReviseConfirmButton, style: const TextStyle(color: _bubblePurple)),
           ),
         ],
       ),
@@ -331,7 +333,7 @@ class _ChatScreenState extends State<ChatScreen> {
           : SafeArea(
               child: Column(
                 children: [
-                  _buildDisclaimerBanner(),
+                  _buildDisclaimerBanner(context),
                   Expanded(
                     child: StreamBuilder<List<ChatTimelineItem>>(
                       stream: _turnRepo.watchTimeline(widget.sessionId),
@@ -361,7 +363,9 @@ class _ChatScreenState extends State<ChatScreen> {
                               case MessageSender.character:
                                 final character = _findCharacter(message.characterId);
                                 bubble = _CharacterMessage(
-                                  characterName: character?.name ?? message.speakerNameOverride ?? '캐릭터',
+                                  characterName: character?.name ??
+                                      message.speakerNameOverride ??
+                                      AppLocalizations.of(context)!.chatDefaultCharacterName,
                                   imagePath: character?.imagePath,
                                   message: _substituteUser(message.content),
                                 );
@@ -404,7 +408,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       },
                     ),
                   ),
-                  _buildInputBar(),
+                  _buildInputBar(context),
                 ],
               ),
             ),
@@ -437,7 +441,7 @@ class _ChatScreenState extends State<ChatScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _selectedPreset?.name ?? '프리셋 선택',
+                  _selectedPreset?.name ?? AppLocalizations.of(context)!.chatPresetSelectDefault,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 const SizedBox(width: 4),
@@ -455,6 +459,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildChatMenuDrawer(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Drawer(
       backgroundColor: const Color(0xFF1B1B1B),
       width: MediaQuery.of(context).size.width * 0.72,
@@ -465,17 +470,17 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             const SizedBox(height: 8),
             _DrawerMenuItem(
-              title: '새로하기',
-              subtitle: '현재 내용을 저장하고 다시 시작할 수 있어요',
+              title: l10n.chatDrawerStartFreshTitle,
+              subtitle: l10n.chatDrawerStartFreshSubtitle,
               onTap: () => _startFresh(context),
             ),
             _DrawerMenuItem(
-              title: '이어하기',
+              title: l10n.chatDrawerResumeTitle,
               showChevron: true,
               onTap: () => _openResume(context),
             ),
             _DrawerMenuItem(
-              title: '대화 삭제',
+              title: l10n.chatDrawerDeleteTitle,
               onTap: () async {
                 await _sessionRepo.delete(widget.sessionId);
                 if (!context.mounted) return;
@@ -485,7 +490,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const Divider(color: Color(0xFF2A2A2A), height: 24),
             _DrawerMenuItem(
-              title: '대화 프로필',
+              title: l10n.chatDrawerProfileTitle,
               trailingText: _profileName,
               showChevron: true,
               onTap: () {
@@ -494,8 +499,8 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
             _DrawerMenuItem(
-              title: '선택지',
-              trailingText: '사용 안함',
+              title: l10n.chatDrawerChoicesTitle,
+              trailingText: l10n.chatDrawerChoicesDisabled,
               showChevron: true,
               onTap: () => Navigator.of(context).pop(),
             ),
@@ -509,11 +514,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                 color: const Color(0xFF262626),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.logout, color: Colors.white70, size: 18),
-                    SizedBox(width: 8),
-                    Text('대화방 나가기', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    const Icon(Icons.logout, color: Colors.white70, size: 18),
+                    const SizedBox(width: 8),
+                    Text(l10n.chatDrawerExitButton, style: const TextStyle(color: Colors.white70, fontSize: 14)),
                   ],
                 ),
               ),
@@ -524,26 +529,26 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildDisclaimerBanner() {
+  Widget _buildDisclaimerBanner(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 10),
       color: const Color(0xFF1B1B1B),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(Icons.error_outline, color: _mutedText, size: 14),
-          SizedBox(width: 6),
+        children: [
+          const Icon(Icons.error_outline, color: _mutedText, size: 14),
+          const SizedBox(width: 6),
           Text(
-            '답변은 모두 AI가 생성한 내용이에요',
-            style: TextStyle(color: _mutedText, fontSize: 12),
+            AppLocalizations.of(context)!.chatDisclaimerBanner,
+            style: const TextStyle(color: _mutedText, fontSize: 12),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInputBar() {
+  Widget _buildInputBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       color: _background,
@@ -562,10 +567,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 controller: _inputController,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 onSubmitted: (_) => _sendMessage(),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
-                  hintText: '내용 입력하기',
-                  hintStyle: TextStyle(color: _mutedText, fontSize: 14),
+                  hintText: AppLocalizations.of(context)!.chatInputHint,
+                  hintStyle: const TextStyle(color: _mutedText, fontSize: 14),
                   border: InputBorder.none,
                 ),
               ),
@@ -590,6 +595,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showModelPresetSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
@@ -615,14 +621,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'AI 모델 선택',
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.chatModelSheetTitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '선택한 프리셋의 설정으로 대화가 진행돼요. 프리셋은 마이페이지에서 관리할 수 있어요.',
-                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                Text(
+                  l10n.chatModelSheetDescription,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
                 const SizedBox(height: 12),
                 GestureDetector(
@@ -632,10 +638,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       MaterialPageRoute(builder: (_) => const AiPresetScreen()),
                     );
                   },
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text('프리셋 설정', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                      Icon(Icons.chevron_right, color: Colors.white70, size: 16),
+                      Text(l10n.chatModelSheetPresetSettingsLink, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                      const Icon(Icons.chevron_right, color: Colors.white70, size: 16),
                     ],
                   ),
                 ),
@@ -645,9 +651,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   builder: (context, snapshot) {
                     final presets = snapshot.data ?? const [];
                     if (presets.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Text('아직 만든 프리셋이 없어요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(l10n.chatModelSheetNoPresets, style: const TextStyle(color: Colors.white38, fontSize: 13)),
                       );
                     }
                     return Column(
@@ -729,6 +735,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showUserMessageMenu(BuildContext context, ChatMessage message) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
@@ -750,7 +757,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 _SheetActionTile(
                   icon: Icons.restart_alt,
-                  label: '여기서부터 새로하기',
+                  label: l10n.chatSheetStartFreshFromHere,
                   onTap: () {
                     Navigator.of(sheetContext).pop();
                     _startFreshFromHere(context, message.id);
@@ -759,7 +766,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(height: 8),
                 _SheetActionTile(
                   icon: Icons.copy_outlined,
-                  label: '복사',
+                  label: l10n.commonCopy,
                   onTap: () {
                     Navigator.of(sheetContext).pop();
                     Clipboard.setData(ClipboardData(text: message.content));
@@ -768,7 +775,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(height: 8),
                 _SheetActionTile(
                   icon: Icons.delete_outline,
-                  label: '삭제',
+                  label: l10n.commonDelete,
                   isDestructive: true,
                   onTap: () {
                     Navigator.of(sheetContext).pop();
@@ -816,6 +823,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showConversationProfileSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
@@ -841,9 +849,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  '내 대화 프로필',
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.chatProfileSheetTitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 InkWell(
@@ -860,11 +868,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       color: const Color(0xFF262626),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.add, color: Colors.white70, size: 20),
-                        SizedBox(width: 12),
-                        Text('대화 프로필 추가', style: TextStyle(color: Colors.white, fontSize: 14)),
+                        const Icon(Icons.add, color: Colors.white70, size: 20),
+                        const SizedBox(width: 12),
+                        Text(l10n.chatProfileSheetAddButton, style: const TextStyle(color: Colors.white, fontSize: 14)),
                       ],
                     ),
                   ),

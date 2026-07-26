@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/db/database.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../data/repositories/plot_repository.dart';
+import '../l10n/app_localizations.dart';
 
 /// 로어북 편집 > '플롯 연결' 탭의 '+ 연결하기'에서 나오는 플롯 선택 화면.
 class LorebookPlotPickerScreen extends StatefulWidget {
@@ -49,6 +50,7 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
@@ -58,7 +60,7 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('플롯 연결', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+        title: Text(l10n.lorebookPlotConnectTabLabel, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
         centerTitle: true,
       ),
       body: _loading
@@ -68,8 +70,8 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
               builder: (context, snapshot) {
                 final plots = snapshot.data ?? const [];
                 if (plots.isEmpty) {
-                  return const Center(
-                    child: Text('아직 만든 플롯이 없어요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+                  return Center(
+                    child: Text(l10n.homeNoPlotsYet, style: const TextStyle(color: Colors.white38, fontSize: 13)),
                   );
                 }
                 return ListView.separated(
@@ -108,7 +110,7 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text('연결하기 (${_selectedPlotIds.length})', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            child: Text(l10n.lorebookConnectButtonWithCount(_selectedPlotIds.length), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           ),
         ),
       ),

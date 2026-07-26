@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/conversation_profile_repository.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'conversation_profile_edit_screen.dart';
 
@@ -36,9 +37,9 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          '대화 프로필 편집',
-          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+        title: Text(
+          AppLocalizations.of(context)!.myPageEditProfileButton,
+          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ),
       body: StreamBuilder<List<ConversationProfile>>(
@@ -97,14 +98,14 @@ class _AddProfileTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
-          children: const [
-            CircleAvatar(
+          children: [
+            const CircleAvatar(
               radius: 20,
               backgroundColor: Color(0xFF2A2A2A),
               child: Icon(Icons.add, color: Colors.white70, size: 20),
             ),
-            SizedBox(width: 12),
-            Text('대화 프로필 추가', style: TextStyle(color: Colors.white, fontSize: 14)),
+            const SizedBox(width: 12),
+            Text(AppLocalizations.of(context)!.chatProfileSheetAddButton, style: const TextStyle(color: Colors.white, fontSize: 14)),
           ],
         ),
       ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// 유저 말풍선 메뉴의 '여기서부터 새로하기'를 눌렀을 때 뜨는 확인 다이얼로그.
 /// 결과: true면 확인, null이면 취소. 기존 대화는 항상 그대로 보관되고 '이어하기'에 남는다.
 class StartFreshFromHereDialog extends StatelessWidget {
@@ -13,6 +15,7 @@ class StartFreshFromHereDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       backgroundColor: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -21,15 +24,15 @@ class StartFreshFromHereDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              '여기서부터 새로 시작할까요?',
-              style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+            Text(
+              l10n.startFreshFromHereDialogTitle,
+              style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            const Text(
-              "기존 대화는 '이어하기'에서\n언제든 다시 할 수 있어요",
+            Text(
+              l10n.startFreshFromHereDialogDescription,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white54, fontSize: 13, height: 1.4),
+              style: const TextStyle(color: Colors.white54, fontSize: 13, height: 1.4),
             ),
             const SizedBox(height: 20),
             Row(
@@ -43,7 +46,7 @@ class StartFreshFromHereDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('취소'),
+                    child: Text(l10n.commonCancel),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -56,7 +59,7 @@ class StartFreshFromHereDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('확인'),
+                    child: Text(l10n.commonConfirm),
                   ),
                 ),
               ],

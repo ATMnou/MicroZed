@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/chat_session_repository.dart';
+import '../l10n/app_localizations.dart';
 
 /// 채팅 화면 드로어의 '이어하기'에서 진입하는, 저장된(보관된) 대화 목록 화면.
 class ResumeConversationsScreen extends StatefulWidget {
@@ -52,7 +53,7 @@ class _ResumeConversationsScreenState extends State<ResumeConversationsScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('이어하기', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+        title: Text(AppLocalizations.of(context)!.chatDrawerResumeTitle, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
       ),
       body: StreamBuilder<List<ChatSessionSummary>>(
         stream: _repository.watchArchivedByPlot(widget.plotId),
@@ -67,8 +68,8 @@ class _ResumeConversationsScreenState extends State<ResumeConversationsScreen> {
               const Divider(color: Color(0xFF2A2A2A), height: 1),
               Expanded(
                 child: sessions.isEmpty
-                    ? const Center(
-                        child: Text('저장된 대화가 없어요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+                    ? Center(
+                        child: Text(AppLocalizations.of(context)!.resumeNoSavedConversations, style: const TextStyle(color: Colors.white38, fontSize: 13)),
                       )
                     : ListView.separated(
                         itemCount: sessions.length,
@@ -94,12 +95,12 @@ String _formatSavedAt(DateTime dt) {
   return '${dt.year}-${_twoDigits(dt.month)}-${_twoDigits(dt.day)} ${_twoDigits(dt.hour)}:${_twoDigits(dt.minute)}';
 }
 
-String _relativeLabel(DateTime dt) {
+String _relativeLabel(AppLocalizations l10n, DateTime dt) {
   final diff = DateTime.now().difference(dt);
-  if (diff.inMinutes < 1) return '방금 전';
-  if (diff.inHours < 1) return '${diff.inMinutes}분 전';
-  if (diff.inDays < 1) return '${diff.inHours}시간 전';
-  if (diff.inDays < 30) return '${diff.inDays}일 전';
+  if (diff.inMinutes < 1) return l10n.resumeJustNow;
+  if (diff.inHours < 1) return l10n.resumeMinutesAgo(diff.inMinutes);
+  if (diff.inDays < 1) return l10n.resumeHoursAgo(diff.inHours);
+  if (diff.inDays < 30) return l10n.resumeDaysAgo(diff.inDays);
   final year = dt.year.toString().substring(2);
   return '$year/${_twoDigits(dt.month)}/${_twoDigits(dt.day)}';
 }
@@ -112,6 +113,7 @@ class _SavedConversationTile extends StatelessWidget {
   final VoidCallback onDelete;
 
   void _showOptionsMenu(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
@@ -123,7 +125,7 @@ class _SavedConversationTile extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.white),
-                title: const Text('삭제', style: TextStyle(color: Colors.white)),
+                title: Text(l10n.commonDelete, style: const TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   onDelete();
@@ -138,6 +140,7 @@ class _SavedConversationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final archivedAt = data.session.archivedAt ?? data.session.updatedAt;
     return InkWell(
       onTap: onTap,
@@ -151,14 +154,14 @@ class _SavedConversationTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${_formatSavedAt(archivedAt)}에 저장된 대화',
+                    l10n.resumeSavedAtLabel(_formatSavedAt(archivedAt)),
                     style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${_relativeLabel(archivedAt)} | ${data.lastMessagePreview.isEmpty ? '저장된 메시지가 없어요' : data.lastMessagePreview}',
+                    '${_relativeLabel(l10n, archivedAt)} | ${data.lastMessagePreview.isEmpty ? l10n.resumeNoSavedMessage : data.lastMessagePreview}',
                     style: const TextStyle(color: Colors.white38, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

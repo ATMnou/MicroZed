@@ -6,6 +6,7 @@ import '../data/db/database.dart';
 import '../data/repositories/chat_session_repository.dart';
 import '../data/repositories/intro_entry_repository.dart';
 import '../data/repositories/plot_repository.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'chat_screen.dart';
 import 'plot_edit_screen.dart';
@@ -115,14 +116,14 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
               );
             }
           },
-          itemBuilder: (context) => const [
+          itemBuilder: (context) => [
             PopupMenuItem(
               value: 'edit',
-              child: Text('플롯 수정', style: TextStyle(color: Colors.white)),
+              child: Text(AppLocalizations.of(context)!.createTabEditPlotMenuItem, style: const TextStyle(color: Colors.white)),
             ),
             PopupMenuItem(
               value: 'export',
-              child: Text('내보내기', style: TextStyle(color: Colors.white)),
+              child: Text(AppLocalizations.of(context)!.characterDetailExportMenuItem, style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -168,7 +169,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text('이어서 대화하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+          child: Text(AppLocalizations.of(context)!.characterDetailContinueChatButton, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
         ),
       ),
     );
@@ -190,6 +191,7 @@ class _DetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -211,26 +213,26 @@ class _DetailBody extends StatelessWidget {
           style: const TextStyle(color: Colors.white54, fontSize: 13, height: 1.4),
         ),
         const SizedBox(height: 24),
-        const Text(
-          '캐릭터',
-          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+        Text(
+          l10n.characterDetailCharacterSectionTitle,
+          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        _buildCharacterCard(),
+        _buildCharacterCard(context),
         if (firstIntroEntry != null) ...[
           const SizedBox(height: 24),
-          const Text(
-            '인트로',
-            style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+          Text(
+            l10n.characterDetailIntroSectionTitle,
+            style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          _buildIntroPreview(),
+          _buildIntroPreview(context),
         ],
       ],
     );
   }
 
-  Widget _buildCharacterCard() {
+  Widget _buildCharacterCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -246,7 +248,7 @@ class _DetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  character?.name ?? '캐릭터',
+                  character?.name ?? AppLocalizations.of(context)!.chatDefaultCharacterName,
                   style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
@@ -262,7 +264,7 @@ class _DetailBody extends StatelessWidget {
     );
   }
 
-  Widget _buildIntroPreview() {
+  Widget _buildIntroPreview(BuildContext context) {
     final entry = firstIntroEntry!;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +275,7 @@ class _DetailBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(character?.name ?? '캐릭터', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              Text(character?.name ?? AppLocalizations.of(context)!.chatDefaultCharacterName, style: const TextStyle(color: Colors.white70, fontSize: 12)),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),

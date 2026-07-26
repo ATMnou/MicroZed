@@ -1,4 +1,4 @@
-package com.example.microzed
+package com.atmnou.microzed
 
 import io.flutter.embedding.android.FlutterActivity
 

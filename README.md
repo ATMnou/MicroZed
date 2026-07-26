@@ -12,6 +12,7 @@
 - AI 프리셋 관리 (Base URL, 모델명, Temperature, Top K, Max Tokens, Context Length, 추가 시스템 프롬프트)
 - 토큰 사용량/비용 내역 (엔드포인트가 알려주는 경우)
 - SillyTavern 호환 카드 저장/불러오기
+- 여러 언어 지원 (한국어, 영어, 일본어 내장, 나머지는 Pull Request 환영)
 
 ## 요구 사항
 

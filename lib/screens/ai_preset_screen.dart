@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/ai_preset_repository.dart';
+import '../l10n/app_localizations.dart';
 import 'ai_preset_edit_screen.dart';
 
 /// 마이페이지 > 'AI 프리셋 설정'에서 진입하는 프리셋 관리 화면.
@@ -28,6 +29,7 @@ class _AiPresetScreenState extends State<AiPresetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
@@ -37,9 +39,9 @@ class _AiPresetScreenState extends State<AiPresetScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          'AI 프리셋 설정',
-          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+        title: Text(
+          l10n.myPageAiPresetButton,
+          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ),
       body: Stack(
@@ -51,16 +53,16 @@ class _AiPresetScreenState extends State<AiPresetScreen> {
               return ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
                 children: [
-                  const Text(
-                    '대화에서 사용할 AI 프리셋을 만들고 관리하세요.',
-                    style: TextStyle(color: Colors.white38, fontSize: 12),
+                  Text(
+                    l10n.aiPresetScreenDescription,
+                    style: const TextStyle(color: Colors.white38, fontSize: 12),
                   ),
                   const SizedBox(height: 16),
                   if (presets.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Center(
-                        child: Text('아직 만든 프리셋이 없어요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+                        child: Text(l10n.chatModelSheetNoPresets, style: const TextStyle(color: Colors.white38, fontSize: 13)),
                       ),
                     ),
                   ...presets.map((p) => _PresetCard(
@@ -92,7 +94,7 @@ class _AiPresetScreenState extends State<AiPresetScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
               ),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('프리셋 추가', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+              label: Text(l10n.aiPresetScreenAddButton, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             ),
           ),
         ],

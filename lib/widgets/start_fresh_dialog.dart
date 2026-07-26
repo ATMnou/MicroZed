@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// 채팅 화면 드로어의 '새로하기'를 눌렀을 때 뜨는 확인 다이얼로그.
 /// 결과: null이면 취소, true/false면 확인 + '현재 대화 저장하기' 체크 여부.
 class StartFreshDialog extends StatefulWidget {
@@ -20,6 +22,7 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       backgroundColor: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -28,15 +31,15 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              '대화를 새로 시작할까요?',
-              style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+            Text(
+              l10n.startFreshDialogTitle,
+              style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            const Text(
-              "저장한 대화는 '이어하기'에서\n언제든 다시 할 수 있어요",
+            Text(
+              l10n.startFreshDialogDescription,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white54, fontSize: 13, height: 1.4),
+              style: const TextStyle(color: Colors.white54, fontSize: 13, height: 1.4),
             ),
             const SizedBox(height: 16),
             InkWell(
@@ -49,7 +52,7 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
                     activeColor: _purple,
                     onChanged: (v) => setState(() => _saveCurrent = v ?? true),
                   ),
-                  const Text('현재 대화 저장하기', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  Text(l10n.startFreshDialogSaveCheckbox, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                 ],
               ),
             ),
@@ -65,7 +68,7 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('취소'),
+                    child: Text(l10n.commonCancel),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -78,7 +81,7 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    child: const Text('확인'),
+                    child: Text(l10n.commonConfirm),
                   ),
                 ),
               ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/chat_session_repository.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'chat_screen.dart';
 
@@ -25,22 +26,23 @@ class _ConversationTabState extends State<ConversationTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        _buildTopBar(),
+        _buildTopBar(context),
         Expanded(
           child: StreamBuilder<List<ChatSessionSummary>>(
             stream: _sessionRepository.watchAll(),
             builder: (context, snapshot) {
               final sessions = snapshot.data ?? const [];
               if (sessions.isEmpty) {
-                return const Center(
-                  child: Text('아직 진행 중인 대화가 없어요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+                return Center(
+                  child: Text(l10n.conversationTabEmpty, style: const TextStyle(color: Colors.white38, fontSize: 13)),
                 );
               }
               return ListView(
                 children: [
-                  _buildSortRow(),
+                  _buildSortRow(context),
                   ...sessions.map((s) => _ConversationTile(data: s)),
                 ],
               );
@@ -51,14 +53,15 @@ class _ConversationTabState extends State<ConversationTab> {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Row(
         children: [
-          const Text(
-            '대화',
-            style: TextStyle(
+          Text(
+            l10n.conversationTabTitle,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -73,13 +76,14 @@ class _ConversationTabState extends State<ConversationTab> {
     );
   }
 
-  Widget _buildSortRow() {
+  Widget _buildSortRow(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Row(
-        children: const [
-          Text('최신순', style: TextStyle(color: Colors.white70, fontSize: 13)),
-          Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 18),
+        children: [
+          Text(l10n.conversationTabSortLatest, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+          const Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 18),
         ],
       ),
     );
@@ -133,7 +137,9 @@ class _ConversationTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    data.lastMessagePreview.isEmpty ? '대화를 시작해보세요' : data.lastMessagePreview,
+                    data.lastMessagePreview.isEmpty
+                        ? AppLocalizations.of(context)!.conversationTilePlaceholder
+                        : data.lastMessagePreview,
                     style: const TextStyle(color: Colors.white38, fontSize: 13),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

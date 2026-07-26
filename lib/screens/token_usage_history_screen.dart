@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/token_usage_repository.dart';
+import '../l10n/app_localizations.dart';
 
 /// 마이페이지 > '내역' 버튼에서 들어오는 토큰 사용 내역 화면.
 /// 요청마다 모델/제공자(baseUrl)/입출력 토큰/가격(엔드포인트가 알려주는 경우만)을 보여준다.
@@ -25,23 +26,24 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
   }
 
   Future<void> _confirmDeleteAll() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _cardBg,
-        title: const Text('내역을 전부 삭제할까요?', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          '삭제하면 되돌릴 수 없어요.',
-          style: TextStyle(color: Colors.white54),
+        title: Text(l10n.tokenUsageDeleteAllConfirmTitle, style: const TextStyle(color: Colors.white)),
+        content: Text(
+          l10n.tokenUsageDeleteAllConfirmContent,
+          style: const TextStyle(color: Colors.white54),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('취소', style: TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('삭제', style: TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -69,6 +71,7 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
@@ -78,14 +81,14 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          '토큰 사용 내역',
-          style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+        title: Text(
+          l10n.tokenUsageTitle,
+          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
         ),
         actions: [
           TextButton(
             onPressed: _confirmDeleteAll,
-            child: const Text('전체 삭제', style: TextStyle(color: Colors.redAccent, fontSize: 13)),
+            child: Text(l10n.tokenUsageDeleteAllButton, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
           ),
         ],
       ),
@@ -94,8 +97,8 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
         builder: (context, snapshot) {
           final logs = snapshot.data ?? const [];
           if (logs.isEmpty) {
-            return const Center(
-              child: Text('아직 사용 내역이 없어요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+            return Center(
+              child: Text(l10n.tokenUsageEmptyMessage, style: const TextStyle(color: Colors.white38, fontSize: 13)),
             );
           }
           return ListView.separated(
@@ -154,12 +157,15 @@ class _LogCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text('제공자: $provider · ${log.presetName}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+          Text(
+            AppLocalizations.of(context)!.tokenUsageProviderLabel(provider, log.presetName),
+            style: const TextStyle(color: Colors.white54, fontSize: 12),
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
               Text(
-                '입력 ${log.promptTokens} · 출력 ${log.completionTokens} · 합계 $total',
+                AppLocalizations.of(context)!.tokenUsageBreakdown(log.promptTokens, log.completionTokens, total),
                 style: const TextStyle(color: Colors.white70, fontSize: 12),
               ),
               const Spacer(),

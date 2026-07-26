@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/ai_preset_repository.dart';
+import '../l10n/app_localizations.dart';
 
 /// AI 프리셋 추가/수정 화면. API 키는 저장 시 secure storage로 보내지고,
 /// DB에는 참조 키만 남는다(AiPresetRepository 참고).
@@ -104,6 +105,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
@@ -115,7 +117,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          _isEditing ? '프리셋 수정' : '프리셋 추가',
+          _isEditing ? l10n.aiPresetEditTitleEdit : l10n.aiPresetEditTitleCreate,
           style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ),
@@ -124,19 +126,19 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                _field(label: '이름', controller: _nameController, hint: '예: 기본 스타일'),
+                _field(label: l10n.plotEditNameFieldLabel, controller: _nameController, hint: l10n.aiPresetNameHint),
                 const SizedBox(height: 16),
-                _field(label: '설명', controller: _descController, hint: '이 프리셋을 한 줄로 소개해주세요', maxLines: 2),
+                _field(label: l10n.plotEditDescriptionFieldLabel, controller: _descController, hint: l10n.aiPresetDescHint, maxLines: 2),
                 const SizedBox(height: 16),
-                _field(label: 'Base URL', controller: _baseUrlController, hint: '예: https://api.openai.com/v1'),
+                _field(label: 'Base URL', controller: _baseUrlController, hint: l10n.aiPresetBaseUrlHint),
                 const SizedBox(height: 16),
-                _field(label: '모델명', controller: _modelController, hint: '예: gpt-4o-mini, claude-sonnet-5'),
+                _field(label: l10n.aiPresetModelNameLabel, controller: _modelController, hint: l10n.aiPresetModelNameHint),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    const Text('API 키', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                    Text(l10n.aiPresetApiKeyLabel, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
                     const SizedBox(width: 8),
-                    const Text('기기에만 안전하게 저장돼요', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                    Text(l10n.aiPresetApiKeyStorageNote, style: const TextStyle(color: Colors.white38, fontSize: 12)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -145,7 +147,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                   obscureText: _obscureApiKey,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: '직접 발급받은 API 키를 입력해주세요',
+                    hintText: l10n.aiPresetApiKeyHint,
                     hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
                     filled: true,
                     fillColor: _cardBg,
@@ -169,14 +171,14 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  '고급 설정',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.aiPresetAdvancedSettingsTitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  '전부 선택 사항이에요. 비워두면 요청에 포함하지 않아요.',
-                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                Text(
+                  l10n.aiPresetAdvancedSettingsDescription,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -185,7 +187,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                       child: _field(
                         label: 'Temperature',
                         controller: _temperatureController,
-                        hint: '예: 1.0',
+                        hint: l10n.aiPresetTemperatureHint,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       ),
                     ),
@@ -194,7 +196,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                       child: _field(
                         label: 'Top K',
                         controller: _topKController,
-                        hint: '예: 40',
+                        hint: l10n.aiPresetTopKHint,
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -207,7 +209,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                       child: _field(
                         label: 'Max Tokens',
                         controller: _maxTokensController,
-                        hint: '예: 1024',
+                        hint: l10n.aiPresetMaxTokensHint,
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -216,7 +218,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                       child: _field(
                         label: 'Context Length',
                         controller: _contextLengthController,
-                        hint: '최근 메시지 몇 개까지',
+                        hint: l10n.aiPresetContextLengthHint,
                         keyboardType: TextInputType.number,
                       ),
                     ),
@@ -224,9 +226,9 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                 ),
                 const SizedBox(height: 16),
                 _field(
-                  label: '추가 시스템 프롬프트',
+                  label: l10n.aiPresetAdditionalPromptLabel,
                   controller: _additionalSystemPromptController,
-                  hint: '기본 프롬프트 뒤에 덧붙일 지침(선택)',
+                  hint: l10n.aiPresetAdditionalPromptHint,
                   maxLines: 4,
                 ),
               ],
@@ -243,7 +245,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('저장하기', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            child: Text(l10n.aiPresetSaveButton, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           ),
         ),
       ),

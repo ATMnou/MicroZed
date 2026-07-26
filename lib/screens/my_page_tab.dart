@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import '../data/backup/backup_service.dart';
 import '../data/db/database.dart';
 import '../data/repositories/token_usage_repository.dart';
+import '../l10n/app_localizations.dart';
+import '../main.dart';
 import 'ai_preset_screen.dart';
 import 'profile_list_screen.dart';
+import 'system_prompt_edit_screen.dart';
 import 'token_usage_history_screen.dart';
 
 /// '마이페이지' 탭 화면.
@@ -37,7 +40,7 @@ class _MyPageTabState extends State<MyPageTab> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildTopBar(),
+        _buildTopBar(context),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -48,14 +51,17 @@ class _MyPageTabState extends State<MyPageTab> {
                 children: [
                   _buildProfileEditButton(context),
                   _buildPresetSettingButton(context),
+                  _buildSystemPromptButton(context),
                 ],
               ),
               const SizedBox(height: 16),
               _buildTokenSection(context),
+              const SizedBox(height: 16),
+              _buildLanguageSection(context),
               const SizedBox(height: 32),
               _buildBackupSection(context),
               const SizedBox(height: 32),
-              _buildSourceLink(),
+              _buildSourceLink(context),
             ],
           ),
         ),
@@ -63,14 +69,15 @@ class _MyPageTabState extends State<MyPageTab> {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Row(
         children: [
-          const Text(
-            '마이페이지',
-            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          Text(
+            l10n.myPageTitle,
+            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const Spacer(),
           const Icon(Icons.menu, color: Colors.white, size: 22),
@@ -80,6 +87,7 @@ class _MyPageTabState extends State<MyPageTab> {
   }
 
   Widget _buildProfileEditButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return OutlinedButton(
       onPressed: () {
         Navigator.of(context).push(
@@ -92,11 +100,12 @@ class _MyPageTabState extends State<MyPageTab> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      child: const Text('대화 프로필 편집', style: TextStyle(fontSize: 13)),
+      child: Text(l10n.myPageEditProfileButton, style: const TextStyle(fontSize: 13)),
     );
   }
 
   Widget _buildPresetSettingButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return OutlinedButton(
       onPressed: () {
         Navigator.of(context).push(
@@ -109,11 +118,30 @@ class _MyPageTabState extends State<MyPageTab> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      child: const Text('AI 프리셋 설정', style: TextStyle(fontSize: 13)),
+      child: Text(l10n.myPageAiPresetButton, style: const TextStyle(fontSize: 13)),
+    );
+  }
+
+  Widget _buildSystemPromptButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return OutlinedButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const SystemPromptEditScreen()),
+        );
+      },
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Color(0xFF3A3A3A)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      child: Text(l10n.systemPromptButtonLabel, style: const TextStyle(fontSize: 13)),
     );
   }
 
   Widget _buildTokenSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -135,7 +163,7 @@ class _MyPageTabState extends State<MyPageTab> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('소모된 토큰', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(l10n.myPageTokensUsedLabel, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                   const SizedBox(height: 2),
                   Text(
                     formatted,
@@ -158,14 +186,86 @@ class _MyPageTabState extends State<MyPageTab> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: const Text('내역', style: TextStyle(fontSize: 12)),
+            child: Text(l10n.myPageHistoryButton, style: const TextStyle(fontSize: 12)),
           ),
         ],
       ),
     );
   }
 
+  Widget _buildLanguageSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Material(
+      color: const Color(0xFF1E1E1E),
+      borderRadius: BorderRadius.circular(12),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        leading: const Icon(Icons.language, color: Colors.white70),
+        title: Text(l10n.settingsLanguage, style: const TextStyle(color: Colors.white, fontSize: 14)),
+        trailing: ValueListenableBuilder<Locale?>(
+          valueListenable: localeController,
+          builder: (context, locale, _) {
+            return Text(
+              _labelForLocale(l10n, locale),
+              style: const TextStyle(color: Colors.white54, fontSize: 13),
+            );
+          },
+        ),
+        onTap: () => _showLanguagePicker(context),
+      ),
+    );
+  }
+
+  String _labelForLocale(AppLocalizations l10n, Locale? locale) {
+    switch (locale?.languageCode) {
+      case 'ko':
+        return l10n.languageKorean;
+      case 'en':
+        return l10n.languageEnglish;
+      case 'ja':
+        return l10n.languageJapanese;
+      default:
+        return l10n.languageSystemDefault;
+    }
+  }
+
+  Future<void> _showLanguagePicker(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final current = localeController.value;
+    final options = <Locale?>[null, const Locale('ko'), const Locale('en'), const Locale('ja')];
+
+    final selected = await showDialog<Locale?>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: Text(l10n.settingsLanguageDialogTitle, style: const TextStyle(color: Colors.white)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: options.map((locale) {
+              return RadioListTile<Locale?>(
+                value: locale,
+                groupValue: current,
+                activeColor: const Color(0xFF7A6FF0),
+                title: Text(_labelForLocale(l10n, locale), style: const TextStyle(color: Colors.white)),
+                onChanged: (value) => Navigator.of(dialogContext).pop(value),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+
+    if (!context.mounted) return;
+    if (selected != current || (selected == null && current == null)) {
+      await localeController.setLocale(selected);
+    }
+  }
+
   Widget _buildBackupSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -175,11 +275,11 @@ class _MyPageTabState extends State<MyPageTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('데이터 백업', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(l10n.myPageBackupSectionTitle, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          const Text(
-            '플롯/캐릭터/대화/로어북/프리셋 등 모든 데이터를 파일 하나로 저장하거나 불러올 수 있어요.',
-            style: TextStyle(color: Colors.white38, fontSize: 12),
+          Text(
+            l10n.myPageBackupSectionDescription,
+            style: const TextStyle(color: Colors.white38, fontSize: 12),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -201,7 +301,7 @@ class _MyPageTabState extends State<MyPageTab> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
                       )
                     : const Icon(Icons.save_alt, size: 16),
-                label: const Text('전체 저장', style: TextStyle(fontSize: 13)),
+                label: Text(l10n.myPageExportAllButton, style: const TextStyle(fontSize: 13)),
               ),
               OutlinedButton.icon(
                 onPressed: _backingUp || _restoring ? null : _importBackup,
@@ -218,7 +318,7 @@ class _MyPageTabState extends State<MyPageTab> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
                       )
                     : const Icon(Icons.file_upload_outlined, size: 16),
-                label: const Text('전체 불러오기', style: TextStyle(fontSize: 13)),
+                label: Text(l10n.myPageImportAllButton, style: const TextStyle(fontSize: 13)),
               ),
             ],
           ),
@@ -228,6 +328,7 @@ class _MyPageTabState extends State<MyPageTab> {
   }
 
   Future<void> _exportBackup() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _backingUp = true);
     try {
       final bytes = await _backupService.exportAll();
@@ -242,12 +343,12 @@ class _MyPageTabState extends State<MyPageTab> {
       await File(location.path).writeAsBytes(bytes);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('전체 데이터를 저장했어요.')),
+        SnackBar(content: Text(l10n.myPageExportSuccessMessage)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('저장에 실패했어요: $e')),
+        SnackBar(content: Text(l10n.myPageExportFailureMessage(e))),
       );
     } finally {
       if (mounted) setState(() => _backingUp = false);
@@ -255,6 +356,7 @@ class _MyPageTabState extends State<MyPageTab> {
   }
 
   Future<void> _importBackup() async {
+    final l10n = AppLocalizations.of(context)!;
     final picked = await openFile(
       acceptedTypeGroups: const [
         XTypeGroup(label: 'MicroZed backup', extensions: ['mzbackup']),
@@ -267,20 +369,19 @@ class _MyPageTabState extends State<MyPageTab> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: const Text('전체 불러오기', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          '지금 앱에 있는 모든 플롯/캐릭터/대화/로어북/프리셋이 이 백업 내용으로 완전히 대체돼요.\n'
-          '이 작업은 되돌릴 수 없어요. 계속할까요?',
-          style: TextStyle(color: Colors.white70, height: 1.4),
+        title: Text(l10n.myPageImportDialogTitle, style: const TextStyle(color: Colors.white)),
+        content: Text(
+          l10n.myPageImportDialogContent,
+          style: const TextStyle(color: Colors.white70, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('취소', style: TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('복원', style: TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.myPageImportRestoreButton, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -295,7 +396,7 @@ class _MyPageTabState extends State<MyPageTab> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '복원 완료: 플롯 ${summary.plotCount}개, 대화 메시지 ${summary.chatMessageCount}개, 로어북 ${summary.lorebookCount}개',
+            l10n.myPageImportSuccessMessage(summary.plotCount, summary.chatMessageCount, summary.lorebookCount),
           ),
           duration: const Duration(seconds: 5),
         ),
@@ -303,19 +404,20 @@ class _MyPageTabState extends State<MyPageTab> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('불러오기에 실패했어요: $e')),
+        SnackBar(content: Text(l10n.myPageImportFailureMessage(e))),
       );
     } finally {
       if (mounted) setState(() => _restoring = false);
     }
   }
 
-  Widget _buildSourceLink() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
+  Widget _buildSourceLink(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Text(
-        '소스 링크 (준비 중)',
-        style: TextStyle(color: Colors.white24, fontSize: 12),
+        l10n.myPageSourceLinkComingSoon,
+        style: const TextStyle(color: Colors.white24, fontSize: 12),
       ),
     );
   }

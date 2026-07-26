@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/lorebook_repository.dart';
+import '../l10n/app_localizations.dart';
 import 'lorebook_plot_picker_screen.dart';
 
 /// 항목 편집 중 상태(제목/키워드/내용 컨트롤러 + 펼침 여부).
@@ -135,6 +136,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
@@ -145,7 +147,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
           onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 0,
-        title: const Text('로어북', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+        title: Text(l10n.lorebookEditAppBarTitle, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -157,7 +159,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
               ),
-              child: Text(_isEditing ? '수정' : '등록', style: const TextStyle(fontSize: 14)),
+              child: Text(_isEditing ? l10n.plotEditSaveButtonEdit : l10n.lorebookEditSaveButtonCreate, style: const TextStyle(fontSize: 14)),
             ),
           ),
         ],
@@ -168,7 +170,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white38,
           labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          tabs: const [Tab(text: '로어 정보'), Tab(text: '플롯 연결')],
+          tabs: [Tab(text: l10n.lorebookInfoTabLabel), Tab(text: l10n.lorebookPlotConnectTabLabel)],
         ),
       ),
       body: _loading
@@ -178,13 +180,13 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
               children: [
                 _buildLoreInfoTab(),
                 widget.lorebookId == null
-                    ? const Center(
+                    ? Center(
                         child: Padding(
-                          padding: EdgeInsets.all(24),
+                          padding: const EdgeInsets.all(24),
                           child: Text(
-                            '로어북을 먼저 등록하면 플롯을 연결할 수 있어요.',
+                            l10n.lorebookEditSaveFirstMessage,
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white38, fontSize: 13),
+                            style: const TextStyle(color: Colors.white38, fontSize: 13),
                           ),
                         ),
                       )
@@ -195,14 +197,15 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
   }
 
   Widget _buildLoreInfoTab() {
+    final l10n = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('소개글', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(l10n.plotEditAboutSectionTitle, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        const Text(
-          '소개글은 AI에게 전달되지 않아요.\n로어북을 관리하는 용도로 활용하세요.',
-          style: TextStyle(color: Colors.white38, fontSize: 12),
+        Text(
+          l10n.lorebookEditIntroDescription,
+          style: const TextStyle(color: Colors.white38, fontSize: 12),
         ),
         const SizedBox(height: 12),
         Container(
@@ -211,14 +214,14 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _plainField(label: '로어북 제목', controller: _titleController, required: true),
+              _plainField(label: l10n.lorebookEditTitleFieldLabel, controller: _titleController, required: true),
               const SizedBox(height: 16),
-              _plainField(label: '짧은 소개', controller: _shortIntroController, maxLines: 3),
+              _plainField(label: l10n.plotEditShortIntroLabel, controller: _shortIntroController, maxLines: 3),
             ],
           ),
         ),
         const SizedBox(height: 24),
-        const Text('항목', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(l10n.lorebookEditEntriesSectionTitle, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         for (var i = 0; i < _entryForms.length; i++) ...[
           _buildEntryCard(i),
@@ -234,13 +237,14 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           icon: const Icon(Icons.add, size: 16),
-          label: const Text('항목 추가', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          label: Text(l10n.lorebookEditAddEntryButton, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
         ),
       ],
     );
   }
 
   Widget _buildEntryCard(int index) {
+    final l10n = AppLocalizations.of(context)!;
     final form = _entryForms[index];
     return Container(
       padding: const EdgeInsets.all(14),
@@ -257,7 +261,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
                   color: Colors.white54,
                 ),
                 const SizedBox(width: 4),
-                Text('항목 ${index + 1}', style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(l10n.lorebookEditEntryCardTitle(index + 1), style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => _removeEntry(index),
@@ -268,22 +272,22 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
           ),
           if (form.expanded) ...[
             const SizedBox(height: 12),
-            _plainField(label: '제목', controller: form.titleController, hint: '제목을 입력하세요'),
+            _plainField(label: l10n.plotEditTitleFieldLabel, controller: form.titleController, hint: l10n.lorebookEditEntryTitleHint),
             const SizedBox(height: 16),
             _plainField(
-              label: '키워드',
+              label: l10n.lorebookEditKeywordsLabel,
               controller: form.keywordsController,
               required: true,
               maxLines: 2,
-              hint: '키워드를 쉼표(,)로 구분해서 입력해주세요.\n입력한 키워드가 언급되면 아래 작성한 내용이 AI에게 전달돼요.',
+              hint: l10n.lorebookEditKeywordsHint,
             ),
             const SizedBox(height: 16),
             _plainField(
-              label: '내용',
+              label: l10n.lorebookEditContentLabel,
               controller: form.contentController,
               required: true,
               maxLines: 5,
-              hint: '키워드 언급 시 AI에게 전달할 내용을 입력해 주세요.',
+              hint: l10n.lorebookEditContentHint,
             ),
           ],
         ],
@@ -343,16 +347,17 @@ class _PlotConnectTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('플롯을 연결해 주세요', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(l10n.lorebookEditConnectPlotsTitle, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text(
-            '플롯을 연결하면 키워드가 언급될 때마다\n로어북의 세계관이 AI에게 전달돼요',
-            style: TextStyle(color: Colors.white38, fontSize: 12),
+          Text(
+            l10n.lorebookEditConnectPlotsDescription,
+            style: const TextStyle(color: Colors.white38, fontSize: 12),
           ),
           const SizedBox(height: 12),
           StreamBuilder<List<Plot>>(
@@ -376,7 +381,7 @@ class _PlotConnectTab extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
                     icon: const Icon(Icons.add, size: 16),
-                    label: Text('연결하기 (${linked.length})', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    label: Text(l10n.lorebookConnectButtonWithCount(linked.length), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
                   ),
                   if (linked.isNotEmpty) ...[
                     const SizedBox(height: 16),

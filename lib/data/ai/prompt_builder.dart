@@ -3,36 +3,22 @@ import '../db/database.dart';
 /// 플롯/캐릭터/대화 기록으로부터 OpenAI 호환 chat completions 요청에 넣을
 /// 시스템 프롬프트와 메시지 히스토리를 만든다.
 class PromptBuilder {
-  static String buildSystemPrompt({
-    required Plot? plot,
-    required List<Character> characters,
-    required String userProfileName,
-    String additionalSystemPrompt = '',
-    String loreContext = '',
-  }) {
-    final charactersBlock = characters.isEmpty
-        ? '(등록된 캐릭터가 없어요)'
-        : characters.map((c) => '- ${c.name}: ${c.description}').join('\n');
-    final exampleCharacterName = characters.isNotEmpty ? characters.first.name : '캐릭터 1';
-
-    final lore = loreContext.trim();
-    final loreBlock = lore.isEmpty ? '' : '\n\n[로어북]\n$lore';
-
-    final extra = additionalSystemPrompt.trim();
-    final extraBlock = extra.isEmpty ? '' : '\n\n[추가 지침]\n$extra';
-
-    return '''
+  /// 마이페이지 > 시스템 프롬프트 설정에서 사용자가 통째로 덮어쓸 수 있는 기본 템플릿.
+  /// {{plot_title}}, {{plot_description}}, {{characters_block}}, {{example_character_name}},
+  /// {{user_profile_name}}, {{lore_block}}, {{extra_block}}는 실제 값으로 치환된다.
+  /// `{{user}}`는 치환 대상이 아니라 AI가 응답에 그대로 남겨야 하는 리터럴 토큰이니 그대로 둔다.
+  static const String defaultSystemPromptTemplate = '''
 당신은 아래 설정에 따라 롤플레잉 인터랙티브 픽션을 진행하는 스토리텔러입니다.
 
 [플롯]
-제목: ${plot?.title ?? ''}
-설명: ${plot?.description ?? ''}
+제목: {{plot_title}}
+설명: {{plot_description}}
 
 [캐릭터]
-$charactersBlock
+{{characters_block}}
 
 [플레이어]
-플레이어를 지칭할 때는 반드시 {{user}}라고 쓰세요. (현재 이름: $userProfileName)
+플레이어를 지칭할 때는 반드시 {{user}}라고 쓰세요. (현재 이름: {{user_profile_name}})
 
 [출력 형식 규칙]
 - 화자가 바뀔 때만 문단 맨 앞에 "@이름:"(캐릭터 발화) 또는 "@:"(나레이션)을 붙이세요.
@@ -49,12 +35,46 @@ $charactersBlock
 [예시]
 @: *나레이션 예시*
 
-@$exampleCharacterName: 대사 1
+@{{example_character_name}}: 대사 1
 
-@$exampleCharacterName: *행동 묘사*
+@{{example_character_name}}: *행동 묘사*
 
 대사 2
-$loreBlock$extraBlock''';
+{{lore_block}}{{extra_block}}''';
+
+  /// [customTemplate]이 있으면(마이페이지 > 시스템 프롬프트 설정에서 저장한 값) 그 템플릿을,
+  /// 없으면 [defaultSystemPromptTemplate]을 사용해서 자리표시자를 실제 값으로 치환한다.
+  static String buildSystemPrompt({
+    required Plot? plot,
+    required List<Character> characters,
+    required String userProfileName,
+    String additionalSystemPrompt = '',
+    String loreContext = '',
+    String? customTemplate,
+  }) {
+    final charactersBlock = characters.isEmpty
+        ? '(등록된 캐릭터가 없어요)'
+        : characters.map((c) => '- ${c.name}: ${c.description}').join('\n');
+    final exampleCharacterName = characters.isNotEmpty ? characters.first.name : '캐릭터 1';
+
+    final lore = loreContext.trim();
+    final loreBlock = lore.isEmpty ? '' : '\n\n[로어북]\n$lore';
+
+    final extra = additionalSystemPrompt.trim();
+    final extraBlock = extra.isEmpty ? '' : '\n\n[추가 지침]\n$extra';
+
+    final template = (customTemplate != null && customTemplate.trim().isNotEmpty)
+        ? customTemplate
+        : defaultSystemPromptTemplate;
+
+    return template
+        .replaceAll('{{plot_title}}', plot?.title ?? '')
+        .replaceAll('{{plot_description}}', plot?.description ?? '')
+        .replaceAll('{{characters_block}}', charactersBlock)
+        .replaceAll('{{example_character_name}}', exampleCharacterName)
+        .replaceAll('{{user_profile_name}}', userProfileName)
+        .replaceAll('{{lore_block}}', loreBlock)
+        .replaceAll('{{extra_block}}', extraBlock);
   }
 
   static List<Map<String, String>> buildHistoryMessages({

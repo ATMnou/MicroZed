@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/lorebook_repository.dart';
+import '../l10n/app_localizations.dart';
 
 /// 플롯 편집 > '로어북' 탭의 '+ 로어북 연결'에서 나오는 로어북 선택 화면.
 /// 둘러보기/최근 플레이/내 로어북 같은 탭 구분과 썸네일 이미지는 빼고,
@@ -65,6 +66,7 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: _background,
       appBar: AppBar(
@@ -80,13 +82,13 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                 autofocus: true,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 onChanged: (v) => setState(() => _query = v),
-                decoration: const InputDecoration(
-                  hintText: '로어북 제목 검색',
-                  hintStyle: TextStyle(color: Colors.white38, fontSize: 13),
+                decoration: InputDecoration(
+                  hintText: l10n.searchHintLorebook,
+                  hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
                   border: InputBorder.none,
                 ),
               )
-            : const Text('로어북 연결', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+            : Text(l10n.lorebookConnectTitle, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
         centerTitle: !_searching,
         actions: [
           IconButton(
@@ -110,7 +112,7 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                 if (summaries.isEmpty) {
                   return Center(
                     child: Text(
-                      _query.trim().isEmpty ? '아직 만든 로어북이 없어요' : '검색 결과가 없어요',
+                      _query.trim().isEmpty ? l10n.createTabNoLorebooksYet : l10n.commonNoSearchResults,
                       style: const TextStyle(color: Colors.white38, fontSize: 13),
                     ),
                   );
@@ -138,7 +140,7 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                       activeColor: _purple,
                       title: Text(summary.lorebook.title, style: const TextStyle(color: Colors.white, fontSize: 14)),
                       subtitle: Text(
-                        '대화량 ${summary.conversationCount} · 연결 플롯 ${summary.linkedPlotCount}',
+                        l10n.lorebookTileStats(summary.conversationCount, summary.linkedPlotCount),
                         style: const TextStyle(color: Colors.white38, fontSize: 12),
                       ),
                     );
@@ -160,8 +162,8 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
             ),
             child: Text(
               _selectedLorebookIds.isEmpty
-                  ? '연결 안 함 (0/${LorebookConnectScreen.maxLinks})'
-                  : '연결하기 (${_selectedLorebookIds.length}/${LorebookConnectScreen.maxLinks})',
+                  ? l10n.lorebookConnectNoneButton(LorebookConnectScreen.maxLinks)
+                  : l10n.lorebookConnectConfirmButton(_selectedLorebookIds.length, LorebookConnectScreen.maxLinks),
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
           ),

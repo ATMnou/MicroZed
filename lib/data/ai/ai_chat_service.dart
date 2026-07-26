@@ -8,6 +8,7 @@ import '../secure/api_key_store.dart';
 import 'message_format_parser.dart';
 import 'openai_compatible_client.dart';
 import 'prompt_builder.dart';
+import 'system_prompt_store.dart';
 
 /// 채팅 화면이 사용자의 메시지에 대한 AI 응답을 생성할 때 쓰는 오케스트레이터.
 /// 프롬프트 조립 → 스트리밍 요청 → 응답 파싱 → 턴/버전별 저장까지 담당한다.
@@ -19,7 +20,8 @@ class AiChatService {
         _turnRepo = ChatTurnRepository(db),
         _tokenUsageRepo = TokenUsageRepository(db),
         _lorebookRepo = LorebookRepository(db),
-        _apiKeyStore = ApiKeyStore();
+        _apiKeyStore = ApiKeyStore(),
+        _systemPromptStore = SystemPromptStore();
 
   final OpenAiCompatibleClient _client;
   final CharacterRepository _characterRepo;
@@ -28,6 +30,7 @@ class AiChatService {
   final TokenUsageRepository _tokenUsageRepo;
   final LorebookRepository _lorebookRepo;
   final ApiKeyStore _apiKeyStore;
+  final SystemPromptStore _systemPromptStore;
 
   /// 새 유저 메시지에 대한 첫 응답. 새 턴을 만들고 버전 0을 채운다.
   Future<void> generateReply({
@@ -143,6 +146,7 @@ class AiChatService {
     final history = await _turnRepo.historyBeforeTurn(sessionId, turnId);
     final conversationText = history.map((m) => m.content).join('\n');
     final loreContext = await _lorebookRepo.buildLoreContext(plotId, conversationText);
+    final customTemplate = await _systemPromptStore.read();
 
     final systemPrompt = PromptBuilder.buildSystemPrompt(
       plot: plot,
@@ -150,6 +154,7 @@ class AiChatService {
       userProfileName: userProfileName,
       additionalSystemPrompt: preset.additionalSystemPrompt,
       loreContext: loreContext,
+      customTemplate: customTemplate,
     );
     final messages = <Map<String, String>>[
       {'role': 'system', 'content': systemPrompt},

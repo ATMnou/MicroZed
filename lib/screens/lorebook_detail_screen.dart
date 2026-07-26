@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/lorebook_repository.dart';
+import '../l10n/app_localizations.dart';
 import 'lorebook_edit_screen.dart';
 import 'lorebook_plot_picker_screen.dart';
 
@@ -37,20 +38,21 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
   }
 
   Future<void> _confirmDelete() async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _cardBg,
-        title: const Text('로어북을 삭제할까요?', style: TextStyle(color: Colors.white)),
-        content: const Text('연결된 모든 플롯에 즉시 반영돼요.', style: TextStyle(color: Colors.white54)),
+        title: Text(l10n.createTabDeleteLorebookConfirmTitle, style: const TextStyle(color: Colors.white)),
+        content: Text(l10n.createTabDeleteLorebookConfirmContent, style: const TextStyle(color: Colors.white54)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('취소', style: TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('삭제', style: TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -74,8 +76,8 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
               return const Center(child: CircularProgressIndicator(color: _purple));
             }
             if (lorebook == null) {
-              return const Center(
-                child: Text('삭제된 로어북이에요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+              return Center(
+                child: Text(AppLocalizations.of(context)!.lorebookDetailDeletedMessage, style: const TextStyle(color: Colors.white38, fontSize: 13)),
               );
             }
             return Column(
@@ -99,7 +101,7 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                           final conversationCount = summary.isEmpty ? 0 : summary.first.conversationCount;
                           final linkedPlotCount = summary.isEmpty ? 0 : summary.first.linkedPlotCount;
                           return Text(
-                            '대화량 $conversationCount · 연결 플롯 $linkedPlotCount',
+                            AppLocalizations.of(context)!.lorebookTileStats(conversationCount, linkedPlotCount),
                             style: const TextStyle(color: Colors.white38, fontSize: 12),
                           );
                         },
@@ -114,7 +116,10 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.white38,
                   labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  tabs: const [Tab(text: '로어 정보'), Tab(text: '연결 플롯')],
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.lorebookInfoTabLabel),
+                    Tab(text: AppLocalizations.of(context)!.lorebookLinkedPlotsTabLabel),
+                  ],
                 ),
                 Expanded(
                   child: TabBarView(
@@ -134,6 +139,7 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
   }
 
   Widget _buildAppBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
@@ -149,7 +155,7 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                 MaterialPageRoute(builder: (_) => LorebookPlotPickerScreen(lorebookId: widget.lorebookId)),
               );
             },
-            child: const Text('플롯 연결', style: TextStyle(color: _purple, fontSize: 14, fontWeight: FontWeight.w600)),
+            child: Text(l10n.lorebookPlotConnectTabLabel, style: const TextStyle(color: _purple, fontSize: 14, fontWeight: FontWeight.w600)),
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.white, size: 22),
@@ -164,9 +170,9 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                 _confirmDelete();
               }
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'edit', child: Text('로어북 수정', style: TextStyle(color: Colors.white))),
-              PopupMenuItem(value: 'delete', child: Text('삭제', style: TextStyle(color: Colors.redAccent))),
+            itemBuilder: (context) => [
+              PopupMenuItem(value: 'edit', child: Text(l10n.lorebookDetailEditMenuItem, style: const TextStyle(color: Colors.white))),
+              PopupMenuItem(value: 'delete', child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent))),
             ],
           ),
         ],
@@ -180,8 +186,8 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
       builder: (context, snapshot) {
         final entries = snapshot.data ?? const [];
         if (entries.isEmpty) {
-          return const Center(
-            child: Text('작성된 항목이 없어요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.lorebookDetailNoEntriesMessage, style: const TextStyle(color: Colors.white38, fontSize: 13)),
           );
         }
         return ListView.separated(
@@ -236,8 +242,8 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
       builder: (context, snapshot) {
         final plots = snapshot.data ?? const [];
         if (plots.isEmpty) {
-          return const Center(
-            child: Text('연결된 플롯이 없어요', style: TextStyle(color: Colors.white38, fontSize: 13)),
+          return Center(
+            child: Text(AppLocalizations.of(context)!.lorebookDetailNoLinkedPlotsMessage, style: const TextStyle(color: Colors.white38, fontSize: 13)),
           );
         }
         return ListView.separated(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/repositories/plot_repository.dart';
+import '../l10n/app_localizations.dart';
 import 'character_detail_screen.dart';
 import 'conversation_tab.dart';
 import 'create_tab.dart';
@@ -40,11 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
           children: _tabs,
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: _buildBottomNav(context),
     );
   }
 
-  Widget _buildBottomNav() {
+  Widget _buildBottomNav(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BottomNavigationBar(
       backgroundColor: _background,
       currentIndex: _currentIndex,
@@ -53,11 +55,11 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white38,
       showUnselectedLabels: true,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-        BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: '대화'),
-        BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: '제작'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '마이페이지'),
+      items: [
+        BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navHome),
+        BottomNavigationBarItem(icon: const Icon(Icons.chat_bubble_outline), label: l10n.navChat),
+        BottomNavigationBarItem(icon: const Icon(Icons.add_circle_outline), label: l10n.navCreate),
+        BottomNavigationBarItem(icon: const Icon(Icons.person_outline), label: l10n.navMyPage),
       ],
     );
   }
@@ -111,9 +113,10 @@ class _HomeTabState extends State<_HomeTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
-        _buildTopBar(),
+        _buildTopBar(context),
         Expanded(
           child: StreamBuilder<List<PlotSummary>>(
             stream: _plotRepository.watchAll(),
@@ -122,7 +125,7 @@ class _HomeTabState extends State<_HomeTab> {
               if (plots.isEmpty) {
                 return Center(
                   child: Text(
-                    _query.trim().isEmpty ? '아직 만든 플롯이 없어요' : '검색 결과가 없어요',
+                    _query.trim().isEmpty ? l10n.homeNoPlotsYet : l10n.commonNoSearchResults,
                     style: const TextStyle(color: Colors.white38, fontSize: 13),
                   ),
                 );
@@ -161,7 +164,8 @@ class _HomeTabState extends State<_HomeTab> {
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildTopBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: _searching
@@ -174,7 +178,7 @@ class _HomeTabState extends State<_HomeTab> {
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                     onChanged: (v) => setState(() => _query = v),
                     decoration: InputDecoration(
-                      hintText: '플롯 제목, 소개, 해시태그 검색',
+                      hintText: l10n.searchHintPlot,
                       hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
                       filled: true,
                       fillColor: const Color(0xFF1E1E1E),
@@ -193,7 +197,7 @@ class _HomeTabState extends State<_HomeTab> {
                     _query = '';
                     _searchController.clear();
                   }),
-                  child: const Text('취소', style: TextStyle(color: Colors.white70, fontSize: 14)),
+                  child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white70, fontSize: 14)),
                 ),
               ],
             )

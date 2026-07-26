@@ -1,10 +1,8 @@
 # Microzed
 
+<img src="./Showcase.png">
+
 캐릭터 채팅 앱. BYOK(Bring Your Own Key) 방식으로, 사용자가 직접 발급받은 OpenAI 호환 API 키를 등록해서 사용합니다. 모든 데이터(플롯, 캐릭터, 대화, 로어북, API 키)는 로컬 기기에만 저장되고 별도 서버로 전송되지 않습니다.
-
-## BYOK가 사실은 이득인 이유
-
-<img src="./facts.png">
 
 ## 주요 기능
 
@@ -19,6 +17,12 @@
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (stable 채널)
 - Windows에서 빌드하려면 Visual Studio 2022 (Desktop development with C++ 워크로드)
 - 사용할 OpenAI 호환 엔드포인트의 API 키 (OpenAI, OpenRouter, Anthropic 호환 게이트웨이, 로컬 서버 등)
+
+## 차라리 광고 보는게 더 낫지 않냐고요?
+
+<img src="./facts.png">
+
+**아닙니다.**
 
 ## 설치 및 실행
 

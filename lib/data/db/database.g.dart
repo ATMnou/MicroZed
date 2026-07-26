@@ -666,6 +666,18 @@ class $CharactersTable extends Characters
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _aboutTextMeta = const VerificationMeta(
+    'aboutText',
+  );
+  @override
+  late final GeneratedColumn<String> aboutText = GeneratedColumn<String>(
+    'about_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -675,6 +687,7 @@ class $CharactersTable extends Characters
     imagePath,
     isRepresentative,
     sortOrder,
+    aboutText,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -737,6 +750,12 @@ class $CharactersTable extends Characters
         sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
       );
     }
+    if (data.containsKey('about_text')) {
+      context.handle(
+        _aboutTextMeta,
+        aboutText.isAcceptableOrUnknown(data['about_text']!, _aboutTextMeta),
+      );
+    }
     return context;
   }
 
@@ -774,6 +793,10 @@ class $CharactersTable extends Characters
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
       )!,
+      aboutText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}about_text'],
+      )!,
     );
   }
 
@@ -791,6 +814,10 @@ class Character extends DataClass implements Insertable<Character> {
   final String? imagePath;
   final bool isRepresentative;
   final int sortOrder;
+
+  /// 플롯 편집 > 소개 탭에서 캐릭터별로 작성하는 상세 페이지용 소개 마크다운.
+  /// AI에게는 전달되지 않고 상세 페이지 표시 전용이다(AI용 페르소나는 [description]).
+  final String aboutText;
   const Character({
     required this.id,
     required this.plotId,
@@ -799,6 +826,7 @@ class Character extends DataClass implements Insertable<Character> {
     this.imagePath,
     required this.isRepresentative,
     required this.sortOrder,
+    required this.aboutText,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -812,6 +840,7 @@ class Character extends DataClass implements Insertable<Character> {
     }
     map['is_representative'] = Variable<bool>(isRepresentative);
     map['sort_order'] = Variable<int>(sortOrder);
+    map['about_text'] = Variable<String>(aboutText);
     return map;
   }
 
@@ -826,6 +855,7 @@ class Character extends DataClass implements Insertable<Character> {
           : Value(imagePath),
       isRepresentative: Value(isRepresentative),
       sortOrder: Value(sortOrder),
+      aboutText: Value(aboutText),
     );
   }
 
@@ -842,6 +872,7 @@ class Character extends DataClass implements Insertable<Character> {
       imagePath: serializer.fromJson<String?>(json['imagePath']),
       isRepresentative: serializer.fromJson<bool>(json['isRepresentative']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      aboutText: serializer.fromJson<String>(json['aboutText']),
     );
   }
   @override
@@ -855,6 +886,7 @@ class Character extends DataClass implements Insertable<Character> {
       'imagePath': serializer.toJson<String?>(imagePath),
       'isRepresentative': serializer.toJson<bool>(isRepresentative),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'aboutText': serializer.toJson<String>(aboutText),
     };
   }
 
@@ -866,6 +898,7 @@ class Character extends DataClass implements Insertable<Character> {
     Value<String?> imagePath = const Value.absent(),
     bool? isRepresentative,
     int? sortOrder,
+    String? aboutText,
   }) => Character(
     id: id ?? this.id,
     plotId: plotId ?? this.plotId,
@@ -874,6 +907,7 @@ class Character extends DataClass implements Insertable<Character> {
     imagePath: imagePath.present ? imagePath.value : this.imagePath,
     isRepresentative: isRepresentative ?? this.isRepresentative,
     sortOrder: sortOrder ?? this.sortOrder,
+    aboutText: aboutText ?? this.aboutText,
   );
   Character copyWithCompanion(CharactersCompanion data) {
     return Character(
@@ -888,6 +922,7 @@ class Character extends DataClass implements Insertable<Character> {
           ? data.isRepresentative.value
           : this.isRepresentative,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      aboutText: data.aboutText.present ? data.aboutText.value : this.aboutText,
     );
   }
 
@@ -900,7 +935,8 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('description: $description, ')
           ..write('imagePath: $imagePath, ')
           ..write('isRepresentative: $isRepresentative, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('aboutText: $aboutText')
           ..write(')'))
         .toString();
   }
@@ -914,6 +950,7 @@ class Character extends DataClass implements Insertable<Character> {
     imagePath,
     isRepresentative,
     sortOrder,
+    aboutText,
   );
   @override
   bool operator ==(Object other) =>
@@ -925,7 +962,8 @@ class Character extends DataClass implements Insertable<Character> {
           other.description == this.description &&
           other.imagePath == this.imagePath &&
           other.isRepresentative == this.isRepresentative &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.aboutText == this.aboutText);
 }
 
 class CharactersCompanion extends UpdateCompanion<Character> {
@@ -936,6 +974,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<String?> imagePath;
   final Value<bool> isRepresentative;
   final Value<int> sortOrder;
+  final Value<String> aboutText;
   const CharactersCompanion({
     this.id = const Value.absent(),
     this.plotId = const Value.absent(),
@@ -944,6 +983,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.imagePath = const Value.absent(),
     this.isRepresentative = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.aboutText = const Value.absent(),
   });
   CharactersCompanion.insert({
     this.id = const Value.absent(),
@@ -953,6 +993,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.imagePath = const Value.absent(),
     this.isRepresentative = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.aboutText = const Value.absent(),
   }) : plotId = Value(plotId),
        name = Value(name);
   static Insertable<Character> custom({
@@ -963,6 +1004,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<String>? imagePath,
     Expression<bool>? isRepresentative,
     Expression<int>? sortOrder,
+    Expression<String>? aboutText,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -972,6 +1014,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (imagePath != null) 'image_path': imagePath,
       if (isRepresentative != null) 'is_representative': isRepresentative,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (aboutText != null) 'about_text': aboutText,
     });
   }
 
@@ -983,6 +1026,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<String?>? imagePath,
     Value<bool>? isRepresentative,
     Value<int>? sortOrder,
+    Value<String>? aboutText,
   }) {
     return CharactersCompanion(
       id: id ?? this.id,
@@ -992,6 +1036,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       imagePath: imagePath ?? this.imagePath,
       isRepresentative: isRepresentative ?? this.isRepresentative,
       sortOrder: sortOrder ?? this.sortOrder,
+      aboutText: aboutText ?? this.aboutText,
     );
   }
 
@@ -1019,6 +1064,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (aboutText.present) {
+      map['about_text'] = Variable<String>(aboutText.value);
+    }
     return map;
   }
 
@@ -1031,7 +1079,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('description: $description, ')
           ..write('imagePath: $imagePath, ')
           ..write('isRepresentative: $isRepresentative, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('aboutText: $aboutText')
           ..write(')'))
         .toString();
   }
@@ -6948,6 +6997,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<String?> imagePath,
       Value<bool> isRepresentative,
       Value<int> sortOrder,
+      Value<String> aboutText,
     });
 typedef $$CharactersTableUpdateCompanionBuilder =
     CharactersCompanion Function({
@@ -6958,6 +7008,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<String?> imagePath,
       Value<bool> isRepresentative,
       Value<int> sortOrder,
+      Value<String> aboutText,
     });
 
 final class $$CharactersTableReferences
@@ -7054,6 +7105,11 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get aboutText => $composableBuilder(
+    column: $table.aboutText,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7170,6 +7226,11 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get aboutText => $composableBuilder(
+    column: $table.aboutText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PlotsTableOrderingComposer get plotId {
     final $$PlotsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -7224,6 +7285,9 @@ class $$CharactersTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get aboutText =>
+      $composableBuilder(column: $table.aboutText, builder: (column) => column);
 
   $$PlotsTableAnnotationComposer get plotId {
     final $$PlotsTableAnnotationComposer composer = $composerBuilder(
@@ -7338,6 +7402,7 @@ class $$CharactersTableTableManager
                 Value<String?> imagePath = const Value.absent(),
                 Value<bool> isRepresentative = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String> aboutText = const Value.absent(),
               }) => CharactersCompanion(
                 id: id,
                 plotId: plotId,
@@ -7346,6 +7411,7 @@ class $$CharactersTableTableManager
                 imagePath: imagePath,
                 isRepresentative: isRepresentative,
                 sortOrder: sortOrder,
+                aboutText: aboutText,
               ),
           createCompanionCallback:
               ({
@@ -7356,6 +7422,7 @@ class $$CharactersTableTableManager
                 Value<String?> imagePath = const Value.absent(),
                 Value<bool> isRepresentative = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<String> aboutText = const Value.absent(),
               }) => CharactersCompanion.insert(
                 id: id,
                 plotId: plotId,
@@ -7364,6 +7431,7 @@ class $$CharactersTableTableManager
                 imagePath: imagePath,
                 isRepresentative: isRepresentative,
                 sortOrder: sortOrder,
+                aboutText: aboutText,
               ),
           withReferenceMapper: (p0) => p0
               .map(

@@ -35,6 +35,10 @@ class Characters extends Table {
   BoolColumn get isRepresentative =>
       boolean().withDefault(const Constant(false))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  /// 플롯 편집 > 소개 탭에서 캐릭터별로 작성하는 상세 페이지용 소개 마크다운.
+  /// AI에게는 전달되지 않고 상세 페이지 표시 전용이다(AI용 페르소나는 [description]).
+  TextColumn get aboutText => text().withDefault(const Constant(''))();
 }
 
 /// 플롯 하나에 여러 개 만들 수 있는 인트로(첫 상황) 버전. 채팅 시작 시 어떤 버전으로

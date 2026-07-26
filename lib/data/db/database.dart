@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'package:meta/meta.dart';
 
 import 'tables.dart';
 
@@ -28,10 +29,14 @@ part 'database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase._() : super(_openConnection());
 
+  /// 테스트 전용. 프로덕션 코드는 항상 [instance]를 써야 한다.
+  @visibleForTesting
+  AppDatabase.forTesting(super.executor);
+
   static final AppDatabase instance = AppDatabase._();
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,6 +72,9 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(lorebooks);
             await m.createTable(lorebookEntries);
             await m.createTable(lorebookPlotLinks);
+          }
+          if (from < 8) {
+            await m.addColumn(characters, characters.aboutText);
           }
         },
       );

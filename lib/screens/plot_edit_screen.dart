@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
+import '../data/export/plot_card_exporter.dart';
 import '../data/local_image_store.dart';
 import '../data/repositories/character_repository.dart';
 import '../data/repositories/intro_entry_repository.dart';
@@ -14,25 +16,36 @@ import 'lorebook_connect_screen.dart';
 
 /// 프롬프트 탭에서 편집 중인 캐릭터 1명 분의 폼 상태.
 class _CharacterForm {
-  _CharacterForm({this.id, String name = '', String description = '', this.imagePath})
-      : nameController = TextEditingController(text: name),
-        descController = TextEditingController(text: description);
+  _CharacterForm({
+    this.id,
+    String name = '',
+    String description = '',
+    this.imagePath,
+    String aboutText = '',
+  })  : nameController = TextEditingController(text: name),
+        descController = TextEditingController(text: description),
+        aboutController = TextEditingController(text: aboutText);
 
   factory _CharacterForm.fromCharacter(Character character) => _CharacterForm(
         id: character.id,
         name: character.name,
         description: character.description,
         imagePath: character.imagePath,
+        aboutText: character.aboutText,
       );
 
   final int? id;
   final TextEditingController nameController;
   final TextEditingController descController;
+
+  /// 상세 페이지에 표시할 캐릭터별 소개 마크다운(AI에게는 전달되지 않음).
+  final TextEditingController aboutController;
   String? imagePath;
 
   void dispose() {
     nameController.dispose();
     descController.dispose();
+    aboutController.dispose();
   }
 }
 
@@ -66,6 +79,7 @@ class _PlotEditScreenState extends State<PlotEditScreen> with SingleTickerProvid
   String? _coverImagePath;
   bool _loading = true;
   bool _saving = false;
+  bool _exporting = false;
 
   static const _background = Color(0xFF141414);
   static const _cardBg = Color(0xFF1E1E1E);
@@ -158,6 +172,7 @@ class _PlotEditScreenState extends State<PlotEditScreen> with SingleTickerProvid
           imagePath: form.imagePath,
           isRepresentative: i == 0,
           sortOrder: i,
+          aboutText: form.aboutController.text.trim(),
         );
       } else {
         await _characterRepository.update(
@@ -166,10 +181,40 @@ class _PlotEditScreenState extends State<PlotEditScreen> with SingleTickerProvid
           description: form.descController.text.trim(),
           imagePath: form.imagePath,
           sortOrder: i,
+          aboutText: form.aboutController.text.trim(),
         );
       }
     }
     if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _exportAsSillyTavernCard() async {
+    final plotId = widget.plotId;
+    if (plotId == null || _exporting) return;
+    setState(() => _exporting = true);
+    try {
+      final bytes = await PlotCardExporter(AppDatabase.instance).exportPlot(plotId);
+      final safeTitle = _titleController.text.trim().replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+      final location = await getSaveLocation(
+        suggestedName: '${safeTitle.isEmpty ? 'plot' : safeTitle}.png',
+        acceptedTypeGroups: const [
+          XTypeGroup(label: 'PNG character card', extensions: ['png']),
+        ],
+      );
+      if (location == null) return; // 취소됨
+      await File(location.path).writeAsBytes(bytes);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('SillyTavern 카드로 내보냈어요.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('내보내기에 실패했어요: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
   }
 
   @override
@@ -217,6 +262,7 @@ class _PlotEditScreenState extends State<PlotEditScreen> with SingleTickerProvid
                         onHashtagsChanged: (tags) => setState(() => _hashtags = tags),
                         coverImagePath: _coverImagePath,
                         onPickCoverImage: _pickCoverImage,
+                        characterForms: _characterForms,
                       ),
                     ],
                   ),
@@ -237,9 +283,26 @@ class _PlotEditScreenState extends State<PlotEditScreen> with SingleTickerProvid
       titleSpacing: 0,
       title: const Text('플롯', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
       actions: [
-        const IconButton(
-          icon: Icon(Icons.more_horiz, color: Colors.white, size: 22),
-          onPressed: null,
+        PopupMenuButton<String>(
+          icon: _exporting
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                )
+              : const Icon(Icons.more_horiz, color: Colors.white, size: 22),
+          color: const Color(0xFF1E1E1E),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          enabled: widget.plotId != null && !_exporting,
+          onSelected: (value) {
+            if (value == 'export_card') _exportAsSillyTavernCard();
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem(
+              value: 'export_card',
+              child: Text('SillyTavern 카드로 내보내기', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
         TextButton(
           onPressed: () {},
@@ -1215,6 +1278,7 @@ class _AboutTab extends StatefulWidget {
     required this.onHashtagsChanged,
     required this.coverImagePath,
     required this.onPickCoverImage,
+    required this.characterForms,
   });
 
   final TextEditingController shortIntroController;
@@ -1222,14 +1286,15 @@ class _AboutTab extends StatefulWidget {
   final ValueChanged<List<String>> onHashtagsChanged;
   final String? coverImagePath;
   final VoidCallback onPickCoverImage;
+  final List<_CharacterForm> characterForms;
 
   @override
   State<_AboutTab> createState() => _AboutTabState();
 }
 
 class _AboutTabState extends State<_AboutTab> {
-  bool _customIntroEnabled = true;
-  bool _characterSectionExpanded = true;
+  /// 캐릭터별 소개 섹션의 펼침 상태. 인덱스 0(첫 캐릭터)만 기본으로 펼쳐둔다.
+  final Set<int> _expandedCharacters = {0};
 
   Future<void> _addHashtag() async {
     if (widget.hashtags.length >= 10) return;
@@ -1385,77 +1450,78 @@ class _AboutTabState extends State<_AboutTab> {
         ),
         const SizedBox(height: 28),
         const Text('소개글', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: _PlotEditScreenState._cardBg,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('나만의 소개글 꾸미기', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
-                    SizedBox(height: 4),
-                    Text(
-                      '프롬프트 대신 직접 꾸민 소개글을 보여줄 수 있어요. 이미지와 마크다운으로 더 매력적으로 표현하세요.',
-                      style: TextStyle(color: Colors.white38, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-              Switch(
-                value: _customIntroEnabled,
-                activeThumbColor: Colors.white,
-                activeTrackColor: _PlotEditScreenState._purple,
-                onChanged: (v) => setState(() => _customIntroEnabled = v),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: const BorderSide(color: _PlotEditScreenState._borderGrey),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            icon: const Icon(Icons.add, size: 16),
-            label: const Text('프롬프트 가져오기', style: TextStyle(fontSize: 13)),
-          ),
-        ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 4),
         const Text(
           '상세 페이지에 표시할 내용, 이미지를 추가해 주세요.\n이 내용은 AI에게 전달되지 않아요.',
           style: TextStyle(color: Colors.white38, fontSize: 12),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
+        for (var i = 0; i < widget.characterForms.length; i++) ...[
+          _buildCharacterAboutSection(i),
+          const SizedBox(height: 12),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildCharacterAboutSection(int index) {
+    final form = widget.characterForms[index];
+    final expanded = _expandedCharacters.contains(index);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         InkWell(
-          onTap: () => setState(() => _characterSectionExpanded = !_characterSectionExpanded),
+          onTap: () => setState(() {
+            if (expanded) {
+              _expandedCharacters.remove(index);
+            } else {
+              _expandedCharacters.add(index);
+            }
+          }),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('## 캐릭터 1', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+              Expanded(
+                child: AnimatedBuilder(
+                  animation: form.nameController,
+                  builder: (context, _) {
+                    final name = form.nameController.text.trim();
+                    return Text(
+                      '## ${name.isEmpty ? '캐릭터 ${index + 1}' : name}',
+                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                    );
+                  },
+                ),
+              ),
               Icon(
-                _characterSectionExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                 color: Colors.white54,
               ),
             ],
           ),
         ),
-        if (_characterSectionExpanded) ...[
+        if (expanded) ...[
           const SizedBox(height: 8),
-          const Text(
-            '상세 페이지에 표시할 내용을 써주세요.\n이 내용은 AI에게 전달되지 않아요.',
-            style: TextStyle(color: Colors.white38, fontSize: 12),
+          TextField(
+            controller: form.aboutController,
+            maxLines: 6,
+            minLines: 3,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: '상세 페이지에 표시할 내용을 써주세요.\n이 내용은 AI에게 전달되지 않아요.',
+              hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+              filled: true,
+              fillColor: _PlotEditScreenState._background,
+              contentPadding: const EdgeInsets.all(12),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: _PlotEditScreenState._borderGrey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: _PlotEditScreenState._purple),
+              ),
+            ),
           ),
         ],
       ],

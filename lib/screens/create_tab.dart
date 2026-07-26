@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
+import '../data/import/character_card_parser.dart';
+import '../data/import/character_card_source.dart';
+import '../data/import/plot_import_service.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../data/repositories/plot_repository.dart';
 import 'lorebook_detail_screen.dart';
@@ -25,6 +28,7 @@ class _CreateTabState extends State<CreateTab> {
   bool _searching = false;
   String _query = '';
   int _activeTab = 0;
+  bool _importing = false;
 
   @override
   void initState() {
@@ -70,7 +74,17 @@ class _CreateTabState extends State<CreateTab> {
         Positioned(
           right: 16,
           bottom: 16,
-          child: _buildCreateButton(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (_activeTab == 0) ...[
+                _buildImportButton(),
+                const SizedBox(height: 12),
+              ],
+              _buildCreateButton(),
+            ],
+          ),
         ),
       ],
     );
@@ -239,6 +253,142 @@ class _CreateTabState extends State<CreateTab> {
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
       (m) => ',',
     );
+  }
+
+  Widget _buildImportButton() {
+    return OutlinedButton.icon(
+      onPressed: _importing ? null : _showImportSheet,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1E1E1E),
+        side: const BorderSide(color: Color(0xFF3A3A3A)),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      ),
+      icon: _importing
+          ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+            )
+          : const Icon(Icons.file_download_outlined, size: 18),
+      label: const Text('불러오기', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+    );
+  }
+
+  Future<void> _showImportSheet() async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'SillyTavern 카드 불러오기',
+                    style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.folder_open_outlined, color: Colors.white),
+                title: const Text('파일에서 불러오기 (PNG/JSON)', style: TextStyle(color: Colors.white)),
+                subtitle: const Text(
+                  'SillyTavern 캐릭터 카드 파일을 선택해요',
+                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop('file'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.link, color: Colors.white),
+                title: const Text('링크(URL)에서 가져오기', style: TextStyle(color: Colors.white)),
+                subtitle: const Text(
+                  '카드 파일 링크나 사이트 주소를 붙여넣어요',
+                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop('url'),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (choice == 'file') {
+      await _runImport(() => CharacterCardSource.pickFromFile());
+    } else if (choice == 'url') {
+      final url = await _askForUrl();
+      if (url != null && url.trim().isNotEmpty) {
+        await _runImport(() => CharacterCardSource.fetchFromUrl(url.trim()));
+      }
+    }
+  }
+
+  Future<String?> _askForUrl() async {
+    final controller = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: const Text('링크에서 가져오기', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'https://...',
+            hintStyle: TextStyle(color: Colors.white38),
+            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF3A3A3A))),
+            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF7A6FF0))),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('취소', style: TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+            child: const Text('가져오기', style: TextStyle(color: Color(0xFF7A6FF0))),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _runImport(Future<ParsedCharacterCard?> Function() loader) async {
+    setState(() => _importing = true);
+    try {
+      final card = await loader();
+      if (card == null) return; // 취소됨
+      final result = await PlotImportService(AppDatabase.instance).importAsNewPlot(card);
+      if (!mounted) return;
+      if (!result.hadIntro) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('이 카드엔 오프닝 메시지가 없어서 인트로 탭을 비워뒀어요. "인트로" 탭에서 직접 작성해주세요.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => PlotEditScreen(plotId: result.plotId)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('불러오기에 실패했어요: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _importing = false);
+    }
   }
 
   Widget _buildCreateButton() {

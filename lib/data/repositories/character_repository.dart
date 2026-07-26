@@ -29,6 +29,7 @@ class CharacterRepository {
     String? imagePath,
     bool isRepresentative = false,
     int sortOrder = 0,
+    String aboutText = '',
   }) {
     return _db.into(_db.characters).insert(
           CharactersCompanion.insert(
@@ -38,6 +39,7 @@ class CharacterRepository {
             imagePath: Value(imagePath),
             isRepresentative: Value(isRepresentative),
             sortOrder: Value(sortOrder),
+            aboutText: Value(aboutText),
           ),
         );
   }
@@ -48,6 +50,7 @@ class CharacterRepository {
     required String description,
     String? imagePath,
     int? sortOrder,
+    String? aboutText,
   }) {
     return (_db.update(_db.characters)..where((c) => c.id.equals(id))).write(
       CharactersCompanion(
@@ -55,6 +58,7 @@ class CharacterRepository {
         description: Value(description),
         imagePath: Value(imagePath),
         sortOrder: sortOrder != null ? Value(sortOrder) : const Value.absent(),
+        aboutText: aboutText != null ? Value(aboutText) : const Value.absent(),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:path/path.dart' as p;
@@ -24,6 +25,19 @@ class LocalImageStore {
     await imagesDir.create(recursive: true);
 
     final ext = p.extension(picked.name).isEmpty ? '.png' : p.extension(picked.name);
+    final fileName = '${prefix}_${DateTime.now().millisecondsSinceEpoch}$ext';
+    final savedFile = File(p.join(imagesDir.path, fileName));
+    await savedFile.writeAsBytes(bytes);
+    return savedFile.path;
+  }
+
+  /// 이미 메모리에 있는 이미지 바이트(가져오기 등으로 얻은 것)를 앱 저장 공간에 저장하고
+  /// 새 경로를 반환한다. [pickAndSave]와 달리 파일 선택 다이얼로그를 띄우지 않는다.
+  Future<String> saveBytes(String prefix, Uint8List bytes, {String ext = '.png'}) async {
+    final dir = await getApplicationSupportDirectory();
+    final imagesDir = Directory(p.join(dir.path, 'images'));
+    await imagesDir.create(recursive: true);
+
     final fileName = '${prefix}_${DateTime.now().millisecondsSinceEpoch}$ext';
     final savedFile = File(p.join(imagesDir.path, fileName));
     await savedFile.writeAsBytes(bytes);

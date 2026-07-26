@@ -11,6 +11,7 @@
 - OpenAI 호환 API를 이용한 실시간 스트리밍 채팅 (재시도, AI 수정, 직접 수정, 이전/다음 답변 넘기기)
 - AI 프리셋 관리 (Base URL, 모델명, Temperature, Top K, Max Tokens, Context Length, 추가 시스템 프롬프트)
 - 토큰 사용량/비용 내역 (엔드포인트가 알려주는 경우)
+- SillyTavern 호환 카드 저장/불러오기
 
 ## 요구 사항
 

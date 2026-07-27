@@ -114,7 +114,29 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get myPageSourceLinkComingSoon => 'ソースリンク(準備中)';
+  String get myPageLicensesButton => 'オープンソースライセンス';
+
+  @override
+  String get myPageSourceCodeButton => 'GitHubリポジトリ';
+
+  @override
+  String get myPageSnapshotSettingsButton => 'スナップショット設定';
+
+  @override
+  String get preferencesTitle => '環境設定';
+
+  @override
+  String get preferencesImageDisplayModeLabel => '画像の表示方法';
+
+  @override
+  String get preferencesImageDisplayModeDescription =>
+      'イントロ/スナップショット画像をチャットでどう表示するか選びます。';
+
+  @override
+  String get preferencesImageDisplaySquareOption => '正方形(今のまま)';
+
+  @override
+  String get preferencesImageDisplayFullWidthOption => '横幅いっぱいに表示';
 
   @override
   String get navHome => 'ホーム';
@@ -309,10 +331,33 @@ class AppLocalizationsJa extends AppLocalizations {
   String get chatProfileSheetAddButton => '会話プロフィールを追加';
 
   @override
+  String get chatSuggestSheetTitle => '次の会話の提案';
+
+  @override
+  String get chatSuggestUseHint => 'タップすると入力欄に入り、矢印を押すとすぐ送信します。';
+
+  @override
+  String chatSuggestFailureMessage(Object error) {
+    return '次の会話の提案生成に失敗しました: $error';
+  }
+
+  @override
+  String get chatSuggestEmptyMessage => '提案できる内容が見つかりませんでした。';
+
+  @override
+  String chatSnapshotFailureMessage(Object error) {
+    return 'スナップショットの生成に失敗しました: $error';
+  }
+
+  @override
+  String get chatSnapshotNotConfiguredMessage =>
+      'マイページ > スナップショット設定で画像生成APIキーを先に登録してください。';
+
+  @override
   String get characterDetailExportMenuItem => 'エクスポート';
 
   @override
-  String get characterDetailContinueChatButton => '続きを話す';
+  String get characterDetailContinueChatButton => '会話する';
 
   @override
   String get characterDetailCharacterSectionTitle => 'キャラクター';
@@ -743,4 +788,33 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get systemPromptResetDoneMessage => 'デフォルトに戻しました。';
+
+  @override
+  String get snapshotSettingsTitle => 'スナップショット設定';
+
+  @override
+  String get snapshotSettingsDescription =>
+      'チャットでスナップショットを押すと、今の状況をAIが要約して、下で設定したエンドポイントで画像を生成します。';
+
+  @override
+  String get snapshotSettingsProviderLabel => '画像生成エンドポイント';
+
+  @override
+  String get snapshotSettingsApiKeyLabel => 'APIキー';
+
+  @override
+  String get snapshotSettingsApiKeyHint => '選択したエンドポイントのAPIキーを入力してください';
+
+  @override
+  String get snapshotSettingsModelNameLabel => '画像モデル名';
+
+  @override
+  String get snapshotSettingsModelNameHint =>
+      '例: google/gemini-2.5-flash-image';
+
+  @override
+  String get snapshotSettingsSaveButton => '保存する';
+
+  @override
+  String get snapshotSettingsSavedMessage => '保存しました。';
 }

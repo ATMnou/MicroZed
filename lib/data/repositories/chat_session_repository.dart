@@ -71,13 +71,18 @@ class ChatSessionRepository {
     });
   }
 
+  /// 목록 미리보기용 마지막 메시지. 스냅샷/인트로 이미지는 파일 경로라 미리보기로 보여줄
+  /// 수 없으므로 건너뛰고, 그 앞의 마지막 텍스트 메시지를 찾는다.
   Future<String> _lastMessagePreview(int sessionId) async {
-    final lastMessage = await (_db.select(_db.chatMessages)
+    final recentMessages = await (_db.select(_db.chatMessages)
           ..where((m) => m.sessionId.equals(sessionId))
           ..orderBy([(m) => OrderingTerm.desc(m.createdAt)])
-          ..limit(1))
-        .getSingleOrNull();
-    return lastMessage?.content ?? '';
+          ..limit(20))
+        .get();
+    for (final message in recentMessages) {
+      if (message.senderType != MessageSender.image) return message.content;
+    }
+    return '';
   }
 
   Future<ChatSession?> getById(int id) {

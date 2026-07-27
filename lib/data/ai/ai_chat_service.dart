@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../db/database.dart';
 import '../repositories/character_repository.dart';
 import '../repositories/chat_turn_repository.dart';
@@ -124,6 +126,121 @@ class AiChatService {
       segments: segments,
       resolveCharacterId: (name) => _matchCharacter(characters, name)?.id,
     );
+  }
+
+  /// 채팅 화면의 번개 버튼. 지금까지의 대화를 보고 유저가 다음에 보낼 법한 메시지 후보를
+  /// 서로 다른 방향으로 3개 만들어 돌려준다. 대화 기록에는 아무것도 남기지 않는다.
+  Future<List<String>> generateSuggestions({
+    required int sessionId,
+    required int plotId,
+    required AiPreset preset,
+    required String userProfileName,
+  }) async {
+    final buffer = StringBuffer();
+    await for (final delta in _streamAuxCompletion(
+      sessionId: sessionId,
+      plotId: plotId,
+      preset: preset,
+      userProfileName: userProfileName,
+      instruction: '지금까지의 대화를 참고해서, $userProfileName(플레이어)가 다음에 보낼 법한 메시지 후보를 서로 다른 방향으로 3개 제안해줘. '
+          '각 후보는 채팅 입력창에 그대로 넣을 수 있는 짧은 대사/행동 묘사(1~2문장)로 써. '
+          '다른 설명 없이 다음 형식의 JSON 배열만 출력해: ["후보1", "후보2", "후보3"]',
+    )) {
+      buffer.write(delta);
+    }
+    return _parseSuggestionArray(buffer.toString());
+  }
+
+  /// 채팅 화면의 스냅샷 버튼. 지금까지의 장면을 이미지 생성 AI에게 줄 한 문단짜리
+  /// 묘사 프롬프트로 요약해서 돌려준다. 실제 이미지 생성은 [ImageGenClient]가 담당한다.
+  Future<String> summarizeSceneForSnapshot({
+    required int sessionId,
+    required int plotId,
+    required AiPreset preset,
+    required String userProfileName,
+  }) async {
+    final buffer = StringBuffer();
+    await for (final delta in _streamAuxCompletion(
+      sessionId: sessionId,
+      plotId: plotId,
+      preset: preset,
+      userProfileName: userProfileName,
+      instruction: '방금까지의 장면을 한 장의 삽화로 그린다면 어떤 모습일지, 등장인물의 외모/표정/포즈, 배경, 분위기를 이미지 생성 AI가 '
+          '이해할 수 있도록 한 문단으로 구체적으로 묘사해줘. 다른 설명이나 따옴표 없이 묘사 내용만 출력해.',
+    )) {
+      buffer.write(delta);
+    }
+    final result = buffer.toString().trim();
+    if (result.isEmpty) {
+      throw StateError('장면을 요약하지 못했어요.');
+    }
+    return result;
+  }
+
+  /// [generateSuggestions]/[summarizeSceneForSnapshot]가 공유하는 보조 호출.
+  /// 지금까지의 대화 기록 + [instruction]을 전달해 스트리밍 응답을 그대로 넘긴다.
+  Stream<String> _streamAuxCompletion({
+    required int sessionId,
+    required int plotId,
+    required AiPreset preset,
+    required String userProfileName,
+    required String instruction,
+  }) async* {
+    final apiKey = await _apiKeyStore.read(preset.id);
+    if (apiKey == null || apiKey.isEmpty) {
+      throw StateError('선택한 프리셋에 API 키가 설정되어 있지 않아요.');
+    }
+
+    final plot = await _plotRepo.getById(plotId);
+    final characters = await _characterRepo.getByPlot(plotId);
+    final history = (await _turnRepo.timelineOnce(sessionId)).map((i) => i.message).toList();
+    final conversationText = history.map((m) => m.content).join('\n');
+    final loreContext = await _lorebookRepo.buildLoreContext(plotId, conversationText);
+    final customTemplate = await _systemPromptStore.read();
+
+    final systemPrompt = PromptBuilder.buildSystemPrompt(
+      plot: plot,
+      characters: characters,
+      userProfileName: userProfileName,
+      additionalSystemPrompt: preset.additionalSystemPrompt,
+      loreContext: loreContext,
+      customTemplate: customTemplate,
+    );
+    final messages = <Map<String, String>>[
+      {'role': 'system', 'content': systemPrompt},
+      ...PromptBuilder.buildHistoryMessages(
+        history: history,
+        characters: characters,
+        contextLength: preset.contextLength,
+      ),
+      {'role': 'user', 'content': instruction},
+    ];
+
+    yield* _client.streamChatCompletion(
+      baseUrl: preset.baseUrl,
+      apiKey: apiKey,
+      model: preset.modelName,
+      messages: messages,
+      temperature: preset.temperature,
+      topK: preset.topK,
+      maxTokens: preset.maxTokens,
+    );
+  }
+
+  List<String> _parseSuggestionArray(String raw) {
+    final trimmed = raw.trim();
+    final start = trimmed.indexOf('[');
+    final end = trimmed.lastIndexOf(']');
+    if (start == -1 || end == -1 || end <= start) return const [];
+    try {
+      final decoded = jsonDecode(trimmed.substring(start, end + 1));
+      if (decoded is List) {
+        return decoded.map((e) => e.toString().trim()).where((s) => s.isNotEmpty).take(3).toList();
+      }
+    } catch (_) {
+      // 모델이 JSON 형식을 안 지켰으면 빈 목록으로 처리한다.
+    }
+    return const [];
   }
 
   Future<void> _generateVersion({

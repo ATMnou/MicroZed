@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
@@ -218,14 +218,13 @@ class _PlotEditScreenState extends State<PlotEditScreen> with SingleTickerProvid
     try {
       final bytes = await PlotCardExporter(AppDatabase.instance).exportPlot(plotId);
       final safeTitle = _titleController.text.trim().replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
-      final location = await getSaveLocation(
-        suggestedName: '${safeTitle.isEmpty ? 'plot' : safeTitle}.png',
-        acceptedTypeGroups: const [
-          XTypeGroup(label: 'PNG character card', extensions: ['png']),
-        ],
+      final path = await FilePicker.saveFile(
+        fileName: '${safeTitle.isEmpty ? 'plot' : safeTitle}.png',
+        type: FileType.custom,
+        allowedExtensions: const ['png'],
+        bytes: bytes,
       );
-      if (location == null) return; // 취소됨
-      await File(location.path).writeAsBytes(bytes);
+      if (path == null) return; // 취소됨
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.plotEditExportSuccessMessage)),

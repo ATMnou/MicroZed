@@ -509,10 +509,6 @@ class _PlotTile extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.edit_outlined, color: Colors.white54, size: 18),
-            const SizedBox(width: 16),
-            const Icon(Icons.bar_chart, color: Colors.white54, size: 18),
-            const SizedBox(width: 16),
             GestureDetector(
               onTap: () => _showOptionsMenu(context),
               child: const Icon(Icons.more_vert, color: Colors.white54, size: 18),

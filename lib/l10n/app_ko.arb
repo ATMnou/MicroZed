@@ -47,7 +47,15 @@
   "@myPageImportFailureMessage": {
     "placeholders": { "error": { "type": "Object" } }
   },
-  "myPageSourceLinkComingSoon": "소스 링크 (준비 중)",
+  "myPageLicensesButton": "오픈소스 라이선스",
+  "myPageSourceCodeButton": "GitHub 저장소",
+  "myPageSnapshotSettingsButton": "스냅샷 설정",
+
+  "preferencesTitle": "환경설정",
+  "preferencesImageDisplayModeLabel": "이미지 표시 방식",
+  "preferencesImageDisplayModeDescription": "인트로/스냅샷 이미지를 채팅에서 어떻게 보여줄지 골라요.",
+  "preferencesImageDisplaySquareOption": "정사각형 (지금처럼)",
+  "preferencesImageDisplayFullWidthOption": "가로 꽉 채우기",
 
   "navHome": "홈",
   "navChat": "대화",
@@ -120,9 +128,17 @@
   "chatSheetStartFreshFromHere": "여기서부터 새로하기",
   "chatProfileSheetTitle": "내 대화 프로필",
   "chatProfileSheetAddButton": "대화 프로필 추가",
+  "chatSuggestSheetTitle": "다음 대화 추천",
+  "chatSuggestUseHint": "탭하면 입력창에 채워지고, 화살표를 누르면 바로 보내요.",
+  "chatSuggestFailureMessage": "다음 대화 추천 생성에 실패했어요: {error}",
+  "@chatSuggestFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
+  "chatSuggestEmptyMessage": "추천할 만한 대화를 찾지 못했어요.",
+  "chatSnapshotFailureMessage": "스냅샷 생성에 실패했어요: {error}",
+  "@chatSnapshotFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
+  "chatSnapshotNotConfiguredMessage": "마이페이지 > 스냅샷 설정에서 이미지 생성 API 키를 먼저 등록해주세요.",
 
   "characterDetailExportMenuItem": "내보내기",
-  "characterDetailContinueChatButton": "이어서 대화하기",
+  "characterDetailContinueChatButton": "대화하기",
   "characterDetailCharacterSectionTitle": "캐릭터",
   "characterDetailIntroSectionTitle": "인트로",
 
@@ -283,5 +299,15 @@
   "systemPromptResetConfirmTitle": "기본값으로 되돌릴까요?",
   "systemPromptResetConfirmContent": "지금 수정한 내용은 사라지고 기본 시스템 프롬프트로 돌아가요.",
   "systemPromptSavedMessage": "저장했어요.",
-  "systemPromptResetDoneMessage": "기본값으로 되돌렸어요."
+  "systemPromptResetDoneMessage": "기본값으로 되돌렸어요.",
+
+  "snapshotSettingsTitle": "스냅샷 설정",
+  "snapshotSettingsDescription": "채팅에서 스냅샷을 누르면 지금 상황을 AI가 요약해서, 아래 설정한 엔드포인트로 이미지를 생성해요.",
+  "snapshotSettingsProviderLabel": "이미지 생성 엔드포인트",
+  "snapshotSettingsApiKeyLabel": "API 키",
+  "snapshotSettingsApiKeyHint": "선택한 엔드포인트의 API 키를 입력해주세요",
+  "snapshotSettingsModelNameLabel": "이미지 모델명",
+  "snapshotSettingsModelNameHint": "예: google/gemini-2.5-flash-image",
+  "snapshotSettingsSaveButton": "저장하기",
+  "snapshotSettingsSavedMessage": "저장했어요."
 }

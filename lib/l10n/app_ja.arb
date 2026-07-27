@@ -47,7 +47,15 @@
   "@myPageImportFailureMessage": {
     "placeholders": { "error": { "type": "Object" } }
   },
-  "myPageSourceLinkComingSoon": "ソースリンク(準備中)",
+  "myPageLicensesButton": "オープンソースライセンス",
+  "myPageSourceCodeButton": "GitHubリポジトリ",
+  "myPageSnapshotSettingsButton": "スナップショット設定",
+
+  "preferencesTitle": "環境設定",
+  "preferencesImageDisplayModeLabel": "画像の表示方法",
+  "preferencesImageDisplayModeDescription": "イントロ/スナップショット画像をチャットでどう表示するか選びます。",
+  "preferencesImageDisplaySquareOption": "正方形(今のまま)",
+  "preferencesImageDisplayFullWidthOption": "横幅いっぱいに表示",
 
   "navHome": "ホーム",
   "navChat": "会話",
@@ -120,9 +128,17 @@
   "chatSheetStartFreshFromHere": "ここから最初からやり直す",
   "chatProfileSheetTitle": "自分の会話プロフィール",
   "chatProfileSheetAddButton": "会話プロフィールを追加",
+  "chatSuggestSheetTitle": "次の会話の提案",
+  "chatSuggestUseHint": "タップすると入力欄に入り、矢印を押すとすぐ送信します。",
+  "chatSuggestFailureMessage": "次の会話の提案生成に失敗しました: {error}",
+  "@chatSuggestFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
+  "chatSuggestEmptyMessage": "提案できる内容が見つかりませんでした。",
+  "chatSnapshotFailureMessage": "スナップショットの生成に失敗しました: {error}",
+  "@chatSnapshotFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
+  "chatSnapshotNotConfiguredMessage": "マイページ > スナップショット設定で画像生成APIキーを先に登録してください。",
 
   "characterDetailExportMenuItem": "エクスポート",
-  "characterDetailContinueChatButton": "続きを話す",
+  "characterDetailContinueChatButton": "会話する",
   "characterDetailCharacterSectionTitle": "キャラクター",
   "characterDetailIntroSectionTitle": "イントロ",
 
@@ -283,5 +299,15 @@
   "systemPromptResetConfirmTitle": "デフォルトに戻しますか?",
   "systemPromptResetConfirmContent": "現在の修正内容は消え、デフォルトのシステムプロンプトに戻ります。",
   "systemPromptSavedMessage": "保存しました。",
-  "systemPromptResetDoneMessage": "デフォルトに戻しました。"
+  "systemPromptResetDoneMessage": "デフォルトに戻しました。",
+
+  "snapshotSettingsTitle": "スナップショット設定",
+  "snapshotSettingsDescription": "チャットでスナップショットを押すと、今の状況をAIが要約して、下で設定したエンドポイントで画像を生成します。",
+  "snapshotSettingsProviderLabel": "画像生成エンドポイント",
+  "snapshotSettingsApiKeyLabel": "APIキー",
+  "snapshotSettingsApiKeyHint": "選択したエンドポイントのAPIキーを入力してください",
+  "snapshotSettingsModelNameLabel": "画像モデル名",
+  "snapshotSettingsModelNameHint": "例: google/gemini-2.5-flash-image",
+  "snapshotSettingsSaveButton": "保存する",
+  "snapshotSettingsSavedMessage": "保存しました。"
 }

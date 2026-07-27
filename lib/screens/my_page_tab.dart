@@ -1,7 +1,6 @@
-import 'dart:io';
-
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../data/backup/backup_service.dart';
 import '../data/db/database.dart';
@@ -9,9 +8,13 @@ import '../data/repositories/token_usage_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
 import 'ai_preset_screen.dart';
+import 'preferences_screen.dart';
 import 'profile_list_screen.dart';
+import 'snapshot_settings_screen.dart';
 import 'system_prompt_edit_screen.dart';
 import 'token_usage_history_screen.dart';
+
+const _repoUrl = 'https://github.com/ATMnou/MicroZed';
 
 /// '마이페이지' 탭 화면.
 /// 유저 프로필 카드, 제타패스 배너, 스캐터랩 정보 등 불필요한 항목은 제거하고
@@ -52,6 +55,7 @@ class _MyPageTabState extends State<MyPageTab> {
                   _buildProfileEditButton(context),
                   _buildPresetSettingButton(context),
                   _buildSystemPromptButton(context),
+                  _buildSnapshotSettingButton(context),
                 ],
               ),
               const SizedBox(height: 16),
@@ -80,7 +84,14 @@ class _MyPageTabState extends State<MyPageTab> {
             style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const Spacer(),
-          const Icon(Icons.menu, color: Colors.white, size: 22),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PreferencesScreen()),
+              );
+            },
+            child: const Icon(Icons.settings_outlined, color: Colors.white, size: 22),
+          ),
         ],
       ),
     );
@@ -137,6 +148,24 @@ class _MyPageTabState extends State<MyPageTab> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       child: Text(l10n.systemPromptButtonLabel, style: const TextStyle(fontSize: 13)),
+    );
+  }
+
+  Widget _buildSnapshotSettingButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return OutlinedButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const SnapshotSettingsScreen()),
+        );
+      },
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Color(0xFF3A3A3A)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      child: Text(l10n.myPageSnapshotSettingsButton, style: const TextStyle(fontSize: 13)),
     );
   }
 
@@ -333,14 +362,13 @@ class _MyPageTabState extends State<MyPageTab> {
     try {
       final bytes = await _backupService.exportAll();
       final timestamp = DateTime.now().toIso8601String().replaceAll(RegExp(r'[:.]'), '-');
-      final location = await getSaveLocation(
-        suggestedName: 'microzed_backup_$timestamp.mzbackup',
-        acceptedTypeGroups: const [
-          XTypeGroup(label: 'MicroZed backup', extensions: ['mzbackup']),
-        ],
+      final path = await FilePicker.saveFile(
+        fileName: 'microzed_backup_$timestamp.mzbackup',
+        type: FileType.custom,
+        allowedExtensions: const ['mzbackup'],
+        bytes: bytes,
       );
-      if (location == null) return; // 취소됨
-      await File(location.path).writeAsBytes(bytes);
+      if (path == null) return; // 취소됨
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.myPageExportSuccessMessage)),
@@ -357,12 +385,12 @@ class _MyPageTabState extends State<MyPageTab> {
 
   Future<void> _importBackup() async {
     final l10n = AppLocalizations.of(context)!;
-    final picked = await openFile(
-      acceptedTypeGroups: const [
-        XTypeGroup(label: 'MicroZed backup', extensions: ['mzbackup']),
-      ],
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['mzbackup'],
     );
-    if (picked == null) return; // 취소됨
+    if (result == null || result.files.isEmpty) return; // 취소됨
+    final picked = result.files.single;
     if (!mounted) return;
 
     final confirmed = await showDialog<bool>(
@@ -413,12 +441,41 @@ class _MyPageTabState extends State<MyPageTab> {
 
   Widget _buildSourceLink(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        l10n.myPageSourceLinkComingSoon,
-        style: const TextStyle(color: Colors.white24, fontSize: 12),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => showLicensePage(
+            context: context,
+            applicationName: l10n.appTitle,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                const Icon(Icons.description_outlined, color: Colors.white38, size: 16),
+                const SizedBox(width: 8),
+                Text(l10n.myPageLicensesButton, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+              ],
+            ),
+          ),
+        ),
+        InkWell(
+          onTap: () => launchUrl(Uri.parse(_repoUrl), mode: LaunchMode.externalApplication),
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                const Icon(Icons.code, color: Colors.white38, size: 16),
+                const SizedBox(width: 8),
+                Text(l10n.myPageSourceCodeButton, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

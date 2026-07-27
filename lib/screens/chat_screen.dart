@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../data/ai/ai_chat_service.dart';
+import '../data/ai/image_gen_client.dart';
 import '../data/ai/message_format_parser.dart';
 import '../data/ai/prompt_builder.dart';
+import '../data/ai/snapshot_settings_store.dart';
+import '../data/chat_image_preferences.dart';
 import '../data/db/database.dart';
+import '../data/local_image_store.dart';
 import '../data/repositories/ai_preset_repository.dart';
 import '../data/repositories/character_repository.dart';
 import '../data/repositories/chat_message_repository.dart';
@@ -15,12 +19,14 @@ import '../data/repositories/chat_turn_repository.dart';
 import '../data/repositories/conversation_profile_repository.dart';
 import '../data/repositories/plot_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../main.dart';
 import '../widgets/local_avatar.dart';
 import '../widgets/start_fresh_dialog.dart';
 import '../widgets/start_fresh_from_here_dialog.dart';
 import 'ai_preset_screen.dart';
 import 'conversation_profile_edit_screen.dart';
 import 'resume_conversations_screen.dart';
+import 'snapshot_settings_screen.dart';
 
 /// 캐릭터 채팅 화면. 세션(sessionId)에 연결된 실제 메시지를
 /// 로컬 DB(Drift)에서 스트리밍하고, 유저가 입력한 메시지를 저장한다.
@@ -45,6 +51,9 @@ class _ChatScreenState extends State<ChatScreen> {
   late final ConversationProfileRepository _profileRepo;
   late final CharacterRepository _characterRepo;
   late final AiChatService _aiChatService;
+  final ImageGenClient _imageGenClient = ImageGenClient();
+  final SnapshotSettingsStore _snapshotSettingsStore = SnapshotSettingsStore();
+  final LocalImageStore _localImageStore = LocalImageStore();
 
   int? _plotId;
   String _plotTitle = '';
@@ -55,6 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
   List<Character> _characters = const [];
   bool _loading = true;
   bool _generating = false;
+  bool _snapshotting = false;
   String _streamingText = '';
 
   static const _background = Color(0xFF141414);
@@ -194,14 +204,131 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<void> _navigateVersion(ChatTurn turn, int delta, int versionCount) async {
+  /// 왼쪽 드래그/'<' 버튼은 항상 이전 버전으로. 오른쪽 드래그/'>' 버튼은 다음 버전으로
+  /// 넘기되, 이미 마지막 버전이면 [allowGenerateNext]일 때만 재시도로 새 버전을 만든다.
+  /// (인트로 턴은 AI 재시도 대상이 아니라서 false로 막는다.)
+  Future<void> _navigateVersion(ChatTurn turn, int delta, int versionCount, {required bool allowGenerateNext}) async {
     final newIndex = turn.activeVersionIndex + delta;
     if (newIndex < 0) return;
     if (newIndex >= versionCount) {
+      if (!allowGenerateNext) return;
       await _retryTurn(turn.id);
       return;
     }
     await _turnRepo.setActiveVersion(turn.id, newIndex);
+  }
+
+  /// 세션에서 유저 메시지가 하나도 나오기 전의 턴(들)은 인트로다. 이 턴들에서는
+  /// AI 수정/재시도를 숨긴다.
+  Set<int> _introTurnIds(List<ChatTimelineItem> items) {
+    final ids = <int>{};
+    var seenUserMessage = false;
+    for (final item in items) {
+      if (item.turn == null) {
+        seenUserMessage = true;
+        continue;
+      }
+      if (!seenUserMessage) ids.add(item.turn!.id);
+    }
+    return ids;
+  }
+
+  int? _lastTurnId(List<ChatTimelineItem> items) {
+    for (final item in items.reversed) {
+      if (item.turn != null) return item.turn!.id;
+    }
+    return null;
+  }
+
+  void _showSuggestionsSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final preset = _selectedPreset;
+    final plotId = _plotId;
+    if (preset == null || plotId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.chatSelectPresetFirstMessage)),
+      );
+      return;
+    }
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => _SuggestionsSheet(
+        onGenerate: () => _aiChatService.generateSuggestions(
+          sessionId: widget.sessionId,
+          plotId: plotId,
+          preset: preset,
+          userProfileName: _profileName,
+        ),
+        onUseSuggestion: (text) {
+          Navigator.of(sheetContext).pop();
+          _inputController.text = text;
+          _inputController.selection = TextSelection.collapsed(offset: text.length);
+        },
+        onSendSuggestion: (text) {
+          Navigator.of(sheetContext).pop();
+          _inputController.text = text;
+          _sendMessage();
+        },
+      ),
+    );
+  }
+
+  /// 채팅의 스냅샷 버튼. 지금까지의 장면을 AI가 묘사문으로 요약하고, 마이페이지 >
+  /// 스냅샷 설정에서 고른 엔드포인트로 이미지를 생성해서 채팅에 그림 말풍선으로 추가한다.
+  Future<void> _generateSnapshot() async {
+    final l10n = AppLocalizations.of(context)!;
+    final preset = _selectedPreset;
+    final plotId = _plotId;
+    if (preset == null || plotId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.chatSelectPresetFirstMessage)),
+      );
+      return;
+    }
+    final settings = await _snapshotSettingsStore.read();
+    if (settings == null || !settings.isConfigured) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.chatSnapshotNotConfiguredMessage),
+          action: SnackBarAction(
+            label: l10n.myPageSnapshotSettingsButton,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SnapshotSettingsScreen()),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _snapshotting = true);
+    try {
+      final prompt = await _aiChatService.summarizeSceneForSnapshot(
+        sessionId: widget.sessionId,
+        plotId: plotId,
+        preset: preset,
+        userProfileName: _profileName,
+      );
+      final bytes = await _imageGenClient.generate(settings: settings, prompt: prompt);
+      final path = await _localImageStore.saveBytes('snapshot', bytes);
+      await _messageRepo.send(sessionId: widget.sessionId, senderType: MessageSender.image, content: path);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.chatSnapshotFailureMessage(e))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _snapshotting = false);
+    }
   }
 
   Future<void> _openReviseDialog(int turnId) async {
@@ -340,6 +467,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       builder: (context, snapshot) {
                         final items = snapshot.data ?? const [];
                         final showPreview = _generating && _streamingText.isNotEmpty;
+                        final introTurnIds = _introTurnIds(items);
+                        final lastTurnId = _lastTurnId(items);
                         return ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           itemCount: items.length + (showPreview ? 1 : 0),
@@ -369,6 +498,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                   imagePath: character?.imagePath,
                                   message: _substituteUser(message.content),
                                 );
+                                final turn = item.turn;
+                                if (turn != null && turn.id == lastTurnId && !_generating) {
+                                  final isIntro = introTurnIds.contains(turn.id);
+                                  bubble = GestureDetector(
+                                    onHorizontalDragEnd: (details) {
+                                      final velocity = details.primaryVelocity ?? 0;
+                                      if (velocity > 200) {
+                                        _navigateVersion(turn, 1, item.versionCount, allowGenerateNext: !isIntro);
+                                      } else if (velocity < -200) {
+                                        _navigateVersion(turn, -1, item.versionCount, allowGenerateNext: true);
+                                      }
+                                    },
+                                    child: bubble,
+                                  );
+                                }
                               case MessageSender.narrator:
                                 bubble = _NarratorLine(text: _substituteUser(message.content));
                               case MessageSender.user:
@@ -381,8 +525,14 @@ class _ChatScreenState extends State<ChatScreen> {
                               case MessageSender.image:
                                 bubble = _IntroImageLine(imagePath: message.content);
                             }
-                            final isLastItem = index == items.length - 1 && !showPreview;
-                            final showActions = isLastItem && item.isLastBubbleOfTurn && item.turn != null && !_generating;
+                            // 스냅샷 이미지처럼 턴에 속하지 않는 말풍선이 맨 뒤에 붙을 수 있어서,
+                            // '진짜 마지막 항목'이 아니라 '마지막 턴의 마지막 말풍선'인지로 액션 줄을 판단한다.
+                            final showActions = !showPreview &&
+                                item.turn != null &&
+                                item.turn!.id == lastTurnId &&
+                                item.isLastBubbleOfTurn &&
+                                !_generating;
+                            final isIntroTurn = item.turn != null && introTurnIds.contains(item.turn!.id);
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: Column(
@@ -393,11 +543,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                     const SizedBox(height: 6),
                                     _TurnActionRow(
                                       versionCount: item.versionCount,
+                                      isIntro: isIntroTurn,
+                                      snapshotting: _snapshotting,
                                       onEdit: () => _editTurn(item.turn!),
                                       onRevise: () => _openReviseDialog(item.turn!.id),
                                       onRetry: () => _retryTurn(item.turn!.id),
-                                      onPrev: () => _navigateVersion(item.turn!, -1, item.versionCount),
-                                      onNext: () => _navigateVersion(item.turn!, 1, item.versionCount),
+                                      onPrev: () => _navigateVersion(item.turn!, -1, item.versionCount, allowGenerateNext: true),
+                                      onNext: () => _navigateVersion(item.turn!, 1, item.versionCount, allowGenerateNext: !isIntroTurn),
+                                      onSnapshot: _generateSnapshot,
                                     ),
                                   ],
                                 ],
@@ -554,7 +707,10 @@ class _ChatScreenState extends State<ChatScreen> {
       color: _background,
       child: Row(
         children: [
-          const Icon(Icons.bolt, color: Colors.white, size: 22),
+          GestureDetector(
+            onTap: () => _showSuggestionsSheet(context),
+            child: const Icon(Icons.bolt, color: Colors.white, size: 22),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Container(
@@ -1120,7 +1276,8 @@ class _CharacterMessage extends StatelessWidget {
   }
 }
 
-/// 인트로 탭에서 첨부한 이미지 한 장. 관리용일 뿐 AI에게는 전달되지 않는다.
+/// 인트로 탭에서 첨부한 이미지 한 장, 또는 스냅샷으로 생성된 이미지. 마이페이지 >
+/// 환경설정에서 고른 표시 방식(정사각형/가로 꽉 채우기)을 따른다.
 class _IntroImageLine extends StatelessWidget {
   const _IntroImageLine({required this.imagePath});
 
@@ -1130,9 +1287,16 @@ class _IntroImageLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 40),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.file(File(imagePath), width: 160, height: 160, fit: BoxFit.cover),
+      child: ValueListenableBuilder<ChatImageDisplayMode>(
+        valueListenable: chatImagePreferences,
+        builder: (context, mode, _) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: mode == ChatImageDisplayMode.fullWidth
+                ? Image.file(File(imagePath), width: double.infinity, fit: BoxFit.cover)
+                : Image.file(File(imagePath), width: 160, height: 160, fit: BoxFit.cover),
+          );
+        },
       ),
     );
   }
@@ -1217,24 +1381,31 @@ class _UserMessage extends StatelessWidget {
 }
 
 /// 세션 전체에서 가장 마지막 AI 턴 아래에만 그리는 액션 버튼 줄.
-/// 버전이 하나뿐이면 [수정/AI 수정/재시도], 재시도로 버전이 여러 개가 되면
-/// [수정/AI 수정/이전<, 다음>]으로 바뀐다. '>'를 마지막 버전에서 누르면 새로 하나 더 생성한다.
+/// 인트로 턴에서는 AI 수정/재시도/스냅샷을 숨기고 수정(+ 인트로 버전이 여럿이면 이전/다음)만 남긴다.
+/// 일반 턴은 버전이 하나뿐이면 [수정/AI 수정/스냅샷/재시도], 재시도로 버전이 여러 개가 되면
+/// [수정/AI 수정/스냅샷/이전<, 다음>]으로 바뀐다. '>'를 마지막 버전에서 누르면 새로 하나 더 생성한다.
 class _TurnActionRow extends StatelessWidget {
   const _TurnActionRow({
     required this.versionCount,
+    required this.isIntro,
+    required this.snapshotting,
     required this.onEdit,
     required this.onRevise,
     required this.onRetry,
     required this.onPrev,
     required this.onNext,
+    required this.onSnapshot,
   });
 
   final int versionCount;
+  final bool isIntro;
+  final bool snapshotting;
   final VoidCallback onEdit;
   final VoidCallback onRevise;
   final VoidCallback onRetry;
   final VoidCallback onPrev;
   final VoidCallback onNext;
+  final VoidCallback onSnapshot;
 
   @override
   Widget build(BuildContext context) {
@@ -1244,12 +1415,29 @@ class _TurnActionRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           _RoundIconButton(icon: Icons.edit_outlined, onTap: onEdit),
-          const SizedBox(width: 8),
-          _RoundIconButton(icon: Icons.auto_fix_high, onTap: onRevise),
-          const SizedBox(width: 8),
-          if (versionCount <= 1)
-            _RoundIconButton(icon: Icons.refresh, onTap: onRetry)
-          else ...[
+          if (!isIntro) ...[
+            const SizedBox(width: 8),
+            _RoundIconButton(icon: Icons.auto_fix_high, onTap: onRevise),
+            const SizedBox(width: 8),
+            if (snapshotting)
+              const SizedBox(
+                width: 32,
+                height: 32,
+                child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                ),
+              )
+            else
+              _RoundIconButton(icon: Icons.camera_alt_outlined, onTap: onSnapshot),
+          ],
+          if (versionCount <= 1) ...[
+            if (!isIntro) ...[
+              const SizedBox(width: 8),
+              _RoundIconButton(icon: Icons.refresh, onTap: onRetry),
+            ],
+          ] else ...[
+            const SizedBox(width: 8),
             _RoundIconButton(icon: Icons.chevron_left, onTap: onPrev),
             const SizedBox(width: 8),
             _RoundIconButton(icon: Icons.chevron_right, onTap: onNext),
@@ -1276,6 +1464,149 @@ class _RoundIconButton extends StatelessWidget {
         height: 32,
         decoration: const BoxDecoration(color: Color(0xFF262626), shape: BoxShape.circle),
         child: Icon(icon, color: Colors.white70, size: 16),
+      ),
+    );
+  }
+}
+
+/// 번개 버튼을 누르면 뜨는 바텀시트. 열리자마자 AI에게 다음 대화 후보 3개를 요청하고,
+/// 각 후보를 탭하면 입력창에 채워주고 화살표를 누르면 바로 전송한다.
+class _SuggestionsSheet extends StatefulWidget {
+  const _SuggestionsSheet({
+    required this.onGenerate,
+    required this.onUseSuggestion,
+    required this.onSendSuggestion,
+  });
+
+  final Future<List<String>> Function() onGenerate;
+  final void Function(String text) onUseSuggestion;
+  final void Function(String text) onSendSuggestion;
+
+  @override
+  State<_SuggestionsSheet> createState() => _SuggestionsSheetState();
+}
+
+class _SuggestionsSheetState extends State<_SuggestionsSheet> {
+  late final Future<List<String>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.onGenerate();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.bolt, color: _ChatScreenState._bubblePurple, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.chatSuggestSheetTitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.chatSuggestUseHint,
+              style: const TextStyle(color: Colors.white38, fontSize: 12),
+            ),
+            const SizedBox(height: 16),
+            FutureBuilder<List<String>>(
+              future: _future,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 32),
+                    child: Center(
+                      child: CircularProgressIndicator(color: _ChatScreenState._bubblePurple),
+                    ),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      l10n.chatSuggestFailureMessage(snapshot.error!),
+                      style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+                    ),
+                  );
+                }
+                final suggestions = snapshot.data ?? const [];
+                if (suggestions.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      l10n.chatSuggestEmptyMessage,
+                      style: const TextStyle(color: Colors.white38, fontSize: 13),
+                    ),
+                  );
+                }
+                return Column(
+                  children: suggestions
+                      .map((suggestion) => Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () => widget.onUseSuggestion(suggestion),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF262626),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        suggestion,
+                                        style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.3),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    InkWell(
+                                      borderRadius: BorderRadius.circular(15),
+                                      onTap: () => widget.onSendSuggestion(suggestion),
+                                      child: const SizedBox(
+                                        width: 30,
+                                        height: 30,
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: _ChatScreenState._bubblePurple,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

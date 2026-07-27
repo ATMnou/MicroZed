@@ -114,7 +114,29 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get myPageSourceLinkComingSoon => '소스 링크 (준비 중)';
+  String get myPageLicensesButton => '오픈소스 라이선스';
+
+  @override
+  String get myPageSourceCodeButton => 'GitHub 저장소';
+
+  @override
+  String get myPageSnapshotSettingsButton => '스냅샷 설정';
+
+  @override
+  String get preferencesTitle => '환경설정';
+
+  @override
+  String get preferencesImageDisplayModeLabel => '이미지 표시 방식';
+
+  @override
+  String get preferencesImageDisplayModeDescription =>
+      '인트로/스냅샷 이미지를 채팅에서 어떻게 보여줄지 골라요.';
+
+  @override
+  String get preferencesImageDisplaySquareOption => '정사각형 (지금처럼)';
+
+  @override
+  String get preferencesImageDisplayFullWidthOption => '가로 꽉 채우기';
 
   @override
   String get navHome => '홈';
@@ -307,10 +329,33 @@ class AppLocalizationsKo extends AppLocalizations {
   String get chatProfileSheetAddButton => '대화 프로필 추가';
 
   @override
+  String get chatSuggestSheetTitle => '다음 대화 추천';
+
+  @override
+  String get chatSuggestUseHint => '탭하면 입력창에 채워지고, 화살표를 누르면 바로 보내요.';
+
+  @override
+  String chatSuggestFailureMessage(Object error) {
+    return '다음 대화 추천 생성에 실패했어요: $error';
+  }
+
+  @override
+  String get chatSuggestEmptyMessage => '추천할 만한 대화를 찾지 못했어요.';
+
+  @override
+  String chatSnapshotFailureMessage(Object error) {
+    return '스냅샷 생성에 실패했어요: $error';
+  }
+
+  @override
+  String get chatSnapshotNotConfiguredMessage =>
+      '마이페이지 > 스냅샷 설정에서 이미지 생성 API 키를 먼저 등록해주세요.';
+
+  @override
   String get characterDetailExportMenuItem => '내보내기';
 
   @override
-  String get characterDetailContinueChatButton => '이어서 대화하기';
+  String get characterDetailContinueChatButton => '대화하기';
 
   @override
   String get characterDetailCharacterSectionTitle => '캐릭터';
@@ -742,4 +787,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get systemPromptResetDoneMessage => '기본값으로 되돌렸어요.';
+
+  @override
+  String get snapshotSettingsTitle => '스냅샷 설정';
+
+  @override
+  String get snapshotSettingsDescription =>
+      '채팅에서 스냅샷을 누르면 지금 상황을 AI가 요약해서, 아래 설정한 엔드포인트로 이미지를 생성해요.';
+
+  @override
+  String get snapshotSettingsProviderLabel => '이미지 생성 엔드포인트';
+
+  @override
+  String get snapshotSettingsApiKeyLabel => 'API 키';
+
+  @override
+  String get snapshotSettingsApiKeyHint => '선택한 엔드포인트의 API 키를 입력해주세요';
+
+  @override
+  String get snapshotSettingsModelNameLabel => '이미지 모델명';
+
+  @override
+  String get snapshotSettingsModelNameHint =>
+      '예: google/gemini-2.5-flash-image';
+
+  @override
+  String get snapshotSettingsSaveButton => '저장하기';
+
+  @override
+  String get snapshotSettingsSavedMessage => '저장했어요.';
 }

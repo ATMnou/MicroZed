@@ -47,7 +47,15 @@
   "@myPageImportFailureMessage": {
     "placeholders": { "error": { "type": "Object" } }
   },
-  "myPageSourceLinkComingSoon": "Source link (coming soon)",
+  "myPageLicensesButton": "Open-source licenses",
+  "myPageSourceCodeButton": "GitHub repository",
+  "myPageSnapshotSettingsButton": "Snapshot settings",
+
+  "preferencesTitle": "Preferences",
+  "preferencesImageDisplayModeLabel": "Image display",
+  "preferencesImageDisplayModeDescription": "Choose how intro/snapshot images are shown in chat.",
+  "preferencesImageDisplaySquareOption": "Square (current)",
+  "preferencesImageDisplayFullWidthOption": "Fill width",
 
   "navHome": "Home",
   "navChat": "Chat",
@@ -120,9 +128,17 @@
   "chatSheetStartFreshFromHere": "Start fresh from here",
   "chatProfileSheetTitle": "My chat profiles",
   "chatProfileSheetAddButton": "Add chat profile",
+  "chatSuggestSheetTitle": "Suggested replies",
+  "chatSuggestUseHint": "Tap to fill the input, or tap the arrow to send right away.",
+  "chatSuggestFailureMessage": "Failed to generate suggestions: {error}",
+  "@chatSuggestFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
+  "chatSuggestEmptyMessage": "Couldn't come up with any suggestions.",
+  "chatSnapshotFailureMessage": "Failed to generate snapshot: {error}",
+  "@chatSnapshotFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
+  "chatSnapshotNotConfiguredMessage": "Set up an image generation API key first, in My Page > Snapshot settings.",
 
   "characterDetailExportMenuItem": "Export",
-  "characterDetailContinueChatButton": "Continue chat",
+  "characterDetailContinueChatButton": "Chat",
   "characterDetailCharacterSectionTitle": "Character",
   "characterDetailIntroSectionTitle": "Intro",
 
@@ -283,5 +299,15 @@
   "systemPromptResetConfirmTitle": "Reset to default?",
   "systemPromptResetConfirmContent": "Your current edits will be discarded and the default system prompt will be restored.",
   "systemPromptSavedMessage": "Saved.",
-  "systemPromptResetDoneMessage": "Reset to default."
+  "systemPromptResetDoneMessage": "Reset to default.",
+
+  "snapshotSettingsTitle": "Snapshot settings",
+  "snapshotSettingsDescription": "When you tap snapshot in a chat, the AI summarizes the current scene and generates an image using the endpoint set up below.",
+  "snapshotSettingsProviderLabel": "Image generation endpoint",
+  "snapshotSettingsApiKeyLabel": "API key",
+  "snapshotSettingsApiKeyHint": "Enter the API key for the endpoint you chose",
+  "snapshotSettingsModelNameLabel": "Image model name",
+  "snapshotSettingsModelNameHint": "e.g. google/gemini-2.5-flash-image",
+  "snapshotSettingsSaveButton": "Save",
+  "snapshotSettingsSavedMessage": "Saved."
 }

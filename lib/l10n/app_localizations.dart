@@ -290,11 +290,53 @@ abstract class AppLocalizations {
   /// **'불러오기에 실패했어요: {error}'**
   String myPageImportFailureMessage(Object error);
 
-  /// No description provided for @myPageSourceLinkComingSoon.
+  /// No description provided for @myPageLicensesButton.
   ///
   /// In ko, this message translates to:
-  /// **'소스 링크 (준비 중)'**
-  String get myPageSourceLinkComingSoon;
+  /// **'오픈소스 라이선스'**
+  String get myPageLicensesButton;
+
+  /// No description provided for @myPageSourceCodeButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'GitHub 저장소'**
+  String get myPageSourceCodeButton;
+
+  /// No description provided for @myPageSnapshotSettingsButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'스냅샷 설정'**
+  String get myPageSnapshotSettingsButton;
+
+  /// No description provided for @preferencesTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'환경설정'**
+  String get preferencesTitle;
+
+  /// No description provided for @preferencesImageDisplayModeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 표시 방식'**
+  String get preferencesImageDisplayModeLabel;
+
+  /// No description provided for @preferencesImageDisplayModeDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'인트로/스냅샷 이미지를 채팅에서 어떻게 보여줄지 골라요.'**
+  String get preferencesImageDisplayModeDescription;
+
+  /// No description provided for @preferencesImageDisplaySquareOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'정사각형 (지금처럼)'**
+  String get preferencesImageDisplaySquareOption;
+
+  /// No description provided for @preferencesImageDisplayFullWidthOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'가로 꽉 채우기'**
+  String get preferencesImageDisplayFullWidthOption;
 
   /// No description provided for @navHome.
   ///
@@ -650,6 +692,42 @@ abstract class AppLocalizations {
   /// **'대화 프로필 추가'**
   String get chatProfileSheetAddButton;
 
+  /// No description provided for @chatSuggestSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 대화 추천'**
+  String get chatSuggestSheetTitle;
+
+  /// No description provided for @chatSuggestUseHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'탭하면 입력창에 채워지고, 화살표를 누르면 바로 보내요.'**
+  String get chatSuggestUseHint;
+
+  /// No description provided for @chatSuggestFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 대화 추천 생성에 실패했어요: {error}'**
+  String chatSuggestFailureMessage(Object error);
+
+  /// No description provided for @chatSuggestEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천할 만한 대화를 찾지 못했어요.'**
+  String get chatSuggestEmptyMessage;
+
+  /// No description provided for @chatSnapshotFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'스냅샷 생성에 실패했어요: {error}'**
+  String chatSnapshotFailureMessage(Object error);
+
+  /// No description provided for @chatSnapshotNotConfiguredMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'마이페이지 > 스냅샷 설정에서 이미지 생성 API 키를 먼저 등록해주세요.'**
+  String get chatSnapshotNotConfiguredMessage;
+
   /// No description provided for @characterDetailExportMenuItem.
   ///
   /// In ko, this message translates to:
@@ -659,7 +737,7 @@ abstract class AppLocalizations {
   /// No description provided for @characterDetailContinueChatButton.
   ///
   /// In ko, this message translates to:
-  /// **'이어서 대화하기'**
+  /// **'대화하기'**
   String get characterDetailContinueChatButton;
 
   /// No description provided for @characterDetailCharacterSectionTitle.
@@ -1429,6 +1507,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'기본값으로 되돌렸어요.'**
   String get systemPromptResetDoneMessage;
+
+  /// No description provided for @snapshotSettingsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'스냅샷 설정'**
+  String get snapshotSettingsTitle;
+
+  /// No description provided for @snapshotSettingsDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'채팅에서 스냅샷을 누르면 지금 상황을 AI가 요약해서, 아래 설정한 엔드포인트로 이미지를 생성해요.'**
+  String get snapshotSettingsDescription;
+
+  /// No description provided for @snapshotSettingsProviderLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 생성 엔드포인트'**
+  String get snapshotSettingsProviderLabel;
+
+  /// No description provided for @snapshotSettingsApiKeyLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'API 키'**
+  String get snapshotSettingsApiKeyLabel;
+
+  /// No description provided for @snapshotSettingsApiKeyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 엔드포인트의 API 키를 입력해주세요'**
+  String get snapshotSettingsApiKeyHint;
+
+  /// No description provided for @snapshotSettingsModelNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 모델명'**
+  String get snapshotSettingsModelNameLabel;
+
+  /// No description provided for @snapshotSettingsModelNameHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: google/gemini-2.5-flash-image'**
+  String get snapshotSettingsModelNameHint;
+
+  /// No description provided for @snapshotSettingsSaveButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하기'**
+  String get snapshotSettingsSaveButton;
+
+  /// No description provided for @snapshotSettingsSavedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장했어요.'**
+  String get snapshotSettingsSavedMessage;
 }
 
 class _AppLocalizationsDelegate

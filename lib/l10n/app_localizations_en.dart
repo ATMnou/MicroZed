@@ -114,7 +114,29 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get myPageSourceLinkComingSoon => 'Source link (coming soon)';
+  String get myPageLicensesButton => 'Open-source licenses';
+
+  @override
+  String get myPageSourceCodeButton => 'GitHub repository';
+
+  @override
+  String get myPageSnapshotSettingsButton => 'Snapshot settings';
+
+  @override
+  String get preferencesTitle => 'Preferences';
+
+  @override
+  String get preferencesImageDisplayModeLabel => 'Image display';
+
+  @override
+  String get preferencesImageDisplayModeDescription =>
+      'Choose how intro/snapshot images are shown in chat.';
+
+  @override
+  String get preferencesImageDisplaySquareOption => 'Square (current)';
+
+  @override
+  String get preferencesImageDisplayFullWidthOption => 'Fill width';
 
   @override
   String get navHome => 'Home';
@@ -314,10 +336,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatProfileSheetAddButton => 'Add chat profile';
 
   @override
+  String get chatSuggestSheetTitle => 'Suggested replies';
+
+  @override
+  String get chatSuggestUseHint =>
+      'Tap to fill the input, or tap the arrow to send right away.';
+
+  @override
+  String chatSuggestFailureMessage(Object error) {
+    return 'Failed to generate suggestions: $error';
+  }
+
+  @override
+  String get chatSuggestEmptyMessage =>
+      'Couldn\'t come up with any suggestions.';
+
+  @override
+  String chatSnapshotFailureMessage(Object error) {
+    return 'Failed to generate snapshot: $error';
+  }
+
+  @override
+  String get chatSnapshotNotConfiguredMessage =>
+      'Set up an image generation API key first, in My Page > Snapshot settings.';
+
+  @override
   String get characterDetailExportMenuItem => 'Export';
 
   @override
-  String get characterDetailContinueChatButton => 'Continue chat';
+  String get characterDetailContinueChatButton => 'Chat';
 
   @override
   String get characterDetailCharacterSectionTitle => 'Character';
@@ -757,4 +804,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get systemPromptResetDoneMessage => 'Reset to default.';
+
+  @override
+  String get snapshotSettingsTitle => 'Snapshot settings';
+
+  @override
+  String get snapshotSettingsDescription =>
+      'When you tap snapshot in a chat, the AI summarizes the current scene and generates an image using the endpoint set up below.';
+
+  @override
+  String get snapshotSettingsProviderLabel => 'Image generation endpoint';
+
+  @override
+  String get snapshotSettingsApiKeyLabel => 'API key';
+
+  @override
+  String get snapshotSettingsApiKeyHint =>
+      'Enter the API key for the endpoint you chose';
+
+  @override
+  String get snapshotSettingsModelNameLabel => 'Image model name';
+
+  @override
+  String get snapshotSettingsModelNameHint =>
+      'e.g. google/gemini-2.5-flash-image';
+
+  @override
+  String get snapshotSettingsSaveButton => 'Save';
+
+  @override
+  String get snapshotSettingsSavedMessage => 'Saved.';
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'data/chat_image_preferences.dart';
 import 'data/db/database.dart';
 import 'data/db/seed.dart';
 import 'l10n/app_localizations.dart';
@@ -8,11 +9,13 @@ import 'l10n/locale_controller.dart';
 import 'screens/home_screen.dart';
 
 final localeController = LocaleController();
+final chatImagePreferences = ChatImagePreferences();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await seedIfEmpty(AppDatabase.instance);
   await localeController.load();
+  await chatImagePreferences.load();
   runApp(const MyApp());
 }
 

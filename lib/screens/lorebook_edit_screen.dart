@@ -7,17 +7,21 @@ import 'lorebook_plot_picker_screen.dart';
 
 /// 항목 편집 중 상태(제목/키워드/내용 컨트롤러 + 펼침 여부).
 class _EntryForm {
-  _EntryForm({this.id, String title = '', String keywords = '', String content = ''})
-      : titleController = TextEditingController(text: title),
-        keywordsController = TextEditingController(text: keywords),
-        contentController = TextEditingController(text: content);
+  _EntryForm({
+    this.id,
+    String title = '',
+    String keywords = '',
+    String content = '',
+  }) : titleController = TextEditingController(text: title),
+       keywordsController = TextEditingController(text: keywords),
+       contentController = TextEditingController(text: content);
 
   factory _EntryForm.fromEntry(LorebookEntry entry) => _EntryForm(
-        id: entry.id,
-        title: entry.title,
-        keywords: entry.keywords,
-        content: entry.content,
-      );
+    id: entry.id,
+    title: entry.title,
+    keywords: entry.keywords,
+    content: entry.content,
+  );
 
   final int? id;
   final TextEditingController titleController;
@@ -43,7 +47,8 @@ class LorebookEditScreen extends StatefulWidget {
   State<LorebookEditScreen> createState() => _LorebookEditScreenState();
 }
 
-class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTickerProviderStateMixin {
+class _LorebookEditScreenState extends State<LorebookEditScreen>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   late final LorebookRepository _repository;
 
@@ -115,9 +120,19 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
       if (title.isEmpty && keywords.isEmpty && content.isEmpty) continue;
       if (form.id == null) {
         final newId = await _repository.addEntry(lorebookId);
-        await _repository.updateEntry(id: newId, title: title, keywords: keywords, content: content);
+        await _repository.updateEntry(
+          id: newId,
+          title: title,
+          keywords: keywords,
+          content: content,
+        );
       } else {
-        await _repository.updateEntry(id: form.id!, title: title, keywords: keywords, content: content);
+        await _repository.updateEntry(
+          id: form.id!,
+          title: title,
+          keywords: keywords,
+          content: content,
+        );
       }
     }
     if (mounted) Navigator.of(context).pop();
@@ -147,7 +162,14 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
           onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 0,
-        title: Text(l10n.lorebookEditAppBarTitle, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+        title: Text(
+          l10n.lorebookEditAppBarTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -157,9 +179,16 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
                 backgroundColor: _purple,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
-              child: Text(_isEditing ? l10n.plotEditSaveButtonEdit : l10n.lorebookEditSaveButtonCreate, style: const TextStyle(fontSize: 14)),
+              child: Text(
+                _isEditing
+                    ? l10n.plotEditSaveButtonEdit
+                    : l10n.lorebookEditSaveButtonCreate,
+                style: const TextStyle(fontSize: 14),
+              ),
             ),
           ),
         ],
@@ -169,29 +198,44 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
           indicatorSize: TabBarIndicatorSize.label,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white38,
-          labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          tabs: [Tab(text: l10n.lorebookInfoTabLabel), Tab(text: l10n.lorebookPlotConnectTabLabel)],
+          labelStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+          tabs: [
+            Tab(text: l10n.lorebookInfoTabLabel),
+            Tab(text: l10n.lorebookPlotConnectTabLabel),
+          ],
         ),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator(color: _purple))
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildLoreInfoTab(),
-                widget.lorebookId == null
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Text(
-                            l10n.lorebookEditSaveFirstMessage,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.white38, fontSize: 13),
+          : SafeArea(
+              top: false,
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildLoreInfoTab(),
+                  widget.lorebookId == null
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              l10n.lorebookEditSaveFirstMessage,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white38,
+                                fontSize: 13,
+                              ),
+                            ),
                           ),
+                        )
+                      : _PlotConnectTab(
+                          lorebookId: widget.lorebookId!,
+                          repository: _repository,
                         ),
-                      )
-                    : _PlotConnectTab(lorebookId: widget.lorebookId!, repository: _repository),
-              ],
+                ],
+              ),
             ),
     );
   }
@@ -201,7 +245,14 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(l10n.plotEditAboutSectionTitle, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(
+          l10n.plotEditAboutSectionTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 4),
         Text(
           l10n.lorebookEditIntroDescription,
@@ -210,18 +261,36 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            color: _cardBg,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _plainField(label: l10n.lorebookEditTitleFieldLabel, controller: _titleController, required: true),
+              _plainField(
+                label: l10n.lorebookEditTitleFieldLabel,
+                controller: _titleController,
+                required: true,
+              ),
               const SizedBox(height: 16),
-              _plainField(label: l10n.plotEditShortIntroLabel, controller: _shortIntroController, maxLines: 3),
+              _plainField(
+                label: l10n.plotEditShortIntroLabel,
+                controller: _shortIntroController,
+                maxLines: 3,
+              ),
             ],
           ),
         ),
         const SizedBox(height: 24),
-        Text(l10n.lorebookEditEntriesSectionTitle, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(
+          l10n.lorebookEditEntriesSectionTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 12),
         for (var i = 0; i < _entryForms.length; i++) ...[
           _buildEntryCard(i),
@@ -234,10 +303,15 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
             side: const BorderSide(color: _borderGrey),
             padding: const EdgeInsets.symmetric(vertical: 12),
             minimumSize: const Size(double.infinity, 0),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
           icon: const Icon(Icons.add, size: 16),
-          label: Text(l10n.lorebookEditAddEntryButton, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          label: Text(
+            l10n.lorebookEditAddEntryButton,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
         ),
       ],
     );
@@ -248,7 +322,10 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
     final form = _entryForms[index];
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: _cardBg,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -257,22 +334,39 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
             child: Row(
               children: [
                 Icon(
-                  form.expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  form.expanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                   color: Colors.white54,
                 ),
                 const SizedBox(width: 4),
-                Text(l10n.lorebookEditEntryCardTitle(index + 1), style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(
+                  l10n.lorebookEditEntryCardTitle(index + 1),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const Spacer(),
                 GestureDetector(
                   onTap: () => _removeEntry(index),
-                  child: const Icon(Icons.delete_outline, color: Colors.white54, size: 20),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.white54,
+                    size: 20,
+                  ),
                 ),
               ],
             ),
           ),
           if (form.expanded) ...[
             const SizedBox(height: 12),
-            _plainField(label: l10n.plotEditTitleFieldLabel, controller: form.titleController, hint: l10n.lorebookEditEntryTitleHint),
+            _plainField(
+              label: l10n.plotEditTitleFieldLabel,
+              controller: form.titleController,
+              hint: l10n.lorebookEditEntryTitleHint,
+            ),
             const SizedBox(height: 16),
             _plainField(
               label: l10n.lorebookEditKeywordsLabel,
@@ -307,8 +401,23 @@ class _LorebookEditScreenState extends State<LorebookEditScreen> with SingleTick
       children: [
         Row(
           children: [
-            if (required) const Text('*', style: TextStyle(color: _purple, fontSize: 14, fontWeight: FontWeight.bold)),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+            if (required)
+              const Text(
+                '*',
+                style: TextStyle(
+                  color: _purple,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -353,7 +462,14 @@ class _PlotConnectTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.lorebookEditConnectPlotsTitle, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            l10n.lorebookEditConnectPlotsTitle,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 4),
           Text(
             l10n.lorebookEditConnectPlotsDescription,
@@ -370,7 +486,10 @@ class _PlotConnectTab extends StatelessWidget {
                   OutlinedButton.icon(
                     onPressed: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => LorebookPlotPickerScreen(lorebookId: lorebookId)),
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              LorebookPlotPickerScreen(lorebookId: lorebookId),
+                        ),
                       );
                     },
                     style: OutlinedButton.styleFrom(
@@ -378,17 +497,31 @@ class _PlotConnectTab extends StatelessWidget {
                       side: const BorderSide(color: _borderGrey),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       minimumSize: const Size(double.infinity, 0),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     icon: const Icon(Icons.add, size: 16),
-                    label: Text(l10n.lorebookConnectButtonWithCount(linked.length), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                    label: Text(
+                      l10n.lorebookConnectButtonWithCount(linked.length),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                   if (linked.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     for (final plot in linked)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(plot.title, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                        child: Text(
+                          plot.title,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                   ],
                 ],

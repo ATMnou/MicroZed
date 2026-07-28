@@ -101,6 +101,8 @@
   "createTabEditPlotMenuItem": "Edit plot",
   "createTabDeleteLorebookConfirmTitle": "Delete this lorebook?",
   "createTabDeleteLorebookConfirmContent": "This will apply instantly to every linked plot.",
+  "createTabDeletePlotConfirmTitle": "Delete this plot?",
+  "createTabDeletePlotConfirmContent": "The plot and its conversations can't be recovered once deleted.",
 
   "chatDefaultUserName": "User",
   "chatDefaultCharacterName": "Character",
@@ -190,7 +192,6 @@
   "plotEditShortIntroLabel": "Short intro",
   "plotEditShortIntroHint": "Write a short intro to show alongside the title",
   "plotEditHashtagsLabel": "Hashtags",
-  "plotEditHashtagsDescription": "Hashtags can get you up to 10x more exposure",
   "plotEditHashtagAddButton": "Add {count}/10",
   "@plotEditHashtagAddButton": { "placeholders": { "count": { "type": "Object" } } },
   "plotEditAboutSectionTitle": "About",

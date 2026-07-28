@@ -54,14 +54,19 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
   }
 
   Future<void> _confirm() async {
-    await _repository.setLorebookLinksForPlot(widget.plotId, _selectedLorebookIds);
+    await _repository.setLorebookLinksForPlot(
+      widget.plotId,
+      _selectedLorebookIds,
+    );
     if (mounted) Navigator.of(context).pop();
   }
 
   List<LorebookSummary> _filter(List<LorebookSummary> summaries) {
     if (_query.trim().isEmpty) return summaries;
     final q = _query.trim().toLowerCase();
-    return summaries.where((s) => s.lorebook.title.toLowerCase().contains(q)).toList();
+    return summaries
+        .where((s) => s.lorebook.title.toLowerCase().contains(q))
+        .toList();
   }
 
   @override
@@ -73,7 +78,11 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: _searching
@@ -84,15 +93,29 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
                   hintText: l10n.searchHintLorebook,
-                  hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                  hintStyle: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 13,
+                  ),
                   border: InputBorder.none,
                 ),
               )
-            : Text(l10n.lorebookConnectTitle, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+            : Text(
+                l10n.lorebookConnectTitle,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
         centerTitle: !_searching,
         actions: [
           IconButton(
-            icon: Icon(_searching ? Icons.close : Icons.search, color: Colors.white, size: 22),
+            icon: Icon(
+              _searching ? Icons.close : Icons.search,
+              color: Colors.white,
+              size: 22,
+            ),
             onPressed: () => setState(() {
               _searching = !_searching;
               if (!_searching) {
@@ -112,59 +135,99 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                 if (summaries.isEmpty) {
                   return Center(
                     child: Text(
-                      _query.trim().isEmpty ? l10n.createTabNoLorebooksYet : l10n.commonNoSearchResults,
-                      style: const TextStyle(color: Colors.white38, fontSize: 13),
+                      _query.trim().isEmpty
+                          ? l10n.createTabNoLorebooksYet
+                          : l10n.commonNoSearchResults,
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 13,
+                      ),
                     ),
                   );
                 }
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   itemCount: summaries.length,
-                  separatorBuilder: (_, _) => const Divider(color: Color(0xFF2A2A2A), height: 1),
+                  separatorBuilder: (_, _) =>
+                      const Divider(color: Color(0xFF2A2A2A), height: 1),
                   itemBuilder: (context, index) {
                     final summary = summaries[index];
-                    final selected = _selectedLorebookIds.contains(summary.lorebook.id);
-                    final atCap = !selected && _selectedLorebookIds.length >= LorebookConnectScreen.maxLinks;
+                    final selected = _selectedLorebookIds.contains(
+                      summary.lorebook.id,
+                    );
+                    final atCap =
+                        !selected &&
+                        _selectedLorebookIds.length >=
+                            LorebookConnectScreen.maxLinks;
                     return CheckboxListTile(
                       value: selected,
                       onChanged: atCap
                           ? null
                           : (v) => setState(() {
-                                if (v == true) {
-                                  _selectedLorebookIds.add(summary.lorebook.id);
-                                } else {
-                                  _selectedLorebookIds.remove(summary.lorebook.id);
-                                }
-                              }),
+                              if (v == true) {
+                                _selectedLorebookIds.add(summary.lorebook.id);
+                              } else {
+                                _selectedLorebookIds.remove(
+                                  summary.lorebook.id,
+                                );
+                              }
+                            }),
                       controlAffinity: ListTileControlAffinity.leading,
                       activeColor: _purple,
-                      title: Text(summary.lorebook.title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                      title: Text(
+                        summary.lorebook.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
                       subtitle: Text(
-                        l10n.lorebookTileStats(summary.conversationCount, summary.linkedPlotCount),
-                        style: const TextStyle(color: Colors.white38, fontSize: 12),
+                        l10n.lorebookTileStats(
+                          summary.conversationCount,
+                          summary.linkedPlotCount,
+                        ),
+                        style: const TextStyle(
+                          color: Colors.white38,
+                          fontSize: 12,
+                        ),
                       ),
                     );
                   },
                 );
               },
             ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _loading ? null : _confirm,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _selectedLorebookIds.isEmpty ? const Color(0xFF3A3A3A) : _purple,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: Text(
-              _selectedLorebookIds.isEmpty
-                  ? l10n.lorebookConnectNoneButton(LorebookConnectScreen.maxLinks)
-                  : l10n.lorebookConnectConfirmButton(_selectedLorebookIds.length, LorebookConnectScreen.maxLinks),
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _loading ? null : _confirm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _selectedLorebookIds.isEmpty
+                    ? const Color(0xFF3A3A3A)
+                    : _purple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                _selectedLorebookIds.isEmpty
+                    ? l10n.lorebookConnectNoneButton(
+                        LorebookConnectScreen.maxLinks,
+                      )
+                    : l10n.lorebookConnectConfirmButton(
+                        _selectedLorebookIds.length,
+                        LorebookConnectScreen.maxLinks,
+                      ),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ),

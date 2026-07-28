@@ -542,6 +542,18 @@ abstract class AppLocalizations {
   /// **'연결된 모든 플롯에 즉시 반영돼요.'**
   String get createTabDeleteLorebookConfirmContent;
 
+  /// No description provided for @createTabDeletePlotConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯을 삭제할까요?'**
+  String get createTabDeletePlotConfirmTitle;
+
+  /// No description provided for @createTabDeletePlotConfirmContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제한 플롯과 관련 대화는 되돌릴 수 없어요.'**
+  String get createTabDeletePlotConfirmContent;
+
   /// No description provided for @chatDefaultUserName.
   ///
   /// In ko, this message translates to:

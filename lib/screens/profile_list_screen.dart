@@ -34,48 +34,64 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           AppLocalizations.of(context)!.myPageEditProfileButton,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-      body: StreamBuilder<List<ConversationProfile>>(
-        stream: _repository.watchAll(),
-        builder: (context, snapshot) {
-          final profiles = snapshot.data ?? const [];
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _AddProfileTile(onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const ConversationProfileEditScreen(profileId: null),
-                  ),
-                );
-              }),
-              const SizedBox(height: 12),
-              ...profiles.map(
-                (p) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _ProfileTile(
-                    name: p.name,
-                    imagePath: p.imagePath,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ConversationProfileEditScreen(profileId: p.id),
+      body: SafeArea(
+        top: false,
+        child: StreamBuilder<List<ConversationProfile>>(
+          stream: _repository.watchAll(),
+          builder: (context, snapshot) {
+            final profiles = snapshot.data ?? const [];
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _AddProfileTile(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ConversationProfileEditScreen(
+                          profileId: null,
                         ),
-                      );
-                    },
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                ...profiles.map(
+                  (p) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _ProfileTile(
+                      name: p.name,
+                      imagePath: p.imagePath,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ConversationProfileEditScreen(profileId: p.id),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -105,7 +121,10 @@ class _AddProfileTile extends StatelessWidget {
               child: Icon(Icons.add, color: Colors.white70, size: 20),
             ),
             const SizedBox(width: 12),
-            Text(AppLocalizations.of(context)!.chatProfileSheetAddButton, style: const TextStyle(color: Colors.white, fontSize: 14)),
+            Text(
+              AppLocalizations.of(context)!.chatProfileSheetAddButton,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
           ],
         ),
       ),
@@ -114,7 +133,11 @@ class _AddProfileTile extends StatelessWidget {
 }
 
 class _ProfileTile extends StatelessWidget {
-  const _ProfileTile({required this.name, required this.imagePath, required this.onTap});
+  const _ProfileTile({
+    required this.name,
+    required this.imagePath,
+    required this.onTap,
+  });
 
   final String name;
   final String? imagePath;
@@ -133,10 +156,17 @@ class _ProfileTile extends StatelessWidget {
           LocalAvatar(imagePath: imagePath, radius: 20),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(name, style: const TextStyle(color: Colors.white, fontSize: 14)),
+            child: Text(
+              name,
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.white54, size: 18),
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: Colors.white54,
+              size: 18,
+            ),
             onPressed: onTap,
           ),
         ],

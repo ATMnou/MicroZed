@@ -33,7 +33,9 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
   Future<void> _load() async {
     final saved = await _store.read();
     if (!mounted) return;
-    _controller.text = (saved != null && saved.trim().isNotEmpty) ? saved : PromptBuilder.defaultSystemPromptTemplate;
+    _controller.text = (saved != null && saved.trim().isNotEmpty)
+        ? saved
+        : PromptBuilder.defaultSystemPromptTemplate;
     setState(() => _loading = false);
   }
 
@@ -49,9 +51,9 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
     await _store.save(_controller.text);
     if (!mounted) return;
     setState(() => _saving = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.systemPromptSavedMessage)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.systemPromptSavedMessage)));
   }
 
   Future<void> _confirmReset() async {
@@ -60,16 +62,28 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _cardBg,
-        title: Text(l10n.systemPromptResetConfirmTitle, style: const TextStyle(color: Colors.white)),
-        content: Text(l10n.systemPromptResetConfirmContent, style: const TextStyle(color: Colors.white54)),
+        title: Text(
+          l10n.systemPromptResetConfirmTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          l10n.systemPromptResetConfirmContent,
+          style: const TextStyle(color: Colors.white54),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+            child: Text(
+              l10n.commonCancel,
+              style: const TextStyle(color: Colors.white54),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.systemPromptResetButton, style: const TextStyle(color: Colors.redAccent)),
+            child: Text(
+              l10n.systemPromptResetButton,
+              style: const TextStyle(color: Colors.redAccent),
+            ),
           ),
         ],
       ),
@@ -78,10 +92,12 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
 
     await _store.resetToDefault();
     if (!mounted) return;
-    setState(() => _controller.text = PromptBuilder.defaultSystemPromptTemplate);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.systemPromptResetDoneMessage)),
+    setState(
+      () => _controller.text = PromptBuilder.defaultSystemPromptTemplate,
     );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.systemPromptResetDoneMessage)));
   }
 
   @override
@@ -93,104 +109,150 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.systemPromptButtonLabel,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: TextButton(
               onPressed: _loading || _saving ? null : _save,
-              child: Text(l10n.commonSave, style: const TextStyle(color: _purple, fontSize: 14, fontWeight: FontWeight.w600)),
+              child: Text(
+                l10n.commonSave,
+                style: const TextStyle(
+                  color: _purple,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator(color: _purple))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: _cardBg,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          l10n.systemPromptWarning,
-                          style: const TextStyle(color: Colors.white70, fontSize: 12.5, height: 1.4),
+          : SafeArea(
+              top: false,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: _cardBg,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.warning_amber_rounded,
+                          color: Colors.amber,
+                          size: 18,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: _cardBg,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.systemPromptPlaceholderHintTitle,
-                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.systemPromptPlaceholderHintBody,
-                        style: const TextStyle(color: Colors.white38, fontSize: 11.5, height: 1.4),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _controller,
-                  maxLines: null,
-                  minLines: 16,
-                  style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.5),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: _cardBg,
-                    contentPadding: const EdgeInsets.all(12),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            l10n.systemPromptWarning,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12.5,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  onPressed: _confirmReset,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white70,
-                    side: const BorderSide(color: _borderGrey),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    minimumSize: const Size(double.infinity, 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: _cardBg,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.systemPromptPlaceholderHintTitle,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          l10n.systemPromptPlaceholderHintBody,
+                          style: const TextStyle(
+                            color: Colors.white38,
+                            fontSize: 11.5,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  icon: const Icon(Icons.restart_alt, size: 16),
-                  label: Text(l10n.systemPromptResetButton, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _controller,
+                    maxLines: null,
+                    minLines: 16,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      height: 1.5,
+                    ),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: _cardBg,
+                      contentPadding: const EdgeInsets.all(12),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: _borderGrey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: _purple),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _confirmReset,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white70,
+                      side: const BorderSide(color: _borderGrey),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      minimumSize: const Size(double.infinity, 0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(Icons.restart_alt, size: 16),
+                    label: Text(
+                      l10n.systemPromptResetButton,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }

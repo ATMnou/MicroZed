@@ -12,7 +12,8 @@ class LorebookPlotPickerScreen extends StatefulWidget {
   final int lorebookId;
 
   @override
-  State<LorebookPlotPickerScreen> createState() => _LorebookPlotPickerScreenState();
+  State<LorebookPlotPickerScreen> createState() =>
+      _LorebookPlotPickerScreenState();
 }
 
 class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
@@ -44,7 +45,10 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
   }
 
   Future<void> _confirm() async {
-    await _lorebookRepository.setPlotLinksForLorebook(widget.lorebookId, _selectedPlotIds);
+    await _lorebookRepository.setPlotLinksForLorebook(
+      widget.lorebookId,
+      _selectedPlotIds,
+    );
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -57,10 +61,21 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(l10n.lorebookPlotConnectTabLabel, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+        title: Text(
+          l10n.lorebookPlotConnectTabLabel,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         centerTitle: true,
       ),
       body: _loading
@@ -71,13 +86,20 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
                 final plots = snapshot.data ?? const [];
                 if (plots.isEmpty) {
                   return Center(
-                    child: Text(l10n.homeNoPlotsYet, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                    child: Text(
+                      l10n.homeNoPlotsYet,
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 13,
+                      ),
+                    ),
                   );
                 }
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   itemCount: plots.length,
-                  separatorBuilder: (_, _) => const Divider(color: Color(0xFF2A2A2A), height: 1),
+                  separatorBuilder: (_, _) =>
+                      const Divider(color: Color(0xFF2A2A2A), height: 1),
                   itemBuilder: (context, index) {
                     final plot = plots[index].plot;
                     final selected = _selectedPlotIds.contains(plot.id);
@@ -92,25 +114,42 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
                       }),
                       controlAffinity: ListTileControlAffinity.leading,
                       activeColor: _purple,
-                      title: Text(plot.title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                      title: Text(
+                        plot.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
                     );
                   },
                 );
               },
             ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _loading ? null : _confirm,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _purple,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _loading ? null : _confirm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _purple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                l10n.lorebookConnectButtonWithCount(_selectedPlotIds.length),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-            child: Text(l10n.lorebookConnectButtonWithCount(_selectedPlotIds.length), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           ),
         ),
       ),

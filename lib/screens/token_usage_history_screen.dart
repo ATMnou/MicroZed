@@ -10,7 +10,8 @@ class TokenUsageHistoryScreen extends StatefulWidget {
   const TokenUsageHistoryScreen({super.key});
 
   @override
-  State<TokenUsageHistoryScreen> createState() => _TokenUsageHistoryScreenState();
+  State<TokenUsageHistoryScreen> createState() =>
+      _TokenUsageHistoryScreenState();
 }
 
 class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
@@ -31,7 +32,10 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _cardBg,
-        title: Text(l10n.tokenUsageDeleteAllConfirmTitle, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          l10n.tokenUsageDeleteAllConfirmTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
         content: Text(
           l10n.tokenUsageDeleteAllConfirmContent,
           style: const TextStyle(color: Colors.white54),
@@ -39,11 +43,17 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+            child: Text(
+              l10n.commonCancel,
+              style: const TextStyle(color: Colors.white54),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
+            child: Text(
+              l10n.commonDelete,
+              style: const TextStyle(color: Colors.redAccent),
+            ),
           ),
         ],
       ),
@@ -78,41 +88,58 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.tokenUsageTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: _confirmDeleteAll,
-            child: Text(l10n.tokenUsageDeleteAllButton, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
+            child: Text(
+              l10n.tokenUsageDeleteAllButton,
+              style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+            ),
           ),
         ],
       ),
-      body: StreamBuilder<List<TokenUsageLog>>(
-        stream: _repository.watchAll(),
-        builder: (context, snapshot) {
-          final logs = snapshot.data ?? const [];
-          if (logs.isEmpty) {
-            return Center(
-              child: Text(l10n.tokenUsageEmptyMessage, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+      body: SafeArea(
+        top: false,
+        child: StreamBuilder<List<TokenUsageLog>>(
+          stream: _repository.watchAll(),
+          builder: (context, snapshot) {
+            final logs = snapshot.data ?? const [];
+            if (logs.isEmpty) {
+              return Center(
+                child: Text(
+                  l10n.tokenUsageEmptyMessage,
+                  style: const TextStyle(color: Colors.white38, fontSize: 13),
+                ),
+              );
+            }
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: logs.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              itemBuilder: (context, index) => _LogCard(
+                log: logs[index],
+                provider: _providerOf(logs[index].baseUrl),
+                formattedDate: _formatDate(logs[index].createdAt),
+                formatCost: _formatCost,
+              ),
             );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: logs.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 10),
-            itemBuilder: (context, index) => _LogCard(
-              log: logs[index],
-              provider: _providerOf(logs[index].baseUrl),
-              formattedDate: _formatDate(logs[index].createdAt),
-              formatCost: _formatCost,
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }
@@ -148,31 +175,48 @@ class _LogCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   log.modelName,
-                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Text(formattedDate, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+              Text(
+                formattedDate,
+                style: const TextStyle(color: Colors.white38, fontSize: 11),
+              ),
             ],
           ),
           const SizedBox(height: 4),
           Text(
-            AppLocalizations.of(context)!.tokenUsageProviderLabel(provider, log.presetName),
+            AppLocalizations.of(
+              context,
+            )!.tokenUsageProviderLabel(provider, log.presetName),
             style: const TextStyle(color: Colors.white54, fontSize: 12),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
               Text(
-                AppLocalizations.of(context)!.tokenUsageBreakdown(log.promptTokens, log.completionTokens, total),
+                AppLocalizations.of(context)!.tokenUsageBreakdown(
+                  log.promptTokens,
+                  log.completionTokens,
+                  total,
+                ),
                 style: const TextStyle(color: Colors.white70, fontSize: 12),
               ),
               const Spacer(),
               if (log.costUsd != null)
                 Text(
                   formatCost(log.costUsd!),
-                  style: const TextStyle(color: Color(0xFF7A6FF0), fontSize: 12, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Color(0xFF7A6FF0),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
             ],
           ),

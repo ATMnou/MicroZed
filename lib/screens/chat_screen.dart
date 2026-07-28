@@ -100,7 +100,9 @@ class _ChatScreenState extends State<ChatScreen> {
       _selectedPreset = await _presetRepo.getById(session.presetId!);
     }
     if (session.conversationProfileId != null) {
-      final profile = await _profileRepo.getById(session.conversationProfileId!);
+      final profile = await _profileRepo.getById(
+        session.conversationProfileId!,
+      );
       if (profile != null) {
         _profileId = profile.id;
         _profileName = profile.name;
@@ -114,7 +116,10 @@ class _ChatScreenState extends State<ChatScreen> {
         _profileId = defaultProfile.id;
         _profileName = defaultProfile.name;
         _profileImagePath = defaultProfile.imagePath;
-        await _sessionRepo.setConversationProfile(widget.sessionId, defaultProfile.id);
+        await _sessionRepo.setConversationProfile(
+          widget.sessionId,
+          defaultProfile.id,
+        );
       }
     }
     if (mounted) {
@@ -130,54 +135,70 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _inputController.text.trim();
     if (text.isEmpty || _generating) return;
     _inputController.clear();
-    await _messageRepo.send(sessionId: widget.sessionId, senderType: MessageSender.user, content: text);
+    await _messageRepo.send(
+      sessionId: widget.sessionId,
+      senderType: MessageSender.user,
+      content: text,
+    );
     await _generateAiReply();
   }
 
   Future<void> _generateAiReply() async {
-    await _withPreset((preset, plotId) => _aiChatService.generateReply(
-          sessionId: widget.sessionId,
-          plotId: plotId,
-          preset: preset,
-          userProfileName: _profileName,
-          onDelta: _onDelta,
-        ));
+    await _withPreset(
+      (preset, plotId) => _aiChatService.generateReply(
+        sessionId: widget.sessionId,
+        plotId: plotId,
+        preset: preset,
+        userProfileName: _profileName,
+        onDelta: _onDelta,
+      ),
+    );
   }
 
   Future<void> _retryTurn(int turnId) async {
-    await _withPreset((preset, plotId) => _aiChatService.retryReply(
-          sessionId: widget.sessionId,
-          plotId: plotId,
-          preset: preset,
-          userProfileName: _profileName,
-          turnId: turnId,
-          onDelta: _onDelta,
-        ));
+    await _withPreset(
+      (preset, plotId) => _aiChatService.retryReply(
+        sessionId: widget.sessionId,
+        plotId: plotId,
+        preset: preset,
+        userProfileName: _profileName,
+        turnId: turnId,
+        onDelta: _onDelta,
+      ),
+    );
   }
 
   Future<void> _reviseTurn(int turnId, String instruction) async {
-    await _withPreset((preset, plotId) => _aiChatService.reviseReply(
-          sessionId: widget.sessionId,
-          plotId: plotId,
-          preset: preset,
-          userProfileName: _profileName,
-          turnId: turnId,
-          instruction: instruction,
-          onDelta: _onDelta,
-        ));
+    await _withPreset(
+      (preset, plotId) => _aiChatService.reviseReply(
+        sessionId: widget.sessionId,
+        plotId: plotId,
+        preset: preset,
+        userProfileName: _profileName,
+        turnId: turnId,
+        instruction: instruction,
+        onDelta: _onDelta,
+      ),
+    );
   }
 
   void _onDelta(String accumulated) {
     if (mounted) setState(() => _streamingText = accumulated);
   }
 
-  Future<void> _withPreset(Future<void> Function(AiPreset preset, int plotId) action) async {
+  Future<void> _withPreset(
+    Future<void> Function(AiPreset preset, int plotId) action,
+  ) async {
     final preset = _selectedPreset;
     final plotId = _plotId;
     if (preset == null || plotId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.chatSelectPresetFirstMessage)),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.chatSelectPresetFirstMessage,
+            ),
+          ),
         );
       }
       return;
@@ -191,7 +212,11 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.chatGenerateFailureMessage(e))),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.chatGenerateFailureMessage(e),
+            ),
+          ),
         );
       }
     } finally {
@@ -207,7 +232,12 @@ class _ChatScreenState extends State<ChatScreen> {
   /// 왼쪽 드래그/'<' 버튼은 항상 이전 버전으로. 오른쪽 드래그/'>' 버튼은 다음 버전으로
   /// 넘기되, 이미 마지막 버전이면 [allowGenerateNext]일 때만 재시도로 새 버전을 만든다.
   /// (인트로 턴은 AI 재시도 대상이 아니라서 false로 막는다.)
-  Future<void> _navigateVersion(ChatTurn turn, int delta, int versionCount, {required bool allowGenerateNext}) async {
+  Future<void> _navigateVersion(
+    ChatTurn turn,
+    int delta,
+    int versionCount, {
+    required bool allowGenerateNext,
+  }) async {
     final newIndex = turn.activeVersionIndex + delta;
     if (newIndex < 0) return;
     if (newIndex >= versionCount) {
@@ -267,7 +297,9 @@ class _ChatScreenState extends State<ChatScreen> {
         onUseSuggestion: (text) {
           Navigator.of(sheetContext).pop();
           _inputController.text = text;
-          _inputController.selection = TextSelection.collapsed(offset: text.length);
+          _inputController.selection = TextSelection.collapsed(
+            offset: text.length,
+          );
         },
         onSendSuggestion: (text) {
           Navigator.of(sheetContext).pop();
@@ -300,7 +332,9 @@ class _ChatScreenState extends State<ChatScreen> {
             label: l10n.myPageSnapshotSettingsButton,
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SnapshotSettingsScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const SnapshotSettingsScreen(),
+                ),
               );
             },
           ),
@@ -317,9 +351,16 @@ class _ChatScreenState extends State<ChatScreen> {
         preset: preset,
         userProfileName: _profileName,
       );
-      final bytes = await _imageGenClient.generate(settings: settings, prompt: prompt);
+      final bytes = await _imageGenClient.generate(
+        settings: settings,
+        prompt: prompt,
+      );
       final path = await _localImageStore.saveBytes('snapshot', bytes);
-      await _messageRepo.send(sessionId: widget.sessionId, senderType: MessageSender.image, content: path);
+      await _messageRepo.send(
+        sessionId: widget.sessionId,
+        senderType: MessageSender.image,
+        content: path,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -338,7 +379,10 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: Text(l10n.chatReviseDialogTitle, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          l10n.chatReviseDialogTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -347,18 +391,29 @@ class _ChatScreenState extends State<ChatScreen> {
           decoration: InputDecoration(
             hintText: l10n.chatReviseDialogHint,
             hintStyle: const TextStyle(color: Colors.white38),
-            enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFF3A3A3A))),
-            focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: _bubblePurple)),
+            enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF3A3A3A)),
+            ),
+            focusedBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: _bubblePurple),
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+            child: Text(
+              l10n.commonCancel,
+              style: const TextStyle(color: Colors.white54),
+            ),
           ),
           TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: Text(l10n.chatReviseConfirmButton, style: const TextStyle(color: _bubblePurple)),
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(controller.text.trim()),
+            child: Text(
+              l10n.chatReviseConfirmButton,
+              style: const TextStyle(color: _bubblePurple),
+            ),
           ),
         ],
       ),
@@ -370,8 +425,14 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _editTurn(ChatTurn turn) async {
     final plotId = _plotId;
     if (plotId == null) return;
-    final versionMessages = await _turnRepo.getVersionMessages(turn.id, turn.activeVersionIndex);
-    final rawText = PromptBuilder.reconstructRawText(messages: versionMessages, characters: _characters);
+    final versionMessages = await _turnRepo.getVersionMessages(
+      turn.id,
+      turn.activeVersionIndex,
+    );
+    final rawText = PromptBuilder.reconstructRawText(
+      messages: versionMessages,
+      characters: _characters,
+    );
     final controller = TextEditingController(text: rawText);
     if (!mounted) return;
     final result = await showDialog<String>(
@@ -414,7 +475,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.check_circle, color: _bubblePurple),
-                    onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+                    onPressed: () =>
+                        Navigator.of(dialogContext).pop(controller.text),
                   ),
                 ],
               ),
@@ -440,7 +502,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// AI 응답에 그대로 저장된 `{{user}}` 자리표시자를 지금 대화 프로필 이름으로 바꿔서
   /// 보여준다. 프로필을 나중에 바꿔도 예전 메시지가 그 이름으로 다시 렌더링된다.
-  String _substituteUser(String content) => content.replaceAll('{{user}}', _profileName);
+  String _substituteUser(String content) =>
+      content.replaceAll('{{user}}', _profileName);
 
   @override
   void dispose() {
@@ -460,27 +523,40 @@ class _ChatScreenState extends State<ChatScreen> {
           : SafeArea(
               child: Column(
                 children: [
-                  _buildDisclaimerBanner(context),
                   Expanded(
                     child: StreamBuilder<List<ChatTimelineItem>>(
                       stream: _turnRepo.watchTimeline(widget.sessionId),
                       builder: (context, snapshot) {
                         final items = snapshot.data ?? const [];
-                        final showPreview = _generating && _streamingText.isNotEmpty;
+                        final showPreview =
+                            _generating && _streamingText.isNotEmpty;
                         final introTurnIds = _introTurnIds(items);
                         final lastTurnId = _lastTurnId(items);
                         return ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          itemCount: items.length + (showPreview ? 1 : 0),
-                          itemBuilder: (context, index) {
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          itemCount: items.length + (showPreview ? 1 : 0) + 1,
+                          itemBuilder: (context, rawIndex) {
+                            if (rawIndex == 0) {
+                              return _buildDisclaimerBanner(context);
+                            }
+                            final index = rawIndex - 1;
                             if (index >= items.length) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: _CharacterMessage(
-                                  characterName: _characters.isNotEmpty ? _characters.first.name : 'AI',
-                                  imagePath: _characters.isNotEmpty ? _characters.first.imagePath : null,
+                                  characterName: _characters.isNotEmpty
+                                      ? _characters.first.name
+                                      : 'AI',
+                                  imagePath: _characters.isNotEmpty
+                                      ? _characters.first.imagePath
+                                      : null,
                                   message: _substituteUser(
-                                    MessageFormatParser.stripSpeakerTagsForPreview(_streamingText),
+                                    MessageFormatParser.stripSpeakerTagsForPreview(
+                                      _streamingText,
+                                    ),
                                   ),
                                 ),
                               );
@@ -490,49 +566,77 @@ class _ChatScreenState extends State<ChatScreen> {
                             Widget bubble;
                             switch (message.senderType) {
                               case MessageSender.character:
-                                final character = _findCharacter(message.characterId);
+                                final character = _findCharacter(
+                                  message.characterId,
+                                );
                                 bubble = _CharacterMessage(
-                                  characterName: character?.name ??
+                                  characterName:
+                                      character?.name ??
                                       message.speakerNameOverride ??
-                                      AppLocalizations.of(context)!.chatDefaultCharacterName,
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.chatDefaultCharacterName,
                                   imagePath: character?.imagePath,
                                   message: _substituteUser(message.content),
                                 );
                                 final turn = item.turn;
-                                if (turn != null && turn.id == lastTurnId && !_generating) {
-                                  final isIntro = introTurnIds.contains(turn.id);
+                                if (turn != null &&
+                                    turn.id == lastTurnId &&
+                                    !_generating) {
+                                  final isIntro = introTurnIds.contains(
+                                    turn.id,
+                                  );
                                   bubble = GestureDetector(
                                     onHorizontalDragEnd: (details) {
-                                      final velocity = details.primaryVelocity ?? 0;
+                                      final velocity =
+                                          details.primaryVelocity ?? 0;
                                       if (velocity > 200) {
-                                        _navigateVersion(turn, 1, item.versionCount, allowGenerateNext: !isIntro);
+                                        _navigateVersion(
+                                          turn,
+                                          1,
+                                          item.versionCount,
+                                          allowGenerateNext: !isIntro,
+                                        );
                                       } else if (velocity < -200) {
-                                        _navigateVersion(turn, -1, item.versionCount, allowGenerateNext: true);
+                                        _navigateVersion(
+                                          turn,
+                                          -1,
+                                          item.versionCount,
+                                          allowGenerateNext: true,
+                                        );
                                       }
                                     },
                                     child: bubble,
                                   );
                                 }
                               case MessageSender.narrator:
-                                bubble = _NarratorLine(text: _substituteUser(message.content));
+                                bubble = _NarratorLine(
+                                  text: _substituteUser(message.content),
+                                );
                               case MessageSender.user:
                                 bubble = _UserMessage(
                                   userName: _profileName,
                                   imagePath: _profileImagePath,
                                   message: message.content,
-                                  onLongPress: () => _showUserMessageMenu(context, message),
+                                  onLongPress: () =>
+                                      _showUserMessageMenu(context, message),
                                 );
                               case MessageSender.image:
-                                bubble = _IntroImageLine(imagePath: message.content);
+                                bubble = _IntroImageLine(
+                                  imagePath: message.content,
+                                );
                             }
                             // 스냅샷 이미지처럼 턴에 속하지 않는 말풍선이 맨 뒤에 붙을 수 있어서,
                             // '진짜 마지막 항목'이 아니라 '마지막 턴의 마지막 말풍선'인지로 액션 줄을 판단한다.
-                            final showActions = !showPreview &&
+                            final showActions =
+                                !showPreview &&
                                 item.turn != null &&
                                 item.turn!.id == lastTurnId &&
                                 item.isLastBubbleOfTurn &&
                                 !_generating;
-                            final isIntroTurn = item.turn != null && introTurnIds.contains(item.turn!.id);
+                            final isIntroTurn =
+                                item.turn != null &&
+                                introTurnIds.contains(item.turn!.id);
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: Column(
@@ -546,10 +650,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                       isIntro: isIntroTurn,
                                       snapshotting: _snapshotting,
                                       onEdit: () => _editTurn(item.turn!),
-                                      onRevise: () => _openReviseDialog(item.turn!.id),
+                                      onRevise: () =>
+                                          _openReviseDialog(item.turn!.id),
                                       onRetry: () => _retryTurn(item.turn!.id),
-                                      onPrev: () => _navigateVersion(item.turn!, -1, item.versionCount, allowGenerateNext: true),
-                                      onNext: () => _navigateVersion(item.turn!, 1, item.versionCount, allowGenerateNext: !isIntroTurn),
+                                      onPrev: () => _navigateVersion(
+                                        item.turn!,
+                                        -1,
+                                        item.versionCount,
+                                        allowGenerateNext: true,
+                                      ),
+                                      onNext: () => _navigateVersion(
+                                        item.turn!,
+                                        1,
+                                        item.versionCount,
+                                        allowGenerateNext: !isIntroTurn,
+                                      ),
                                       onSnapshot: _generateSnapshot,
                                     ),
                                   ],
@@ -573,12 +688,20 @@ class _ChatScreenState extends State<ChatScreen> {
       backgroundColor: _background,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: Colors.white,
+          size: 20,
+        ),
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
         _plotTitle,
-        style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       actions: [
         GestureDetector(
@@ -594,11 +717,16 @@ class _ChatScreenState extends State<ChatScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _selectedPreset?.name ?? AppLocalizations.of(context)!.chatPresetSelectDefault,
+                  _selectedPreset?.name ??
+                      AppLocalizations.of(context)!.chatPresetSelectDefault,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 16),
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                  size: 16,
+                ),
               ],
             ),
           ),
@@ -665,13 +793,22 @@ class _ChatScreenState extends State<ChatScreen> {
               },
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 20,
+                ),
                 color: const Color(0xFF262626),
                 child: Row(
                   children: [
                     const Icon(Icons.logout, color: Colors.white70, size: 18),
                     const SizedBox(width: 8),
-                    Text(l10n.chatDrawerExitButton, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                    Text(
+                      l10n.chatDrawerExitButton,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -742,7 +879,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: _bubblePurple,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.arrow_upward, color: Colors.white, size: 20),
+              child: const Icon(
+                Icons.arrow_upward,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
         ],
@@ -779,7 +920,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(height: 16),
                 Text(
                   l10n.chatModelSheetTitle,
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -796,8 +941,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   },
                   child: Row(
                     children: [
-                      Text(l10n.chatModelSheetPresetSettingsLink, style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                      const Icon(Icons.chevron_right, color: Colors.white70, size: 16),
+                      Text(
+                        l10n.chatModelSheetPresetSettingsLink,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white70,
+                        size: 16,
+                      ),
                     ],
                   ),
                 ),
@@ -809,7 +964,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     if (presets.isEmpty) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Text(l10n.chatModelSheetNoPresets, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                        child: Text(
+                          l10n.chatModelSheetNoPresets,
+                          style: const TextStyle(
+                            color: Colors.white38,
+                            fontSize: 13,
+                          ),
+                        ),
                       );
                     }
                     return Column(
@@ -819,9 +980,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           padding: const EdgeInsets.only(bottom: 12),
                           child: GestureDetector(
                             onTap: () async {
-                              await _sessionRepo.setPreset(widget.sessionId, preset.id);
+                              await _sessionRepo.setPreset(
+                                widget.sessionId,
+                                preset.id,
+                              );
                               setState(() => _selectedPreset = preset);
-                              if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+                              if (sheetContext.mounted)
+                                Navigator.of(sheetContext).pop();
                             },
                             child: Container(
                               padding: const EdgeInsets.all(14),
@@ -829,7 +994,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 color: const Color(0xFF262626),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: selected ? _bubblePurple : Colors.transparent,
+                                  color: selected
+                                      ? _bubblePurple
+                                      : Colors.transparent,
                                   width: 1.5,
                                 ),
                               ),
@@ -837,7 +1004,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           preset.name,
@@ -850,12 +1018,20 @@ class _ChatScreenState extends State<ChatScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           preset.description,
-                                          style: const TextStyle(color: Colors.white54, fontSize: 12),
+                                          style: const TextStyle(
+                                            color: Colors.white54,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  if (selected) const Icon(Icons.check, color: Colors.white, size: 20),
+                                  if (selected)
+                                    const Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                 ],
                               ),
                             ),
@@ -909,7 +1085,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   width: 36,
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
                 _SheetActionTile(
                   icon: Icons.restart_alt,
@@ -968,14 +1147,17 @@ class _ChatScreenState extends State<ChatScreen> {
     if (plotId == null) return;
     final resumedId = await Navigator.of(context).push<int>(
       MaterialPageRoute(
-        builder: (_) => ResumeConversationsScreen(plotId: plotId, currentSessionId: widget.sessionId),
+        builder: (_) => ResumeConversationsScreen(
+          plotId: plotId,
+          currentSessionId: widget.sessionId,
+        ),
       ),
     );
     if (resumedId == null || !context.mounted) return;
     Navigator.of(context).pop();
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ChatScreen(sessionId: resumedId)),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => ChatScreen(sessionId: resumedId)));
   }
 
   void _showConversationProfileSheet(BuildContext context) {
@@ -1007,14 +1189,22 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(height: 16),
                 Text(
                   l10n.chatProfileSheetTitle,
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 InkWell(
                   onTap: () {
                     Navigator.of(sheetContext).pop();
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ConversationProfileEditScreen(profileId: null)),
+                      MaterialPageRoute(
+                        builder: (_) => const ConversationProfileEditScreen(
+                          profileId: null,
+                        ),
+                      ),
                     );
                   },
                   child: Container(
@@ -1028,7 +1218,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       children: [
                         const Icon(Icons.add, color: Colors.white70, size: 20),
                         const SizedBox(width: 12),
-                        Text(l10n.chatProfileSheetAddButton, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                        Text(
+                          l10n.chatProfileSheetAddButton,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1047,21 +1243,31 @@ class _ChatScreenState extends State<ChatScreen> {
                           final selected = profile.id == _profileId;
                           return InkWell(
                             onTap: () async {
-                              await _sessionRepo.setConversationProfile(widget.sessionId, profile.id);
+                              await _sessionRepo.setConversationProfile(
+                                widget.sessionId,
+                                profile.id,
+                              );
                               setState(() {
                                 _profileId = profile.id;
                                 _profileName = profile.name;
                                 _profileImagePath = profile.imagePath;
                               });
-                              if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+                              if (sheetContext.mounted)
+                                Navigator.of(sheetContext).pop();
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 4,
+                              ),
                               child: Row(
                                 children: [
                                   Stack(
                                     children: [
-                                      LocalAvatar(imagePath: profile.imagePath, radius: 20),
+                                      LocalAvatar(
+                                        imagePath: profile.imagePath,
+                                        radius: 20,
+                                      ),
                                       if (selected)
                                         Positioned(
                                           right: 0,
@@ -1073,7 +1279,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                               color: _bubblePurple,
                                               shape: BoxShape.circle,
                                             ),
-                                            child: const Icon(Icons.check, color: Colors.white, size: 11),
+                                            child: const Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 11,
+                                            ),
                                           ),
                                         ),
                                     ],
@@ -1082,16 +1292,26 @@ class _ChatScreenState extends State<ChatScreen> {
                                   Expanded(
                                     child: Text(
                                       profile.name,
-                                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.edit_outlined, color: Colors.white54, size: 18),
+                                    icon: const Icon(
+                                      Icons.edit_outlined,
+                                      color: Colors.white54,
+                                      size: 18,
+                                    ),
                                     onPressed: () {
                                       Navigator.of(sheetContext).pop();
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
-                                          builder: (_) => ConversationProfileEditScreen(profileId: profile.id),
+                                          builder: (_) =>
+                                              ConversationProfileEditScreen(
+                                                profileId: profile.id,
+                                              ),
                                         ),
                                       );
                                     },
@@ -1141,19 +1361,36 @@ class _DrawerMenuItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
-                    Text(subtitle!, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                    Text(
+                      subtitle!,
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ],
               ),
             ),
             if (trailingText != null) ...[
-              Text(trailingText!, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+              Text(
+                trailingText!,
+                style: const TextStyle(color: Colors.white70, fontSize: 13),
+              ),
               const SizedBox(width: 4),
             ],
-            if (showChevron) const Icon(Icons.chevron_right, color: Colors.white38, size: 18),
+            if (showChevron)
+              const Icon(Icons.chevron_right, color: Colors.white38, size: 18),
           ],
         ),
       ),
@@ -1217,10 +1454,15 @@ class _FormattedMessageText extends StatelessWidget {
       if (match.start > last) {
         spans.add(TextSpan(text: content.substring(last, match.start)));
       }
-      spans.add(TextSpan(
-        text: match.group(1),
-        style: style.copyWith(fontStyle: FontStyle.italic, color: style.color?.withValues(alpha: 0.7)),
-      ));
+      spans.add(
+        TextSpan(
+          text: match.group(1),
+          style: style.copyWith(
+            fontStyle: FontStyle.italic,
+            color: style.color?.withValues(alpha: 0.7),
+          ),
+        ),
+      );
       last = match.end;
     }
     if (last < content.length) {
@@ -1258,7 +1500,10 @@ class _CharacterMessage extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: _ChatScreenState._bubbleGrey,
                   borderRadius: BorderRadius.circular(16),
@@ -1293,8 +1538,17 @@ class _IntroImageLine extends StatelessWidget {
           return ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: mode == ChatImageDisplayMode.fullWidth
-                ? Image.file(File(imagePath), width: double.infinity, fit: BoxFit.cover)
-                : Image.file(File(imagePath), width: 160, height: 160, fit: BoxFit.cover),
+                ? Image.file(
+                    File(imagePath),
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
+                : Image.file(
+                    File(imagePath),
+                    width: 160,
+                    height: 160,
+                    fit: BoxFit.cover,
+                  ),
           );
         },
       ),
@@ -1359,7 +1613,10 @@ class _UserMessage extends StatelessWidget {
                 onLongPress: onLongPress,
                 onSecondaryTap: onLongPress,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: _ChatScreenState._bubblePurple,
                     borderRadius: BorderRadius.circular(16),
@@ -1425,11 +1682,17 @@ class _TurnActionRow extends StatelessWidget {
                 height: 32,
                 child: Padding(
                   padding: EdgeInsets.all(8),
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white70,
+                  ),
                 ),
               )
             else
-              _RoundIconButton(icon: Icons.camera_alt_outlined, onTap: onSnapshot),
+              _RoundIconButton(
+                icon: Icons.camera_alt_outlined,
+                onTap: onSnapshot,
+              ),
           ],
           if (versionCount <= 1) ...[
             if (!isIntro) ...[
@@ -1462,7 +1725,10 @@ class _RoundIconButton extends StatelessWidget {
       child: Container(
         width: 32,
         height: 32,
-        decoration: const BoxDecoration(color: Color(0xFF262626), shape: BoxShape.circle),
+        decoration: const BoxDecoration(
+          color: Color(0xFF262626),
+          shape: BoxShape.circle,
+        ),
         child: Icon(icon, color: Colors.white70, size: 16),
       ),
     );
@@ -1509,17 +1775,28 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
               child: Container(
                 width: 36,
                 height: 4,
-                decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(Icons.bolt, color: _ChatScreenState._bubblePurple, size: 20),
+                const Icon(
+                  Icons.bolt,
+                  color: _ChatScreenState._bubblePurple,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   l10n.chatSuggestSheetTitle,
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -1536,7 +1813,9 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 32),
                     child: Center(
-                      child: CircularProgressIndicator(color: _ChatScreenState._bubblePurple),
+                      child: CircularProgressIndicator(
+                        color: _ChatScreenState._bubblePurple,
+                      ),
                     ),
                   );
                 }
@@ -1545,7 +1824,10 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       l10n.chatSuggestFailureMessage(snapshot.error!),
-                      style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+                      style: const TextStyle(
+                        color: Colors.redAccent,
+                        fontSize: 13,
+                      ),
                     ),
                   );
                 }
@@ -1555,52 +1837,69 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       l10n.chatSuggestEmptyMessage,
-                      style: const TextStyle(color: Colors.white38, fontSize: 13),
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 13,
+                      ),
                     ),
                   );
                 }
                 return Column(
                   children: suggestions
-                      .map((suggestion) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              onTap: () => widget.onUseSuggestion(suggestion),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF262626),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        suggestion,
-                                        style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.3),
+                      .map(
+                        (suggestion) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () => widget.onUseSuggestion(suggestion),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF262626),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      suggestion,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        height: 1.3,
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
-                                    InkWell(
-                                      borderRadius: BorderRadius.circular(15),
-                                      onTap: () => widget.onSendSuggestion(suggestion),
-                                      child: const SizedBox(
-                                        width: 30,
-                                        height: 30,
-                                        child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            color: _ChatScreenState._bubblePurple,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(15),
+                                    onTap: () =>
+                                        widget.onSendSuggestion(suggestion),
+                                    child: const SizedBox(
+                                      width: 30,
+                                      height: 30,
+                                      child: DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          color: _ChatScreenState._bubblePurple,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.arrow_forward,
+                                          color: Colors.white,
+                                          size: 16,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ))
+                          ),
+                        ),
+                      )
                       .toList(),
                 );
               },

@@ -15,10 +15,12 @@ class ConversationProfileEditScreen extends StatefulWidget {
   final int? profileId;
 
   @override
-  State<ConversationProfileEditScreen> createState() => _ConversationProfileEditScreenState();
+  State<ConversationProfileEditScreen> createState() =>
+      _ConversationProfileEditScreenState();
 }
 
-class _ConversationProfileEditScreenState extends State<ConversationProfileEditScreen> {
+class _ConversationProfileEditScreenState
+    extends State<ConversationProfileEditScreen> {
   late final ConversationProfileRepository _repository;
   final _imageStore = LocalImageStore();
   final _nameController = TextEditingController();
@@ -92,18 +94,30 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.myPageEditProfileButton,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
         actions: [
           if (_isEditing)
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.white, size: 22),
+              icon: const Icon(
+                Icons.delete_outline,
+                color: Colors.white,
+                size: 22,
+              ),
               onPressed: _delete,
             ),
         ],
@@ -125,8 +139,15 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                           child: Container(
                             width: 24,
                             height: 24,
-                            decoration: const BoxDecoration(color: _purple, shape: BoxShape.circle),
-                            child: const Icon(Icons.edit, color: Colors.white, size: 13),
+                            decoration: const BoxDecoration(
+                              color: _purple,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 13,
+                            ),
                           ),
                         ),
                       ],
@@ -136,9 +157,22 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                 const SizedBox(height: 24),
                 Row(
                   children: [
-                    Text(l10n.plotEditNameFieldLabel, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                    Text(
+                      l10n.plotEditNameFieldLabel,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    Text(l10n.profileEditNameDescription, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                    Text(
+                      l10n.profileEditNameDescription,
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -160,7 +194,14 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text(l10n.profileEditDescriptionLabel, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                Text(
+                  l10n.profileEditDescriptionLabel,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _descController,
@@ -181,7 +222,14 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text(l10n.profileEditDefaultSectionTitle, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(
+                  l10n.profileEditDefaultSectionTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(14),
@@ -195,9 +243,21 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.profileEditApplyDefaultTitle, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                            Text(
+                              l10n.profileEditApplyDefaultTitle,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                              ),
+                            ),
                             const SizedBox(height: 4),
-                            Text(l10n.profileEditApplyDefaultDescription, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                            Text(
+                              l10n.profileEditApplyDefaultDescription,
+                              style: const TextStyle(
+                                color: Colors.white38,
+                                fontSize: 12,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -212,19 +272,30 @@ class _ConversationProfileEditScreenState extends State<ConversationProfileEditS
                 ),
               ],
             ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _loading || _saving ? null : _save,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _purple,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _loading || _saving ? null : _save,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _purple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                l10n.aiPresetSaveButton,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-            child: Text(l10n.aiPresetSaveButton, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           ),
         ),
       ),

@@ -256,6 +256,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'This will apply instantly to every linked plot.';
 
   @override
+  String get createTabDeletePlotConfirmTitle => 'Delete this plot?';
+
+  @override
+  String get createTabDeletePlotConfirmContent =>
+      'The plot and its conversations can\'t be recovered once deleted.';
+
+  @override
   String get chatDefaultUserName => 'User';
 
   @override

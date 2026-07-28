@@ -55,16 +55,18 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context)!;
     setState(() => _saving = true);
-    await _store.save(SnapshotSettings(
-      provider: _provider,
-      apiKey: _apiKeyController.text.trim(),
-      modelName: _modelController.text.trim(),
-    ));
+    await _store.save(
+      SnapshotSettings(
+        provider: _provider,
+        apiKey: _apiKeyController.text.trim(),
+        modelName: _modelController.text.trim(),
+      ),
+    );
     if (!mounted) return;
     setState(() => _saving = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.snapshotSettingsSavedMessage)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.snapshotSettingsSavedMessage)));
   }
 
   @override
@@ -76,12 +78,20 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.snapshotSettingsTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       body: _loading
@@ -91,12 +101,20 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
               children: [
                 Text(
                   l10n.snapshotSettingsDescription,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12.5, height: 1.4),
+                  style: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 12.5,
+                    height: 1.4,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   l10n.snapshotSettingsProviderLabel,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -104,7 +122,11 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                     final selected = provider == _provider;
                     return Expanded(
                       child: Padding(
-                        padding: EdgeInsets.only(right: provider == SnapshotImageProvider.values.first ? 8 : 0),
+                        padding: EdgeInsets.only(
+                          right: provider == SnapshotImageProvider.values.first
+                              ? 8
+                              : 0,
+                        ),
                         child: GestureDetector(
                           onTap: () => setState(() {
                             _provider = provider;
@@ -118,10 +140,15 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                             decoration: BoxDecoration(
                               color: _cardBg,
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: selected ? _purple : _borderGrey, width: 1.5),
+                              border: Border.all(
+                                color: selected ? _purple : _borderGrey,
+                                width: 1.5,
+                              ),
                             ),
                             child: Text(
-                              provider == SnapshotImageProvider.openRouter ? 'OpenRouter' : 'AtlasCloud',
+                              provider == SnapshotImageProvider.openRouter
+                                  ? 'OpenRouter'
+                                  : 'AtlasCloud',
                               style: TextStyle(
                                 color: selected ? Colors.white : Colors.white54,
                                 fontSize: 14,
@@ -137,7 +164,11 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                 const SizedBox(height: 20),
                 Text(
                   l10n.snapshotSettingsModelNameLabel,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -145,7 +176,10 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.snapshotSettingsModelNameHint,
-                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                    hintStyle: const TextStyle(
+                      color: Colors.white38,
+                      fontSize: 13,
+                    ),
                     filled: true,
                     fillColor: _cardBg,
                     contentPadding: const EdgeInsets.all(12),
@@ -162,7 +196,11 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                 const SizedBox(height: 20),
                 Text(
                   l10n.snapshotSettingsApiKeyLabel,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -171,17 +209,23 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.snapshotSettingsApiKeyHint,
-                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                    hintStyle: const TextStyle(
+                      color: Colors.white38,
+                      fontSize: 13,
+                    ),
                     filled: true,
                     fillColor: _cardBg,
                     contentPadding: const EdgeInsets.all(12),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureApiKey ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        _obscureApiKey
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                         color: Colors.white54,
                         size: 18,
                       ),
-                      onPressed: () => setState(() => _obscureApiKey = !_obscureApiKey),
+                      onPressed: () =>
+                          setState(() => _obscureApiKey = !_obscureApiKey),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -195,19 +239,30 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                 ),
               ],
             ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _loading || _saving ? null : _save,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _purple,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _loading || _saving ? null : _save,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _purple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                l10n.snapshotSettingsSaveButton,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-            child: Text(l10n.snapshotSettingsSaveButton, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           ),
         ),
       ),

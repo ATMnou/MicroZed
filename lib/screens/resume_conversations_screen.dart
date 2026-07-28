@@ -16,7 +16,8 @@ class ResumeConversationsScreen extends StatefulWidget {
   final int currentSessionId;
 
   @override
-  State<ResumeConversationsScreen> createState() => _ResumeConversationsScreenState();
+  State<ResumeConversationsScreen> createState() =>
+      _ResumeConversationsScreenState();
 }
 
 class _ResumeConversationsScreenState extends State<ResumeConversationsScreen> {
@@ -50,40 +51,70 @@ class _ResumeConversationsScreenState extends State<ResumeConversationsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(AppLocalizations.of(context)!.chatDrawerResumeTitle, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
+        title: Text(
+          AppLocalizations.of(context)!.chatDrawerResumeTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
-      body: StreamBuilder<List<ChatSessionSummary>>(
-        stream: _repository.watchArchivedByPlot(widget.plotId),
-        builder: (context, snapshot) {
-          final sessions = snapshot.data ?? const [];
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text('${sessions.length}/100', style: const TextStyle(color: Colors.white38, fontSize: 12)),
-              ),
-              const Divider(color: Color(0xFF2A2A2A), height: 1),
-              Expanded(
-                child: sessions.isEmpty
-                    ? Center(
-                        child: Text(AppLocalizations.of(context)!.resumeNoSavedConversations, style: const TextStyle(color: Colors.white38, fontSize: 13)),
-                      )
-                    : ListView.separated(
-                        itemCount: sessions.length,
-                        separatorBuilder: (_, _) => const Divider(color: Color(0xFF2A2A2A), height: 1),
-                        itemBuilder: (context, index) => _SavedConversationTile(
-                          data: sessions[index],
-                          onTap: () => _resume(sessions[index]),
-                          onDelete: () => _delete(sessions[index].session.id),
+      body: SafeArea(
+        top: false,
+        child: StreamBuilder<List<ChatSessionSummary>>(
+          stream: _repository.watchArchivedByPlot(widget.plotId),
+          builder: (context, snapshot) {
+            final sessions = snapshot.data ?? const [];
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    '${sessions.length}/100',
+                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  ),
+                ),
+                const Divider(color: Color(0xFF2A2A2A), height: 1),
+                Expanded(
+                  child: sessions.isEmpty
+                      ? Center(
+                          child: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.resumeNoSavedConversations,
+                            style: const TextStyle(
+                              color: Colors.white38,
+                              fontSize: 13,
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: sessions.length,
+                          separatorBuilder: (_, _) => const Divider(
+                            color: Color(0xFF2A2A2A),
+                            height: 1,
+                          ),
+                          itemBuilder: (context, index) =>
+                              _SavedConversationTile(
+                                data: sessions[index],
+                                onTap: () => _resume(sessions[index]),
+                                onDelete: () =>
+                                    _delete(sessions[index].session.id),
+                              ),
                         ),
-                      ),
-              ),
-            ],
-          );
-        },
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -106,7 +137,11 @@ String _relativeLabel(AppLocalizations l10n, DateTime dt) {
 }
 
 class _SavedConversationTile extends StatelessWidget {
-  const _SavedConversationTile({required this.data, required this.onTap, required this.onDelete});
+  const _SavedConversationTile({
+    required this.data,
+    required this.onTap,
+    required this.onDelete,
+  });
 
   final ChatSessionSummary data;
   final VoidCallback onTap;
@@ -117,7 +152,9 @@ class _SavedConversationTile extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (sheetContext) {
         return SafeArea(
           child: Column(
@@ -125,7 +162,10 @@ class _SavedConversationTile extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: Colors.white),
-                title: Text(l10n.commonDelete, style: const TextStyle(color: Colors.white)),
+                title: Text(
+                  l10n.commonDelete,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   onDelete();
@@ -155,7 +195,11 @@ class _SavedConversationTile extends StatelessWidget {
                 children: [
                   Text(
                     l10n.resumeSavedAtLabel(_formatSavedAt(archivedAt)),
-                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -15,7 +15,11 @@ import 'plot_edit_screen.dart';
 /// 인트로 첫 줄을 불러와서 보여준다. 하단 액션은 북마크 버튼을 제거하고
 /// '이어서 대화하기' 버튼만 남겼다.
 class CharacterDetailScreen extends StatefulWidget {
-  const CharacterDetailScreen({super.key, required this.plotId, required this.heroColor});
+  const CharacterDetailScreen({
+    super.key,
+    required this.plotId,
+    required this.heroColor,
+  });
 
   final int plotId;
   final Color heroColor;
@@ -49,8 +53,12 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
 
   Future<void> _load() async {
     final plot = await _plotRepository.getById(widget.plotId);
-    final character = await _plotRepository.representativeCharacter(widget.plotId);
-    final defaultVersionId = await _introRepository.ensureDefaultVersion(widget.plotId);
+    final character = await _plotRepository.representativeCharacter(
+      widget.plotId,
+    );
+    final defaultVersionId = await _introRepository.ensureDefaultVersion(
+      widget.plotId,
+    );
     final introEntries = await _introRepository.getByVersion(defaultVersionId);
     final count = await _plotRepository.conversationCount(widget.plotId);
     if (mounted) {
@@ -70,7 +78,9 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
       backgroundColor: _background,
       appBar: _buildAppBar(context),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF7A6FF0)))
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF7A6FF0)),
+            )
           : ListView(
               children: [
                 _buildHeroImage(),
@@ -95,18 +105,25 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
       backgroundColor: _background,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: Colors.white,
+          size: 20,
+        ),
         onPressed: () => Navigator.of(context).pop(),
       ),
       actions: [
         IconButton(
           icon: const Icon(Icons.home_outlined, color: Colors.white, size: 24),
-          onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
+          onPressed: () =>
+              Navigator.of(context).popUntil((route) => route.isFirst),
         ),
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert, color: Colors.white, size: 22),
           color: const Color(0xFF1E1E1E),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           onSelected: (value) {
             if (value == 'edit') {
               Navigator.of(context).push(
@@ -119,11 +136,17 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
           itemBuilder: (context) => [
             PopupMenuItem(
               value: 'edit',
-              child: Text(AppLocalizations.of(context)!.createTabEditPlotMenuItem, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                AppLocalizations.of(context)!.createTabEditPlotMenuItem,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
             PopupMenuItem(
               value: 'export',
-              child: Text(AppLocalizations.of(context)!.characterDetailExportMenuItem, style: const TextStyle(color: Colors.white)),
+              child: Text(
+                AppLocalizations.of(context)!.characterDetailExportMenuItem,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -149,27 +172,38 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: SizedBox(
-        width: double.infinity,
-        height: 48,
-        child: ElevatedButton(
-          onPressed: _loading
-              ? null
-              : () async {
-                  final sessionId = await _sessionRepository.findOrCreateForPlot(widget.plotId);
-                  if (!context.mounted) return;
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => ChatScreen(sessionId: sessionId)),
-                  );
-                },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF7A6FF0),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton(
+            onPressed: _loading
+                ? null
+                : () async {
+                    final sessionId = await _sessionRepository
+                        .findOrCreateForPlot(widget.plotId);
+                    if (!context.mounted) return;
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ChatScreen(sessionId: sessionId),
+                      ),
+                    );
+                  },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF7A6FF0),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.characterDetailContinueChatButton,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
           ),
-          child: Text(AppLocalizations.of(context)!.characterDetailContinueChatButton, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
         ),
       ),
     );
@@ -197,25 +231,44 @@ class _DetailBody extends StatelessWidget {
       children: [
         Text(
           plot?.title ?? '',
-          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.chat_bubble_outline, color: Colors.white38, size: 14),
+            const Icon(
+              Icons.chat_bubble_outline,
+              color: Colors.white38,
+              size: 14,
+            ),
             const SizedBox(width: 4),
-            Text('$conversationCount', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+            Text(
+              '$conversationCount',
+              style: const TextStyle(color: Colors.white38, fontSize: 12),
+            ),
           ],
         ),
         const SizedBox(height: 12),
         Text(
           plot?.description ?? '',
-          style: const TextStyle(color: Colors.white54, fontSize: 13, height: 1.4),
+          style: const TextStyle(
+            color: Colors.white54,
+            fontSize: 13,
+            height: 1.4,
+          ),
         ),
         const SizedBox(height: 24),
         Text(
           l10n.characterDetailCharacterSectionTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 12),
         _buildCharacterCard(context),
@@ -223,7 +276,11 @@ class _DetailBody extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             l10n.characterDetailIntroSectionTitle,
-            style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 17,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 12),
           _buildIntroPreview(context),
@@ -241,15 +298,24 @@ class _DetailBody extends StatelessWidget {
       ),
       child: Row(
         children: [
-          LocalAvatar(imagePath: character?.imagePath, radius: 28, icon: Icons.pets),
+          LocalAvatar(
+            imagePath: character?.imagePath,
+            radius: 28,
+            icon: Icons.pets,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  character?.name ?? AppLocalizations.of(context)!.chatDefaultCharacterName,
-                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                  character?.name ??
+                      AppLocalizations.of(context)!.chatDefaultCharacterName,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -269,16 +335,27 @@ class _DetailBody extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LocalAvatar(imagePath: character?.imagePath, radius: 16, icon: Icons.pets),
+        LocalAvatar(
+          imagePath: character?.imagePath,
+          radius: 16,
+          icon: Icons.pets,
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(character?.name ?? AppLocalizations.of(context)!.chatDefaultCharacterName, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              Text(
+                character?.name ??
+                    AppLocalizations.of(context)!.chatDefaultCharacterName,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF2A2A2A),
                   borderRadius: BorderRadius.circular(16),

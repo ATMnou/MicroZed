@@ -36,75 +36,117 @@ class _AiPresetScreenState extends State<AiPresetScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.myPageAiPresetButton,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
-      body: Stack(
-        children: [
-          StreamBuilder<List<AiPreset>>(
-            stream: _repository.watchAll(),
-            builder: (context, snapshot) {
-              final presets = snapshot.data ?? const [];
-              return ListView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-                children: [
-                  Text(
-                    l10n.aiPresetScreenDescription,
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
-                  ),
-                  const SizedBox(height: 16),
-                  if (presets.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 24),
-                      child: Center(
-                        child: Text(l10n.chatModelSheetNoPresets, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+      body: SafeArea(
+        top: false,
+        child: Stack(
+          children: [
+            StreamBuilder<List<AiPreset>>(
+              stream: _repository.watchAll(),
+              builder: (context, snapshot) {
+                final presets = snapshot.data ?? const [];
+                return ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+                  children: [
+                    Text(
+                      l10n.aiPresetScreenDescription,
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 12,
                       ),
                     ),
-                  ...presets.map((p) => _PresetCard(
+                    const SizedBox(height: 16),
+                    if (presets.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: Text(
+                            l10n.chatModelSheetNoPresets,
+                            style: const TextStyle(
+                              color: Colors.white38,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ...presets.map(
+                      (p) => _PresetCard(
                         preset: p,
                         onEdit: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => AiPresetEditScreen(presetId: p.id)),
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  AiPresetEditScreen(presetId: p.id),
+                            ),
                           );
                         },
                         onDelete: () => _repository.delete(p.id),
-                      )),
-                ],
-              );
-            },
-          ),
-          Positioned(
-            right: 16,
-            bottom: 16,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AiPresetEditScreen()),
+                      ),
+                    ),
+                  ],
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _purple,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-              ),
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.aiPresetScreenAddButton, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             ),
-          ),
-        ],
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AiPresetEditScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _purple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                ),
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(
+                  l10n.aiPresetScreenAddButton,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _PresetCard extends StatelessWidget {
-  const _PresetCard({required this.preset, required this.onEdit, required this.onDelete});
+  const _PresetCard({
+    required this.preset,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final AiPreset preset;
   final VoidCallback onEdit;
@@ -127,7 +169,11 @@ class _PresetCard extends StatelessWidget {
               children: [
                 Text(
                   preset.name,
-                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -143,11 +189,19 @@ class _PresetCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.white54, size: 18),
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: Colors.white54,
+              size: 18,
+            ),
             onPressed: onEdit,
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.white54, size: 18),
+            icon: const Icon(
+              Icons.delete_outline,
+              color: Colors.white54,
+              size: 18,
+            ),
             onPressed: onDelete,
           ),
         ],

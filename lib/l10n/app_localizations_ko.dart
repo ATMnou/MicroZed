@@ -251,6 +251,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get createTabDeleteLorebookConfirmContent => '연결된 모든 플롯에 즉시 반영돼요.';
 
   @override
+  String get createTabDeletePlotConfirmTitle => '플롯을 삭제할까요?';
+
+  @override
+  String get createTabDeletePlotConfirmContent => '삭제한 플롯과 관련 대화는 되돌릴 수 없어요.';
+
+  @override
   String get chatDefaultUserName => '유저';
 
   @override

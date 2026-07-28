@@ -253,6 +253,12 @@ class AppLocalizationsJa extends AppLocalizations {
       '接続されたすべてのプロットに即座に反映されます。';
 
   @override
+  String get createTabDeletePlotConfirmTitle => 'プロットを削除しますか?';
+
+  @override
+  String get createTabDeletePlotConfirmContent => '削除したプロットと関連する会話は元に戻せません。';
+
+  @override
   String get chatDefaultUserName => 'ユーザー';
 
   @override

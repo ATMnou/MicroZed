@@ -101,6 +101,8 @@
   "createTabEditPlotMenuItem": "プロットを編集",
   "createTabDeleteLorebookConfirmTitle": "ロアブックを削除しますか?",
   "createTabDeleteLorebookConfirmContent": "接続されたすべてのプロットに即座に反映されます。",
+  "createTabDeletePlotConfirmTitle": "プロットを削除しますか?",
+  "createTabDeletePlotConfirmContent": "削除したプロットと関連する会話は元に戻せません。",
 
   "chatDefaultUserName": "ユーザー",
   "chatDefaultCharacterName": "キャラクター",
@@ -190,7 +192,6 @@
   "plotEditShortIntroLabel": "短い紹介",
   "plotEditShortIntroHint": "タイトルと一緒に表示される短い紹介を入力してください",
   "plotEditHashtagsLabel": "ハッシュタグ",
-  "plotEditHashtagsDescription": "ハッシュタグがあると露出が10倍増えます",
   "plotEditHashtagAddButton": "追加 {count}/10",
   "@plotEditHashtagAddButton": { "placeholders": { "count": { "type": "Object" } } },
   "plotEditAboutSectionTitle": "紹介文",

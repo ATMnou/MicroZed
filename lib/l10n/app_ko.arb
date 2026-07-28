@@ -101,6 +101,8 @@
   "createTabEditPlotMenuItem": "플롯 수정",
   "createTabDeleteLorebookConfirmTitle": "로어북을 삭제할까요?",
   "createTabDeleteLorebookConfirmContent": "연결된 모든 플롯에 즉시 반영돼요.",
+  "createTabDeletePlotConfirmTitle": "플롯을 삭제할까요?",
+  "createTabDeletePlotConfirmContent": "삭제한 플롯과 관련 대화는 되돌릴 수 없어요.",
 
   "chatDefaultUserName": "유저",
   "chatDefaultCharacterName": "캐릭터",
@@ -190,7 +192,6 @@
   "plotEditShortIntroLabel": "짧은 소개",
   "plotEditShortIntroHint": "제목과 함께 보일 짧은 소개를 입력해주세요",
   "plotEditHashtagsLabel": "해시태그",
-  "plotEditHashtagsDescription": "해시태그가 있으면 10배 더 많이 노출될 거예요",
   "plotEditHashtagAddButton": "추가 {count}/10",
   "@plotEditHashtagAddButton": { "placeholders": { "count": { "type": "Object" } } },
   "plotEditAboutSectionTitle": "소개글",

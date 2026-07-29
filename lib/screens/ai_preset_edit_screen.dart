@@ -29,6 +29,9 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
   final _contextLengthController = TextEditingController();
   final _additionalSystemPromptController = TextEditingController();
 
+  /// null(끔) 또는 'low'/'medium'/'high'.
+  String? _reasoningEffort;
+
   bool _loading = true;
   bool _saving = false;
   bool _obscureApiKey = true;
@@ -60,6 +63,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       _contextLengthController.text = preset?.contextLength?.toString() ?? '';
       _additionalSystemPromptController.text =
           preset?.additionalSystemPrompt ?? '';
+      _reasoningEffort = preset?.reasoningEffort;
       final apiKey = await _repository.readApiKey(widget.presetId!);
       if (apiKey != null) _apiKeyController.text = apiKey;
     }
@@ -87,6 +91,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       maxTokens: int.tryParse(_maxTokensController.text.trim()),
       contextLength: int.tryParse(_contextLengthController.text.trim()),
       additionalSystemPrompt: _additionalSystemPromptController.text.trim(),
+      reasoningEffort: _reasoningEffort,
     );
     if (mounted) Navigator.of(context).pop();
   }
@@ -286,6 +291,8 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                   hint: l10n.aiPresetAdditionalPromptHint,
                   maxLines: 4,
                 ),
+                const SizedBox(height: 16),
+                _buildReasoningEffortSelector(l10n),
               ],
             ),
       bottomNavigationBar: SafeArea(
@@ -315,6 +322,51 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildReasoningEffortSelector(AppLocalizations l10n) {
+    final options = <String?, String>{
+      null: l10n.aiPresetReasoningEffortOff,
+      'low': l10n.aiPresetReasoningEffortLow,
+      'medium': l10n.aiPresetReasoningEffortMedium,
+      'high': l10n.aiPresetReasoningEffortHigh,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.aiPresetReasoningEffortLabel,
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.aiPresetReasoningEffortDescription,
+          style: const TextStyle(color: Colors.white38, fontSize: 12),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: options.entries.map((entry) {
+            final selected = _reasoningEffort == entry.key;
+            return ChoiceChip(
+              label: Text(entry.value),
+              selected: selected,
+              onSelected: (_) => setState(() => _reasoningEffort = entry.key),
+              backgroundColor: _cardBg,
+              selectedColor: _purple.withValues(alpha: 0.25),
+              labelStyle: TextStyle(
+                color: selected ? _purple : Colors.white70,
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              ),
+              side: BorderSide(color: selected ? _purple : _borderGrey),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 

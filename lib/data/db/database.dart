@@ -17,6 +17,7 @@ part 'database.g.dart';
   IntroVersions,
   IntroEntries,
   ConversationProfiles,
+  PlotConversationProfiles,
   AiPresets,
   ChatSessions,
   ChatTurns,
@@ -36,7 +37,7 @@ class AppDatabase extends _$AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -75,6 +76,17 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 8) {
             await m.addColumn(characters, characters.aboutText);
+          }
+          if (from < 9) {
+            await m.addColumn(aiPresets, aiPresets.isLocal);
+            await m.addColumn(aiPresets, aiPresets.localModelSource);
+          }
+          if (from < 10) {
+            await m.addColumn(aiPresets, aiPresets.reasoningEffort);
+          }
+          if (from < 11) {
+            await m.createTable(plotConversationProfiles);
+            await m.addColumn(chatSessions, chatSessions.plotConversationProfileId);
           }
         },
       );

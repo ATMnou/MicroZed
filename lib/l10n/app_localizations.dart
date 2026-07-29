@@ -308,6 +308,126 @@ abstract class AppLocalizations {
   /// **'스냅샷 설정'**
   String get myPageSnapshotSettingsButton;
 
+  /// No description provided for @myPageLocalLlmButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'로컬 LLM'**
+  String get myPageLocalLlmButton;
+
+  /// No description provided for @localLlmScreenTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'로컬 LLM'**
+  String get localLlmScreenTitle;
+
+  /// No description provided for @localLlmScreenDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'인터넷 연결 없이 기기에서 직접 AI 모델을 돌려요. 응답 속도와 품질은 기기 사양과 모델 크기에 따라 달라져요.'**
+  String get localLlmScreenDescription;
+
+  /// No description provided for @localLlmRecommendedSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천 모델'**
+  String get localLlmRecommendedSectionTitle;
+
+  /// No description provided for @localLlmImportSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 파일에서 가져오기'**
+  String get localLlmImportSectionTitle;
+
+  /// No description provided for @localLlmSavedPresetsSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장된 로컬 프리셋'**
+  String get localLlmSavedPresetsSectionTitle;
+
+  /// No description provided for @localLlmCacheSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'다운로드된 모델 관리'**
+  String get localLlmCacheSectionTitle;
+
+  /// No description provided for @localLlmCurrentStatusLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 로드된 모델'**
+  String get localLlmCurrentStatusLabel;
+
+  /// No description provided for @localLlmNoModelLoaded.
+  ///
+  /// In ko, this message translates to:
+  /// **'로드된 모델 없음'**
+  String get localLlmNoModelLoaded;
+
+  /// No description provided for @localLlmUnloadButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'언로드'**
+  String get localLlmUnloadButton;
+
+  /// No description provided for @localLlmUseButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용'**
+  String get localLlmUseButton;
+
+  /// No description provided for @localLlmLoadButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'불러오기'**
+  String get localLlmLoadButton;
+
+  /// No description provided for @localLlmInUseLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용 중'**
+  String get localLlmInUseLabel;
+
+  /// No description provided for @localLlmImportButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'GGUF 파일 선택'**
+  String get localLlmImportButton;
+
+  /// No description provided for @localLlmImportDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 받아둔 .gguf 모델 파일을 선택해서 쓸 수 있어요.'**
+  String get localLlmImportDescription;
+
+  /// No description provided for @localLlmNoSavedPresets.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 저장된 로컬 프리셋이 없어요.'**
+  String get localLlmNoSavedPresets;
+
+  /// No description provided for @localLlmNoCachedModels.
+  ///
+  /// In ko, this message translates to:
+  /// **'다운로드된 모델이 없어요.'**
+  String get localLlmNoCachedModels;
+
+  /// No description provided for @localLlmPresetDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'기기에 내장된 로컬 모델'**
+  String get localLlmPresetDescription;
+
+  /// No description provided for @localLlmLoadSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'{modelName} 모델을 불러왔어요.'**
+  String localLlmLoadSuccessMessage(Object modelName);
+
+  /// No description provided for @localLlmLoadFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'모델을 불러오지 못했어요: {error}'**
+  String localLlmLoadFailureMessage(Object error);
+
   /// No description provided for @preferencesTitle.
   ///
   /// In ko, this message translates to:
@@ -337,6 +457,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'가로 꽉 채우기'**
   String get preferencesImageDisplayFullWidthOption;
+
+  /// No description provided for @preferencesDangerZoneTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'위험 구역'**
+  String get preferencesDangerZoneTitle;
+
+  /// No description provided for @preferencesResetAllDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯/캐릭터/대화/로어북/프리셋/이미지 등 이 기기에 저장된 모든 데이터를 지우고 앱을 처음 설치했을 때 상태로 되돌려요. 다운로드해둔 로컬 LLM 모델 파일은 지우지 않아요. 이 작업은 되돌릴 수 없어요.'**
+  String get preferencesResetAllDescription;
+
+  /// No description provided for @preferencesResetAllButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 초기화'**
+  String get preferencesResetAllButton;
+
+  /// No description provided for @preferencesResetConfirmContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 데이터가 영구적으로 삭제돼요. 미리 백업해두지 않았다면 계속하기 전에 마이페이지에서 \'전체 저장\'을 먼저 해주세요.'**
+  String get preferencesResetConfirmContent;
+
+  /// No description provided for @preferencesResetConfirmWord.
+  ///
+  /// In ko, this message translates to:
+  /// **'초기화'**
+  String get preferencesResetConfirmWord;
+
+  /// No description provided for @preferencesResetTypeToConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'계속하려면 아래에 \"{word}\"를 입력해주세요.'**
+  String preferencesResetTypeToConfirm(Object word);
+
+  /// No description provided for @preferencesResetSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 데이터를 초기화했어요.'**
+  String get preferencesResetSuccessMessage;
+
+  /// No description provided for @preferencesResetFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'초기화에 실패했어요: {error}'**
+  String preferencesResetFailureMessage(Object error);
 
   /// No description provided for @navHome.
   ///
@@ -494,6 +662,18 @@ abstract class AppLocalizations {
   /// **'카드 파일 링크나 사이트 주소를 붙여넣어요'**
   String get createTabImportFromUrlSubtitle;
 
+  /// No description provided for @createTabImportFromPlotDataTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'전용 형식(.mzplot)에서 가져오기'**
+  String get createTabImportFromPlotDataTitle;
+
+  /// No description provided for @createTabImportFromPlotDataSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지를 포함한 플롯 전체 데이터를 불러와요(대화 기록 제외)'**
+  String get createTabImportFromPlotDataSubtitle;
+
   /// No description provided for @createTabImportUrlDialogTitle.
   ///
   /// In ko, this message translates to:
@@ -571,6 +751,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'AI 프리셋을 먼저 선택해주세요'**
   String get chatSelectPresetFirstMessage;
+
+  /// No description provided for @chatReasoningInProgressLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'생각하는 중...'**
+  String get chatReasoningInProgressLabel;
 
   /// No description provided for @chatGenerateFailureMessage.
   ///
@@ -800,6 +986,12 @@ abstract class AppLocalizations {
   /// **'SillyTavern 카드로 내보내기'**
   String get plotEditExportCardMenuItem;
 
+  /// No description provided for @plotEditExportDataMenuItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'전용 형식으로 내보내기 (전체 데이터)'**
+  String get plotEditExportDataMenuItem;
+
   /// No description provided for @plotEditDraftSaveButton.
   ///
   /// In ko, this message translates to:
@@ -899,8 +1091,8 @@ abstract class AppLocalizations {
   /// No description provided for @plotEditLorebookConnectButton.
   ///
   /// In ko, this message translates to:
-  /// **'로어북 연결 ({linked}/{max})'**
-  String plotEditLorebookConnectButton(Object linked, Object max);
+  /// **'로어북 연결 ({linked}개)'**
+  String plotEditLorebookConnectButton(Object linked);
 
   /// No description provided for @plotEditIntroHintNarrator.
   ///
@@ -949,6 +1141,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'대화 프로필 선택 시점'**
   String get plotEditProfileMarkerLabel;
+
+  /// No description provided for @plotProfileSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이하는 유저가 사용할 대화 프로필을 만들어 주세요'**
+  String get plotProfileSectionTitle;
+
+  /// No description provided for @plotProfileSectionDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 플롯에서만 쓰는 전용 프로필이에요. 개수 제한은 없어요.'**
+  String get plotProfileSectionDescription;
+
+  /// No description provided for @plotProfileSavePlotFirst.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯을 먼저 저장하면 대화 프로필을 만들 수 있어요.\n프롬프트 탭에서 제목/캐릭터를 입력하고 상단의 저장 버튼을 눌러주세요.'**
+  String get plotProfileSavePlotFirst;
+
+  /// No description provided for @plotProfileAddButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화 프로필 추가'**
+  String get plotProfileAddButton;
+
+  /// No description provided for @plotProfileUseGlobalNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이하는 유저 이름 사용하기'**
+  String get plotProfileUseGlobalNameLabel;
+
+  /// No description provided for @plotProfileUseGlobalNameDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'체크하면 마이페이지 기본 프로필 이름({name})을 그대로 가져와요'**
+  String plotProfileUseGlobalNameDescription(String name);
+
+  /// No description provided for @plotProfileShortIntroLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'짧은 소개'**
+  String get plotProfileShortIntroLabel;
+
+  /// No description provided for @plotProfileShortIntroDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드에 표시되는 한 줄 소개예요. AI에게는 전달되지 않아요.'**
+  String get plotProfileShortIntroDescription;
+
+  /// No description provided for @plotProfileDescriptionLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'설명'**
+  String get plotProfileDescriptionLabel;
+
+  /// No description provided for @plotProfileDescriptionHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'캐릭터를 만들 때처럼 구체적인 설명을 써주시면 좋아요.\n예) 18살, 키 181cm, 잘생긴 얼굴과 1등을 놓치지 않는 성적으로 모두에게 인기있는 모범생'**
+  String get plotProfileDescriptionHint;
+
+  /// No description provided for @plotProfilePickerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필을 선택하세요'**
+  String get plotProfilePickerTitle;
+
+  /// No description provided for @plotProfilePickerSwipeHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'옆으로 넘겨서 다른 프로필 보기'**
+  String get plotProfilePickerSwipeHint;
+
+  /// No description provided for @plotProfilePickerSelectButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택'**
+  String get plotProfilePickerSelectButton;
+
+  /// No description provided for @plotProfilePickerListTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필을 선택하세요'**
+  String get plotProfilePickerListTitle;
 
   /// No description provided for @plotEditAddImageTooltip.
   ///
@@ -1009,12 +1285,6 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'해시태그'**
   String get plotEditHashtagsLabel;
-
-  /// No description provided for @plotEditHashtagsDescription.
-  ///
-  /// In ko, this message translates to:
-  /// **'해시태그가 있으면 10배 더 많이 노출될 거예요'**
-  String get plotEditHashtagsDescription;
 
   /// No description provided for @plotEditHashtagAddButton.
   ///
@@ -1166,6 +1436,42 @@ abstract class AppLocalizations {
   /// **'저장하기'**
   String get aiPresetSaveButton;
 
+  /// No description provided for @aiPresetReasoningEffortLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'추론 노력(Reasoning effort)'**
+  String get aiPresetReasoningEffortLabel;
+
+  /// No description provided for @aiPresetReasoningEffortDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'추론 모델에게 답하기 전 얼마나 깊게 생각할지 지정해요. 로컬 모델은 사고 모드가 켜지고, 원격 모델은 지원하는 경우에만 적용돼요.'**
+  String get aiPresetReasoningEffortDescription;
+
+  /// No description provided for @aiPresetReasoningEffortOff.
+  ///
+  /// In ko, this message translates to:
+  /// **'끔'**
+  String get aiPresetReasoningEffortOff;
+
+  /// No description provided for @aiPresetReasoningEffortLow.
+  ///
+  /// In ko, this message translates to:
+  /// **'낮음'**
+  String get aiPresetReasoningEffortLow;
+
+  /// No description provided for @aiPresetReasoningEffortMedium.
+  ///
+  /// In ko, this message translates to:
+  /// **'보통'**
+  String get aiPresetReasoningEffortMedium;
+
+  /// No description provided for @aiPresetReasoningEffortHigh.
+  ///
+  /// In ko, this message translates to:
+  /// **'높음'**
+  String get aiPresetReasoningEffortHigh;
+
   /// No description provided for @lorebookConnectTitle.
   ///
   /// In ko, this message translates to:
@@ -1175,14 +1481,14 @@ abstract class AppLocalizations {
   /// No description provided for @lorebookConnectNoneButton.
   ///
   /// In ko, this message translates to:
-  /// **'연결 안 함 (0/{max})'**
-  String lorebookConnectNoneButton(Object max);
+  /// **'연결 안 함'**
+  String get lorebookConnectNoneButton;
 
   /// No description provided for @lorebookConnectConfirmButton.
   ///
   /// In ko, this message translates to:
-  /// **'연결하기 ({count}/{max})'**
-  String lorebookConnectConfirmButton(Object count, Object max);
+  /// **'연결하기 ({count}개)'**
+  String lorebookConnectConfirmButton(Object count);
 
   /// No description provided for @lorebookDetailDeletedMessage.
   ///

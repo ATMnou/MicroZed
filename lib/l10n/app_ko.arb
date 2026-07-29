@@ -50,12 +50,54 @@
   "myPageLicensesButton": "오픈소스 라이선스",
   "myPageSourceCodeButton": "GitHub 저장소",
   "myPageSnapshotSettingsButton": "스냅샷 설정",
+  "myPageLocalLlmButton": "로컬 LLM",
+
+  "localLlmScreenTitle": "로컬 LLM",
+  "localLlmScreenDescription": "인터넷 연결 없이 기기에서 직접 AI 모델을 돌려요. 응답 속도와 품질은 기기 사양과 모델 크기에 따라 달라져요.",
+  "localLlmRecommendedSectionTitle": "추천 모델",
+  "localLlmImportSectionTitle": "내 파일에서 가져오기",
+  "localLlmSavedPresetsSectionTitle": "저장된 로컬 프리셋",
+  "localLlmCacheSectionTitle": "다운로드된 모델 관리",
+  "localLlmCurrentStatusLabel": "현재 로드된 모델",
+  "localLlmNoModelLoaded": "로드된 모델 없음",
+  "localLlmUnloadButton": "언로드",
+  "localLlmUseButton": "사용",
+  "localLlmLoadButton": "불러오기",
+  "localLlmInUseLabel": "사용 중",
+  "localLlmImportButton": "GGUF 파일 선택",
+  "localLlmImportDescription": "직접 받아둔 .gguf 모델 파일을 선택해서 쓸 수 있어요.",
+  "localLlmNoSavedPresets": "아직 저장된 로컬 프리셋이 없어요.",
+  "localLlmNoCachedModels": "다운로드된 모델이 없어요.",
+  "localLlmPresetDescription": "기기에 내장된 로컬 모델",
+  "localLlmLoadSuccessMessage": "{modelName} 모델을 불러왔어요.",
+  "@localLlmLoadSuccessMessage": {
+    "placeholders": { "modelName": { "type": "Object" } }
+  },
+  "localLlmLoadFailureMessage": "모델을 불러오지 못했어요: {error}",
+  "@localLlmLoadFailureMessage": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
 
   "preferencesTitle": "환경설정",
   "preferencesImageDisplayModeLabel": "이미지 표시 방식",
   "preferencesImageDisplayModeDescription": "인트로/스냅샷 이미지를 채팅에서 어떻게 보여줄지 골라요.",
   "preferencesImageDisplaySquareOption": "정사각형 (지금처럼)",
   "preferencesImageDisplayFullWidthOption": "가로 꽉 채우기",
+
+  "preferencesDangerZoneTitle": "위험 구역",
+  "preferencesResetAllDescription": "플롯/캐릭터/대화/로어북/프리셋/이미지 등 이 기기에 저장된 모든 데이터를 지우고 앱을 처음 설치했을 때 상태로 되돌려요. 다운로드해둔 로컬 LLM 모델 파일은 지우지 않아요. 이 작업은 되돌릴 수 없어요.",
+  "preferencesResetAllButton": "전체 초기화",
+  "preferencesResetConfirmContent": "모든 데이터가 영구적으로 삭제돼요. 미리 백업해두지 않았다면 계속하기 전에 마이페이지에서 '전체 저장'을 먼저 해주세요.",
+  "preferencesResetConfirmWord": "초기화",
+  "preferencesResetTypeToConfirm": "계속하려면 아래에 \"{word}\"를 입력해주세요.",
+  "@preferencesResetTypeToConfirm": {
+    "placeholders": { "word": { "type": "Object" } }
+  },
+  "preferencesResetSuccessMessage": "모든 데이터를 초기화했어요.",
+  "preferencesResetFailureMessage": "초기화에 실패했어요: {error}",
+  "@preferencesResetFailureMessage": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
 
   "navHome": "홈",
   "navChat": "대화",
@@ -92,6 +134,8 @@
   "createTabImportFromFileSubtitle": "SillyTavern 캐릭터 카드 파일을 선택해요",
   "createTabImportFromUrlTitle": "링크(URL)에서 가져오기",
   "createTabImportFromUrlSubtitle": "카드 파일 링크나 사이트 주소를 붙여넣어요",
+  "createTabImportFromPlotDataTitle": "전용 형식(.mzplot)에서 가져오기",
+  "createTabImportFromPlotDataSubtitle": "이미지를 포함한 플롯 전체 데이터를 불러와요(대화 기록 제외)",
   "createTabImportUrlDialogTitle": "링크에서 가져오기",
   "createTabImportConfirmButton": "가져오기",
   "createTabNoIntroWarning": "이 카드엔 오프닝 메시지가 없어서 인트로 탭을 비워뒀어요. \"인트로\" 탭에서 직접 작성해주세요.",
@@ -107,6 +151,7 @@
   "chatDefaultUserName": "유저",
   "chatDefaultCharacterName": "캐릭터",
   "chatSelectPresetFirstMessage": "AI 프리셋을 먼저 선택해주세요",
+  "chatReasoningInProgressLabel": "생각하는 중...",
   "chatGenerateFailureMessage": "AI 응답 생성에 실패했어요: {error}",
   "@chatGenerateFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
   "chatReviseDialogTitle": "AI 수정",
@@ -151,6 +196,7 @@
   "@plotEditDefaultCharacterName": { "placeholders": { "index": { "type": "Object" } } },
   "plotEditAppBarTitle": "플롯",
   "plotEditExportCardMenuItem": "SillyTavern 카드로 내보내기",
+  "plotEditExportDataMenuItem": "전용 형식으로 내보내기 (전체 데이터)",
   "plotEditDraftSaveButton": "임시저장",
   "plotEditSaveButtonEdit": "수정",
   "plotEditSaveButtonCreate": "제작",
@@ -169,9 +215,9 @@
   "plotEditLorebookSavePlotFirst": "플롯을 먼저 저장하면 로어북을 연결할 수 있어요.\n프롬프트 탭에서 제목/캐릭터를 입력하고 상단의 저장 버튼을 눌러주세요.",
   "plotEditLorebookConnectTitle": "로어북을 연결해 주세요",
   "plotEditLorebookConnectDescription": "로어북에 등록한 키워드가 언급될 때마다\n작성한 내용이 AI에게 전달돼요",
-  "plotEditLorebookConnectButton": "로어북 연결 ({linked}/{max})",
+  "plotEditLorebookConnectButton": "로어북 연결 ({linked}개)",
   "@plotEditLorebookConnectButton": {
-    "placeholders": { "linked": { "type": "Object" }, "max": { "type": "Object" } }
+    "placeholders": { "linked": { "type": "Object" } }
   },
   "plotEditIntroHintNarrator": "*상황을 설명해주세요*",
   "plotEditIntroHintUser": "유저 메시지를 입력해주세요",
@@ -182,6 +228,23 @@
   "plotEditIntroFirstSceneTitle": "첫 상황을 만들어 주세요",
   "plotEditIntroEmptyMessage": "아직 작성된 인트로가 없어요. 아래 입력창에서 첫 줄을 추가해보세요.",
   "plotEditProfileMarkerLabel": "대화 프로필 선택 시점",
+  "plotProfileSectionTitle": "플레이하는 유저가 사용할 대화 프로필을 만들어 주세요",
+  "plotProfileSectionDescription": "이 플롯에서만 쓰는 전용 프로필이에요. 개수 제한은 없어요.",
+  "plotProfileSavePlotFirst": "플롯을 먼저 저장하면 대화 프로필을 만들 수 있어요.\n프롬프트 탭에서 제목/캐릭터를 입력하고 상단의 저장 버튼을 눌러주세요.",
+  "plotProfileAddButton": "대화 프로필 추가",
+  "plotProfileUseGlobalNameLabel": "플레이하는 유저 이름 사용하기",
+  "plotProfileUseGlobalNameDescription": "체크하면 마이페이지 기본 프로필 이름({name})을 그대로 가져와요",
+  "@plotProfileUseGlobalNameDescription": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "plotProfileShortIntroLabel": "짧은 소개",
+  "plotProfileShortIntroDescription": "카드에 표시되는 한 줄 소개예요. AI에게는 전달되지 않아요.",
+  "plotProfileDescriptionLabel": "설명",
+  "plotProfileDescriptionHint": "캐릭터를 만들 때처럼 구체적인 설명을 써주시면 좋아요.\n예) 18살, 키 181cm, 잘생긴 얼굴과 1등을 놓치지 않는 성적으로 모두에게 인기있는 모범생",
+  "plotProfilePickerTitle": "프로필을 선택하세요",
+  "plotProfilePickerSwipeHint": "옆으로 넘겨서 다른 프로필 보기",
+  "plotProfilePickerSelectButton": "선택",
+  "plotProfilePickerListTitle": "프로필을 선택하세요",
   "plotEditAddImageTooltip": "이미지 추가 (AI에게 전달되지 않아요)",
   "plotEditComposerNarrator": "내레이터",
   "plotEditAddHashtagDialogTitle": "해시태그 추가",
@@ -220,13 +283,18 @@
   "aiPresetAdditionalPromptLabel": "추가 시스템 프롬프트",
   "aiPresetAdditionalPromptHint": "기본 프롬프트 뒤에 덧붙일 지침(선택)",
   "aiPresetSaveButton": "저장하기",
+  "aiPresetReasoningEffortLabel": "추론 노력(Reasoning effort)",
+  "aiPresetReasoningEffortDescription": "추론 모델에게 답하기 전 얼마나 깊게 생각할지 지정해요. 로컬 모델은 사고 모드가 켜지고, 원격 모델은 지원하는 경우에만 적용돼요.",
+  "aiPresetReasoningEffortOff": "끔",
+  "aiPresetReasoningEffortLow": "낮음",
+  "aiPresetReasoningEffortMedium": "보통",
+  "aiPresetReasoningEffortHigh": "높음",
 
   "lorebookConnectTitle": "로어북 연결",
-  "lorebookConnectNoneButton": "연결 안 함 (0/{max})",
-  "@lorebookConnectNoneButton": { "placeholders": { "max": { "type": "Object" } } },
-  "lorebookConnectConfirmButton": "연결하기 ({count}/{max})",
+  "lorebookConnectNoneButton": "연결 안 함",
+  "lorebookConnectConfirmButton": "연결하기 ({count}개)",
   "@lorebookConnectConfirmButton": {
-    "placeholders": { "count": { "type": "Object" }, "max": { "type": "Object" } }
+    "placeholders": { "count": { "type": "Object" } }
   },
   "lorebookDetailDeletedMessage": "삭제된 로어북이에요",
   "lorebookInfoTabLabel": "로어 정보",

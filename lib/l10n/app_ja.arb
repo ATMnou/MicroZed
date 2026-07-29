@@ -50,12 +50,54 @@
   "myPageLicensesButton": "オープンソースライセンス",
   "myPageSourceCodeButton": "GitHubリポジトリ",
   "myPageSnapshotSettingsButton": "スナップショット設定",
+  "myPageLocalLlmButton": "ローカルLLM",
+
+  "localLlmScreenTitle": "ローカルLLM",
+  "localLlmScreenDescription": "インターネット接続なしで端末上でAIモデルを直接実行します。速度と品質は端末の性能とモデルサイズによって変わります。",
+  "localLlmRecommendedSectionTitle": "おすすめモデル",
+  "localLlmImportSectionTitle": "ファイルから読み込み",
+  "localLlmSavedPresetsSectionTitle": "保存済みローカルプリセット",
+  "localLlmCacheSectionTitle": "ダウンロード済みモデル",
+  "localLlmCurrentStatusLabel": "現在読み込まれているモデル",
+  "localLlmNoModelLoaded": "読み込まれたモデルはありません",
+  "localLlmUnloadButton": "アンロード",
+  "localLlmUseButton": "使用",
+  "localLlmLoadButton": "読み込む",
+  "localLlmInUseLabel": "使用中",
+  "localLlmImportButton": "GGUFファイルを選択",
+  "localLlmImportDescription": "すでにダウンロード済みの.ggufモデルファイルを選択できます。",
+  "localLlmNoSavedPresets": "保存されたローカルプリセットはまだありません。",
+  "localLlmNoCachedModels": "ダウンロード済みのモデルはありません。",
+  "localLlmPresetDescription": "端末内蔵のローカルモデル",
+  "localLlmLoadSuccessMessage": "{modelName} モデルを読み込みました。",
+  "@localLlmLoadSuccessMessage": {
+    "placeholders": { "modelName": { "type": "Object" } }
+  },
+  "localLlmLoadFailureMessage": "モデルの読み込みに失敗しました: {error}",
+  "@localLlmLoadFailureMessage": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
 
   "preferencesTitle": "環境設定",
   "preferencesImageDisplayModeLabel": "画像の表示方法",
   "preferencesImageDisplayModeDescription": "イントロ/スナップショット画像をチャットでどう表示するか選びます。",
   "preferencesImageDisplaySquareOption": "正方形(今のまま)",
   "preferencesImageDisplayFullWidthOption": "横幅いっぱいに表示",
+
+  "preferencesDangerZoneTitle": "危険な操作",
+  "preferencesResetAllDescription": "プロット/キャラクター/会話/ロアブック/プリセット/画像など、この端末に保存されたすべてのデータを削除し、アプリを初回インストール時の状態に戻します。ダウンロード済みのローカルLLMモデルファイルは削除されません。この操作は元に戻せません。",
+  "preferencesResetAllButton": "全データを初期化",
+  "preferencesResetConfirmContent": "すべてのデータが完全に削除されます。まだバックアップしていない場合は、続ける前にマイページで「全体保存」を行ってください。",
+  "preferencesResetConfirmWord": "初期化",
+  "preferencesResetTypeToConfirm": "続けるには下に「{word}」と入力してください。",
+  "@preferencesResetTypeToConfirm": {
+    "placeholders": { "word": { "type": "Object" } }
+  },
+  "preferencesResetSuccessMessage": "すべてのデータを初期化しました。",
+  "preferencesResetFailureMessage": "初期化に失敗しました: {error}",
+  "@preferencesResetFailureMessage": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
 
   "navHome": "ホーム",
   "navChat": "会話",
@@ -92,6 +134,8 @@
   "createTabImportFromFileSubtitle": "SillyTavernキャラクターカードファイルを選択します",
   "createTabImportFromUrlTitle": "リンク(URL)から取り込み",
   "createTabImportFromUrlSubtitle": "カードファイルのリンクやサイトURLを貼り付けます",
+  "createTabImportFromPlotDataTitle": "専用形式(.mzplot)から取り込み",
+  "createTabImportFromPlotDataSubtitle": "画像を含むプロット全体のデータを読み込みます(会話履歴は除く)",
   "createTabImportUrlDialogTitle": "リンクから取り込み",
   "createTabImportConfirmButton": "取り込み",
   "createTabNoIntroWarning": "このカードにはオープニングメッセージがないため、イントロタブは空のままにしました。「イントロ」タブでご自身で作成してください。",
@@ -107,6 +151,7 @@
   "chatDefaultUserName": "ユーザー",
   "chatDefaultCharacterName": "キャラクター",
   "chatSelectPresetFirstMessage": "先にAIプリセットを選択してください",
+  "chatReasoningInProgressLabel": "考え中...",
   "chatGenerateFailureMessage": "AI応答の生成に失敗しました: {error}",
   "@chatGenerateFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
   "chatReviseDialogTitle": "AI修正",
@@ -151,6 +196,7 @@
   "@plotEditDefaultCharacterName": { "placeholders": { "index": { "type": "Object" } } },
   "plotEditAppBarTitle": "プロット",
   "plotEditExportCardMenuItem": "SillyTavernカードとしてエクスポート",
+  "plotEditExportDataMenuItem": "専用形式でエクスポート(全データ)",
   "plotEditDraftSaveButton": "下書き保存",
   "plotEditSaveButtonEdit": "更新",
   "plotEditSaveButtonCreate": "作成",
@@ -169,9 +215,9 @@
   "plotEditLorebookSavePlotFirst": "プロットを先に保存するとロアブックを接続できます。\nプロンプトタブでタイトル・キャラクターを入力し、上部の保存ボタンを押してください。",
   "plotEditLorebookConnectTitle": "ロアブックを接続してください",
   "plotEditLorebookConnectDescription": "ロアブックに登録したキーワードが言及されるたびに\n作成した内容がAIに伝わります",
-  "plotEditLorebookConnectButton": "ロアブック接続 ({linked}/{max})",
+  "plotEditLorebookConnectButton": "ロアブック接続 ({linked}件)",
   "@plotEditLorebookConnectButton": {
-    "placeholders": { "linked": { "type": "Object" }, "max": { "type": "Object" } }
+    "placeholders": { "linked": { "type": "Object" } }
   },
   "plotEditIntroHintNarrator": "*状況を説明してください*",
   "plotEditIntroHintUser": "ユーザーメッセージを入力してください",
@@ -182,6 +228,23 @@
   "plotEditIntroFirstSceneTitle": "最初の状況を作成してください",
   "plotEditIntroEmptyMessage": "まだ作成されたイントロがありません。下の入力欄から最初の行を追加してみましょう。",
   "plotEditProfileMarkerLabel": "会話プロフィール選択タイミング",
+  "plotProfileSectionTitle": "プレイするユーザーが使う会話プロフィールを作成してください",
+  "plotProfileSectionDescription": "このプロットだけで使う専用プロフィールです。個数の制限はありません。",
+  "plotProfileSavePlotFirst": "プロットを先に保存すると会話プロフィールを作成できます。\nプロンプトタブでタイトル/キャラクターを入力し、上部の保存ボタンを押してください。",
+  "plotProfileAddButton": "会話プロフィールを追加",
+  "plotProfileUseGlobalNameLabel": "プレイするユーザーの名前を使う",
+  "plotProfileUseGlobalNameDescription": "チェックするとマイページの既定プロフィール名({name})がそのまま使われます",
+  "@plotProfileUseGlobalNameDescription": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "plotProfileShortIntroLabel": "短い紹介",
+  "plotProfileShortIntroDescription": "カードに表示される一行紹介です。AIには伝わりません。",
+  "plotProfileDescriptionLabel": "説明",
+  "plotProfileDescriptionHint": "キャラクターを作るときのように具体的な説明を書くといいです。\n例) 18歳、身長181cm、格好良い顔と首位を逃さない成績で皆に人気のある模範生",
+  "plotProfilePickerTitle": "プロフィールを選択してください",
+  "plotProfilePickerSwipeHint": "横にスワイプして他のプロフィールを見る",
+  "plotProfilePickerSelectButton": "選択",
+  "plotProfilePickerListTitle": "プロフィールを選択してください",
   "plotEditAddImageTooltip": "画像を追加(AIには伝わりません)",
   "plotEditComposerNarrator": "ナレーター",
   "plotEditAddHashtagDialogTitle": "ハッシュタグ追加",
@@ -220,13 +283,18 @@
   "aiPresetAdditionalPromptLabel": "追加システムプロンプト",
   "aiPresetAdditionalPromptHint": "基本プロンプトの後に追加する指示(任意)",
   "aiPresetSaveButton": "保存する",
+  "aiPresetReasoningEffortLabel": "推論の深さ(Reasoning effort)",
+  "aiPresetReasoningEffortDescription": "推論モデルが答える前にどれくらい深く考えるかを指定します。ローカルモデルは思考モードがオンになり、リモートモデルは対応している場合のみ適用されます。",
+  "aiPresetReasoningEffortOff": "オフ",
+  "aiPresetReasoningEffortLow": "低い",
+  "aiPresetReasoningEffortMedium": "普通",
+  "aiPresetReasoningEffortHigh": "高い",
 
   "lorebookConnectTitle": "ロアブック接続",
-  "lorebookConnectNoneButton": "接続しない (0/{max})",
-  "@lorebookConnectNoneButton": { "placeholders": { "max": { "type": "Object" } } },
-  "lorebookConnectConfirmButton": "接続する ({count}/{max})",
+  "lorebookConnectNoneButton": "接続しない",
+  "lorebookConnectConfirmButton": "接続する ({count}件)",
   "@lorebookConnectConfirmButton": {
-    "placeholders": { "count": { "type": "Object" }, "max": { "type": "Object" } }
+    "placeholders": { "count": { "type": "Object" } }
   },
   "lorebookDetailDeletedMessage": "削除されたロアブックです",
   "lorebookInfoTabLabel": "ロア情報",

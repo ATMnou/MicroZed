@@ -36,7 +36,9 @@ class OpenAiCompatibleClient {
     double temperature = 1.0,
     int? topK,
     int? maxTokens,
+    String? reasoningEffort,
     void Function(TokenUsage usage)? onUsage,
+    void Function(String reasoning)? onReasoning,
   }) async* {
     final body = <String, dynamic>{
       'model': model,
@@ -49,6 +51,9 @@ class OpenAiCompatibleClient {
     };
     if (topK != null) body['top_k'] = topK;
     if (maxTokens != null) body['max_tokens'] = maxTokens;
+    if (reasoningEffort != null && reasoningEffort.isNotEmpty) {
+      body['reasoning_effort'] = reasoningEffort;
+    }
 
     final request = http.Request('POST', _endpoint(baseUrl))
       ..headers['Content-Type'] = 'application/json'
@@ -78,6 +83,12 @@ class OpenAiCompatibleClient {
         final choices = json['choices'] as List<dynamic>?;
         if (choices == null || choices.isEmpty) continue;
         final delta = choices.first['delta'] as Map<String, dynamic>?;
+        // 추론 모델은 본문(content)과 별개로 reasoning_content/reasoning 필드에
+        // 사고 과정을 실어 보낸다(OpenRouter/DeepSeek류 관례).
+        final reasoning = (delta?['reasoning_content'] ?? delta?['reasoning']) as String?;
+        if (reasoning != null && reasoning.isNotEmpty && onReasoning != null) {
+          onReasoning(reasoning);
+        }
         final content = delta?['content'] as String?;
         if (content != null && content.isNotEmpty) {
           yield content;

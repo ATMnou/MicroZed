@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import '../data/db/database.dart';
 import '../data/repositories/chat_session_repository.dart';
 import '../data/repositories/intro_entry_repository.dart';
+import '../data/repositories/plot_conversation_profile_repository.dart';
 import '../data/repositories/plot_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'chat_screen.dart';
 import 'plot_edit_screen.dart';
+import 'plot_profile_picker_screen.dart';
 
 /// 홈에서 플롯 카드를 눌렀을 때 표시되는 캐릭터 정보 화면. 실제 DB의 플롯/대표 캐릭터/
 /// 인트로 첫 줄을 불러와서 보여준다. 하단 액션은 북마크 버튼을 제거하고
@@ -32,6 +34,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
   late final PlotRepository _plotRepository;
   late final IntroEntryRepository _introRepository;
   late final ChatSessionRepository _sessionRepository;
+  late final PlotConversationProfileRepository _plotProfileRepository;
 
   Plot? _plot;
   Character? _character;
@@ -48,7 +51,41 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
     _plotRepository = PlotRepository(db);
     _introRepository = IntroEntryRepository(db);
     _sessionRepository = ChatSessionRepository(db);
+    _plotProfileRepository = PlotConversationProfileRepository(db);
     _load();
+  }
+
+  /// 이 플롯에 이미 활성 세션이 있으면 그대로 이어서 열고, 없으면 새로 만든다.
+  /// 새로 만드는 경우, 플롯 전용 대화 프로필이 하나라도 있으면 먼저 프로필 선택 화면을
+  /// 띄워서 어떤 프로필로 시작할지 고르게 한다(없으면 예전처럼 조용히 전역 기본값을 쓴다).
+  Future<void> _startOrContinueChat(BuildContext context) async {
+    final existingSessionId = await _sessionRepository.activeSessionIdForPlot(widget.plotId);
+    late final int sessionId;
+    if (existingSessionId != null) {
+      sessionId = existingSessionId;
+    } else {
+      final plotProfiles = await _plotProfileRepository.getByPlot(widget.plotId);
+      int? globalProfileId;
+      int? plotProfileId;
+      if (plotProfiles.isNotEmpty) {
+        if (!context.mounted) return;
+        final choice = await Navigator.of(context).push<({int? globalProfileId, int? plotProfileId})>(
+          MaterialPageRoute(builder: (_) => PlotProfilePickerScreen(plotId: widget.plotId)),
+        );
+        if (choice == null) return; // 취소됨
+        globalProfileId = choice.globalProfileId;
+        plotProfileId = choice.plotProfileId;
+      }
+      sessionId = await _sessionRepository.createSession(
+        plotId: widget.plotId,
+        conversationProfileId: globalProfileId,
+        plotConversationProfileId: plotProfileId,
+      );
+    }
+    if (!context.mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => ChatScreen(sessionId: sessionId)),
+    );
   }
 
   Future<void> _load() async {
@@ -180,18 +217,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
           width: double.infinity,
           height: 48,
           child: ElevatedButton(
-            onPressed: _loading
-                ? null
-                : () async {
-                    final sessionId = await _sessionRepository
-                        .findOrCreateForPlot(widget.plotId);
-                    if (!context.mounted) return;
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ChatScreen(sessionId: sessionId),
-                      ),
-                    );
-                  },
+            onPressed: _loading ? null : () => _startOrContinueChat(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF7A6FF0),
               foregroundColor: Colors.white,

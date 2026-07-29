@@ -5,15 +5,18 @@ import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/export/plot_card_exporter.dart';
+import '../data/export/plot_data_exporter.dart';
 import '../data/local_image_store.dart';
 import '../data/repositories/character_repository.dart';
 import '../data/repositories/intro_entry_repository.dart';
 import '../data/repositories/lorebook_repository.dart';
+import '../data/repositories/plot_conversation_profile_repository.dart';
 import '../data/repositories/plot_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/dashed_box.dart';
 import '../widgets/local_avatar.dart';
 import 'lorebook_connect_screen.dart';
+import 'plot_conversation_profile_edit_screen.dart';
 
 /// 프롬프트 탭에서 편집 중인 캐릭터 1명 분의 폼 상태.
 class _CharacterForm {
@@ -258,6 +261,40 @@ class _PlotEditScreenState extends State<PlotEditScreen>
     }
   }
 
+  /// SillyTavern 카드와 달리 대표 캐릭터 하나로 손실 압축하지 않고, 이 플롯의 모든
+  /// 캐릭터/인트로/플롯 전용 프로필/연결된 로어북과 이미지를 전용 zip 형식으로 내보낸다.
+  Future<void> _exportAsPlotDataPackage() async {
+    final l10n = AppLocalizations.of(context)!;
+    final plotId = widget.plotId;
+    if (plotId == null || _exporting) return;
+    setState(() => _exporting = true);
+    try {
+      final bytes = await PlotDataExporter(AppDatabase.instance).exportPlot(plotId);
+      final safeTitle = _titleController.text.trim().replaceAll(
+        RegExp(r'[\\/:*?"<>|]'),
+        '_',
+      );
+      final path = await FilePicker.saveFile(
+        fileName: '${safeTitle.isEmpty ? 'plot' : safeTitle}.mzplot',
+        type: FileType.custom,
+        allowedExtensions: const ['mzplot'],
+        bytes: bytes,
+      );
+      if (path == null) return; // 취소됨
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.plotEditExportSuccessMessage)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.plotEditExportFailureMessage(e))),
+      );
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -289,6 +326,7 @@ class _PlotEditScreenState extends State<PlotEditScreen>
                       controller: _tabController,
                       children: [
                         _PromptTab(
+                          plotId: widget.plotId,
                           titleController: _titleController,
                           descController: _descController,
                           characterForms: _characterForms,
@@ -354,12 +392,20 @@ class _PlotEditScreenState extends State<PlotEditScreen>
           enabled: widget.plotId != null && !_exporting,
           onSelected: (value) {
             if (value == 'export_card') _exportAsSillyTavernCard();
+            if (value == 'export_data') _exportAsPlotDataPackage();
           },
           itemBuilder: (context) => [
             PopupMenuItem(
               value: 'export_card',
               child: Text(
                 l10n.plotEditExportCardMenuItem,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'export_data',
+              child: Text(
+                l10n.plotEditExportDataMenuItem,
                 style: const TextStyle(color: Colors.white),
               ),
             ),
@@ -451,6 +497,7 @@ class _LabeledField extends StatelessWidget {
     this.showCharCount = false,
     this.maxLines = 1,
     this.required = false,
+    this.expandable = false,
   });
 
   final String label;
@@ -459,13 +506,41 @@ class _LabeledField extends StatelessWidget {
   final int maxLines;
   final bool required;
 
+  /// true면 라벨 옆에 작은 확장 버튼을 붙여서, 전체 화면 편집기로 옮겨가 더 편하게
+  /// 긴 글을 쓸 수 있게 한다(플롯 프롬프트 관련 입력창처럼 내용이 길어질 수 있는 곳용).
+  final bool expandable;
+
+  Future<void> _openFullscreenEditor(BuildContext context) async {
+    final result = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => _FullscreenTextEditScreen(title: label, initialText: controller.text),
+      ),
+    );
+    if (result != null) controller.text = result;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionLabel(label, required: required),
+        if (expandable)
+          Row(
+            children: [
+              Expanded(child: _SectionLabel(label, required: required)),
+              InkWell(
+                onTap: () => _openFullscreenEditor(context),
+                borderRadius: BorderRadius.circular(6),
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(Icons.open_in_full, size: 15, color: Colors.white38),
+                ),
+              ),
+            ],
+          )
+        else
+          _SectionLabel(label, required: required),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -507,8 +582,83 @@ class _LabeledField extends StatelessWidget {
   }
 }
 
+/// [_LabeledField]의 확장 버튼으로 진입하는 전체 화면 텍스트 편집기.
+/// 저장을 누르면 편집한 텍스트를 [Navigator.pop]으로 돌려주고, 뒤로가기(취소)면 null을 돌려준다.
+class _FullscreenTextEditScreen extends StatefulWidget {
+  const _FullscreenTextEditScreen({required this.title, required this.initialText});
+
+  final String title;
+  final String initialText;
+
+  @override
+  State<_FullscreenTextEditScreen> createState() => _FullscreenTextEditScreenState();
+}
+
+class _FullscreenTextEditScreenState extends State<_FullscreenTextEditScreen> {
+  late final TextEditingController _controller = TextEditingController(text: widget.initialText);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Scaffold(
+      backgroundColor: _PlotEditScreenState._background,
+      appBar: AppBar(
+        backgroundColor: _PlotEditScreenState._background,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close, color: Colors.white, size: 22),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          widget.title,
+          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(_controller.text),
+            child: Text(
+              l10n.commonSave,
+              style: const TextStyle(color: Color(0xFF7A6FF0), fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: TextField(
+            controller: _controller,
+            autofocus: true,
+            expands: true,
+            maxLines: null,
+            minLines: null,
+            textAlignVertical: TextAlignVertical.top,
+            style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.5),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: _PlotEditScreenState._cardBg,
+              contentPadding: const EdgeInsets.all(14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PromptTab extends StatelessWidget {
   const _PromptTab({
+    required this.plotId,
     required this.titleController,
     required this.descController,
     required this.characterForms,
@@ -518,6 +668,7 @@ class _PromptTab extends StatelessWidget {
     required this.onRemoveCharacter,
   });
 
+  final int? plotId;
   final TextEditingController titleController;
   final TextEditingController descController;
   final List<_CharacterForm> characterForms;
@@ -562,6 +713,7 @@ class _PromptTab extends StatelessWidget {
                 controller: descController,
                 maxLines: 4,
                 required: true,
+                expandable: true,
               ),
             ],
           ),
@@ -588,6 +740,8 @@ class _PromptTab extends StatelessWidget {
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
         ),
+        const SizedBox(height: 24),
+        _PlotProfilesSection(plotId: plotId),
       ],
     );
   }
@@ -725,6 +879,158 @@ class _PromptTab extends StatelessWidget {
             label: l10n.plotEditDescriptionFieldLabel,
             controller: form.descController,
             maxLines: 3,
+            expandable: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 플롯 편집 > 프롬프트 탭 맨 아래의 '플롯 전용 대화 프로필' 섹션. 이 플롯으로 새 채팅을
+/// 시작할 때 고를 수 있는 유저 프로필을 여기서 만든다(개수 제한 없음).
+class _PlotProfilesSection extends StatefulWidget {
+  const _PlotProfilesSection({required this.plotId});
+
+  final int? plotId;
+
+  @override
+  State<_PlotProfilesSection> createState() => _PlotProfilesSectionState();
+}
+
+class _PlotProfilesSectionState extends State<_PlotProfilesSection> {
+  late final PlotConversationProfileRepository _repository;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository = PlotConversationProfileRepository(AppDatabase.instance);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final plotId = widget.plotId;
+    if (plotId == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          l10n.plotProfileSavePlotFirst,
+          style: const TextStyle(color: Colors.white38, fontSize: 13),
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.plotProfileSectionTitle,
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.plotProfileSectionDescription,
+          style: const TextStyle(color: Colors.white38, fontSize: 12),
+        ),
+        const SizedBox(height: 12),
+        StreamBuilder<List<PlotConversationProfile>>(
+          stream: _repository.watchByPlot(plotId),
+          builder: (context, snapshot) {
+            final profiles = snapshot.data ?? const [];
+            return Column(
+              children: [
+                for (final profile in profiles) ...[
+                  _PlotProfileCard(
+                    profile: profile,
+                    repository: _repository,
+                    onEdit: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => PlotConversationProfileEditScreen(
+                          plotId: plotId,
+                          profileId: profile.id,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => PlotConversationProfileEditScreen(plotId: plotId),
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: _PlotEditScreenState._borderGrey),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    minimumSize: const Size(double.infinity, 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  icon: const Icon(Icons.add, size: 16),
+                  label: Text(
+                    l10n.plotProfileAddButton,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _PlotProfileCard extends StatelessWidget {
+  const _PlotProfileCard({
+    required this.profile,
+    required this.repository,
+    required this.onEdit,
+  });
+
+  final PlotConversationProfile profile;
+  final PlotConversationProfileRepository repository;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _PlotEditScreenState._cardBg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          LocalAvatar(imagePath: profile.imagePath, radius: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FutureBuilder<String>(
+                  future: repository.resolveDisplayName(profile),
+                  builder: (context, snapshot) {
+                    return Text(
+                      snapshot.data ?? profile.name,
+                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                    );
+                  },
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  profile.shortIntro,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit_outlined, color: Colors.white54, size: 18),
+            onPressed: onEdit,
           ),
         ],
       ),
@@ -816,10 +1122,7 @@ class _LorebookTabState extends State<_LorebookTab> {
                 ),
                 icon: const Icon(Icons.add, size: 16),
                 label: Text(
-                  l10n.plotEditLorebookConnectButton(
-                    linked.length,
-                    LorebookConnectScreen.maxLinks,
-                  ),
+                  l10n.plotEditLorebookConnectButton(linked.length),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,

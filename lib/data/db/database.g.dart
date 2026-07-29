@@ -2213,6 +2213,585 @@ class ConversationProfilesCompanion
   }
 }
 
+class $PlotConversationProfilesTable extends PlotConversationProfiles
+    with TableInfo<$PlotConversationProfilesTable, PlotConversationProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlotConversationProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _plotIdMeta = const VerificationMeta('plotId');
+  @override
+  late final GeneratedColumn<int> plotId = GeneratedColumn<int>(
+    'plot_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES plots (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 20,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _useGlobalNameMeta = const VerificationMeta(
+    'useGlobalName',
+  );
+  @override
+  late final GeneratedColumn<bool> useGlobalName = GeneratedColumn<bool>(
+    'use_global_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("use_global_name" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _shortIntroMeta = const VerificationMeta(
+    'shortIntro',
+  );
+  @override
+  late final GeneratedColumn<String> shortIntro = GeneratedColumn<String>(
+    'short_intro',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 50,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _imagePathMeta = const VerificationMeta(
+    'imagePath',
+  );
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+    'image_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    plotId,
+    name,
+    useGlobalName,
+    shortIntro,
+    description,
+    imagePath,
+    sortOrder,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'plot_conversation_profiles';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PlotConversationProfile> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('plot_id')) {
+      context.handle(
+        _plotIdMeta,
+        plotId.isAcceptableOrUnknown(data['plot_id']!, _plotIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_plotIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('use_global_name')) {
+      context.handle(
+        _useGlobalNameMeta,
+        useGlobalName.isAcceptableOrUnknown(
+          data['use_global_name']!,
+          _useGlobalNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('short_intro')) {
+      context.handle(
+        _shortIntroMeta,
+        shortIntro.isAcceptableOrUnknown(data['short_intro']!, _shortIntroMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_shortIntroMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('image_path')) {
+      context.handle(
+        _imagePathMeta,
+        imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PlotConversationProfile map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PlotConversationProfile(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      plotId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}plot_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      useGlobalName: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}use_global_name'],
+      )!,
+      shortIntro: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}short_intro'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      imagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_path'],
+      ),
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $PlotConversationProfilesTable createAlias(String alias) {
+    return $PlotConversationProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class PlotConversationProfile extends DataClass
+    implements Insertable<PlotConversationProfile> {
+  final int id;
+  final int plotId;
+  final String name;
+
+  /// true면 [name]을 직접 쓰지 않고, 표시할 때마다 전역 기본 프로필의 이름을 그대로 가져와
+  /// 보여준다(전역 기본 프로필이 바뀌면 이 프로필의 이름도 같이 바뀐다).
+  final bool useGlobalName;
+
+  /// 카드/목록에 보여주는 한 줄 소개. AI에게는 전달되지 않는다(표시 전용).
+  final String shortIntro;
+
+  /// 캐릭터 설명처럼 AI에게 그대로 전달되는 유저 페르소나 설명.
+  final String description;
+  final String? imagePath;
+  final int sortOrder;
+  final DateTime createdAt;
+  const PlotConversationProfile({
+    required this.id,
+    required this.plotId,
+    required this.name,
+    required this.useGlobalName,
+    required this.shortIntro,
+    required this.description,
+    this.imagePath,
+    required this.sortOrder,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['plot_id'] = Variable<int>(plotId);
+    map['name'] = Variable<String>(name);
+    map['use_global_name'] = Variable<bool>(useGlobalName);
+    map['short_intro'] = Variable<String>(shortIntro);
+    map['description'] = Variable<String>(description);
+    if (!nullToAbsent || imagePath != null) {
+      map['image_path'] = Variable<String>(imagePath);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  PlotConversationProfilesCompanion toCompanion(bool nullToAbsent) {
+    return PlotConversationProfilesCompanion(
+      id: Value(id),
+      plotId: Value(plotId),
+      name: Value(name),
+      useGlobalName: Value(useGlobalName),
+      shortIntro: Value(shortIntro),
+      description: Value(description),
+      imagePath: imagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagePath),
+      sortOrder: Value(sortOrder),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory PlotConversationProfile.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PlotConversationProfile(
+      id: serializer.fromJson<int>(json['id']),
+      plotId: serializer.fromJson<int>(json['plotId']),
+      name: serializer.fromJson<String>(json['name']),
+      useGlobalName: serializer.fromJson<bool>(json['useGlobalName']),
+      shortIntro: serializer.fromJson<String>(json['shortIntro']),
+      description: serializer.fromJson<String>(json['description']),
+      imagePath: serializer.fromJson<String?>(json['imagePath']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'plotId': serializer.toJson<int>(plotId),
+      'name': serializer.toJson<String>(name),
+      'useGlobalName': serializer.toJson<bool>(useGlobalName),
+      'shortIntro': serializer.toJson<String>(shortIntro),
+      'description': serializer.toJson<String>(description),
+      'imagePath': serializer.toJson<String?>(imagePath),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  PlotConversationProfile copyWith({
+    int? id,
+    int? plotId,
+    String? name,
+    bool? useGlobalName,
+    String? shortIntro,
+    String? description,
+    Value<String?> imagePath = const Value.absent(),
+    int? sortOrder,
+    DateTime? createdAt,
+  }) => PlotConversationProfile(
+    id: id ?? this.id,
+    plotId: plotId ?? this.plotId,
+    name: name ?? this.name,
+    useGlobalName: useGlobalName ?? this.useGlobalName,
+    shortIntro: shortIntro ?? this.shortIntro,
+    description: description ?? this.description,
+    imagePath: imagePath.present ? imagePath.value : this.imagePath,
+    sortOrder: sortOrder ?? this.sortOrder,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  PlotConversationProfile copyWithCompanion(
+    PlotConversationProfilesCompanion data,
+  ) {
+    return PlotConversationProfile(
+      id: data.id.present ? data.id.value : this.id,
+      plotId: data.plotId.present ? data.plotId.value : this.plotId,
+      name: data.name.present ? data.name.value : this.name,
+      useGlobalName: data.useGlobalName.present
+          ? data.useGlobalName.value
+          : this.useGlobalName,
+      shortIntro: data.shortIntro.present
+          ? data.shortIntro.value
+          : this.shortIntro,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlotConversationProfile(')
+          ..write('id: $id, ')
+          ..write('plotId: $plotId, ')
+          ..write('name: $name, ')
+          ..write('useGlobalName: $useGlobalName, ')
+          ..write('shortIntro: $shortIntro, ')
+          ..write('description: $description, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    plotId,
+    name,
+    useGlobalName,
+    shortIntro,
+    description,
+    imagePath,
+    sortOrder,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PlotConversationProfile &&
+          other.id == this.id &&
+          other.plotId == this.plotId &&
+          other.name == this.name &&
+          other.useGlobalName == this.useGlobalName &&
+          other.shortIntro == this.shortIntro &&
+          other.description == this.description &&
+          other.imagePath == this.imagePath &&
+          other.sortOrder == this.sortOrder &&
+          other.createdAt == this.createdAt);
+}
+
+class PlotConversationProfilesCompanion
+    extends UpdateCompanion<PlotConversationProfile> {
+  final Value<int> id;
+  final Value<int> plotId;
+  final Value<String> name;
+  final Value<bool> useGlobalName;
+  final Value<String> shortIntro;
+  final Value<String> description;
+  final Value<String?> imagePath;
+  final Value<int> sortOrder;
+  final Value<DateTime> createdAt;
+  const PlotConversationProfilesCompanion({
+    this.id = const Value.absent(),
+    this.plotId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.useGlobalName = const Value.absent(),
+    this.shortIntro = const Value.absent(),
+    this.description = const Value.absent(),
+    this.imagePath = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  PlotConversationProfilesCompanion.insert({
+    this.id = const Value.absent(),
+    required int plotId,
+    required String name,
+    this.useGlobalName = const Value.absent(),
+    required String shortIntro,
+    this.description = const Value.absent(),
+    this.imagePath = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : plotId = Value(plotId),
+       name = Value(name),
+       shortIntro = Value(shortIntro);
+  static Insertable<PlotConversationProfile> custom({
+    Expression<int>? id,
+    Expression<int>? plotId,
+    Expression<String>? name,
+    Expression<bool>? useGlobalName,
+    Expression<String>? shortIntro,
+    Expression<String>? description,
+    Expression<String>? imagePath,
+    Expression<int>? sortOrder,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (plotId != null) 'plot_id': plotId,
+      if (name != null) 'name': name,
+      if (useGlobalName != null) 'use_global_name': useGlobalName,
+      if (shortIntro != null) 'short_intro': shortIntro,
+      if (description != null) 'description': description,
+      if (imagePath != null) 'image_path': imagePath,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  PlotConversationProfilesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? plotId,
+    Value<String>? name,
+    Value<bool>? useGlobalName,
+    Value<String>? shortIntro,
+    Value<String>? description,
+    Value<String?>? imagePath,
+    Value<int>? sortOrder,
+    Value<DateTime>? createdAt,
+  }) {
+    return PlotConversationProfilesCompanion(
+      id: id ?? this.id,
+      plotId: plotId ?? this.plotId,
+      name: name ?? this.name,
+      useGlobalName: useGlobalName ?? this.useGlobalName,
+      shortIntro: shortIntro ?? this.shortIntro,
+      description: description ?? this.description,
+      imagePath: imagePath ?? this.imagePath,
+      sortOrder: sortOrder ?? this.sortOrder,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (plotId.present) {
+      map['plot_id'] = Variable<int>(plotId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (useGlobalName.present) {
+      map['use_global_name'] = Variable<bool>(useGlobalName.value);
+    }
+    if (shortIntro.present) {
+      map['short_intro'] = Variable<String>(shortIntro.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlotConversationProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('plotId: $plotId, ')
+          ..write('name: $name, ')
+          ..write('useGlobalName: $useGlobalName, ')
+          ..write('shortIntro: $shortIntro, ')
+          ..write('description: $description, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AiPresetsTable extends AiPresets
     with TableInfo<$AiPresetsTable, AiPreset> {
   @override
@@ -2384,6 +2963,43 @@ class $AiPresetsTable extends AiPresets
         requiredDuringInsert: false,
         defaultValue: const Constant(''),
       );
+  static const VerificationMeta _isLocalMeta = const VerificationMeta(
+    'isLocal',
+  );
+  @override
+  late final GeneratedColumn<bool> isLocal = GeneratedColumn<bool>(
+    'is_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_local" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _reasoningEffortMeta = const VerificationMeta(
+    'reasoningEffort',
+  );
+  @override
+  late final GeneratedColumn<String> reasoningEffort = GeneratedColumn<String>(
+    'reasoning_effort',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _localModelSourceMeta = const VerificationMeta(
+    'localModelSource',
+  );
+  @override
+  late final GeneratedColumn<String> localModelSource = GeneratedColumn<String>(
+    'local_model_source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2400,6 +3016,9 @@ class $AiPresetsTable extends AiPresets
     maxTokens,
     contextLength,
     additionalSystemPrompt,
+    isLocal,
+    reasoningEffort,
+    localModelSource,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2512,6 +3131,30 @@ class $AiPresetsTable extends AiPresets
         ),
       );
     }
+    if (data.containsKey('is_local')) {
+      context.handle(
+        _isLocalMeta,
+        isLocal.isAcceptableOrUnknown(data['is_local']!, _isLocalMeta),
+      );
+    }
+    if (data.containsKey('reasoning_effort')) {
+      context.handle(
+        _reasoningEffortMeta,
+        reasoningEffort.isAcceptableOrUnknown(
+          data['reasoning_effort']!,
+          _reasoningEffortMeta,
+        ),
+      );
+    }
+    if (data.containsKey('local_model_source')) {
+      context.handle(
+        _localModelSourceMeta,
+        localModelSource.isAcceptableOrUnknown(
+          data['local_model_source']!,
+          _localModelSourceMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2577,6 +3220,18 @@ class $AiPresetsTable extends AiPresets
         DriftSqlType.string,
         data['${effectivePrefix}additional_system_prompt'],
       )!,
+      isLocal: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_local'],
+      )!,
+      reasoningEffort: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reasoning_effort'],
+      ),
+      localModelSource: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_model_source'],
+      ),
     );
   }
 
@@ -2607,6 +3262,17 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
 
   /// 시스템 프롬프트 뒤에 그대로 덧붙이는 사용자 정의 지침. 기본값은 빈 문자열.
   final String additionalSystemPrompt;
+
+  /// true면 원격 API가 아니라 기기에 내장된 로컬 LLM(llama.cpp)으로 추론한다.
+  /// 이 경우 baseUrl/apiKeyRef는 쓰지 않고 [localModelSource]만 사용한다.
+  final bool isLocal;
+
+  /// null(끔) 또는 'low'/'medium'/'high'. 원격 요청에는 `reasoning_effort`로 그대로 실어 보내고,
+  /// 로컬 모델에는 사고(thinking) 모드를 켜고 이 값에 비례한 토큰 예산을 준다.
+  final String? reasoningEffort;
+
+  /// 로컬 모델의 위치. `hf://...` (다운로드 후 캐시된 모델) 또는 로컬 파일 경로.
+  final String? localModelSource;
   const AiPreset({
     required this.id,
     required this.name,
@@ -2622,6 +3288,9 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
     this.maxTokens,
     this.contextLength,
     required this.additionalSystemPrompt,
+    required this.isLocal,
+    this.reasoningEffort,
+    this.localModelSource,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2648,6 +3317,13 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
       map['context_length'] = Variable<int>(contextLength);
     }
     map['additional_system_prompt'] = Variable<String>(additionalSystemPrompt);
+    map['is_local'] = Variable<bool>(isLocal);
+    if (!nullToAbsent || reasoningEffort != null) {
+      map['reasoning_effort'] = Variable<String>(reasoningEffort);
+    }
+    if (!nullToAbsent || localModelSource != null) {
+      map['local_model_source'] = Variable<String>(localModelSource);
+    }
     return map;
   }
 
@@ -2673,6 +3349,13 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
           ? const Value.absent()
           : Value(contextLength),
       additionalSystemPrompt: Value(additionalSystemPrompt),
+      isLocal: Value(isLocal),
+      reasoningEffort: reasoningEffort == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reasoningEffort),
+      localModelSource: localModelSource == null && nullToAbsent
+          ? const Value.absent()
+          : Value(localModelSource),
     );
   }
 
@@ -2698,6 +3381,9 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
       additionalSystemPrompt: serializer.fromJson<String>(
         json['additionalSystemPrompt'],
       ),
+      isLocal: serializer.fromJson<bool>(json['isLocal']),
+      reasoningEffort: serializer.fromJson<String?>(json['reasoningEffort']),
+      localModelSource: serializer.fromJson<String?>(json['localModelSource']),
     );
   }
   @override
@@ -2720,6 +3406,9 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
       'additionalSystemPrompt': serializer.toJson<String>(
         additionalSystemPrompt,
       ),
+      'isLocal': serializer.toJson<bool>(isLocal),
+      'reasoningEffort': serializer.toJson<String?>(reasoningEffort),
+      'localModelSource': serializer.toJson<String?>(localModelSource),
     };
   }
 
@@ -2738,6 +3427,9 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
     Value<int?> maxTokens = const Value.absent(),
     Value<int?> contextLength = const Value.absent(),
     String? additionalSystemPrompt,
+    bool? isLocal,
+    Value<String?> reasoningEffort = const Value.absent(),
+    Value<String?> localModelSource = const Value.absent(),
   }) => AiPreset(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -2756,6 +3448,13 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
         : this.contextLength,
     additionalSystemPrompt:
         additionalSystemPrompt ?? this.additionalSystemPrompt,
+    isLocal: isLocal ?? this.isLocal,
+    reasoningEffort: reasoningEffort.present
+        ? reasoningEffort.value
+        : this.reasoningEffort,
+    localModelSource: localModelSource.present
+        ? localModelSource.value
+        : this.localModelSource,
   );
   AiPreset copyWithCompanion(AiPresetsCompanion data) {
     return AiPreset(
@@ -2781,6 +3480,13 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
       additionalSystemPrompt: data.additionalSystemPrompt.present
           ? data.additionalSystemPrompt.value
           : this.additionalSystemPrompt,
+      isLocal: data.isLocal.present ? data.isLocal.value : this.isLocal,
+      reasoningEffort: data.reasoningEffort.present
+          ? data.reasoningEffort.value
+          : this.reasoningEffort,
+      localModelSource: data.localModelSource.present
+          ? data.localModelSource.value
+          : this.localModelSource,
     );
   }
 
@@ -2800,7 +3506,10 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
           ..write('topK: $topK, ')
           ..write('maxTokens: $maxTokens, ')
           ..write('contextLength: $contextLength, ')
-          ..write('additionalSystemPrompt: $additionalSystemPrompt')
+          ..write('additionalSystemPrompt: $additionalSystemPrompt, ')
+          ..write('isLocal: $isLocal, ')
+          ..write('reasoningEffort: $reasoningEffort, ')
+          ..write('localModelSource: $localModelSource')
           ..write(')'))
         .toString();
   }
@@ -2821,6 +3530,9 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
     maxTokens,
     contextLength,
     additionalSystemPrompt,
+    isLocal,
+    reasoningEffort,
+    localModelSource,
   );
   @override
   bool operator ==(Object other) =>
@@ -2839,7 +3551,10 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
           other.topK == this.topK &&
           other.maxTokens == this.maxTokens &&
           other.contextLength == this.contextLength &&
-          other.additionalSystemPrompt == this.additionalSystemPrompt);
+          other.additionalSystemPrompt == this.additionalSystemPrompt &&
+          other.isLocal == this.isLocal &&
+          other.reasoningEffort == this.reasoningEffort &&
+          other.localModelSource == this.localModelSource);
 }
 
 class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
@@ -2857,6 +3572,9 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
   final Value<int?> maxTokens;
   final Value<int?> contextLength;
   final Value<String> additionalSystemPrompt;
+  final Value<bool> isLocal;
+  final Value<String?> reasoningEffort;
+  final Value<String?> localModelSource;
   const AiPresetsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -2872,6 +3590,9 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     this.maxTokens = const Value.absent(),
     this.contextLength = const Value.absent(),
     this.additionalSystemPrompt = const Value.absent(),
+    this.isLocal = const Value.absent(),
+    this.reasoningEffort = const Value.absent(),
+    this.localModelSource = const Value.absent(),
   });
   AiPresetsCompanion.insert({
     this.id = const Value.absent(),
@@ -2888,6 +3609,9 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     this.maxTokens = const Value.absent(),
     this.contextLength = const Value.absent(),
     this.additionalSystemPrompt = const Value.absent(),
+    this.isLocal = const Value.absent(),
+    this.reasoningEffort = const Value.absent(),
+    this.localModelSource = const Value.absent(),
   }) : name = Value(name),
        baseUrl = Value(baseUrl),
        modelName = Value(modelName);
@@ -2906,6 +3630,9 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     Expression<int>? maxTokens,
     Expression<int>? contextLength,
     Expression<String>? additionalSystemPrompt,
+    Expression<bool>? isLocal,
+    Expression<String>? reasoningEffort,
+    Expression<String>? localModelSource,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2923,6 +3650,9 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
       if (contextLength != null) 'context_length': contextLength,
       if (additionalSystemPrompt != null)
         'additional_system_prompt': additionalSystemPrompt,
+      if (isLocal != null) 'is_local': isLocal,
+      if (reasoningEffort != null) 'reasoning_effort': reasoningEffort,
+      if (localModelSource != null) 'local_model_source': localModelSource,
     });
   }
 
@@ -2941,6 +3671,9 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     Value<int?>? maxTokens,
     Value<int?>? contextLength,
     Value<String>? additionalSystemPrompt,
+    Value<bool>? isLocal,
+    Value<String?>? reasoningEffort,
+    Value<String?>? localModelSource,
   }) {
     return AiPresetsCompanion(
       id: id ?? this.id,
@@ -2958,6 +3691,9 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
       contextLength: contextLength ?? this.contextLength,
       additionalSystemPrompt:
           additionalSystemPrompt ?? this.additionalSystemPrompt,
+      isLocal: isLocal ?? this.isLocal,
+      reasoningEffort: reasoningEffort ?? this.reasoningEffort,
+      localModelSource: localModelSource ?? this.localModelSource,
     );
   }
 
@@ -3008,6 +3744,15 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
         additionalSystemPrompt.value,
       );
     }
+    if (isLocal.present) {
+      map['is_local'] = Variable<bool>(isLocal.value);
+    }
+    if (reasoningEffort.present) {
+      map['reasoning_effort'] = Variable<String>(reasoningEffort.value);
+    }
+    if (localModelSource.present) {
+      map['local_model_source'] = Variable<String>(localModelSource.value);
+    }
     return map;
   }
 
@@ -3027,7 +3772,10 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
           ..write('topK: $topK, ')
           ..write('maxTokens: $maxTokens, ')
           ..write('contextLength: $contextLength, ')
-          ..write('additionalSystemPrompt: $additionalSystemPrompt')
+          ..write('additionalSystemPrompt: $additionalSystemPrompt, ')
+          ..write('isLocal: $isLocal, ')
+          ..write('reasoningEffort: $reasoningEffort, ')
+          ..write('localModelSource: $localModelSource')
           ..write(')'))
         .toString();
   }
@@ -3077,6 +3825,20 @@ class $ChatSessionsTable extends ChatSessions
       'REFERENCES conversation_profiles (id) ON DELETE SET NULL',
     ),
   );
+  static const VerificationMeta _plotConversationProfileIdMeta =
+      const VerificationMeta('plotConversationProfileId');
+  @override
+  late final GeneratedColumn<int> plotConversationProfileId =
+      GeneratedColumn<int>(
+        'plot_conversation_profile_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES plot_conversation_profiles (id) ON DELETE SET NULL',
+        ),
+      );
   static const VerificationMeta _presetIdMeta = const VerificationMeta(
     'presetId',
   );
@@ -3157,6 +3919,7 @@ class $ChatSessionsTable extends ChatSessions
     id,
     plotId,
     conversationProfileId,
+    plotConversationProfileId,
     presetId,
     pinned,
     locked,
@@ -3193,6 +3956,15 @@ class $ChatSessionsTable extends ChatSessions
         conversationProfileId.isAcceptableOrUnknown(
           data['conversation_profile_id']!,
           _conversationProfileIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('plot_conversation_profile_id')) {
+      context.handle(
+        _plotConversationProfileIdMeta,
+        plotConversationProfileId.isAcceptableOrUnknown(
+          data['plot_conversation_profile_id']!,
+          _plotConversationProfileIdMeta,
         ),
       );
     }
@@ -3253,6 +4025,10 @@ class $ChatSessionsTable extends ChatSessions
         DriftSqlType.int,
         data['${effectivePrefix}conversation_profile_id'],
       ),
+      plotConversationProfileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}plot_conversation_profile_id'],
+      ),
       presetId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}preset_id'],
@@ -3290,6 +4066,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
   final int id;
   final int plotId;
   final int? conversationProfileId;
+
+  /// [conversationProfileId](전역 프로필)와는 동시에 값이 있을 수 없다 - 둘 중 하나만 쓴다.
+  final int? plotConversationProfileId;
   final int? presetId;
   final bool pinned;
   final bool locked;
@@ -3303,6 +4082,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     required this.id,
     required this.plotId,
     this.conversationProfileId,
+    this.plotConversationProfileId,
     this.presetId,
     required this.pinned,
     required this.locked,
@@ -3317,6 +4097,11 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     map['plot_id'] = Variable<int>(plotId);
     if (!nullToAbsent || conversationProfileId != null) {
       map['conversation_profile_id'] = Variable<int>(conversationProfileId);
+    }
+    if (!nullToAbsent || plotConversationProfileId != null) {
+      map['plot_conversation_profile_id'] = Variable<int>(
+        plotConversationProfileId,
+      );
     }
     if (!nullToAbsent || presetId != null) {
       map['preset_id'] = Variable<int>(presetId);
@@ -3338,6 +4123,10 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
       conversationProfileId: conversationProfileId == null && nullToAbsent
           ? const Value.absent()
           : Value(conversationProfileId),
+      plotConversationProfileId:
+          plotConversationProfileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(plotConversationProfileId),
       presetId: presetId == null && nullToAbsent
           ? const Value.absent()
           : Value(presetId),
@@ -3362,6 +4151,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
       conversationProfileId: serializer.fromJson<int?>(
         json['conversationProfileId'],
       ),
+      plotConversationProfileId: serializer.fromJson<int?>(
+        json['plotConversationProfileId'],
+      ),
       presetId: serializer.fromJson<int?>(json['presetId']),
       pinned: serializer.fromJson<bool>(json['pinned']),
       locked: serializer.fromJson<bool>(json['locked']),
@@ -3377,6 +4169,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
       'id': serializer.toJson<int>(id),
       'plotId': serializer.toJson<int>(plotId),
       'conversationProfileId': serializer.toJson<int?>(conversationProfileId),
+      'plotConversationProfileId': serializer.toJson<int?>(
+        plotConversationProfileId,
+      ),
       'presetId': serializer.toJson<int?>(presetId),
       'pinned': serializer.toJson<bool>(pinned),
       'locked': serializer.toJson<bool>(locked),
@@ -3390,6 +4185,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     int? id,
     int? plotId,
     Value<int?> conversationProfileId = const Value.absent(),
+    Value<int?> plotConversationProfileId = const Value.absent(),
     Value<int?> presetId = const Value.absent(),
     bool? pinned,
     bool? locked,
@@ -3402,6 +4198,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     conversationProfileId: conversationProfileId.present
         ? conversationProfileId.value
         : this.conversationProfileId,
+    plotConversationProfileId: plotConversationProfileId.present
+        ? plotConversationProfileId.value
+        : this.plotConversationProfileId,
     presetId: presetId.present ? presetId.value : this.presetId,
     pinned: pinned ?? this.pinned,
     locked: locked ?? this.locked,
@@ -3416,6 +4215,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
       conversationProfileId: data.conversationProfileId.present
           ? data.conversationProfileId.value
           : this.conversationProfileId,
+      plotConversationProfileId: data.plotConversationProfileId.present
+          ? data.plotConversationProfileId.value
+          : this.plotConversationProfileId,
       presetId: data.presetId.present ? data.presetId.value : this.presetId,
       pinned: data.pinned.present ? data.pinned.value : this.pinned,
       locked: data.locked.present ? data.locked.value : this.locked,
@@ -3433,6 +4235,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
           ..write('id: $id, ')
           ..write('plotId: $plotId, ')
           ..write('conversationProfileId: $conversationProfileId, ')
+          ..write('plotConversationProfileId: $plotConversationProfileId, ')
           ..write('presetId: $presetId, ')
           ..write('pinned: $pinned, ')
           ..write('locked: $locked, ')
@@ -3448,6 +4251,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     id,
     plotId,
     conversationProfileId,
+    plotConversationProfileId,
     presetId,
     pinned,
     locked,
@@ -3462,6 +4266,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
           other.id == this.id &&
           other.plotId == this.plotId &&
           other.conversationProfileId == this.conversationProfileId &&
+          other.plotConversationProfileId == this.plotConversationProfileId &&
           other.presetId == this.presetId &&
           other.pinned == this.pinned &&
           other.locked == this.locked &&
@@ -3474,6 +4279,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
   final Value<int> id;
   final Value<int> plotId;
   final Value<int?> conversationProfileId;
+  final Value<int?> plotConversationProfileId;
   final Value<int?> presetId;
   final Value<bool> pinned;
   final Value<bool> locked;
@@ -3484,6 +4290,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     this.id = const Value.absent(),
     this.plotId = const Value.absent(),
     this.conversationProfileId = const Value.absent(),
+    this.plotConversationProfileId = const Value.absent(),
     this.presetId = const Value.absent(),
     this.pinned = const Value.absent(),
     this.locked = const Value.absent(),
@@ -3495,6 +4302,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     this.id = const Value.absent(),
     required int plotId,
     this.conversationProfileId = const Value.absent(),
+    this.plotConversationProfileId = const Value.absent(),
     this.presetId = const Value.absent(),
     this.pinned = const Value.absent(),
     this.locked = const Value.absent(),
@@ -3506,6 +4314,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     Expression<int>? id,
     Expression<int>? plotId,
     Expression<int>? conversationProfileId,
+    Expression<int>? plotConversationProfileId,
     Expression<int>? presetId,
     Expression<bool>? pinned,
     Expression<bool>? locked,
@@ -3518,6 +4327,8 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
       if (plotId != null) 'plot_id': plotId,
       if (conversationProfileId != null)
         'conversation_profile_id': conversationProfileId,
+      if (plotConversationProfileId != null)
+        'plot_conversation_profile_id': plotConversationProfileId,
       if (presetId != null) 'preset_id': presetId,
       if (pinned != null) 'pinned': pinned,
       if (locked != null) 'locked': locked,
@@ -3531,6 +4342,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     Value<int>? id,
     Value<int>? plotId,
     Value<int?>? conversationProfileId,
+    Value<int?>? plotConversationProfileId,
     Value<int?>? presetId,
     Value<bool>? pinned,
     Value<bool>? locked,
@@ -3543,6 +4355,8 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
       plotId: plotId ?? this.plotId,
       conversationProfileId:
           conversationProfileId ?? this.conversationProfileId,
+      plotConversationProfileId:
+          plotConversationProfileId ?? this.plotConversationProfileId,
       presetId: presetId ?? this.presetId,
       pinned: pinned ?? this.pinned,
       locked: locked ?? this.locked,
@@ -3564,6 +4378,11 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     if (conversationProfileId.present) {
       map['conversation_profile_id'] = Variable<int>(
         conversationProfileId.value,
+      );
+    }
+    if (plotConversationProfileId.present) {
+      map['plot_conversation_profile_id'] = Variable<int>(
+        plotConversationProfileId.value,
       );
     }
     if (presetId.present) {
@@ -3593,6 +4412,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
           ..write('id: $id, ')
           ..write('plotId: $plotId, ')
           ..write('conversationProfileId: $conversationProfileId, ')
+          ..write('plotConversationProfileId: $plotConversationProfileId, ')
           ..write('presetId: $presetId, ')
           ..write('pinned: $pinned, ')
           ..write('locked: $locked, ')
@@ -6078,6 +6898,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $IntroEntriesTable introEntries = $IntroEntriesTable(this);
   late final $ConversationProfilesTable conversationProfiles =
       $ConversationProfilesTable(this);
+  late final $PlotConversationProfilesTable plotConversationProfiles =
+      $PlotConversationProfilesTable(this);
   late final $AiPresetsTable aiPresets = $AiPresetsTable(this);
   late final $ChatSessionsTable chatSessions = $ChatSessionsTable(this);
   late final $ChatTurnsTable chatTurns = $ChatTurnsTable(this);
@@ -6099,6 +6921,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     introVersions,
     introEntries,
     conversationProfiles,
+    plotConversationProfiles,
     aiPresets,
     chatSessions,
     chatTurns,
@@ -6150,11 +6973,27 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         'plots',
         limitUpdateKind: UpdateKind.delete,
       ),
+      result: [
+        TableUpdate('plot_conversation_profiles', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'plots',
+        limitUpdateKind: UpdateKind.delete,
+      ),
       result: [TableUpdate('chat_sessions', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'conversation_profiles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('chat_sessions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'plot_conversation_profiles',
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('chat_sessions', kind: UpdateKind.update)],
@@ -6296,6 +7135,31 @@ final class $$PlotsTableReferences
     ).filter((f) => f.plotId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_introEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $PlotConversationProfilesTable,
+    List<PlotConversationProfile>
+  >
+  _plotConversationProfilesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.plotConversationProfiles,
+        aliasName: 'plots__id__plot_conversation_profiles__plot_id',
+      );
+
+  $$PlotConversationProfilesTableProcessedTableManager
+  get plotConversationProfilesRefs {
+    final manager = $$PlotConversationProfilesTableTableManager(
+      $_db,
+      $_db.plotConversationProfiles,
+    ).filter((f) => f.plotId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _plotConversationProfilesRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -6467,6 +7331,33 @@ class $$PlotsTableFilterComposer extends Composer<_$AppDatabase, $PlotsTable> {
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> plotConversationProfilesRefs(
+    Expression<bool> Function($$PlotConversationProfilesTableFilterComposer f)
+    f,
+  ) {
+    final $$PlotConversationProfilesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.plotConversationProfiles,
+          getReferencedColumn: (t) => t.plotId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PlotConversationProfilesTableFilterComposer(
+                $db: $db,
+                $table: $db.plotConversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 
@@ -6696,6 +7587,33 @@ class $$PlotsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> plotConversationProfilesRefs<T extends Object>(
+    Expression<T> Function($$PlotConversationProfilesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$PlotConversationProfilesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.plotConversationProfiles,
+          getReferencedColumn: (t) => t.plotId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PlotConversationProfilesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.plotConversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> chatSessionsRefs<T extends Object>(
     Expression<T> Function($$ChatSessionsTableAnnotationComposer a) f,
   ) {
@@ -6765,6 +7683,7 @@ class $$PlotsTableTableManager
             bool charactersRefs,
             bool introVersionsRefs,
             bool introEntriesRefs,
+            bool plotConversationProfilesRefs,
             bool chatSessionsRefs,
             bool lorebookPlotLinksRefs,
           })
@@ -6835,6 +7754,7 @@ class $$PlotsTableTableManager
                 charactersRefs = false,
                 introVersionsRefs = false,
                 introEntriesRefs = false,
+                plotConversationProfilesRefs = false,
                 chatSessionsRefs = false,
                 lorebookPlotLinksRefs = false,
               }) {
@@ -6844,6 +7764,8 @@ class $$PlotsTableTableManager
                     if (charactersRefs) db.characters,
                     if (introVersionsRefs) db.introVersions,
                     if (introEntriesRefs) db.introEntries,
+                    if (plotConversationProfilesRefs)
+                      db.plotConversationProfiles,
                     if (chatSessionsRefs) db.chatSessions,
                     if (lorebookPlotLinksRefs) db.lorebookPlotLinks,
                   ],
@@ -6903,6 +7825,27 @@ class $$PlotsTableTableManager
                                 table,
                                 p0,
                               ).introEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.plotId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (plotConversationProfilesRefs)
+                        await $_getPrefetchedData<
+                          Plot,
+                          $PlotsTable,
+                          PlotConversationProfile
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PlotsTableReferences
+                              ._plotConversationProfilesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PlotsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).plotConversationProfilesRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.plotId == item.id,
@@ -6975,6 +7918,7 @@ typedef $$PlotsTableProcessedTableManager =
         bool charactersRefs,
         bool introVersionsRefs,
         bool introEntriesRefs,
+        bool plotConversationProfilesRefs,
         bool chatSessionsRefs,
         bool lorebookPlotLinksRefs,
       })
@@ -8788,6 +9732,514 @@ typedef $$ConversationProfilesTableProcessedTableManager =
       ConversationProfile,
       PrefetchHooks Function({bool chatSessionsRefs})
     >;
+typedef $$PlotConversationProfilesTableCreateCompanionBuilder =
+    PlotConversationProfilesCompanion Function({
+      Value<int> id,
+      required int plotId,
+      required String name,
+      Value<bool> useGlobalName,
+      required String shortIntro,
+      Value<String> description,
+      Value<String?> imagePath,
+      Value<int> sortOrder,
+      Value<DateTime> createdAt,
+    });
+typedef $$PlotConversationProfilesTableUpdateCompanionBuilder =
+    PlotConversationProfilesCompanion Function({
+      Value<int> id,
+      Value<int> plotId,
+      Value<String> name,
+      Value<bool> useGlobalName,
+      Value<String> shortIntro,
+      Value<String> description,
+      Value<String?> imagePath,
+      Value<int> sortOrder,
+      Value<DateTime> createdAt,
+    });
+
+final class $$PlotConversationProfilesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $PlotConversationProfilesTable,
+          PlotConversationProfile
+        > {
+  $$PlotConversationProfilesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PlotsTable _plotIdTable(_$AppDatabase db) =>
+      db.plots.createAlias('plot_conversation_profiles__plot_id__plots__id');
+
+  $$PlotsTableProcessedTableManager get plotId {
+    final $_column = $_itemColumn<int>('plot_id')!;
+
+    final manager = $$PlotsTableTableManager(
+      $_db,
+      $_db.plots,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_plotIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$ChatSessionsTable, List<ChatSession>>
+  _chatSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.chatSessions,
+    aliasName:
+        'plot_conversation_profiles__id__chat_sessions__plot_conversation_profile_id',
+  );
+
+  $$ChatSessionsTableProcessedTableManager get chatSessionsRefs {
+    final manager = $$ChatSessionsTableTableManager($_db, $_db.chatSessions)
+        .filter(
+          (f) => f.plotConversationProfileId.id.sqlEquals(
+            $_itemColumn<int>('id')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_chatSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$PlotConversationProfilesTableFilterComposer
+    extends Composer<_$AppDatabase, $PlotConversationProfilesTable> {
+  $$PlotConversationProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get useGlobalName => $composableBuilder(
+    column: $table.useGlobalName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get shortIntro => $composableBuilder(
+    column: $table.shortIntro,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imagePath => $composableBuilder(
+    column: $table.imagePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PlotsTableFilterComposer get plotId {
+    final $$PlotsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableFilterComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> chatSessionsRefs(
+    Expression<bool> Function($$ChatSessionsTableFilterComposer f) f,
+  ) {
+    final $$ChatSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chatSessions,
+      getReferencedColumn: (t) => t.plotConversationProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PlotConversationProfilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PlotConversationProfilesTable> {
+  $$PlotConversationProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get useGlobalName => $composableBuilder(
+    column: $table.useGlobalName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get shortIntro => $composableBuilder(
+    column: $table.shortIntro,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imagePath => $composableBuilder(
+    column: $table.imagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PlotsTableOrderingComposer get plotId {
+    final $$PlotsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableOrderingComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PlotConversationProfilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PlotConversationProfilesTable> {
+  $$PlotConversationProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get useGlobalName => $composableBuilder(
+    column: $table.useGlobalName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get shortIntro => $composableBuilder(
+    column: $table.shortIntro,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get imagePath =>
+      $composableBuilder(column: $table.imagePath, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$PlotsTableAnnotationComposer get plotId {
+    final $$PlotsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> chatSessionsRefs<T extends Object>(
+    Expression<T> Function($$ChatSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$ChatSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chatSessions,
+      getReferencedColumn: (t) => t.plotConversationProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$PlotConversationProfilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PlotConversationProfilesTable,
+          PlotConversationProfile,
+          $$PlotConversationProfilesTableFilterComposer,
+          $$PlotConversationProfilesTableOrderingComposer,
+          $$PlotConversationProfilesTableAnnotationComposer,
+          $$PlotConversationProfilesTableCreateCompanionBuilder,
+          $$PlotConversationProfilesTableUpdateCompanionBuilder,
+          (PlotConversationProfile, $$PlotConversationProfilesTableReferences),
+          PlotConversationProfile,
+          PrefetchHooks Function({bool plotId, bool chatSessionsRefs})
+        > {
+  $$PlotConversationProfilesTableTableManager(
+    _$AppDatabase db,
+    $PlotConversationProfilesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PlotConversationProfilesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PlotConversationProfilesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PlotConversationProfilesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> plotId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<bool> useGlobalName = const Value.absent(),
+                Value<String> shortIntro = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String?> imagePath = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => PlotConversationProfilesCompanion(
+                id: id,
+                plotId: plotId,
+                name: name,
+                useGlobalName: useGlobalName,
+                shortIntro: shortIntro,
+                description: description,
+                imagePath: imagePath,
+                sortOrder: sortOrder,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int plotId,
+                required String name,
+                Value<bool> useGlobalName = const Value.absent(),
+                required String shortIntro,
+                Value<String> description = const Value.absent(),
+                Value<String?> imagePath = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => PlotConversationProfilesCompanion.insert(
+                id: id,
+                plotId: plotId,
+                name: name,
+                useGlobalName: useGlobalName,
+                shortIntro: shortIntro,
+                description: description,
+                imagePath: imagePath,
+                sortOrder: sortOrder,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$PlotConversationProfilesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({plotId = false, chatSessionsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (chatSessionsRefs) db.chatSessions],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (plotId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.plotId,
+                                referencedTable:
+                                    $$PlotConversationProfilesTableReferences
+                                        ._plotIdTable(db),
+                                referencedColumn:
+                                    $$PlotConversationProfilesTableReferences
+                                        ._plotIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (chatSessionsRefs)
+                    await $_getPrefetchedData<
+                      PlotConversationProfile,
+                      $PlotConversationProfilesTable,
+                      ChatSession
+                    >(
+                      currentTable: table,
+                      referencedTable: $$PlotConversationProfilesTableReferences
+                          ._chatSessionsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$PlotConversationProfilesTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).chatSessionsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.plotConversationProfileId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PlotConversationProfilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PlotConversationProfilesTable,
+      PlotConversationProfile,
+      $$PlotConversationProfilesTableFilterComposer,
+      $$PlotConversationProfilesTableOrderingComposer,
+      $$PlotConversationProfilesTableAnnotationComposer,
+      $$PlotConversationProfilesTableCreateCompanionBuilder,
+      $$PlotConversationProfilesTableUpdateCompanionBuilder,
+      (PlotConversationProfile, $$PlotConversationProfilesTableReferences),
+      PlotConversationProfile,
+      PrefetchHooks Function({bool plotId, bool chatSessionsRefs})
+    >;
 typedef $$AiPresetsTableCreateCompanionBuilder =
     AiPresetsCompanion Function({
       Value<int> id,
@@ -8804,6 +10256,9 @@ typedef $$AiPresetsTableCreateCompanionBuilder =
       Value<int?> maxTokens,
       Value<int?> contextLength,
       Value<String> additionalSystemPrompt,
+      Value<bool> isLocal,
+      Value<String?> reasoningEffort,
+      Value<String?> localModelSource,
     });
 typedef $$AiPresetsTableUpdateCompanionBuilder =
     AiPresetsCompanion Function({
@@ -8821,6 +10276,9 @@ typedef $$AiPresetsTableUpdateCompanionBuilder =
       Value<int?> maxTokens,
       Value<int?> contextLength,
       Value<String> additionalSystemPrompt,
+      Value<bool> isLocal,
+      Value<String?> reasoningEffort,
+      Value<String?> localModelSource,
     });
 
 final class $$AiPresetsTableReferences
@@ -8922,6 +10380,21 @@ class $$AiPresetsTableFilterComposer
 
   ColumnFilters<String> get additionalSystemPrompt => $composableBuilder(
     column: $table.additionalSystemPrompt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isLocal => $composableBuilder(
+    column: $table.isLocal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reasoningEffort => $composableBuilder(
+    column: $table.reasoningEffort,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localModelSource => $composableBuilder(
+    column: $table.localModelSource,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9029,6 +10502,21 @@ class $$AiPresetsTableOrderingComposer
     column: $table.additionalSystemPrompt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isLocal => $composableBuilder(
+    column: $table.isLocal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reasoningEffort => $composableBuilder(
+    column: $table.reasoningEffort,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localModelSource => $composableBuilder(
+    column: $table.localModelSource,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AiPresetsTableAnnotationComposer
@@ -9087,6 +10575,19 @@ class $$AiPresetsTableAnnotationComposer
 
   GeneratedColumn<String> get additionalSystemPrompt => $composableBuilder(
     column: $table.additionalSystemPrompt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isLocal =>
+      $composableBuilder(column: $table.isLocal, builder: (column) => column);
+
+  GeneratedColumn<String> get reasoningEffort => $composableBuilder(
+    column: $table.reasoningEffort,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get localModelSource => $composableBuilder(
+    column: $table.localModelSource,
     builder: (column) => column,
   );
 
@@ -9158,6 +10659,9 @@ class $$AiPresetsTableTableManager
                 Value<int?> maxTokens = const Value.absent(),
                 Value<int?> contextLength = const Value.absent(),
                 Value<String> additionalSystemPrompt = const Value.absent(),
+                Value<bool> isLocal = const Value.absent(),
+                Value<String?> reasoningEffort = const Value.absent(),
+                Value<String?> localModelSource = const Value.absent(),
               }) => AiPresetsCompanion(
                 id: id,
                 name: name,
@@ -9173,6 +10677,9 @@ class $$AiPresetsTableTableManager
                 maxTokens: maxTokens,
                 contextLength: contextLength,
                 additionalSystemPrompt: additionalSystemPrompt,
+                isLocal: isLocal,
+                reasoningEffort: reasoningEffort,
+                localModelSource: localModelSource,
               ),
           createCompanionCallback:
               ({
@@ -9190,6 +10697,9 @@ class $$AiPresetsTableTableManager
                 Value<int?> maxTokens = const Value.absent(),
                 Value<int?> contextLength = const Value.absent(),
                 Value<String> additionalSystemPrompt = const Value.absent(),
+                Value<bool> isLocal = const Value.absent(),
+                Value<String?> reasoningEffort = const Value.absent(),
+                Value<String?> localModelSource = const Value.absent(),
               }) => AiPresetsCompanion.insert(
                 id: id,
                 name: name,
@@ -9205,6 +10715,9 @@ class $$AiPresetsTableTableManager
                 maxTokens: maxTokens,
                 contextLength: contextLength,
                 additionalSystemPrompt: additionalSystemPrompt,
+                isLocal: isLocal,
+                reasoningEffort: reasoningEffort,
+                localModelSource: localModelSource,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -9267,6 +10780,7 @@ typedef $$ChatSessionsTableCreateCompanionBuilder =
       Value<int> id,
       required int plotId,
       Value<int?> conversationProfileId,
+      Value<int?> plotConversationProfileId,
       Value<int?> presetId,
       Value<bool> pinned,
       Value<bool> locked,
@@ -9279,6 +10793,7 @@ typedef $$ChatSessionsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> plotId,
       Value<int?> conversationProfileId,
+      Value<int?> plotConversationProfileId,
       Value<int?> presetId,
       Value<bool> pinned,
       Value<bool> locked,
@@ -9323,6 +10838,29 @@ final class $$ChatSessionsTableReferences
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(
       _conversationProfileIdTable($_db),
+    );
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $PlotConversationProfilesTable _plotConversationProfileIdTable(
+    _$AppDatabase db,
+  ) => db.plotConversationProfiles.createAlias(
+    'chat_sessions__plot_conversation_profile_id__plot_conversation_profiles__id',
+  );
+
+  $$PlotConversationProfilesTableProcessedTableManager?
+  get plotConversationProfileId {
+    final $_column = $_itemColumn<int>('plot_conversation_profile_id');
+    if ($_column == null) return null;
+    final manager = $$PlotConversationProfilesTableTableManager(
+      $_db,
+      $_db.plotConversationProfiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _plotConversationProfileIdTable($_db),
     );
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -9466,6 +11004,30 @@ class $$ChatSessionsTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return composer;
+  }
+
+  $$PlotConversationProfilesTableFilterComposer get plotConversationProfileId {
+    final $$PlotConversationProfilesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.plotConversationProfileId,
+          referencedTable: $db.plotConversationProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PlotConversationProfilesTableFilterComposer(
+                $db: $db,
+                $table: $db.plotConversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return composer;
   }
 
@@ -9629,6 +11191,31 @@ class $$ChatSessionsTableOrderingComposer
     return composer;
   }
 
+  $$PlotConversationProfilesTableOrderingComposer
+  get plotConversationProfileId {
+    final $$PlotConversationProfilesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.plotConversationProfileId,
+          referencedTable: $db.plotConversationProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PlotConversationProfilesTableOrderingComposer(
+                $db: $db,
+                $table: $db.plotConversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
   $$AiPresetsTableOrderingComposer get presetId {
     final $$AiPresetsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -9729,6 +11316,31 @@ class $$ChatSessionsTableAnnotationComposer
     return composer;
   }
 
+  $$PlotConversationProfilesTableAnnotationComposer
+  get plotConversationProfileId {
+    final $$PlotConversationProfilesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.plotConversationProfileId,
+          referencedTable: $db.plotConversationProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PlotConversationProfilesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.plotConversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
   $$AiPresetsTableAnnotationComposer get presetId {
     final $$AiPresetsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -9819,6 +11431,7 @@ class $$ChatSessionsTableTableManager
           PrefetchHooks Function({
             bool plotId,
             bool conversationProfileId,
+            bool plotConversationProfileId,
             bool presetId,
             bool chatTurnsRefs,
             bool chatMessagesRefs,
@@ -9840,6 +11453,7 @@ class $$ChatSessionsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> plotId = const Value.absent(),
                 Value<int?> conversationProfileId = const Value.absent(),
+                Value<int?> plotConversationProfileId = const Value.absent(),
                 Value<int?> presetId = const Value.absent(),
                 Value<bool> pinned = const Value.absent(),
                 Value<bool> locked = const Value.absent(),
@@ -9850,6 +11464,7 @@ class $$ChatSessionsTableTableManager
                 id: id,
                 plotId: plotId,
                 conversationProfileId: conversationProfileId,
+                plotConversationProfileId: plotConversationProfileId,
                 presetId: presetId,
                 pinned: pinned,
                 locked: locked,
@@ -9862,6 +11477,7 @@ class $$ChatSessionsTableTableManager
                 Value<int> id = const Value.absent(),
                 required int plotId,
                 Value<int?> conversationProfileId = const Value.absent(),
+                Value<int?> plotConversationProfileId = const Value.absent(),
                 Value<int?> presetId = const Value.absent(),
                 Value<bool> pinned = const Value.absent(),
                 Value<bool> locked = const Value.absent(),
@@ -9872,6 +11488,7 @@ class $$ChatSessionsTableTableManager
                 id: id,
                 plotId: plotId,
                 conversationProfileId: conversationProfileId,
+                plotConversationProfileId: plotConversationProfileId,
                 presetId: presetId,
                 pinned: pinned,
                 locked: locked,
@@ -9891,6 +11508,7 @@ class $$ChatSessionsTableTableManager
               ({
                 plotId = false,
                 conversationProfileId = false,
+                plotConversationProfileId = false,
                 presetId = false,
                 chatTurnsRefs = false,
                 chatMessagesRefs = false,
@@ -9943,6 +11561,24 @@ class $$ChatSessionsTableTableManager
                                     referencedColumn:
                                         $$ChatSessionsTableReferences
                                             ._conversationProfileIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (plotConversationProfileId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn:
+                                        table.plotConversationProfileId,
+                                    referencedTable:
+                                        $$ChatSessionsTableReferences
+                                            ._plotConversationProfileIdTable(
+                                              db,
+                                            ),
+                                    referencedColumn:
+                                        $$ChatSessionsTableReferences
+                                            ._plotConversationProfileIdTable(db)
                                             .id,
                                   )
                                   as T;
@@ -10032,6 +11668,7 @@ typedef $$ChatSessionsTableProcessedTableManager =
       PrefetchHooks Function({
         bool plotId,
         bool conversationProfileId,
+        bool plotConversationProfileId,
         bool presetId,
         bool chatTurnsRefs,
         bool chatMessagesRefs,
@@ -12416,6 +14053,11 @@ class $AppDatabaseManager {
       $$IntroEntriesTableTableManager(_db, _db.introEntries);
   $$ConversationProfilesTableTableManager get conversationProfiles =>
       $$ConversationProfilesTableTableManager(_db, _db.conversationProfiles);
+  $$PlotConversationProfilesTableTableManager get plotConversationProfiles =>
+      $$PlotConversationProfilesTableTableManager(
+        _db,
+        _db.plotConversationProfiles,
+      );
   $$AiPresetsTableTableManager get aiPresets =>
       $$AiPresetsTableTableManager(_db, _db.aiPresets);
   $$ChatSessionsTableTableManager get chatSessions =>

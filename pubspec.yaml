@@ -49,6 +49,7 @@ dependencies:
   http: ^1.6.0
   archive: ^4.0.9
   meta: ^1.18.0
+  llamadart: ^0.8.17
 
 dev_dependencies:
   flutter_test:

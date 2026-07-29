@@ -7,6 +7,7 @@ import '../repositories/lorebook_repository.dart';
 import '../repositories/plot_repository.dart';
 import '../repositories/token_usage_repository.dart';
 import '../secure/api_key_store.dart';
+import 'local_llm/local_llm_engine.dart';
 import 'message_format_parser.dart';
 import 'openai_compatible_client.dart';
 import 'prompt_builder.dart';
@@ -40,7 +41,9 @@ class AiChatService {
     required int plotId,
     required AiPreset preset,
     required String userProfileName,
+    String userProfileDescription = '',
     required void Function(String accumulatedText) onDelta,
+    void Function(String reasoning)? onReasoning,
   }) async {
     final turnId = await _turnRepo.createTurn(sessionId);
     await _generateVersion(
@@ -48,9 +51,11 @@ class AiChatService {
       plotId: plotId,
       preset: preset,
       userProfileName: userProfileName,
+      userProfileDescription: userProfileDescription,
       turnId: turnId,
       versionIndex: 0,
       onDelta: onDelta,
+      onReasoning: onReasoning,
     );
   }
 
@@ -60,8 +65,10 @@ class AiChatService {
     required int plotId,
     required AiPreset preset,
     required String userProfileName,
+    String userProfileDescription = '',
     required int turnId,
     required void Function(String accumulatedText) onDelta,
+    void Function(String reasoning)? onReasoning,
   }) async {
     final nextIndex = await _turnRepo.nextVersionIndex(turnId);
     await _generateVersion(
@@ -69,9 +76,11 @@ class AiChatService {
       plotId: plotId,
       preset: preset,
       userProfileName: userProfileName,
+      userProfileDescription: userProfileDescription,
       turnId: turnId,
       versionIndex: nextIndex,
       onDelta: onDelta,
+      onReasoning: onReasoning,
     );
     await _turnRepo.setActiveVersion(turnId, nextIndex);
   }
@@ -83,9 +92,11 @@ class AiChatService {
     required int plotId,
     required AiPreset preset,
     required String userProfileName,
+    String userProfileDescription = '',
     required int turnId,
     required String instruction,
     required void Function(String accumulatedText) onDelta,
+    void Function(String reasoning)? onReasoning,
   }) async {
     final turn = await _turnRepo.getTurn(turnId);
     if (turn == null) return;
@@ -99,9 +110,11 @@ class AiChatService {
       plotId: plotId,
       preset: preset,
       userProfileName: userProfileName,
+      userProfileDescription: userProfileDescription,
       turnId: turnId,
       versionIndex: nextIndex,
       onDelta: onDelta,
+      onReasoning: onReasoning,
       extraMessages: [
         {'role': 'assistant', 'content': currentRawText},
         {'role': 'user', 'content': '방금 그 답변을 다음 지시에 따라 다시 써 주세요: ${instruction.trim()}'},
@@ -186,11 +199,6 @@ class AiChatService {
     required String userProfileName,
     required String instruction,
   }) async* {
-    final apiKey = await _apiKeyStore.read(preset.id);
-    if (apiKey == null || apiKey.isEmpty) {
-      throw StateError('선택한 프리셋에 API 키가 설정되어 있지 않아요.');
-    }
-
     final plot = await _plotRepo.getById(plotId);
     final characters = await _characterRepo.getByPlot(plotId);
     final history = (await _turnRepo.timelineOnce(sessionId)).map((i) => i.message).toList();
@@ -216,6 +224,40 @@ class AiChatService {
       {'role': 'user', 'content': instruction},
     ];
 
+    yield* _streamCompletion(preset: preset, messages: messages);
+  }
+
+  /// [preset.isLocal]이면 기기 내장 llama.cpp 엔진으로, 아니면 원격 OpenAI 호환
+  /// 엔드포인트로 스트리밍 요청을 보낸다. 두 경로 모두 같은 메시지 배열을 공유한다.
+  Stream<String> _streamCompletion({
+    required AiPreset preset,
+    required List<Map<String, String>> messages,
+    void Function(TokenUsage usage)? onUsage,
+    void Function(String reasoning)? onReasoning,
+  }) async* {
+    if (preset.isLocal) {
+      final source = preset.localModelSource;
+      if (source == null || source.isEmpty) {
+        throw StateError('선택한 프리셋에 로컬 모델이 설정되어 있지 않아요.');
+      }
+      if (LocalLlmEngine.instance.current?.source != source) {
+        await LocalLlmEngine.instance.load(source: source, label: preset.modelName);
+      }
+      yield* LocalLlmEngine.instance.streamChat(
+        messages: messages,
+        temperature: preset.temperature,
+        topK: preset.topK,
+        maxTokens: preset.maxTokens,
+        reasoningEffort: preset.reasoningEffort,
+        onReasoning: onReasoning,
+      );
+      return;
+    }
+
+    final apiKey = await _apiKeyStore.read(preset.id);
+    if (apiKey == null || apiKey.isEmpty) {
+      throw StateError('선택한 프리셋에 API 키가 설정되어 있지 않아요.');
+    }
     yield* _client.streamChatCompletion(
       baseUrl: preset.baseUrl,
       apiKey: apiKey,
@@ -224,6 +266,9 @@ class AiChatService {
       temperature: preset.temperature,
       topK: preset.topK,
       maxTokens: preset.maxTokens,
+      reasoningEffort: preset.reasoningEffort,
+      onUsage: onUsage,
+      onReasoning: onReasoning,
     );
   }
 
@@ -248,16 +293,13 @@ class AiChatService {
     required int plotId,
     required AiPreset preset,
     required String userProfileName,
+    String userProfileDescription = '',
     required int turnId,
     required int versionIndex,
     required void Function(String accumulatedText) onDelta,
+    void Function(String reasoning)? onReasoning,
     List<Map<String, String>> extraMessages = const [],
   }) async {
-    final apiKey = await _apiKeyStore.read(preset.id);
-    if (apiKey == null || apiKey.isEmpty) {
-      throw StateError('선택한 프리셋에 API 키가 설정되어 있지 않아요.');
-    }
-
     final plot = await _plotRepo.getById(plotId);
     final characters = await _characterRepo.getByPlot(plotId);
     final history = await _turnRepo.historyBeforeTurn(sessionId, turnId);
@@ -269,6 +311,7 @@ class AiChatService {
       plot: plot,
       characters: characters,
       userProfileName: userProfileName,
+      userProfileDescription: userProfileDescription,
       additionalSystemPrompt: preset.additionalSystemPrompt,
       loreContext: loreContext,
       customTemplate: customTemplate,
@@ -285,15 +328,11 @@ class AiChatService {
 
     final buffer = StringBuffer();
     TokenUsage? usage;
-    await for (final delta in _client.streamChatCompletion(
-      baseUrl: preset.baseUrl,
-      apiKey: apiKey,
-      model: preset.modelName,
+    await for (final delta in _streamCompletion(
+      preset: preset,
       messages: messages,
-      temperature: preset.temperature,
-      topK: preset.topK,
-      maxTokens: preset.maxTokens,
       onUsage: (u) => usage = u,
+      onReasoning: onReasoning,
     )) {
       buffer.write(delta);
       onDelta(buffer.toString());

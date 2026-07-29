@@ -5,8 +5,11 @@ import '../db/database.dart';
 class PromptBuilder {
   /// 마이페이지 > 시스템 프롬프트 설정에서 사용자가 통째로 덮어쓸 수 있는 기본 템플릿.
   /// {{plot_title}}, {{plot_description}}, {{characters_block}}, {{example_character_name}},
-  /// {{user_profile_name}}, {{lore_block}}, {{extra_block}}는 실제 값으로 치환된다.
+  /// {{user_profile_name}}, {{user_profile_description_block}}, {{lore_block}}, {{extra_block}}는
+  /// 실제 값으로 치환된다.
   /// `{{user}}`는 치환 대상이 아니라 AI가 응답에 그대로 남겨야 하는 리터럴 토큰이니 그대로 둔다.
+  /// `{{char}}`는 이 템플릿이 아니라 캐릭터 소개글(Character.description) 안에서만 그 캐릭터
+  /// 자신의 이름으로 치환된다({{characters_block}}가 만들어질 때).
   static const String defaultSystemPromptTemplate = '''
 당신은 아래 설정에 따라 롤플레잉 인터랙티브 픽션을 진행하는 스토리텔러입니다.
 
@@ -18,28 +21,26 @@ class PromptBuilder {
 {{characters_block}}
 
 [플레이어]
-플레이어를 지칭할 때는 반드시 {{user}}라고 쓰세요. (현재 이름: {{user_profile_name}})
+플레이어를 지칭할 때는 반드시 {{user}}라고 쓰세요. (현재 이름: {{user_profile_name}}){{user_profile_description_block}}
 
-[출력 형식 규칙]
-- 화자가 바뀔 때만 문단 맨 앞에 "@이름:"(캐릭터 발화) 또는 "@:"(나레이션)을 붙이세요.
-- "@"로 시작하지 않는 문단은 직전 화자가 이어서 말하는 것으로 취급되니, 같은 화자가 계속 말할 때는 "@"를 다시 붙이지 마세요.
+[출력 형식 규칙 - 매우 중요]
+- 화자가 바뀔 때만 새 줄 맨 앞에 "@이름:"(캐릭터 발화) 또는 "@:"(나레이션)을 붙이세요.
+- 한 화자의 이번 차례는 대사와 행동 묘사를 전부 합쳐서 하나의 말풍선(문단)으로 이어서 쓰세요. 같은 화자가 계속 말하는 동안에는 "@"를 다시 붙이거나 중간에 빈 줄을 넣어 끊지 마세요 — 여러 문장, 여러 행동 묘사가 있어도 전부 한 문단 안에 자연스럽게 이어붙이세요.
+- 정말로 다른 화자로 넘어갈 때만(예: 다른 캐릭터가 말하거나 나레이션으로 전환될 때) 새로운 "@" 태그와 함께 새 말풍선을 시작하세요. 한 화자가 굳이 여러 번 끊어 말할 이유가 없다면 절대로 나누지 마세요.
 - 위 [캐릭터] 목록에 있는 인물을 지칭할 때는 반드시 목록에 적힌 이름을 한 글자도 바꾸지 말고 정확히 그대로 쓰세요. 플롯 제목, 존칭, 그 외 어떤 수식어도 이름 앞뒤에 붙이지 마세요. (예: 목록의 이름이 "캐릭터 1"이면 "캐릭터 1"이라고만 쓰고, "테스트용 캐릭터 1"처럼 다른 단어를 덧붙이지 마세요.)
 - 목록에 없는 새로운 인물을 즉석에서 등장시키는 것은 괜찮습니다. 다만 그 인물에게도 짧고 자연스러운 고유한 이름을 지어 "@이름:"으로 표시하세요. 위와 마찬가지로 그 이름에도 수식어를 붙이지 말고, 한 번 지은 이름은 이후에도 똑같이 유지하세요.
 - 지문이나 행동 묘사는 *별표*로 감싸고, 대사는 별표 없이 그대로 쓰세요.
-- 문단(빈 줄로 구분되는 단위) 하나에 한 가지 내용만 담으세요.
 
 [줄바꿈 규칙 - 매우 중요]
 - "@이름:" 또는 "@:" 태그는 항상 새로운 줄의 맨 앞에서 시작하세요. 이전 문장 뒤에 이어붙이거나 같은 줄에 두 개 이상의 "@" 태그를 넣지 마세요.
-- 화자가 바뀔 때나 새로운 문단을 시작할 때는 반드시 줄바꿈을 하고, 가능하면 그 사이에 빈 줄을 하나 넣어 문단을 명확히 구분하세요.
+- 화자가 실제로 바뀔 때만 줄바꿈 후 빈 줄을 하나 넣어 이전 화자와 명확히 구분하세요. 같은 화자가 이어서 말할 때는 빈 줄 없이 바로 다음 줄(또는 같은 문단 안)에 이어 쓰세요.
 
-[예시]
+[예시 - 캐릭터 1의 차례는 대사와 행동 묘사를 하나로 이어붙인다]
 @: *나레이션 예시*
 
-@{{example_character_name}}: 대사 1
+@{{example_character_name}}: *행동 묘사* 대사 1. 같은 차례 안에서 대사 2까지 끊지 않고 이어서 씁니다.
 
-@{{example_character_name}}: *행동 묘사*
-
-대사 2
+@다른캐릭터: 화자가 실제로 바뀔 때만 새 태그로 전환하세요.
 {{lore_block}}{{extra_block}}''';
 
   /// [customTemplate]이 있으면(마이페이지 > 시스템 프롬프트 설정에서 저장한 값) 그 템플릿을,
@@ -48,14 +49,21 @@ class PromptBuilder {
     required Plot? plot,
     required List<Character> characters,
     required String userProfileName,
+    String userProfileDescription = '',
     String additionalSystemPrompt = '',
     String loreContext = '',
     String? customTemplate,
   }) {
+    // {{char}}는 캐릭터 소개글 안에서 그 캐릭터 자신의 이름을 가리키는 자리표시자다(SillyTavern
+    // 캐릭터 카드 관례). 캐릭터별로 자기 이름으로 치환해서, 소개글을 여러 캐릭터에 재사용해도
+    // 그대로 동작하게 한다.
     final charactersBlock = characters.isEmpty
         ? '(등록된 캐릭터가 없어요)'
-        : characters.map((c) => '- ${c.name}: ${c.description}').join('\n');
+        : characters.map((c) => '- ${c.name}: ${c.description.replaceAll('{{char}}', c.name)}').join('\n');
     final exampleCharacterName = characters.isNotEmpty ? characters.first.name : '캐릭터 1';
+
+    final profileDesc = userProfileDescription.trim();
+    final profileDescBlock = profileDesc.isEmpty ? '' : '\n설명: $profileDesc';
 
     final lore = loreContext.trim();
     final loreBlock = lore.isEmpty ? '' : '\n\n[로어북]\n$lore';
@@ -73,6 +81,7 @@ class PromptBuilder {
         .replaceAll('{{characters_block}}', charactersBlock)
         .replaceAll('{{example_character_name}}', exampleCharacterName)
         .replaceAll('{{user_profile_name}}', userProfileName)
+        .replaceAll('{{user_profile_description_block}}', profileDescBlock)
         .replaceAll('{{lore_block}}', loreBlock)
         .replaceAll('{{extra_block}}', extraBlock);
   }

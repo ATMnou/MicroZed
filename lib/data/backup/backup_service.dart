@@ -39,7 +39,7 @@ class BackupRestoreSummary {
 ///
 /// zip 안에는 다음이 들어간다:
 /// - manifest.json: 포맷/스키마 버전, 내보낸 시각, 내보낼 당시의 로컬 이미지 폴더 경로
-/// - data.json: 13개 테이블의 모든 행
+/// - data.json: 모든 테이블의 모든 행
 /// - images/*: 캐릭터/커버/대화 프로필 이미지 원본 파일
 /// - secure/*: BYOK API 키가 암호화되어 있는 로컬 보안 저장소 파일(같은 Windows 계정의
 ///   같은 기기에서 복원할 때만 그대로 복호화된다. 다른 기기/계정이면 키는 무시되고 새로
@@ -58,6 +58,8 @@ class BackupService {
       'introVersions': (await _db.select(_db.introVersions).get()).map((r) => r.toJson()).toList(),
       'introEntries': (await _db.select(_db.introEntries).get()).map((r) => r.toJson()).toList(),
       'conversationProfiles': (await _db.select(_db.conversationProfiles).get()).map((r) => r.toJson()).toList(),
+      'plotConversationProfiles':
+          (await _db.select(_db.plotConversationProfiles).get()).map((r) => r.toJson()).toList(),
       'aiPresets': (await _db.select(_db.aiPresets).get()).map((r) => r.toJson()).toList(),
       'chatSessions': (await _db.select(_db.chatSessions).get()).map((r) => r.toJson()).toList(),
       'chatTurns': (await _db.select(_db.chatTurns).get()).map((r) => r.toJson()).toList(),
@@ -139,6 +141,7 @@ class BackupService {
     final introVersionsJson = rowsFor('introVersions');
     final introEntriesJson = rowsFor('introEntries');
     final conversationProfilesJson = rowsFor('conversationProfiles');
+    final plotConversationProfilesJson = rowsFor('plotConversationProfiles');
     final aiPresetsJson = rowsFor('aiPresets');
     final chatSessionsJson = rowsFor('chatSessions');
     final chatTurnsJson = rowsFor('chatTurns');
@@ -188,6 +191,7 @@ class BackupService {
       await _db.delete(_db.lorebookEntries).go();
       await _db.delete(_db.lorebooks).go();
       await _db.delete(_db.characters).go();
+      await _db.delete(_db.plotConversationProfiles).go();
       await _db.delete(_db.plots).go();
       await _db.delete(_db.conversationProfiles).go();
       await _db.delete(_db.aiPresets).go();
@@ -202,6 +206,11 @@ class BackupService {
         final row = Character.fromJson(json);
         final remapped = row.copyWith(imagePath: Value(remapPath(row.imagePath)));
         await _db.into(_db.characters).insert(remapped, mode: InsertMode.insertOrReplace);
+      }
+      for (final json in plotConversationProfilesJson) {
+        final row = PlotConversationProfile.fromJson(json);
+        final remapped = row.copyWith(imagePath: Value(remapPath(row.imagePath)));
+        await _db.into(_db.plotConversationProfiles).insert(remapped, mode: InsertMode.insertOrReplace);
       }
       for (final json in introVersionsJson) {
         final row = IntroVersion.fromJson(json);
@@ -261,5 +270,40 @@ class BackupService {
       chatMessageCount: chatMessagesJson.length,
       lorebookCount: lorebooksJson.length,
     );
+  }
+
+  /// 마이페이지 > 환경설정 > '전체 초기화'가 호출한다. 모든 테이블을 비우고, 저장해둔
+  /// 이미지/보안 저장소 파일까지 지워서 앱을 첫 설치 상태로 되돌린다. 되돌릴 수 없으니
+  /// 호출부에서 반드시 사용자에게 명확히 경고하고 확인을 받은 뒤에 불러야 한다.
+  /// 다운로드해둔 로컬 LLM 모델 캐시는 용량이 크고 다시 받으려면 시간이 걸려서 지우지 않는다.
+  Future<void> resetAll() async {
+    await _db.transaction(() async {
+      // 자식 -> 부모 순서로 모든 데이터를 비운다(restoreFromBytes와 같은 순서).
+      await _db.delete(_db.chatMessages).go();
+      await _db.delete(_db.chatTurns).go();
+      await _db.delete(_db.tokenUsageLogs).go();
+      await _db.delete(_db.chatSessions).go();
+      await _db.delete(_db.introEntries).go();
+      await _db.delete(_db.introVersions).go();
+      await _db.delete(_db.lorebookPlotLinks).go();
+      await _db.delete(_db.lorebookEntries).go();
+      await _db.delete(_db.lorebooks).go();
+      await _db.delete(_db.characters).go();
+      await _db.delete(_db.plotConversationProfiles).go();
+      await _db.delete(_db.plots).go();
+      await _db.delete(_db.conversationProfiles).go();
+      await _db.delete(_db.aiPresets).go();
+    });
+
+    final appSupportDir = await getApplicationSupportDirectory();
+    final imagesDir = Directory(p.join(appSupportDir.path, 'images'));
+    if (await imagesDir.exists()) {
+      await imagesDir.delete(recursive: true);
+    }
+    await for (final entity in appSupportDir.list()) {
+      if (entity is File && p.basename(entity.path).startsWith('secure_')) {
+        await entity.delete();
+      }
+    }
   }
 }

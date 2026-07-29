@@ -123,6 +123,71 @@ class AppLocalizationsJa extends AppLocalizations {
   String get myPageSnapshotSettingsButton => 'スナップショット設定';
 
   @override
+  String get myPageLocalLlmButton => 'ローカルLLM';
+
+  @override
+  String get localLlmScreenTitle => 'ローカルLLM';
+
+  @override
+  String get localLlmScreenDescription =>
+      'インターネット接続なしで端末上でAIモデルを直接実行します。速度と品質は端末の性能とモデルサイズによって変わります。';
+
+  @override
+  String get localLlmRecommendedSectionTitle => 'おすすめモデル';
+
+  @override
+  String get localLlmImportSectionTitle => 'ファイルから読み込み';
+
+  @override
+  String get localLlmSavedPresetsSectionTitle => '保存済みローカルプリセット';
+
+  @override
+  String get localLlmCacheSectionTitle => 'ダウンロード済みモデル';
+
+  @override
+  String get localLlmCurrentStatusLabel => '現在読み込まれているモデル';
+
+  @override
+  String get localLlmNoModelLoaded => '読み込まれたモデルはありません';
+
+  @override
+  String get localLlmUnloadButton => 'アンロード';
+
+  @override
+  String get localLlmUseButton => '使用';
+
+  @override
+  String get localLlmLoadButton => '読み込む';
+
+  @override
+  String get localLlmInUseLabel => '使用中';
+
+  @override
+  String get localLlmImportButton => 'GGUFファイルを選択';
+
+  @override
+  String get localLlmImportDescription => 'すでにダウンロード済みの.ggufモデルファイルを選択できます。';
+
+  @override
+  String get localLlmNoSavedPresets => '保存されたローカルプリセットはまだありません。';
+
+  @override
+  String get localLlmNoCachedModels => 'ダウンロード済みのモデルはありません。';
+
+  @override
+  String get localLlmPresetDescription => '端末内蔵のローカルモデル';
+
+  @override
+  String localLlmLoadSuccessMessage(Object modelName) {
+    return '$modelName モデルを読み込みました。';
+  }
+
+  @override
+  String localLlmLoadFailureMessage(Object error) {
+    return 'モデルの読み込みに失敗しました: $error';
+  }
+
+  @override
   String get preferencesTitle => '環境設定';
 
   @override
@@ -137,6 +202,36 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get preferencesImageDisplayFullWidthOption => '横幅いっぱいに表示';
+
+  @override
+  String get preferencesDangerZoneTitle => '危険な操作';
+
+  @override
+  String get preferencesResetAllDescription =>
+      'プロット/キャラクター/会話/ロアブック/プリセット/画像など、この端末に保存されたすべてのデータを削除し、アプリを初回インストール時の状態に戻します。ダウンロード済みのローカルLLMモデルファイルは削除されません。この操作は元に戻せません。';
+
+  @override
+  String get preferencesResetAllButton => '全データを初期化';
+
+  @override
+  String get preferencesResetConfirmContent =>
+      'すべてのデータが完全に削除されます。まだバックアップしていない場合は、続ける前にマイページで「全体保存」を行ってください。';
+
+  @override
+  String get preferencesResetConfirmWord => '初期化';
+
+  @override
+  String preferencesResetTypeToConfirm(Object word) {
+    return '続けるには下に「$word」と入力してください。';
+  }
+
+  @override
+  String get preferencesResetSuccessMessage => 'すべてのデータを初期化しました。';
+
+  @override
+  String preferencesResetFailureMessage(Object error) {
+    return '初期化に失敗しました: $error';
+  }
 
   @override
   String get navHome => 'ホーム';
@@ -225,6 +320,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get createTabImportFromUrlSubtitle => 'カードファイルのリンクやサイトURLを貼り付けます';
 
   @override
+  String get createTabImportFromPlotDataTitle => '専用形式(.mzplot)から取り込み';
+
+  @override
+  String get createTabImportFromPlotDataSubtitle =>
+      '画像を含むプロット全体のデータを読み込みます(会話履歴は除く)';
+
+  @override
   String get createTabImportUrlDialogTitle => 'リンクから取り込み';
 
   @override
@@ -266,6 +368,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get chatSelectPresetFirstMessage => '先にAIプリセットを選択してください';
+
+  @override
+  String get chatReasoningInProgressLabel => '考え中...';
 
   @override
   String chatGenerateFailureMessage(Object error) {
@@ -392,6 +497,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get plotEditExportCardMenuItem => 'SillyTavernカードとしてエクスポート';
 
   @override
+  String get plotEditExportDataMenuItem => '専用形式でエクスポート(全データ)';
+
+  @override
   String get plotEditDraftSaveButton => '下書き保存';
 
   @override
@@ -446,8 +554,8 @@ class AppLocalizationsJa extends AppLocalizations {
       'ロアブックに登録したキーワードが言及されるたびに\n作成した内容がAIに伝わります';
 
   @override
-  String plotEditLorebookConnectButton(Object linked, Object max) {
-    return 'ロアブック接続 ($linked/$max)';
+  String plotEditLorebookConnectButton(Object linked) {
+    return 'ロアブック接続 ($linked件)';
   }
 
   @override
@@ -479,6 +587,53 @@ class AppLocalizationsJa extends AppLocalizations {
   String get plotEditProfileMarkerLabel => '会話プロフィール選択タイミング';
 
   @override
+  String get plotProfileSectionTitle => 'プレイするユーザーが使う会話プロフィールを作成してください';
+
+  @override
+  String get plotProfileSectionDescription =>
+      'このプロットだけで使う専用プロフィールです。個数の制限はありません。';
+
+  @override
+  String get plotProfileSavePlotFirst =>
+      'プロットを先に保存すると会話プロフィールを作成できます。\nプロンプトタブでタイトル/キャラクターを入力し、上部の保存ボタンを押してください。';
+
+  @override
+  String get plotProfileAddButton => '会話プロフィールを追加';
+
+  @override
+  String get plotProfileUseGlobalNameLabel => 'プレイするユーザーの名前を使う';
+
+  @override
+  String plotProfileUseGlobalNameDescription(String name) {
+    return 'チェックするとマイページの既定プロフィール名($name)がそのまま使われます';
+  }
+
+  @override
+  String get plotProfileShortIntroLabel => '短い紹介';
+
+  @override
+  String get plotProfileShortIntroDescription => 'カードに表示される一行紹介です。AIには伝わりません。';
+
+  @override
+  String get plotProfileDescriptionLabel => '説明';
+
+  @override
+  String get plotProfileDescriptionHint =>
+      'キャラクターを作るときのように具体的な説明を書くといいです。\n例) 18歳、身長181cm、格好良い顔と首位を逃さない成績で皆に人気のある模範生';
+
+  @override
+  String get plotProfilePickerTitle => 'プロフィールを選択してください';
+
+  @override
+  String get plotProfilePickerSwipeHint => '横にスワイプして他のプロフィールを見る';
+
+  @override
+  String get plotProfilePickerSelectButton => '選択';
+
+  @override
+  String get plotProfilePickerListTitle => 'プロフィールを選択してください';
+
+  @override
   String get plotEditAddImageTooltip => '画像を追加(AIには伝わりません)';
 
   @override
@@ -507,9 +662,6 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get plotEditHashtagsLabel => 'ハッシュタグ';
-
-  @override
-  String get plotEditHashtagsDescription => 'ハッシュタグがあると露出が10倍増えます';
 
   @override
   String plotEditHashtagAddButton(Object count) {
@@ -592,16 +744,33 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiPresetSaveButton => '保存する';
 
   @override
+  String get aiPresetReasoningEffortLabel => '推論の深さ(Reasoning effort)';
+
+  @override
+  String get aiPresetReasoningEffortDescription =>
+      '推論モデルが答える前にどれくらい深く考えるかを指定します。ローカルモデルは思考モードがオンになり、リモートモデルは対応している場合のみ適用されます。';
+
+  @override
+  String get aiPresetReasoningEffortOff => 'オフ';
+
+  @override
+  String get aiPresetReasoningEffortLow => '低い';
+
+  @override
+  String get aiPresetReasoningEffortMedium => '普通';
+
+  @override
+  String get aiPresetReasoningEffortHigh => '高い';
+
+  @override
   String get lorebookConnectTitle => 'ロアブック接続';
 
   @override
-  String lorebookConnectNoneButton(Object max) {
-    return '接続しない (0/$max)';
-  }
+  String get lorebookConnectNoneButton => '接続しない';
 
   @override
-  String lorebookConnectConfirmButton(Object count, Object max) {
-    return '接続する ($count/$max)';
+  String lorebookConnectConfirmButton(Object count) {
+    return '接続する ($count件)';
   }
 
   @override

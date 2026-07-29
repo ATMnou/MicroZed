@@ -17,6 +17,7 @@ import '../data/repositories/chat_message_repository.dart';
 import '../data/repositories/chat_session_repository.dart';
 import '../data/repositories/chat_turn_repository.dart';
 import '../data/repositories/conversation_profile_repository.dart';
+import '../data/repositories/plot_conversation_profile_repository.dart';
 import '../data/repositories/plot_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
@@ -49,6 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late final AiPresetRepository _presetRepo;
   late final PlotRepository _plotRepo;
   late final ConversationProfileRepository _profileRepo;
+  late final PlotConversationProfileRepository _plotProfileRepo;
   late final CharacterRepository _characterRepo;
   late final AiChatService _aiChatService;
   final ImageGenClient _imageGenClient = ImageGenClient();
@@ -60,12 +62,17 @@ class _ChatScreenState extends State<ChatScreen> {
   int? _profileId;
   String _profileName = '유저';
   String? _profileImagePath;
+  String _profileDescription = '';
   AiPreset? _selectedPreset;
   List<Character> _characters = const [];
   bool _loading = true;
   bool _generating = false;
   bool _snapshotting = false;
   String _streamingText = '';
+  String _reasoningText = '';
+
+  /// 재시도 중인 턴 id. 새 버전이 완성될 때까지 이 턴의 기존 말풍선은 화면에서 미리 감춘다.
+  int? _retryingTurnId;
 
   static const _background = Color(0xFF141414);
   static const _bubbleGrey = Color(0xFF2A2A2A);
@@ -83,6 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _presetRepo = AiPresetRepository(db);
     _plotRepo = PlotRepository(db);
     _profileRepo = ConversationProfileRepository(db);
+    _plotProfileRepo = PlotConversationProfileRepository(db);
     _characterRepo = CharacterRepository(db);
     _aiChatService = AiChatService(db: db);
     _loadSessionContext();
@@ -99,7 +107,19 @@ class _ChatScreenState extends State<ChatScreen> {
     if (session.presetId != null) {
       _selectedPreset = await _presetRepo.getById(session.presetId!);
     }
-    if (session.conversationProfileId != null) {
+    if (session.plotConversationProfileId != null) {
+      final profile = await _plotProfileRepo.getById(
+        session.plotConversationProfileId!,
+      );
+      if (profile != null) {
+        // 전역 프로필 목록(마이페이지/프로필 변경 시트)과는 별개의 id 공간이라, 거기서
+        // '선택됨' 체크가 우연히 겹치지 않도록 _profileId는 비워 둔다.
+        _profileId = null;
+        _profileName = await _plotProfileRepo.resolveDisplayName(profile);
+        _profileImagePath = profile.imagePath;
+        _profileDescription = profile.description;
+      }
+    } else if (session.conversationProfileId != null) {
       final profile = await _profileRepo.getById(
         session.conversationProfileId!,
       );
@@ -107,6 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _profileId = profile.id;
         _profileName = profile.name;
         _profileImagePath = profile.imagePath;
+        _profileDescription = profile.description;
       }
     } else {
       // 예전에 만들어져 프로필이 안 붙어있는 세션은 기본 프로필로 채워서 앞으로는 '유저'로
@@ -116,6 +137,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _profileId = defaultProfile.id;
         _profileName = defaultProfile.name;
         _profileImagePath = defaultProfile.imagePath;
+        _profileDescription = defaultProfile.description;
         await _sessionRepo.setConversationProfile(
           widget.sessionId,
           defaultProfile.id,
@@ -150,22 +172,31 @@ class _ChatScreenState extends State<ChatScreen> {
         plotId: plotId,
         preset: preset,
         userProfileName: _profileName,
+        userProfileDescription: _profileDescription,
         onDelta: _onDelta,
+        onReasoning: _onReasoning,
       ),
     );
   }
 
   Future<void> _retryTurn(int turnId) async {
-    await _withPreset(
-      (preset, plotId) => _aiChatService.retryReply(
-        sessionId: widget.sessionId,
-        plotId: plotId,
-        preset: preset,
-        userProfileName: _profileName,
-        turnId: turnId,
-        onDelta: _onDelta,
-      ),
-    );
+    setState(() => _retryingTurnId = turnId);
+    try {
+      await _withPreset(
+        (preset, plotId) => _aiChatService.retryReply(
+          sessionId: widget.sessionId,
+          plotId: plotId,
+          preset: preset,
+          userProfileName: _profileName,
+          userProfileDescription: _profileDescription,
+          turnId: turnId,
+          onDelta: _onDelta,
+          onReasoning: _onReasoning,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _retryingTurnId = null);
+    }
   }
 
   Future<void> _reviseTurn(int turnId, String instruction) async {
@@ -175,15 +206,21 @@ class _ChatScreenState extends State<ChatScreen> {
         plotId: plotId,
         preset: preset,
         userProfileName: _profileName,
+        userProfileDescription: _profileDescription,
         turnId: turnId,
         instruction: instruction,
         onDelta: _onDelta,
+        onReasoning: _onReasoning,
       ),
     );
   }
 
   void _onDelta(String accumulated) {
     if (mounted) setState(() => _streamingText = accumulated);
+  }
+
+  void _onReasoning(String reasoningDelta) {
+    if (mounted) setState(() => _reasoningText += reasoningDelta);
   }
 
   Future<void> _withPreset(
@@ -206,6 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _generating = true;
       _streamingText = '';
+      _reasoningText = '';
     });
     try {
       await action(preset, plotId);
@@ -224,6 +262,7 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           _generating = false;
           _streamingText = '';
+          _reasoningText = '';
         });
       }
     }
@@ -500,10 +539,31 @@ class _ChatScreenState extends State<ChatScreen> {
     return match.isEmpty ? null : match.first;
   }
 
+  /// 스트리밍 미리보기용: 아직 저장되지 않은 세그먼트의 화자 이름으로 캐릭터를 찾는다.
+  /// [AiChatService._matchCharacter]와 같은 완화된(포함 관계도 허용) 매칭을 쓴다.
+  Character? _findCharacterByName(String? speakerName) {
+    final normalized = speakerName?.trim().toLowerCase();
+    if (normalized == null || normalized.isEmpty) return null;
+    for (final c in _characters) {
+      if (c.name.trim().toLowerCase() == normalized) return c;
+    }
+    for (final c in _characters) {
+      final name = c.name.trim().toLowerCase();
+      if (name.isEmpty) continue;
+      if (normalized.contains(name) || name.contains(normalized)) return c;
+    }
+    return null;
+  }
+
   /// AI 응답에 그대로 저장된 `{{user}}` 자리표시자를 지금 대화 프로필 이름으로 바꿔서
   /// 보여준다. 프로필을 나중에 바꿔도 예전 메시지가 그 이름으로 다시 렌더링된다.
   String _substituteUser(String content) =>
       content.replaceAll('{{user}}', _profileName);
+
+  /// `{{user}}`와 대칭으로, AI가 캐릭터 말풍선 안에 `{{char}}`를 남겼다면 그 말풍선을
+  /// 말하는 캐릭터 자신의 이름으로 바꿔서 보여준다.
+  String _substituteChar(String content, String characterName) =>
+      content.replaceAll('{{char}}', characterName);
 
   @override
   void dispose() {
@@ -527,38 +587,81 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: StreamBuilder<List<ChatTimelineItem>>(
                       stream: _turnRepo.watchTimeline(widget.sessionId),
                       builder: (context, snapshot) {
-                        final items = snapshot.data ?? const [];
+                        final allItems = snapshot.data ?? const [];
+                        // 재시도 중인 턴은 새 버전이 완성될 때까지 기존 말풍선을 감추고,
+                        // 그 자리에 아래 스트리밍 미리보기가 보이게 한다.
+                        final items = _retryingTurnId == null
+                            ? allItems
+                            : allItems
+                                  .where((i) => i.turn?.id != _retryingTurnId)
+                                  .toList();
                         final showPreview =
                             _generating && _streamingText.isNotEmpty;
-                        final introTurnIds = _introTurnIds(items);
-                        final lastTurnId = _lastTurnId(items);
+                        // 완결되지 않은 텍스트라도 MessageFormatParser는 안전하게 처리한다
+                        // (미완성 태그는 이어지는 내용으로 취급될 뿐 예외를 던지지 않는다).
+                        // 최종 저장 결과와 동일한 방식으로 화자별 말풍선을 나눠 보여줘서,
+                        // 스트리밍 중 미리보기가 저장 후 렌더링과 어긋나지 않게 한다.
+                        final previewSegments = showPreview
+                            ? MessageFormatParser.parse(_streamingText)
+                            : const <ParsedSpeechSegment>[];
+                        final showReasoning =
+                            _generating && _reasoningText.isNotEmpty;
+                        final introTurnIds = _introTurnIds(allItems);
+                        final lastTurnId = _lastTurnId(allItems);
                         return ListView.builder(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 8,
                           ),
-                          itemCount: items.length + (showPreview ? 1 : 0) + 1,
+                          itemCount:
+                              items.length +
+                              (showReasoning ? 1 : 0) +
+                              previewSegments.length +
+                              1,
                           itemBuilder: (context, rawIndex) {
                             if (rawIndex == 0) {
                               return _buildDisclaimerBanner(context);
                             }
                             final index = rawIndex - 1;
-                            if (index >= items.length) {
+                            if (index == items.length && showReasoning) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
-                                child: _CharacterMessage(
-                                  characterName: _characters.isNotEmpty
-                                      ? _characters.first.name
-                                      : 'AI',
-                                  imagePath: _characters.isNotEmpty
-                                      ? _characters.first.imagePath
-                                      : null,
-                                  message: _substituteUser(
-                                    MessageFormatParser.stripSpeakerTagsForPreview(
-                                      _streamingText,
-                                    ),
+                                child: _ReasoningBlock(text: _reasoningText),
+                              );
+                            }
+                            final previewStart =
+                                items.length + (showReasoning ? 1 : 0);
+                            if (index >= previewStart) {
+                              final segment =
+                                  previewSegments[index - previewStart];
+                              final Widget previewBubble;
+                              if (segment.senderType ==
+                                  MessageSender.narrator) {
+                                previewBubble = _NarratorLine(
+                                  text: _substituteUser(segment.content),
+                                );
+                              } else {
+                                final character = _findCharacterByName(
+                                  segment.speakerName,
+                                );
+                                final resolvedName =
+                                    character?.name ??
+                                    segment.speakerName ??
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.chatDefaultCharacterName;
+                                previewBubble = _CharacterMessage(
+                                  characterName: resolvedName,
+                                  imagePath: character?.imagePath,
+                                  message: _substituteChar(
+                                    _substituteUser(segment.content),
+                                    resolvedName,
                                   ),
-                                ),
+                                );
+                              }
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: previewBubble,
                               );
                             }
                             final item = items[index];
@@ -569,15 +672,19 @@ class _ChatScreenState extends State<ChatScreen> {
                                 final character = _findCharacter(
                                   message.characterId,
                                 );
+                                final resolvedName =
+                                    character?.name ??
+                                    message.speakerNameOverride ??
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.chatDefaultCharacterName;
                                 bubble = _CharacterMessage(
-                                  characterName:
-                                      character?.name ??
-                                      message.speakerNameOverride ??
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.chatDefaultCharacterName,
+                                  characterName: resolvedName,
                                   imagePath: character?.imagePath,
-                                  message: _substituteUser(message.content),
+                                  message: _substituteChar(
+                                    _substituteUser(message.content),
+                                    resolvedName,
+                                  ),
                                 );
                                 final turn = item.turn;
                                 if (turn != null &&
@@ -896,152 +1003,164 @@ class _ChatScreenState extends State<ChatScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1E1E1E),
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (sheetContext) {
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(2),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(sheetContext).size.height * 0.75,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.chatModelSheetTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.chatModelSheetTitle,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.chatModelSheetDescription,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
-                ),
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(sheetContext).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const AiPresetScreen()),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      Text(
-                        l10n.chatModelSheetPresetSettingsLink,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 13,
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.chatModelSheetDescription,
+                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  ),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(sheetContext).pop();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AiPresetScreen(),
                         ),
-                      ),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: Colors.white70,
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                StreamBuilder<List<AiPreset>>(
-                  stream: _presetRepo.watchAll(),
-                  builder: (context, snapshot) {
-                    final presets = snapshot.data ?? const [];
-                    if (presets.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Text(
-                          l10n.chatModelSheetNoPresets,
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          l10n.chatModelSheetPresetSettingsLink,
                           style: const TextStyle(
-                            color: Colors.white38,
+                            color: Colors.white70,
                             fontSize: 13,
                           ),
                         ),
-                      );
-                    }
-                    return Column(
-                      children: presets.map((preset) {
-                        final selected = preset.id == _selectedPreset?.id;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: GestureDetector(
-                            onTap: () async {
-                              await _sessionRepo.setPreset(
-                                widget.sessionId,
-                                preset.id,
-                              );
-                              setState(() => _selectedPreset = preset);
-                              if (sheetContext.mounted)
-                                Navigator.of(sheetContext).pop();
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF262626),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: selected
-                                      ? _bubblePurple
-                                      : Colors.transparent,
-                                  width: 1.5,
+                        const Icon(
+                          Icons.chevron_right,
+                          color: Colors.white70,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: StreamBuilder<List<AiPreset>>(
+                        stream: _presetRepo.watchAll(),
+                        builder: (context, snapshot) {
+                          final presets = snapshot.data ?? const [];
+                          if (presets.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Text(
+                                l10n.chatModelSheetNoPresets,
+                                style: const TextStyle(
+                                  color: Colors.white38,
+                                  fontSize: 13,
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                            );
+                          }
+                          return Column(
+                            children: presets.map((preset) {
+                              final selected = preset.id == _selectedPreset?.id;
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    await _sessionRepo.setPreset(
+                                      widget.sessionId,
+                                      preset.id,
+                                    );
+                                    setState(() => _selectedPreset = preset);
+                                    if (sheetContext.mounted)
+                                      Navigator.of(sheetContext).pop();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(14),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF262626),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: selected
+                                            ? _bubblePurple
+                                            : Colors.transparent,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          preset.name,
-                                          style: const TextStyle(
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                preset.name,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                preset.description,
+                                                style: const TextStyle(
+                                                  color: Colors.white54,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (selected)
+                                          const Icon(
+                                            Icons.check,
                                             color: Colors.white,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
+                                            size: 20,
                                           ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          preset.description,
-                                          style: const TextStyle(
-                                            color: Colors.white54,
-                                            fontSize: 12,
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
-                                  if (selected)
-                                    const Icon(
-                                      Icons.check,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ],
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -1251,6 +1370,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 _profileId = profile.id;
                                 _profileName = profile.name;
                                 _profileImagePath = profile.imagePath;
+                                _profileDescription = profile.description;
                               });
                               if (sheetContext.mounted)
                                 Navigator.of(sheetContext).pop();
@@ -1573,6 +1693,65 @@ class _NarratorLine extends StatelessWidget {
             child: _FormattedMessageText(
               text,
               style: const TextStyle(color: Colors.white54, fontSize: 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 추론(reasoning/thinking) 모델이 답변 전 생각하는 과정을 실시간으로 보여주는 블록.
+/// 저장되지 않는 휘발성 표시로, 생성이 끝나면(또는 답변이 나오기 시작하면) 사라진다.
+class _ReasoningBlock extends StatelessWidget {
+  const _ReasoningBlock({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.only(left: 40),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFF3A3A3A)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 1.5,
+                  color: Colors.white38,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                l10n.chatReasoningInProgressLabel,
+                style: const TextStyle(
+                  color: Colors.white38,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            text,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white38,
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
             ),
           ),
         ],

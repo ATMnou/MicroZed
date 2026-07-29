@@ -78,6 +78,28 @@ class ConversationProfiles extends Table {
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
 }
 
+/// 플롯 편집 > 프롬프트 탭에서 그 플롯 전용으로 만드는 대화 프로필. 마이페이지의 전역
+/// [ConversationProfiles]와는 완전히 별개이고, 개수 제한이 없다.
+class PlotConversationProfiles extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get plotId =>
+      integer().references(Plots, #id, onDelete: KeyAction.cascade)();
+  TextColumn get name => text().withLength(min: 1, max: 20)();
+
+  /// true면 [name]을 직접 쓰지 않고, 표시할 때마다 전역 기본 프로필의 이름을 그대로 가져와
+  /// 보여준다(전역 기본 프로필이 바뀌면 이 프로필의 이름도 같이 바뀐다).
+  BoolColumn get useGlobalName => boolean().withDefault(const Constant(false))();
+
+  /// 카드/목록에 보여주는 한 줄 소개. AI에게는 전달되지 않는다(표시 전용).
+  TextColumn get shortIntro => text().withLength(min: 1, max: 50)();
+
+  /// 캐릭터 설명처럼 AI에게 그대로 전달되는 유저 페르소나 설명.
+  TextColumn get description => text().withDefault(const Constant(''))();
+  TextColumn get imagePath => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 /// BYOK AI 프리셋. 실제 API 키는 저장하지 않고 secure storage 참조 키(apiKeyRef)만 둔다.
 class AiPresets extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -100,6 +122,17 @@ class AiPresets extends Table {
 
   /// 시스템 프롬프트 뒤에 그대로 덧붙이는 사용자 정의 지침. 기본값은 빈 문자열.
   TextColumn get additionalSystemPrompt => text().withDefault(const Constant(''))();
+
+  /// true면 원격 API가 아니라 기기에 내장된 로컬 LLM(llama.cpp)으로 추론한다.
+  /// 이 경우 baseUrl/apiKeyRef는 쓰지 않고 [localModelSource]만 사용한다.
+  BoolColumn get isLocal => boolean().withDefault(const Constant(false))();
+
+  /// null(끔) 또는 'low'/'medium'/'high'. 원격 요청에는 `reasoning_effort`로 그대로 실어 보내고,
+  /// 로컬 모델에는 사고(thinking) 모드를 켜고 이 값에 비례한 토큰 예산을 준다.
+  TextColumn get reasoningEffort => text().nullable()();
+
+  /// 로컬 모델의 위치. `hf://...` (다운로드 후 캐시된 모델) 또는 로컬 파일 경로.
+  TextColumn get localModelSource => text().nullable()();
 }
 
 /// 대화 탭에 나열되는 개별 대화방. 어떤 플롯/프로필/프리셋으로 진행 중인지를 연결한다.
@@ -110,6 +143,11 @@ class ChatSessions extends Table {
   IntColumn get conversationProfileId => integer()
       .nullable()
       .references(ConversationProfiles, #id, onDelete: KeyAction.setNull)();
+
+  /// [conversationProfileId](전역 프로필)와는 동시에 값이 있을 수 없다 - 둘 중 하나만 쓴다.
+  IntColumn get plotConversationProfileId => integer()
+      .nullable()
+      .references(PlotConversationProfiles, #id, onDelete: KeyAction.setNull)();
   IntColumn get presetId => integer()
       .nullable()
       .references(AiPresets, #id, onDelete: KeyAction.setNull)();

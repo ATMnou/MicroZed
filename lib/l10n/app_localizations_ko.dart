@@ -123,6 +123,71 @@ class AppLocalizationsKo extends AppLocalizations {
   String get myPageSnapshotSettingsButton => '스냅샷 설정';
 
   @override
+  String get myPageLocalLlmButton => '로컬 LLM';
+
+  @override
+  String get localLlmScreenTitle => '로컬 LLM';
+
+  @override
+  String get localLlmScreenDescription =>
+      '인터넷 연결 없이 기기에서 직접 AI 모델을 돌려요. 응답 속도와 품질은 기기 사양과 모델 크기에 따라 달라져요.';
+
+  @override
+  String get localLlmRecommendedSectionTitle => '추천 모델';
+
+  @override
+  String get localLlmImportSectionTitle => '내 파일에서 가져오기';
+
+  @override
+  String get localLlmSavedPresetsSectionTitle => '저장된 로컬 프리셋';
+
+  @override
+  String get localLlmCacheSectionTitle => '다운로드된 모델 관리';
+
+  @override
+  String get localLlmCurrentStatusLabel => '현재 로드된 모델';
+
+  @override
+  String get localLlmNoModelLoaded => '로드된 모델 없음';
+
+  @override
+  String get localLlmUnloadButton => '언로드';
+
+  @override
+  String get localLlmUseButton => '사용';
+
+  @override
+  String get localLlmLoadButton => '불러오기';
+
+  @override
+  String get localLlmInUseLabel => '사용 중';
+
+  @override
+  String get localLlmImportButton => 'GGUF 파일 선택';
+
+  @override
+  String get localLlmImportDescription => '직접 받아둔 .gguf 모델 파일을 선택해서 쓸 수 있어요.';
+
+  @override
+  String get localLlmNoSavedPresets => '아직 저장된 로컬 프리셋이 없어요.';
+
+  @override
+  String get localLlmNoCachedModels => '다운로드된 모델이 없어요.';
+
+  @override
+  String get localLlmPresetDescription => '기기에 내장된 로컬 모델';
+
+  @override
+  String localLlmLoadSuccessMessage(Object modelName) {
+    return '$modelName 모델을 불러왔어요.';
+  }
+
+  @override
+  String localLlmLoadFailureMessage(Object error) {
+    return '모델을 불러오지 못했어요: $error';
+  }
+
+  @override
   String get preferencesTitle => '환경설정';
 
   @override
@@ -137,6 +202,36 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get preferencesImageDisplayFullWidthOption => '가로 꽉 채우기';
+
+  @override
+  String get preferencesDangerZoneTitle => '위험 구역';
+
+  @override
+  String get preferencesResetAllDescription =>
+      '플롯/캐릭터/대화/로어북/프리셋/이미지 등 이 기기에 저장된 모든 데이터를 지우고 앱을 처음 설치했을 때 상태로 되돌려요. 다운로드해둔 로컬 LLM 모델 파일은 지우지 않아요. 이 작업은 되돌릴 수 없어요.';
+
+  @override
+  String get preferencesResetAllButton => '전체 초기화';
+
+  @override
+  String get preferencesResetConfirmContent =>
+      '모든 데이터가 영구적으로 삭제돼요. 미리 백업해두지 않았다면 계속하기 전에 마이페이지에서 \'전체 저장\'을 먼저 해주세요.';
+
+  @override
+  String get preferencesResetConfirmWord => '초기화';
+
+  @override
+  String preferencesResetTypeToConfirm(Object word) {
+    return '계속하려면 아래에 \"$word\"를 입력해주세요.';
+  }
+
+  @override
+  String get preferencesResetSuccessMessage => '모든 데이터를 초기화했어요.';
+
+  @override
+  String preferencesResetFailureMessage(Object error) {
+    return '초기화에 실패했어요: $error';
+  }
 
   @override
   String get navHome => '홈';
@@ -224,6 +319,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get createTabImportFromUrlSubtitle => '카드 파일 링크나 사이트 주소를 붙여넣어요';
 
   @override
+  String get createTabImportFromPlotDataTitle => '전용 형식(.mzplot)에서 가져오기';
+
+  @override
+  String get createTabImportFromPlotDataSubtitle =>
+      '이미지를 포함한 플롯 전체 데이터를 불러와요(대화 기록 제외)';
+
+  @override
   String get createTabImportUrlDialogTitle => '링크에서 가져오기';
 
   @override
@@ -264,6 +366,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get chatSelectPresetFirstMessage => 'AI 프리셋을 먼저 선택해주세요';
+
+  @override
+  String get chatReasoningInProgressLabel => '생각하는 중...';
 
   @override
   String chatGenerateFailureMessage(Object error) {
@@ -390,6 +495,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get plotEditExportCardMenuItem => 'SillyTavern 카드로 내보내기';
 
   @override
+  String get plotEditExportDataMenuItem => '전용 형식으로 내보내기 (전체 데이터)';
+
+  @override
   String get plotEditDraftSaveButton => '임시저장';
 
   @override
@@ -444,8 +552,8 @@ class AppLocalizationsKo extends AppLocalizations {
       '로어북에 등록한 키워드가 언급될 때마다\n작성한 내용이 AI에게 전달돼요';
 
   @override
-  String plotEditLorebookConnectButton(Object linked, Object max) {
-    return '로어북 연결 ($linked/$max)';
+  String plotEditLorebookConnectButton(Object linked) {
+    return '로어북 연결 ($linked개)';
   }
 
   @override
@@ -477,6 +585,54 @@ class AppLocalizationsKo extends AppLocalizations {
   String get plotEditProfileMarkerLabel => '대화 프로필 선택 시점';
 
   @override
+  String get plotProfileSectionTitle => '플레이하는 유저가 사용할 대화 프로필을 만들어 주세요';
+
+  @override
+  String get plotProfileSectionDescription =>
+      '이 플롯에서만 쓰는 전용 프로필이에요. 개수 제한은 없어요.';
+
+  @override
+  String get plotProfileSavePlotFirst =>
+      '플롯을 먼저 저장하면 대화 프로필을 만들 수 있어요.\n프롬프트 탭에서 제목/캐릭터를 입력하고 상단의 저장 버튼을 눌러주세요.';
+
+  @override
+  String get plotProfileAddButton => '대화 프로필 추가';
+
+  @override
+  String get plotProfileUseGlobalNameLabel => '플레이하는 유저 이름 사용하기';
+
+  @override
+  String plotProfileUseGlobalNameDescription(String name) {
+    return '체크하면 마이페이지 기본 프로필 이름($name)을 그대로 가져와요';
+  }
+
+  @override
+  String get plotProfileShortIntroLabel => '짧은 소개';
+
+  @override
+  String get plotProfileShortIntroDescription =>
+      '카드에 표시되는 한 줄 소개예요. AI에게는 전달되지 않아요.';
+
+  @override
+  String get plotProfileDescriptionLabel => '설명';
+
+  @override
+  String get plotProfileDescriptionHint =>
+      '캐릭터를 만들 때처럼 구체적인 설명을 써주시면 좋아요.\n예) 18살, 키 181cm, 잘생긴 얼굴과 1등을 놓치지 않는 성적으로 모두에게 인기있는 모범생';
+
+  @override
+  String get plotProfilePickerTitle => '프로필을 선택하세요';
+
+  @override
+  String get plotProfilePickerSwipeHint => '옆으로 넘겨서 다른 프로필 보기';
+
+  @override
+  String get plotProfilePickerSelectButton => '선택';
+
+  @override
+  String get plotProfilePickerListTitle => '프로필을 선택하세요';
+
+  @override
   String get plotEditAddImageTooltip => '이미지 추가 (AI에게 전달되지 않아요)';
 
   @override
@@ -505,9 +661,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get plotEditHashtagsLabel => '해시태그';
-
-  @override
-  String get plotEditHashtagsDescription => '해시태그가 있으면 10배 더 많이 노출될 거예요';
 
   @override
   String plotEditHashtagAddButton(Object count) {
@@ -590,16 +743,33 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiPresetSaveButton => '저장하기';
 
   @override
+  String get aiPresetReasoningEffortLabel => '추론 노력(Reasoning effort)';
+
+  @override
+  String get aiPresetReasoningEffortDescription =>
+      '추론 모델에게 답하기 전 얼마나 깊게 생각할지 지정해요. 로컬 모델은 사고 모드가 켜지고, 원격 모델은 지원하는 경우에만 적용돼요.';
+
+  @override
+  String get aiPresetReasoningEffortOff => '끔';
+
+  @override
+  String get aiPresetReasoningEffortLow => '낮음';
+
+  @override
+  String get aiPresetReasoningEffortMedium => '보통';
+
+  @override
+  String get aiPresetReasoningEffortHigh => '높음';
+
+  @override
   String get lorebookConnectTitle => '로어북 연결';
 
   @override
-  String lorebookConnectNoneButton(Object max) {
-    return '연결 안 함 (0/$max)';
-  }
+  String get lorebookConnectNoneButton => '연결 안 함';
 
   @override
-  String lorebookConnectConfirmButton(Object count, Object max) {
-    return '연결하기 ($count/$max)';
+  String lorebookConnectConfirmButton(Object count) {
+    return '연결하기 ($count개)';
   }
 
   @override

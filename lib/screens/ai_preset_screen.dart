@@ -167,13 +167,34 @@ class _PresetCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  preset.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        preset.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (preset.isLocal) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF7A6FF0).withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Text(
+                          '기기 내장',
+                          style: TextStyle(color: Color(0xFF7A6FF0), fontSize: 10, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -182,7 +203,7 @@ class _PresetCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${preset.baseUrl} · ${preset.modelName}',
+                  preset.isLocal ? preset.modelName : '${preset.baseUrl} · ${preset.modelName}',
                   style: const TextStyle(color: Colors.white24, fontSize: 11),
                 ),
               ],

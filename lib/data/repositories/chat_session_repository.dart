@@ -90,17 +90,26 @@ class ChatSessionRepository {
   }
 
   /// 새 세션을 만들고, 플롯의 인트로 탭에 설정된 첫 상황을 첫 메시지들로 채워 넣는다.
-  /// conversationProfileId를 안 넘기면 기본 대화 프로필로 채운다(있으면).
+  /// [conversationProfileId](전역 프로필)와 [plotConversationProfileId](이 플롯 전용 프로필)는
+  /// 동시에 값이 있을 수 없다 - 새 채팅 시작 시 프로필 선택 화면에서 어느 쪽이든 하나만 골라 넘긴다.
+  /// 둘 다 안 넘기면(=플롯에 전용 프로필이 없어서 선택 화면 자체가 안 뜬 경우) 마이페이지의
+  /// 전역 기본 프로필로 조용히 채운다(있으면). 예전과 동일한 동작.
   Future<int> createSession({
     required int plotId,
     int? conversationProfileId,
+    int? plotConversationProfileId,
     int? presetId,
   }) async {
-    final resolvedProfileId = conversationProfileId ?? await _defaultConversationProfileId();
+    assert(conversationProfileId == null || plotConversationProfileId == null);
+    var resolvedGlobalProfileId = conversationProfileId;
+    if (resolvedGlobalProfileId == null && plotConversationProfileId == null) {
+      resolvedGlobalProfileId = await _defaultConversationProfileId();
+    }
     final sessionId = await _db.into(_db.chatSessions).insert(
           ChatSessionsCompanion.insert(
             plotId: plotId,
-            conversationProfileId: Value(resolvedProfileId),
+            conversationProfileId: Value(resolvedGlobalProfileId),
+            plotConversationProfileId: Value(plotConversationProfileId),
             presetId: Value(presetId),
           ),
         );
@@ -150,15 +159,14 @@ class ChatSessionRepository {
     }
   }
 
-  /// 캐릭터 상세 화면의 '이어서 대화하기'가 사용하는 편의 메서드.
-  /// 해당 플롯에 활성 세션이 있으면 재사용하고, 없으면 새로 만든다.
-  Future<int> findOrCreateForPlot(int plotId) async {
+  /// 이 플롯의 활성 세션(있으면) id. 새 채팅 시작 버튼이 프로필 선택 화면을 띄울지
+  /// 판단할 때 쓴다 - 이미 활성 세션이 있으면 프로필은 이미 정해져 있으니 다시 묻지 않는다.
+  Future<int?> activeSessionIdForPlot(int plotId) async {
     final existing = await (_db.select(_db.chatSessions)
           ..where((s) => s.plotId.equals(plotId) & s.archivedAt.isNull())
           ..limit(1))
         .getSingleOrNull();
-    if (existing != null) return existing.id;
-    return createSession(plotId: plotId);
+    return existing?.id;
   }
 
   Future<void> setPreset(int sessionId, int presetId) {
@@ -167,9 +175,26 @@ class ChatSessionRepository {
     );
   }
 
+  /// 전역 프로필로 전환한다. [conversationProfileId]와 [plotConversationProfileId]는
+  /// 동시에 값이 있을 수 없으므로 플롯 전용 프로필 쪽은 함께 지운다.
   Future<void> setConversationProfile(int sessionId, int profileId) {
     return (_db.update(_db.chatSessions)..where((s) => s.id.equals(sessionId))).write(
-      ChatSessionsCompanion(conversationProfileId: Value(profileId), updatedAt: Value(DateTime.now())),
+      ChatSessionsCompanion(
+        conversationProfileId: Value(profileId),
+        plotConversationProfileId: const Value(null),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  /// 플롯 전용 프로필로 전환한다. 전역 프로필 쪽은 함께 지운다.
+  Future<void> setPlotConversationProfile(int sessionId, int plotProfileId) {
+    return (_db.update(_db.chatSessions)..where((s) => s.id.equals(sessionId))).write(
+      ChatSessionsCompanion(
+        plotConversationProfileId: Value(plotProfileId),
+        conversationProfileId: const Value(null),
+        updatedAt: Value(DateTime.now()),
+      ),
     );
   }
 
@@ -191,6 +216,7 @@ class ChatSessionRepository {
     return createSession(
       plotId: plotId,
       conversationProfileId: current?.conversationProfileId,
+      plotConversationProfileId: current?.plotConversationProfileId,
       presetId: current?.presetId,
     );
   }
@@ -215,6 +241,7 @@ class ChatSessionRepository {
           ChatSessionsCompanion.insert(
             plotId: plotId,
             conversationProfileId: Value(current?.conversationProfileId),
+            plotConversationProfileId: Value(current?.plotConversationProfileId),
             presetId: Value(current?.presetId),
           ),
         );

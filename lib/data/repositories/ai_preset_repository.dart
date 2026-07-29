@@ -17,6 +17,11 @@ class AiPresetRepository {
 
   Future<AiPreset?> getById(int id) => (_db.select(_db.aiPresets)..where((p) => p.id.equals(id))).getSingleOrNull();
 
+  /// 같은 로컬 모델 소스로 이미 만들어둔 프리셋이 있으면 재사용하기 위한 조회.
+  Future<AiPreset?> getByLocalModelSource(String source) =>
+      (_db.select(_db.aiPresets)..where((p) => p.isLocal.equals(true) & p.localModelSource.equals(source)))
+          .getSingleOrNull();
+
   Future<String?> readApiKey(int presetId) => _apiKeyStore.read(presetId);
 
   /// apiKey가 null/empty면 기존 키를 건드리지 않는다(수정 화면에서 키를 비워두고 저장하는 경우).
@@ -32,6 +37,9 @@ class AiPresetRepository {
     int? maxTokens,
     int? contextLength,
     String additionalSystemPrompt = '',
+    bool isLocal = false,
+    String? localModelSource,
+    String? reasoningEffort,
   }) async {
     late int presetId;
     if (id == null) {
@@ -46,6 +54,9 @@ class AiPresetRepository {
               maxTokens: Value(maxTokens),
               contextLength: Value(contextLength),
               additionalSystemPrompt: Value(additionalSystemPrompt),
+              isLocal: Value(isLocal),
+              localModelSource: Value(localModelSource),
+              reasoningEffort: Value(reasoningEffort),
             ),
           );
       await (_db.update(_db.aiPresets)..where((p) => p.id.equals(presetId))).write(
@@ -64,6 +75,9 @@ class AiPresetRepository {
           maxTokens: Value(maxTokens),
           contextLength: Value(contextLength),
           additionalSystemPrompt: Value(additionalSystemPrompt),
+          isLocal: Value(isLocal),
+          localModelSource: Value(localModelSource),
+          reasoningEffort: Value(reasoningEffort),
           updatedAt: Value(DateTime.now()),
         ),
       );

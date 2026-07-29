@@ -50,12 +50,54 @@
   "myPageLicensesButton": "Open-source licenses",
   "myPageSourceCodeButton": "GitHub repository",
   "myPageSnapshotSettingsButton": "Snapshot settings",
+  "myPageLocalLlmButton": "Local LLM",
+
+  "localLlmScreenTitle": "Local LLM",
+  "localLlmScreenDescription": "Run an AI model directly on your device, no internet needed. Speed and quality depend on your device and the model size.",
+  "localLlmRecommendedSectionTitle": "Recommended models",
+  "localLlmImportSectionTitle": "Import from a file",
+  "localLlmSavedPresetsSectionTitle": "Saved local presets",
+  "localLlmCacheSectionTitle": "Downloaded models",
+  "localLlmCurrentStatusLabel": "Currently loaded model",
+  "localLlmNoModelLoaded": "No model loaded",
+  "localLlmUnloadButton": "Unload",
+  "localLlmUseButton": "Use",
+  "localLlmLoadButton": "Load",
+  "localLlmInUseLabel": "In use",
+  "localLlmImportButton": "Choose GGUF file",
+  "localLlmImportDescription": "Pick a .gguf model file you've already downloaded.",
+  "localLlmNoSavedPresets": "No saved local presets yet.",
+  "localLlmNoCachedModels": "No downloaded models yet.",
+  "localLlmPresetDescription": "On-device local model",
+  "localLlmLoadSuccessMessage": "Loaded {modelName}.",
+  "@localLlmLoadSuccessMessage": {
+    "placeholders": { "modelName": { "type": "Object" } }
+  },
+  "localLlmLoadFailureMessage": "Failed to load the model: {error}",
+  "@localLlmLoadFailureMessage": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
 
   "preferencesTitle": "Preferences",
   "preferencesImageDisplayModeLabel": "Image display",
   "preferencesImageDisplayModeDescription": "Choose how intro/snapshot images are shown in chat.",
   "preferencesImageDisplaySquareOption": "Square (current)",
   "preferencesImageDisplayFullWidthOption": "Fill width",
+
+  "preferencesDangerZoneTitle": "Danger zone",
+  "preferencesResetAllDescription": "Erases all data stored on this device — plots, characters, chats, lorebooks, presets, images — and returns the app to its freshly-installed state. Downloaded local LLM model files are kept. This cannot be undone.",
+  "preferencesResetAllButton": "Reset everything",
+  "preferencesResetConfirmContent": "All data will be permanently deleted. If you haven't backed up yet, use \"Export all\" on My Page before continuing.",
+  "preferencesResetConfirmWord": "RESET",
+  "preferencesResetTypeToConfirm": "Type \"{word}\" below to continue.",
+  "@preferencesResetTypeToConfirm": {
+    "placeholders": { "word": { "type": "Object" } }
+  },
+  "preferencesResetSuccessMessage": "All data has been reset.",
+  "preferencesResetFailureMessage": "Reset failed: {error}",
+  "@preferencesResetFailureMessage": {
+    "placeholders": { "error": { "type": "Object" } }
+  },
 
   "navHome": "Home",
   "navChat": "Chat",
@@ -92,6 +134,8 @@
   "createTabImportFromFileSubtitle": "Choose a SillyTavern character card file",
   "createTabImportFromUrlTitle": "Import from a link (URL)",
   "createTabImportFromUrlSubtitle": "Paste a card file link or site URL",
+  "createTabImportFromPlotDataTitle": "Import from native format (.mzplot)",
+  "createTabImportFromPlotDataSubtitle": "Loads the whole plot including images (chat history excluded)",
   "createTabImportUrlDialogTitle": "Import from a link",
   "createTabImportConfirmButton": "Import",
   "createTabNoIntroWarning": "This card has no opening message, so the intro tab was left blank. Please write one yourself in the \"Intro\" tab.",
@@ -107,6 +151,7 @@
   "chatDefaultUserName": "User",
   "chatDefaultCharacterName": "Character",
   "chatSelectPresetFirstMessage": "Please choose an AI preset first",
+  "chatReasoningInProgressLabel": "Thinking...",
   "chatGenerateFailureMessage": "Failed to generate AI reply: {error}",
   "@chatGenerateFailureMessage": { "placeholders": { "error": { "type": "Object" } } },
   "chatReviseDialogTitle": "Revise with AI",
@@ -151,6 +196,7 @@
   "@plotEditDefaultCharacterName": { "placeholders": { "index": { "type": "Object" } } },
   "plotEditAppBarTitle": "Plot",
   "plotEditExportCardMenuItem": "Export as SillyTavern card",
+  "plotEditExportDataMenuItem": "Export in native format (all data)",
   "plotEditDraftSaveButton": "Save draft",
   "plotEditSaveButtonEdit": "Save",
   "plotEditSaveButtonCreate": "Create",
@@ -169,9 +215,9 @@
   "plotEditLorebookSavePlotFirst": "Save the plot first to connect a lorebook.\nEnter the title/characters in the Prompt tab and tap the save button above.",
   "plotEditLorebookConnectTitle": "Connect a lorebook",
   "plotEditLorebookConnectDescription": "Whenever a keyword registered in the lorebook is mentioned,\nits content is sent to the AI",
-  "plotEditLorebookConnectButton": "Connect lorebook ({linked}/{max})",
+  "plotEditLorebookConnectButton": "Connect lorebook ({linked})",
   "@plotEditLorebookConnectButton": {
-    "placeholders": { "linked": { "type": "Object" }, "max": { "type": "Object" } }
+    "placeholders": { "linked": { "type": "Object" } }
   },
   "plotEditIntroHintNarrator": "*Describe the situation*",
   "plotEditIntroHintUser": "Type the user's message",
@@ -182,6 +228,23 @@
   "plotEditIntroFirstSceneTitle": "Create the opening scene",
   "plotEditIntroEmptyMessage": "No intro written yet. Add the first line in the input box below.",
   "plotEditProfileMarkerLabel": "Chat profile picked here",
+  "plotProfileSectionTitle": "Create a conversation profile for the playing user",
+  "plotProfileSectionDescription": "These profiles are only used for this plot. There's no limit on how many you can make.",
+  "plotProfileSavePlotFirst": "Save the plot first to create conversation profiles.\nEnter a title/character on the Prompt tab and tap the save button above.",
+  "plotProfileAddButton": "Add conversation profile",
+  "plotProfileUseGlobalNameLabel": "Use the playing user's name",
+  "plotProfileUseGlobalNameDescription": "When checked, this uses your My Page default profile's name ({name})",
+  "@plotProfileUseGlobalNameDescription": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "plotProfileShortIntroLabel": "Short intro",
+  "plotProfileShortIntroDescription": "A one-line blurb shown on the card. Not sent to the AI.",
+  "plotProfileDescriptionLabel": "Description",
+  "plotProfileDescriptionHint": "Write specific details like when making a character.\nE.g. 18 years old, 181cm tall, handsome and top of the class, popular with everyone",
+  "plotProfilePickerTitle": "Choose a profile",
+  "plotProfilePickerSwipeHint": "Swipe sideways to see other profiles",
+  "plotProfilePickerSelectButton": "Select",
+  "plotProfilePickerListTitle": "Choose a profile",
   "plotEditAddImageTooltip": "Add image (not sent to the AI)",
   "plotEditComposerNarrator": "Narrator",
   "plotEditAddHashtagDialogTitle": "Add hashtag",
@@ -220,13 +283,18 @@
   "aiPresetAdditionalPromptLabel": "Additional system prompt",
   "aiPresetAdditionalPromptHint": "Instructions to append after the base prompt (optional)",
   "aiPresetSaveButton": "Save",
+  "aiPresetReasoningEffortLabel": "Reasoning effort",
+  "aiPresetReasoningEffortDescription": "How deeply a reasoning model should think before answering. Local models get thinking mode turned on; remote models only apply this if they support it.",
+  "aiPresetReasoningEffortOff": "Off",
+  "aiPresetReasoningEffortLow": "Low",
+  "aiPresetReasoningEffortMedium": "Medium",
+  "aiPresetReasoningEffortHigh": "High",
 
   "lorebookConnectTitle": "Connect lorebook",
-  "lorebookConnectNoneButton": "Not connected (0/{max})",
-  "@lorebookConnectNoneButton": { "placeholders": { "max": { "type": "Object" } } },
-  "lorebookConnectConfirmButton": "Connect ({count}/{max})",
+  "lorebookConnectNoneButton": "Not connected",
+  "lorebookConnectConfirmButton": "Connect ({count})",
   "@lorebookConnectConfirmButton": {
-    "placeholders": { "count": { "type": "Object" }, "max": { "type": "Object" } }
+    "placeholders": { "count": { "type": "Object" } }
   },
   "lorebookDetailDeletedMessage": "This lorebook has been deleted",
   "lorebookInfoTabLabel": "Lore info",

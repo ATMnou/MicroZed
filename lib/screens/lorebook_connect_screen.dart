@@ -6,13 +6,11 @@ import '../l10n/app_localizations.dart';
 
 /// 플롯 편집 > '로어북' 탭의 '+ 로어북 연결'에서 나오는 로어북 선택 화면.
 /// 둘러보기/최근 플레이/내 로어북 같은 탭 구분과 썸네일 이미지는 빼고,
-/// 만들어둔 로어북을 한 목록에서 고르는 형태로 단순화했다. 플롯 하나당 최대 5개.
+/// 만들어둔 로어북을 한 목록에서 고르는 형태로 단순화했다. 연결 개수 제한은 없다.
 class LorebookConnectScreen extends StatefulWidget {
   const LorebookConnectScreen({super.key, required this.plotId});
 
   final int plotId;
-
-  static const maxLinks = 5;
 
   @override
   State<LorebookConnectScreen> createState() => _LorebookConnectScreenState();
@@ -155,23 +153,15 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                     final selected = _selectedLorebookIds.contains(
                       summary.lorebook.id,
                     );
-                    final atCap =
-                        !selected &&
-                        _selectedLorebookIds.length >=
-                            LorebookConnectScreen.maxLinks;
                     return CheckboxListTile(
                       value: selected,
-                      onChanged: atCap
-                          ? null
-                          : (v) => setState(() {
-                              if (v == true) {
-                                _selectedLorebookIds.add(summary.lorebook.id);
-                              } else {
-                                _selectedLorebookIds.remove(
-                                  summary.lorebook.id,
-                                );
-                              }
-                            }),
+                      onChanged: (v) => setState(() {
+                        if (v == true) {
+                          _selectedLorebookIds.add(summary.lorebook.id);
+                        } else {
+                          _selectedLorebookIds.remove(summary.lorebook.id);
+                        }
+                      }),
                       controlAffinity: ListTileControlAffinity.leading,
                       activeColor: _purple,
                       title: Text(
@@ -216,12 +206,9 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
               ),
               child: Text(
                 _selectedLorebookIds.isEmpty
-                    ? l10n.lorebookConnectNoneButton(
-                        LorebookConnectScreen.maxLinks,
-                      )
+                    ? l10n.lorebookConnectNoneButton
                     : l10n.lorebookConnectConfirmButton(
                         _selectedLorebookIds.length,
-                        LorebookConnectScreen.maxLinks,
                       ),
                 style: const TextStyle(
                   fontSize: 15,

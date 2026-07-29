@@ -123,6 +123,72 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPageSnapshotSettingsButton => 'Snapshot settings';
 
   @override
+  String get myPageLocalLlmButton => 'Local LLM';
+
+  @override
+  String get localLlmScreenTitle => 'Local LLM';
+
+  @override
+  String get localLlmScreenDescription =>
+      'Run an AI model directly on your device, no internet needed. Speed and quality depend on your device and the model size.';
+
+  @override
+  String get localLlmRecommendedSectionTitle => 'Recommended models';
+
+  @override
+  String get localLlmImportSectionTitle => 'Import from a file';
+
+  @override
+  String get localLlmSavedPresetsSectionTitle => 'Saved local presets';
+
+  @override
+  String get localLlmCacheSectionTitle => 'Downloaded models';
+
+  @override
+  String get localLlmCurrentStatusLabel => 'Currently loaded model';
+
+  @override
+  String get localLlmNoModelLoaded => 'No model loaded';
+
+  @override
+  String get localLlmUnloadButton => 'Unload';
+
+  @override
+  String get localLlmUseButton => 'Use';
+
+  @override
+  String get localLlmLoadButton => 'Load';
+
+  @override
+  String get localLlmInUseLabel => 'In use';
+
+  @override
+  String get localLlmImportButton => 'Choose GGUF file';
+
+  @override
+  String get localLlmImportDescription =>
+      'Pick a .gguf model file you\'ve already downloaded.';
+
+  @override
+  String get localLlmNoSavedPresets => 'No saved local presets yet.';
+
+  @override
+  String get localLlmNoCachedModels => 'No downloaded models yet.';
+
+  @override
+  String get localLlmPresetDescription => 'On-device local model';
+
+  @override
+  String localLlmLoadSuccessMessage(Object modelName) {
+    return 'Loaded $modelName.';
+  }
+
+  @override
+  String localLlmLoadFailureMessage(Object error) {
+    return 'Failed to load the model: $error';
+  }
+
+  @override
   String get preferencesTitle => 'Preferences';
 
   @override
@@ -137,6 +203,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get preferencesImageDisplayFullWidthOption => 'Fill width';
+
+  @override
+  String get preferencesDangerZoneTitle => 'Danger zone';
+
+  @override
+  String get preferencesResetAllDescription =>
+      'Erases all data stored on this device — plots, characters, chats, lorebooks, presets, images — and returns the app to its freshly-installed state. Downloaded local LLM model files are kept. This cannot be undone.';
+
+  @override
+  String get preferencesResetAllButton => 'Reset everything';
+
+  @override
+  String get preferencesResetConfirmContent =>
+      'All data will be permanently deleted. If you haven\'t backed up yet, use \"Export all\" on My Page before continuing.';
+
+  @override
+  String get preferencesResetConfirmWord => 'RESET';
+
+  @override
+  String preferencesResetTypeToConfirm(Object word) {
+    return 'Type \"$word\" below to continue.';
+  }
+
+  @override
+  String get preferencesResetSuccessMessage => 'All data has been reset.';
+
+  @override
+  String preferencesResetFailureMessage(Object error) {
+    return 'Reset failed: $error';
+  }
 
   @override
   String get navHome => 'Home';
@@ -228,6 +324,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Paste a card file link or site URL';
 
   @override
+  String get createTabImportFromPlotDataTitle =>
+      'Import from native format (.mzplot)';
+
+  @override
+  String get createTabImportFromPlotDataSubtitle =>
+      'Loads the whole plot including images (chat history excluded)';
+
+  @override
   String get createTabImportUrlDialogTitle => 'Import from a link';
 
   @override
@@ -270,6 +374,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatSelectPresetFirstMessage => 'Please choose an AI preset first';
+
+  @override
+  String get chatReasoningInProgressLabel => 'Thinking...';
 
   @override
   String chatGenerateFailureMessage(Object error) {
@@ -400,6 +507,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plotEditExportCardMenuItem => 'Export as SillyTavern card';
 
   @override
+  String get plotEditExportDataMenuItem => 'Export in native format (all data)';
+
+  @override
   String get plotEditDraftSaveButton => 'Save draft';
 
   @override
@@ -454,8 +564,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Whenever a keyword registered in the lorebook is mentioned,\nits content is sent to the AI';
 
   @override
-  String plotEditLorebookConnectButton(Object linked, Object max) {
-    return 'Connect lorebook ($linked/$max)';
+  String plotEditLorebookConnectButton(Object linked) {
+    return 'Connect lorebook ($linked)';
   }
 
   @override
@@ -487,6 +597,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plotEditProfileMarkerLabel => 'Chat profile picked here';
 
   @override
+  String get plotProfileSectionTitle =>
+      'Create a conversation profile for the playing user';
+
+  @override
+  String get plotProfileSectionDescription =>
+      'These profiles are only used for this plot. There\'s no limit on how many you can make.';
+
+  @override
+  String get plotProfileSavePlotFirst =>
+      'Save the plot first to create conversation profiles.\nEnter a title/character on the Prompt tab and tap the save button above.';
+
+  @override
+  String get plotProfileAddButton => 'Add conversation profile';
+
+  @override
+  String get plotProfileUseGlobalNameLabel => 'Use the playing user\'s name';
+
+  @override
+  String plotProfileUseGlobalNameDescription(String name) {
+    return 'When checked, this uses your My Page default profile\'s name ($name)';
+  }
+
+  @override
+  String get plotProfileShortIntroLabel => 'Short intro';
+
+  @override
+  String get plotProfileShortIntroDescription =>
+      'A one-line blurb shown on the card. Not sent to the AI.';
+
+  @override
+  String get plotProfileDescriptionLabel => 'Description';
+
+  @override
+  String get plotProfileDescriptionHint =>
+      'Write specific details like when making a character.\nE.g. 18 years old, 181cm tall, handsome and top of the class, popular with everyone';
+
+  @override
+  String get plotProfilePickerTitle => 'Choose a profile';
+
+  @override
+  String get plotProfilePickerSwipeHint =>
+      'Swipe sideways to see other profiles';
+
+  @override
+  String get plotProfilePickerSelectButton => 'Select';
+
+  @override
+  String get plotProfilePickerListTitle => 'Choose a profile';
+
+  @override
   String get plotEditAddImageTooltip => 'Add image (not sent to the AI)';
 
   @override
@@ -516,10 +676,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plotEditHashtagsLabel => 'Hashtags';
-
-  @override
-  String get plotEditHashtagsDescription =>
-      'Hashtags can get you up to 10x more exposure';
 
   @override
   String plotEditHashtagAddButton(Object count) {
@@ -604,16 +760,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPresetSaveButton => 'Save';
 
   @override
+  String get aiPresetReasoningEffortLabel => 'Reasoning effort';
+
+  @override
+  String get aiPresetReasoningEffortDescription =>
+      'How deeply a reasoning model should think before answering. Local models get thinking mode turned on; remote models only apply this if they support it.';
+
+  @override
+  String get aiPresetReasoningEffortOff => 'Off';
+
+  @override
+  String get aiPresetReasoningEffortLow => 'Low';
+
+  @override
+  String get aiPresetReasoningEffortMedium => 'Medium';
+
+  @override
+  String get aiPresetReasoningEffortHigh => 'High';
+
+  @override
   String get lorebookConnectTitle => 'Connect lorebook';
 
   @override
-  String lorebookConnectNoneButton(Object max) {
-    return 'Not connected (0/$max)';
-  }
+  String get lorebookConnectNoneButton => 'Not connected';
 
   @override
-  String lorebookConnectConfirmButton(Object count, Object max) {
-    return 'Connect ($count/$max)';
+  String lorebookConnectConfirmButton(Object count) {
+    return 'Connect ($count)';
   }
 
   @override

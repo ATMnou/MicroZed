@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
 import '../data/import/character_card_parser.dart';
 import '../data/import/character_card_source.dart';
+import '../data/import/plot_data_importer.dart';
 import '../data/import/plot_import_service.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../data/repositories/plot_repository.dart';
@@ -394,6 +396,18 @@ class _CreateTabState extends State<CreateTab> {
                 ),
                 onTap: () => Navigator.of(sheetContext).pop('url'),
               ),
+              ListTile(
+                leading: const Icon(Icons.archive_outlined, color: Colors.white),
+                title: Text(
+                  l10n.createTabImportFromPlotDataTitle,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  l10n.createTabImportFromPlotDataSubtitle,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop('plot_data'),
+              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -408,6 +422,37 @@ class _CreateTabState extends State<CreateTab> {
       if (url != null && url.trim().isNotEmpty) {
         await _runImport(() => CharacterCardSource.fetchFromUrl(url.trim()));
       }
+    } else if (choice == 'plot_data') {
+      await _runPlotDataImport();
+    }
+  }
+
+  /// SillyTavern 카드가 아니라, 이 앱 전용 형식(.mzplot)으로 내보낸 플롯 전체(채팅 제외)를
+  /// 가져온다.
+  Future<void> _runPlotDataImport() async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['mzplot'],
+    );
+    if (result == null || result.files.isEmpty) return; // 취소됨
+    setState(() => _importing = true);
+    try {
+      final bytes = await result.files.single.readAsBytes();
+      final importResult = await PlotDataImporter(AppDatabase.instance).importFromBytes(bytes);
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => PlotEditScreen(plotId: importResult.plotId),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.createTabImportFailureMessage(e))),
+      );
+    } finally {
+      if (mounted) setState(() => _importing = false);
     }
   }
 

@@ -8,6 +8,7 @@ import '../data/repositories/token_usage_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
 import 'ai_preset_screen.dart';
+import 'local_llm_screen.dart';
 import 'preferences_screen.dart';
 import 'profile_list_screen.dart';
 import 'snapshot_settings_screen.dart';
@@ -54,6 +55,7 @@ class _MyPageTabState extends State<MyPageTab> {
                 children: [
                   _buildProfileEditButton(context),
                   _buildPresetSettingButton(context),
+                  _buildLocalLlmButton(context),
                   _buildSystemPromptButton(context),
                   _buildSnapshotSettingButton(context),
                 ],
@@ -130,6 +132,24 @@ class _MyPageTabState extends State<MyPageTab> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       child: Text(l10n.myPageAiPresetButton, style: const TextStyle(fontSize: 13)),
+    );
+  }
+
+  Widget _buildLocalLlmButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return OutlinedButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const LocalLlmScreen()),
+        );
+      },
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Color(0xFF3A3A3A)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      child: Text(l10n.myPageLocalLlmButton, style: const TextStyle(fontSize: 13)),
     );
   }
 

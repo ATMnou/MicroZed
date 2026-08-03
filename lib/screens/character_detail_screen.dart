@@ -7,11 +7,13 @@ import '../data/repositories/chat_session_repository.dart';
 import '../data/repositories/intro_entry_repository.dart';
 import '../data/repositories/plot_conversation_profile_repository.dart';
 import '../data/repositories/plot_repository.dart';
+import '../data/repositories/talk_session_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'chat_screen.dart';
 import 'plot_edit_screen.dart';
 import 'plot_profile_picker_screen.dart';
+import 'talk_chat_screen.dart';
 
 /// 홈에서 플롯 카드를 눌렀을 때 표시되는 캐릭터 정보 화면. 실제 DB의 플롯/대표 캐릭터/
 /// 인트로 첫 줄을 불러와서 보여준다. 하단 액션은 북마크 버튼을 제거하고
@@ -35,6 +37,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
   late final IntroEntryRepository _introRepository;
   late final ChatSessionRepository _sessionRepository;
   late final PlotConversationProfileRepository _plotProfileRepository;
+  late final TalkSessionRepository _talkSessionRepository;
 
   Plot? _plot;
   Character? _character;
@@ -52,7 +55,19 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
     _introRepository = IntroEntryRepository(db);
     _sessionRepository = ChatSessionRepository(db);
     _plotProfileRepository = PlotConversationProfileRepository(db);
+    _talkSessionRepository = TalkSessionRepository(db);
     _load();
+  }
+
+  /// 'ZedTalk' 버튼. 이 플롯에 이미 톡방이 있으면 가장 최근 것을 이어서 열고,
+  /// 없으면 새로 만든다(롤플레이와 달리 세션 시작 전 프로필을 고르는 절차는 없다).
+  Future<void> _startTalk(BuildContext context) async {
+    var sessionId = await _talkSessionRepository.mostRecentSessionIdForPlot(widget.plotId);
+    sessionId ??= await _talkSessionRepository.createSession(plotId: widget.plotId);
+    if (!context.mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => TalkChatScreen(sessionId: sessionId!)),
+    );
   }
 
   /// 이 플롯에 이미 활성 세션이 있으면 그대로 이어서 열고, 없으면 새로 만든다.
@@ -209,27 +224,52 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
   }
 
   Widget _buildBottomBar(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton(
-            onPressed: _loading ? null : () => _startOrContinueChat(context),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7A6FF0),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 48,
+                child: OutlinedButton(
+                  onPressed: _loading ? null : () => _startTalk(context),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFF3A3A3A)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(
+                    l10n.characterDetailTalkButton,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
             ),
-            child: Text(
-              AppLocalizations.of(context)!.characterDetailContinueChatButton,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _loading ? null : () => _startOrContinueChat(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7A6FF0),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    l10n.characterDetailContinueChatButton,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -358,22 +398,97 @@ class _DetailBody extends StatelessWidget {
 
   Widget _buildIntroPreview(BuildContext context) {
     final entry = firstIntroEntry!;
+    switch (entry.type) {
+      case IntroEntryType.character:
+        return _buildIntroBubble(
+          context,
+          avatar: LocalAvatar(
+            imagePath: character?.imagePath,
+            radius: 16,
+            icon: Icons.pets,
+          ),
+          label:
+              character?.name ??
+              AppLocalizations.of(context)!.chatDefaultCharacterName,
+          content: Text(
+            entry.content,
+            style: const TextStyle(color: Colors.white, fontSize: 15),
+          ),
+        );
+      case IntroEntryType.narrator:
+        return _buildIntroBubble(
+          context,
+          avatar: const CircleAvatar(
+            radius: 16,
+            backgroundColor: Color(0xFF2A2A2A),
+            child: Icon(Icons.reorder, color: Colors.white54, size: 16),
+          ),
+          label: AppLocalizations.of(context)!.characterDetailIntroNarratorLabel,
+          content: Text(
+            entry.content,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 15,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        );
+      case IntroEntryType.user:
+        return _buildIntroBubble(
+          context,
+          avatar: const CircleAvatar(
+            radius: 16,
+            backgroundColor: Color(0xFF2A2A2A),
+            child: Icon(Icons.person, color: Colors.white54, size: 16),
+          ),
+          label: AppLocalizations.of(context)!.characterDetailIntroUserLabel,
+          content: Text(
+            entry.content,
+            style: const TextStyle(color: Colors.white, fontSize: 15),
+          ),
+        );
+      case IntroEntryType.image:
+        return _buildIntroBubble(
+          context,
+          avatar: const CircleAvatar(
+            radius: 16,
+            backgroundColor: Color(0xFF2A2A2A),
+            child: Icon(Icons.image_outlined, color: Colors.white54, size: 16),
+          ),
+          label: AppLocalizations.of(context)!.characterDetailIntroImageLabel,
+          content: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(
+              File(entry.content),
+              height: 120,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => const SizedBox(
+                height: 60,
+                child: Icon(Icons.broken_image_outlined, color: Colors.white38),
+              ),
+            ),
+          ),
+        );
+    }
+  }
+
+  Widget _buildIntroBubble(
+    BuildContext context, {
+    required Widget avatar,
+    required String label,
+    required Widget content,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LocalAvatar(
-          imagePath: character?.imagePath,
-          radius: 16,
-          icon: Icons.pets,
-        ),
+        avatar,
         const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                character?.name ??
-                    AppLocalizations.of(context)!.chatDefaultCharacterName,
+                label,
                 style: const TextStyle(color: Colors.white70, fontSize: 12),
               ),
               const SizedBox(height: 4),
@@ -386,10 +501,7 @@ class _DetailBody extends StatelessWidget {
                   color: const Color(0xFF2A2A2A),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Text(
-                  entry.content,
-                  style: const TextStyle(color: Colors.white, fontSize: 15),
-                ),
+                child: content,
               ),
             ],
           ),

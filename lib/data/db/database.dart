@@ -4,7 +4,14 @@ import 'package:meta/meta.dart';
 
 import 'tables.dart';
 
-export 'tables.dart' show PlotVisibility, IntroEntryType, MessageSender;
+export 'tables.dart'
+    show
+        PlotVisibility,
+        IntroEntryType,
+        MessageSender,
+        AiEndpointFormat,
+        TalkMessageSender,
+        TalkAttachmentType;
 
 part 'database.g.dart';
 
@@ -22,6 +29,9 @@ part 'database.g.dart';
   ChatSessions,
   ChatTurns,
   ChatMessages,
+  ChatMemorySummaries,
+  TalkSessions,
+  TalkMessages,
   TokenUsageLogs,
   Lorebooks,
   LorebookEntries,
@@ -37,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -87,6 +97,25 @@ class AppDatabase extends _$AppDatabase {
           if (from < 11) {
             await m.createTable(plotConversationProfiles);
             await m.addColumn(chatSessions, chatSessions.plotConversationProfileId);
+          }
+          if (from < 12) {
+            await m.addColumn(tokenUsageLogs, tokenUsageLogs.provider);
+          }
+          if (from < 13) {
+            await m.addColumn(aiPresets, aiPresets.openRouterZdrOnly);
+            await m.addColumn(aiPresets, aiPresets.openRouterExcludeChinaProviders);
+            await m.addColumn(aiPresets, aiPresets.openRouterExcludeTrainingProviders);
+          }
+          if (from < 14) {
+            await m.addColumn(aiPresets, aiPresets.endpointFormat);
+          }
+          if (from < 15) {
+            await m.createTable(chatMemorySummaries);
+          }
+          if (from < 16) {
+            await m.addColumn(aiPresets, aiPresets.supportsVision);
+            await m.createTable(talkSessions);
+            await m.createTable(talkMessages);
           }
         },
       );

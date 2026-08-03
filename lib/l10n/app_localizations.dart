@@ -332,6 +332,30 @@ abstract class AppLocalizations {
   /// **'추천 모델'**
   String get localLlmRecommendedSectionTitle;
 
+  /// No description provided for @localLlmModelDescHuihuiQwen3508b.
+  ///
+  /// In ko, this message translates to:
+  /// **'IQ4 XS임 성능 기대 ㄴㄴ'**
+  String get localLlmModelDescHuihuiQwen3508b;
+
+  /// No description provided for @localLlmModelDescHuihuiQwen354b.
+  ///
+  /// In ko, this message translates to:
+  /// **'속도와 품질의 균형. 한국어 대응이 비교적 좋음.'**
+  String get localLlmModelDescHuihuiQwen354b;
+
+  /// No description provided for @localLlmModelDescHuihuiGemma4E2b.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 가볍고 빠름. 저사양 기기에 적합.'**
+  String get localLlmModelDescHuihuiGemma4E2b;
+
+  /// No description provided for @localLlmModelDescHuihuiGemma4E4b.
+  ///
+  /// In ko, this message translates to:
+  /// **'더 나은 품질. 고사양 기기/PC 권장.'**
+  String get localLlmModelDescHuihuiGemma4E4b;
+
   /// No description provided for @localLlmImportSectionTitle.
   ///
   /// In ko, this message translates to:
@@ -458,6 +482,84 @@ abstract class AppLocalizations {
   /// **'가로 꽉 채우기'**
   String get preferencesImageDisplayFullWidthOption;
 
+  /// No description provided for @preferencesAiSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 설정'**
+  String get preferencesAiSectionTitle;
+
+  /// No description provided for @preferencesThemeSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'테마'**
+  String get preferencesThemeSectionTitle;
+
+  /// No description provided for @preferencesThemeDarkOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'다크'**
+  String get preferencesThemeDarkOption;
+
+  /// No description provided for @preferencesThemeLightOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'화이트'**
+  String get preferencesThemeLightOption;
+
+  /// No description provided for @preferencesThemeAmoledOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'AMOLED 블랙'**
+  String get preferencesThemeAmoledOption;
+
+  /// No description provided for @preferencesThemeSystemOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'시스템 자동'**
+  String get preferencesThemeSystemOption;
+
+  /// No description provided for @preferencesVersionSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'버전 정보'**
+  String get preferencesVersionSectionTitle;
+
+  /// No description provided for @preferencesCurrentVersionLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 버전 {version}'**
+  String preferencesCurrentVersionLabel(String version);
+
+  /// No description provided for @preferencesCheckUpdateButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트 확인'**
+  String get preferencesCheckUpdateButton;
+
+  /// No description provided for @preferencesUpdateAvailableMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 버전 {version}이(가) 있어요.'**
+  String preferencesUpdateAvailableMessage(String version);
+
+  /// No description provided for @preferencesUpToDateMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'최신 버전을 사용하고 있어요.'**
+  String get preferencesUpToDateMessage;
+
+  /// No description provided for @preferencesUpdateCheckFailedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'업데이트 확인에 실패했어요.'**
+  String get preferencesUpdateCheckFailedMessage;
+
+  /// No description provided for @preferencesViewReleaseButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'릴리스 보기'**
+  String get preferencesViewReleaseButton;
+
   /// No description provided for @preferencesDangerZoneTitle.
   ///
   /// In ko, this message translates to:
@@ -578,11 +680,23 @@ abstract class AppLocalizations {
   /// **'아직 진행 중인 대화가 없어요'**
   String get conversationTabEmpty;
 
-  /// No description provided for @conversationTabSortLatest.
+  /// No description provided for @conversationTabSelectedCount.
   ///
   /// In ko, this message translates to:
-  /// **'최신순'**
-  String get conversationTabSortLatest;
+  /// **'{count}개 선택됨'**
+  String conversationTabSelectedCount(int count);
+
+  /// No description provided for @conversationTabDeleteConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화방 삭제'**
+  String get conversationTabDeleteConfirmTitle;
+
+  /// No description provided for @conversationTabDeleteConfirmContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 대화방을 삭제할까요? 되돌릴 수 없어요.'**
+  String get conversationTabDeleteConfirmContent;
 
   /// No description provided for @conversationTilePlaceholder.
   ///
@@ -764,6 +878,12 @@ abstract class AppLocalizations {
   /// **'AI 응답 생성에 실패했어요: {error}'**
   String chatGenerateFailureMessage(Object error);
 
+  /// No description provided for @chatGeneratingIndicator.
+  ///
+  /// In ko, this message translates to:
+  /// **'답변 생성 중...'**
+  String get chatGeneratingIndicator;
+
   /// No description provided for @chatReviseDialogTitle.
   ///
   /// In ko, this message translates to:
@@ -823,6 +943,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'사용 안함'**
   String get chatDrawerChoicesDisabled;
+
+  /// No description provided for @chatDrawerMemoryTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기억 보기'**
+  String get chatDrawerMemoryTitle;
+
+  /// No description provided for @chatMemorySheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 대화 요약'**
+  String get chatMemorySheetTitle;
+
+  /// No description provided for @chatMemoryEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 요약된 기억이 없어요. 대화가 길어지면 자동으로 만들어져요.'**
+  String get chatMemoryEmptyMessage;
 
   /// No description provided for @chatDrawerExitButton.
   ///
@@ -950,6 +1088,24 @@ abstract class AppLocalizations {
   /// **'인트로'**
   String get characterDetailIntroSectionTitle;
 
+  /// No description provided for @characterDetailIntroNarratorLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'내레이션'**
+  String get characterDetailIntroNarratorLabel;
+
+  /// No description provided for @characterDetailIntroUserLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get characterDetailIntroUserLabel;
+
+  /// No description provided for @characterDetailIntroImageLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지'**
+  String get characterDetailIntroImageLabel;
+
   /// No description provided for @plotEditTabPrompt.
   ///
   /// In ko, this message translates to:
@@ -992,12 +1148,6 @@ abstract class AppLocalizations {
   /// **'전용 형식으로 내보내기 (전체 데이터)'**
   String get plotEditExportDataMenuItem;
 
-  /// No description provided for @plotEditDraftSaveButton.
-  ///
-  /// In ko, this message translates to:
-  /// **'임시저장'**
-  String get plotEditDraftSaveButton;
-
   /// No description provided for @plotEditSaveButtonEdit.
   ///
   /// In ko, this message translates to:
@@ -1015,6 +1165,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'SillyTavern 카드로 내보냈어요.'**
   String get plotEditExportSuccessMessage;
+
+  /// No description provided for @plotEditExportDataSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'전용 형식(.mzplot)으로 내보냈어요.'**
+  String get plotEditExportDataSuccessMessage;
 
   /// No description provided for @plotEditExportFailureMessage.
   ///
@@ -1256,12 +1412,6 @@ abstract class AppLocalizations {
   /// **'커버'**
   String get plotEditCoverTitle;
 
-  /// No description provided for @plotEditPreviewButton.
-  ///
-  /// In ko, this message translates to:
-  /// **'미리보기'**
-  String get plotEditPreviewButton;
-
   /// No description provided for @plotEditCoverImagePlaceholder.
   ///
   /// In ko, this message translates to:
@@ -1471,6 +1621,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'높음'**
   String get aiPresetReasoningEffortHigh;
+
+  /// No description provided for @aiPresetEndpointFormatLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'엔드포인트 형식'**
+  String get aiPresetEndpointFormatLabel;
+
+  /// No description provided for @aiPresetEndpointFormatDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 형식에 맞는 요청/응답 파서로 통신해요.'**
+  String get aiPresetEndpointFormatDescription;
+
+  /// No description provided for @aiPresetEndpointFormatOpenAi.
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenAI 호환'**
+  String get aiPresetEndpointFormatOpenAi;
+
+  /// No description provided for @aiPresetEndpointFormatAnthropic.
+  ///
+  /// In ko, this message translates to:
+  /// **'Anthropic'**
+  String get aiPresetEndpointFormatAnthropic;
+
+  /// No description provided for @aiPresetSupportsVisionLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 인식(비전) 지원'**
+  String get aiPresetSupportsVisionLabel;
+
+  /// No description provided for @aiPresetSupportsVisionDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜두면 ZedTalk에서 첨부한 이미지를 이 프리셋의 모델에게 함께 보내요. 실제로 이미지를 이해하는 모델일 때만 켜주세요.'**
+  String get aiPresetSupportsVisionDescription;
+
+  /// No description provided for @aiPresetOpenRouterSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'OpenRouter 전용 옵션'**
+  String get aiPresetOpenRouterSectionTitle;
+
+  /// No description provided for @aiPresetOpenRouterSectionDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'Base URL이 openrouter.ai일 때만 적용돼요.'**
+  String get aiPresetOpenRouterSectionDescription;
+
+  /// No description provided for @aiPresetOpenRouterZdrOnlyLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'ZDR 제공자만 사용'**
+  String get aiPresetOpenRouterZdrOnlyLabel;
+
+  /// No description provided for @aiPresetOpenRouterZdrOnlyDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터를 저장하지 않는(Zero Data Retention) 제공자로만 라우팅해요.'**
+  String get aiPresetOpenRouterZdrOnlyDescription;
+
+  /// No description provided for @aiPresetOpenRouterExcludeChinaLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'중국 제공자 제외'**
+  String get aiPresetOpenRouterExcludeChinaLabel;
+
+  /// No description provided for @aiPresetOpenRouterExcludeChinaDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'알리바바 등 중국 소재 제공자는 라우팅에서 제외해요.'**
+  String get aiPresetOpenRouterExcludeChinaDescription;
+
+  /// No description provided for @aiPresetOpenRouterExcludeTrainingLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 학습 제공자 제외'**
+  String get aiPresetOpenRouterExcludeTrainingLabel;
+
+  /// No description provided for @aiPresetOpenRouterExcludeTrainingDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'요청 데이터를 학습에 활용할 수 있는 제공자는 제외해요.'**
+  String get aiPresetOpenRouterExcludeTrainingDescription;
 
   /// No description provided for @lorebookConnectTitle.
   ///
@@ -1879,6 +2113,378 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'저장했어요.'**
   String get snapshotSettingsSavedMessage;
+
+  /// No description provided for @createTabAiGenerateButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI로 생성'**
+  String get createTabAiGenerateButton;
+
+  /// No description provided for @plotAiGenerateTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI로 플롯 생성'**
+  String get plotAiGenerateTitle;
+
+  /// No description provided for @plotAiGeneratePresetLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용할 AI 프리셋'**
+  String get plotAiGeneratePresetLabel;
+
+  /// No description provided for @plotAiGeneratePresetEmptyHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'먼저 환경설정 > AI 설정에서 AI 프리셋을 만들어주세요.'**
+  String get plotAiGeneratePresetEmptyHint;
+
+  /// No description provided for @plotAiGeneratePromptLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'어떤 플롯을 만들까요?'**
+  String get plotAiGeneratePromptLabel;
+
+  /// No description provided for @plotAiGeneratePromptHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'장르, 배경, 등장인물 특징 등을 자유롭게 설명해주세요'**
+  String get plotAiGeneratePromptHint;
+
+  /// No description provided for @plotAiGenerateWebSearchLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'웹 검색으로 참고자료 찾기'**
+  String get plotAiGenerateWebSearchLabel;
+
+  /// No description provided for @plotAiGenerateWebSearchUnsupportedHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 프리셋에서는 네이티브 웹 검색을 지원하지 않아요(OpenRouter 또는 OpenAI 계열만 가능).'**
+  String get plotAiGenerateWebSearchUnsupportedHint;
+
+  /// No description provided for @plotAiGenerateLoreLengthLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'로어 길이'**
+  String get plotAiGenerateLoreLengthLabel;
+
+  /// No description provided for @plotAiGenerateLoreLengthShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'짧게'**
+  String get plotAiGenerateLoreLengthShort;
+
+  /// No description provided for @plotAiGenerateLoreLengthMedium.
+  ///
+  /// In ko, this message translates to:
+  /// **'보통'**
+  String get plotAiGenerateLoreLengthMedium;
+
+  /// No description provided for @plotAiGenerateLoreLengthLong.
+  ///
+  /// In ko, this message translates to:
+  /// **'길게'**
+  String get plotAiGenerateLoreLengthLong;
+
+  /// No description provided for @plotAiGenerateAccuracyLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'정확도'**
+  String get plotAiGenerateAccuracyLabel;
+
+  /// No description provided for @plotAiGenerateAccuracyAccurate.
+  ///
+  /// In ko, this message translates to:
+  /// **'정확함(Accurate)'**
+  String get plotAiGenerateAccuracyAccurate;
+
+  /// No description provided for @plotAiGenerateAccuracyMixed.
+  ///
+  /// In ko, this message translates to:
+  /// **'혼합(Mixed)'**
+  String get plotAiGenerateAccuracyMixed;
+
+  /// No description provided for @plotAiGenerateSubmitButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'생성하기'**
+  String get plotAiGenerateSubmitButton;
+
+  /// No description provided for @plotAiGeneratePromptEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'어떤 플롯을 만들지 먼저 설명해주세요.'**
+  String get plotAiGeneratePromptEmptyMessage;
+
+  /// No description provided for @plotAiGenerateFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯 생성에 실패했어요: {error}'**
+  String plotAiGenerateFailureMessage(Object error);
+
+  /// No description provided for @plotAiGenerateGeneratingMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI가 플롯을 만들고 있어요...'**
+  String get plotAiGenerateGeneratingMessage;
+
+  /// No description provided for @lanSyncSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'LAN 동기화'**
+  String get lanSyncSectionTitle;
+
+  /// No description provided for @lanSyncScreenTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'LAN 동기화'**
+  String get lanSyncScreenTitle;
+
+  /// No description provided for @lanSyncExportSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기기에서 내보내기'**
+  String get lanSyncExportSectionTitle;
+
+  /// No description provided for @lanSyncExportSectionDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'같은 Wi-Fi/LAN에 연결된 다른 기기에서 아래 정보로 접속하면 전체 데이터를 가져갈 수 있어요.'**
+  String get lanSyncExportSectionDescription;
+
+  /// No description provided for @lanSyncStartHostButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 대기 시작'**
+  String get lanSyncStartHostButton;
+
+  /// No description provided for @lanSyncStopHostButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'중지'**
+  String get lanSyncStopHostButton;
+
+  /// No description provided for @lanSyncWaitingMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 기기의 접속을 기다리는 중...'**
+  String get lanSyncWaitingMessage;
+
+  /// No description provided for @lanSyncAddressLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'주소'**
+  String get lanSyncAddressLabel;
+
+  /// No description provided for @lanSyncPortLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'포트'**
+  String get lanSyncPortLabel;
+
+  /// No description provided for @lanSyncPinLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'PIN'**
+  String get lanSyncPinLabel;
+
+  /// No description provided for @lanSyncExportedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'전송을 완료했어요.'**
+  String get lanSyncExportedMessage;
+
+  /// No description provided for @lanSyncExportFailedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'전송에 실패했어요: {error}'**
+  String lanSyncExportFailedMessage(Object error);
+
+  /// No description provided for @lanSyncNoAddressWarning.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 기기에서 LAN 주소를 찾지 못했어요. Wi-Fi 연결을 확인해주세요.'**
+  String get lanSyncNoAddressWarning;
+
+  /// No description provided for @lanSyncImportSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 기기에서 가져오기'**
+  String get lanSyncImportSectionTitle;
+
+  /// No description provided for @lanSyncImportSectionDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내는 쪽 화면에 표시된 주소/포트/PIN을 입력해주세요.'**
+  String get lanSyncImportSectionDescription;
+
+  /// No description provided for @lanSyncHostFieldLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'주소(IP)'**
+  String get lanSyncHostFieldLabel;
+
+  /// No description provided for @lanSyncPortFieldLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'포트'**
+  String get lanSyncPortFieldLabel;
+
+  /// No description provided for @lanSyncPinFieldLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'PIN'**
+  String get lanSyncPinFieldLabel;
+
+  /// No description provided for @lanSyncImportButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기'**
+  String get lanSyncImportButton;
+
+  /// No description provided for @lanSyncImportConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 데이터 교체'**
+  String get lanSyncImportConfirmTitle;
+
+  /// No description provided for @lanSyncImportConfirmContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'받아온 데이터로 이 기기의 전체 데이터를 덮어써요. 되돌릴 수 없어요.'**
+  String get lanSyncImportConfirmContent;
+
+  /// No description provided for @lanSyncImportFailedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기에 실패했어요: {error}'**
+  String lanSyncImportFailedMessage(Object error);
+
+  /// No description provided for @createTabSelectedCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 선택됨'**
+  String createTabSelectedCount(int count);
+
+  /// No description provided for @createTabDeleteSelectedConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯 삭제'**
+  String get createTabDeleteSelectedConfirmTitle;
+
+  /// No description provided for @createTabDeleteSelectedConfirmContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 플롯을 삭제할까요? 되돌릴 수 없어요.'**
+  String get createTabDeleteSelectedConfirmContent;
+
+  /// No description provided for @createTabExportPackageButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'패키지로 내보내기(.mzpack)'**
+  String get createTabExportPackageButton;
+
+  /// No description provided for @createTabExportPackageSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 플롯을 내보냈어요.'**
+  String createTabExportPackageSuccessMessage(int count);
+
+  /// No description provided for @createTabExportPackageFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내기에 실패했어요: {error}'**
+  String createTabExportPackageFailureMessage(Object error);
+
+  /// No description provided for @createTabImportFromPackageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯 패키지에서 가져오기(.mzpack)'**
+  String get createTabImportFromPackageTitle;
+
+  /// No description provided for @createTabImportFromPackageSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'여러 플롯을 한 번에 불러와요'**
+  String get createTabImportFromPackageSubtitle;
+
+  /// No description provided for @createTabImportPackageSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 플롯을 가져왔어요.'**
+  String createTabImportPackageSuccessMessage(int count);
+
+  /// No description provided for @conversationTabTalkLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'톡'**
+  String get conversationTabTalkLabel;
+
+  /// No description provided for @characterDetailTalkButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'ZedTalk'**
+  String get characterDetailTalkButton;
+
+  /// No description provided for @talkListEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 톡한 캐릭터가 없어요'**
+  String get talkListEmpty;
+
+  /// No description provided for @talkAttachmentSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부'**
+  String get talkAttachmentSheetTitle;
+
+  /// No description provided for @talkAttachmentImageOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지'**
+  String get talkAttachmentImageOption;
+
+  /// No description provided for @talkAttachmentVideoOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'동영상'**
+  String get talkAttachmentVideoOption;
+
+  /// No description provided for @talkAttachmentDocumentOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'문서'**
+  String get talkAttachmentDocumentOption;
+
+  /// No description provided for @talkVisionUnsupportedNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 프리셋은 이미지 인식을 지원하지 않아서, 첨부한 이미지는 AI에게 전달되지 않아요.'**
+  String get talkVisionUnsupportedNote;
+
+  /// No description provided for @talkPresetSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용할 AI 프리셋'**
+  String get talkPresetSheetTitle;
+
+  /// No description provided for @talkNoPresetMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'먼저 AI 프리셋을 골라주세요.'**
+  String get talkNoPresetMessage;
+
+  /// No description provided for @talkDeleteConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'톡 삭제'**
+  String get talkDeleteConfirmTitle;
+
+  /// No description provided for @talkDeleteConfirmContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 톡을 삭제할까요? 되돌릴 수 없어요.'**
+  String get talkDeleteConfirmContent;
 }
 
 class _AppLocalizationsDelegate

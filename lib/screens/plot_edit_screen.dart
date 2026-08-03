@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
+import '../data/ai/plot_ai_generator_service.dart';
 import '../data/db/database.dart';
 import '../data/export/plot_card_exporter.dart';
 import '../data/export/plot_data_exporter.dart';
 import '../data/local_image_store.dart';
+import '../data/repositories/ai_preset_repository.dart';
 import '../data/repositories/character_repository.dart';
 import '../data/repositories/intro_entry_repository.dart';
 import '../data/repositories/lorebook_repository.dart';
@@ -17,6 +19,13 @@ import '../widgets/dashed_box.dart';
 import '../widgets/local_avatar.dart';
 import 'lorebook_connect_screen.dart';
 import 'plot_conversation_profile_edit_screen.dart';
+
+/// 'AI로 캐릭터 생성' 다이얼로그가 돌려주는 선택 결과.
+class _AiCharacterRequest {
+  const _AiCharacterRequest({required this.preset, required this.prompt});
+  final AiPreset preset;
+  final String prompt;
+}
 
 /// 프롬프트 탭에서 편집 중인 캐릭터 1명 분의 폼 상태.
 class _CharacterForm {
@@ -85,6 +94,7 @@ class _PlotEditScreenState extends State<PlotEditScreen>
   bool _loading = true;
   bool _saving = false;
   bool _exporting = false;
+  bool _aiGeneratingCharacter = false;
 
   static const _background = Color(0xFF141414);
   static const _cardBg = Color(0xFF1E1E1E);
@@ -157,6 +167,123 @@ class _PlotEditScreenState extends State<PlotEditScreen>
         ),
       );
     });
+  }
+
+  /// 프롬프트 탭의 'AI로 생성' 버튼. 프리셋을 고르고(선택) 짧은 지시를 준 뒤, 지금 입력된
+  /// 플롯 제목/설명을 맥락으로 캐릭터 1명을 만들어 캐릭터 목록에 추가한다.
+  Future<void> _aiGenerateCharacter() async {
+    final l10n = AppLocalizations.of(context)!;
+    final presets = await AiPresetRepository(AppDatabase.instance).watchAll().first;
+    if (!mounted) return;
+    if (presets.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.plotAiGeneratePresetEmptyHint)),
+      );
+      return;
+    }
+    final request = await _showAiCharacterDialog(presets);
+    if (request == null) return;
+
+    setState(() => _aiGeneratingCharacter = true);
+    try {
+      final draft = await PlotAiGeneratorService(AppDatabase.instance).generateCharacter(
+        preset: request.preset,
+        plotTitle: _titleController.text.trim(),
+        plotDescription: _descController.text.trim(),
+        userPrompt: request.prompt,
+      );
+      if (!mounted) return;
+      if (draft.name.isEmpty) throw StateError('AI가 올바른 형식으로 응답하지 않았어요.');
+      setState(() {
+        _characterForms.add(
+          _CharacterForm(name: draft.name, description: draft.description),
+        );
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.plotAiGenerateFailureMessage(e))),
+      );
+    } finally {
+      if (mounted) setState(() => _aiGeneratingCharacter = false);
+    }
+  }
+
+  Future<_AiCharacterRequest?> _showAiCharacterDialog(List<AiPreset> presets) {
+    final l10n = AppLocalizations.of(context)!;
+    var selected = presets.first;
+    final promptController = TextEditingController();
+    return showDialog<_AiCharacterRequest>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
+          return AlertDialog(
+            backgroundColor: _cardBg,
+            title: Text(l10n.plotEditAddCharacterButton, style: const TextStyle(color: Colors.white)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: _background,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: _borderGrey),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<AiPreset>(
+                      value: selected,
+                      isExpanded: true,
+                      dropdownColor: _background,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      items: presets.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
+                      onChanged: (preset) {
+                        if (preset != null) setDialogState(() => selected = preset);
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: promptController,
+                  maxLines: 3,
+                  minLines: 2,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: l10n.plotAiGeneratePromptHint,
+                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                    filled: true,
+                    fillColor: _background,
+                    contentPadding: const EdgeInsets.all(12),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: _borderGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: _purple),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(
+                  _AiCharacterRequest(preset: selected, prompt: promptController.text),
+                ),
+                child: Text(l10n.plotAiGenerateSubmitButton, style: const TextStyle(color: _purple)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   Future<void> _removeCharacter(int index) async {
@@ -283,7 +410,7 @@ class _PlotEditScreenState extends State<PlotEditScreen>
       if (path == null) return; // 취소됨
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.plotEditExportSuccessMessage)),
+        SnackBar(content: Text(l10n.plotEditExportDataSuccessMessage)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -334,6 +461,8 @@ class _PlotEditScreenState extends State<PlotEditScreen>
                           onRemoveCharacterImage: _removeCharacterImage,
                           onAddCharacter: _addCharacter,
                           onRemoveCharacter: _removeCharacter,
+                          onAiGenerateCharacter: _aiGenerateCharacter,
+                          aiGeneratingCharacter: _aiGeneratingCharacter,
                         ),
                         _LorebookTab(plotId: widget.plotId),
                         _IntroTab(plotId: widget.plotId),
@@ -410,13 +539,6 @@ class _PlotEditScreenState extends State<PlotEditScreen>
               ),
             ),
           ],
-        ),
-        TextButton(
-          onPressed: () {},
-          child: Text(
-            l10n.plotEditDraftSaveButton,
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
-          ),
         ),
         Padding(
           padding: const EdgeInsets.only(right: 12),
@@ -666,6 +788,8 @@ class _PromptTab extends StatelessWidget {
     required this.onRemoveCharacterImage,
     required this.onAddCharacter,
     required this.onRemoveCharacter,
+    required this.onAiGenerateCharacter,
+    required this.aiGeneratingCharacter,
   });
 
   final int? plotId;
@@ -676,6 +800,8 @@ class _PromptTab extends StatelessWidget {
   final ValueChanged<int> onRemoveCharacterImage;
   final VoidCallback onAddCharacter;
   final ValueChanged<int> onRemoveCharacter;
+  final VoidCallback onAiGenerateCharacter;
+  final bool aiGeneratingCharacter;
 
   @override
   Widget build(BuildContext context) {
@@ -723,22 +849,52 @@ class _PromptTab extends StatelessWidget {
           _buildCharacterCard(context, i),
           const SizedBox(height: 16),
         ],
-        OutlinedButton.icon(
-          onPressed: onAddCharacter,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.white,
-            side: const BorderSide(color: _PlotEditScreenState._borderGrey),
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            minimumSize: const Size(double.infinity, 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: onAddCharacter,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: _PlotEditScreenState._borderGrey),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                icon: const Icon(Icons.add, size: 16),
+                label: Text(
+                  l10n.plotEditAddCharacterButton,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ),
             ),
-          ),
-          icon: const Icon(Icons.add, size: 16),
-          label: Text(
-            l10n.plotEditAddCharacterButton,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: aiGeneratingCharacter ? null : onAiGenerateCharacter,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: _PlotEditScreenState._borderGrey),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                icon: aiGeneratingCharacter
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                      )
+                    : const Icon(Icons.auto_awesome, size: 16),
+                label: Text(
+                  l10n.createTabAiGenerateButton,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 24),
         _PlotProfilesSection(plotId: plotId),
@@ -1931,6 +2087,24 @@ class _AboutTab extends StatefulWidget {
 class _AboutTabState extends State<_AboutTab> {
   /// 캐릭터별 소개 섹션의 펼침 상태. 인덱스 0(첫 캐릭터)만 기본으로 펼쳐둔다.
   final Set<int> _expandedCharacters = {0};
+  final _imageStore = LocalImageStore();
+
+  /// 캐릭터 소개 마크다운에 이미지를 첨부한다. 커서 위치에 마크다운 이미지 태그를 끼워 넣는다.
+  Future<void> _addAboutImage(int index) async {
+    final path = await _imageStore.pickAndSave('character_about');
+    if (path == null || !mounted) return;
+    final controller = widget.characterForms[index].aboutController;
+    final text = controller.text;
+    final selection = controller.selection;
+    final insertAt = selection.isValid ? selection.start : text.length;
+    final removeEnd = selection.isValid ? selection.end : text.length;
+    final insertion = '![]($path)\n';
+    final newText = text.replaceRange(insertAt, removeEnd, insertion);
+    controller.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: insertAt + insertion.length),
+    );
+  }
 
   Future<void> _addHashtag() async {
     if (widget.hashtags.length >= 10) return;
@@ -1995,33 +2169,13 @@ class _AboutTabState extends State<_AboutTab> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              l10n.plotEditCoverTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            OutlinedButton.icon(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white70,
-                side: const BorderSide(color: _PlotEditScreenState._borderGrey),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              ),
-              icon: const Icon(Icons.remove_red_eye_outlined, size: 14),
-              label: Text(
-                l10n.plotEditPreviewButton,
-                style: const TextStyle(fontSize: 12),
-              ),
-            ),
-          ],
+        Text(
+          l10n.plotEditCoverTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 12),
         GestureDetector(
@@ -2216,6 +2370,15 @@ class _AboutTabState extends State<_AboutTab> {
                       ),
                     );
                   },
+                ),
+              ),
+              IconButton(
+                onPressed: () => _addAboutImage(index),
+                tooltip: l10n.plotEditAddImageTooltip,
+                icon: const Icon(
+                  Icons.add_photo_alternate_outlined,
+                  color: Colors.white54,
+                  size: 20,
                 ),
               ),
               Icon(

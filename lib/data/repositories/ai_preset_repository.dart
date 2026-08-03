@@ -40,6 +40,11 @@ class AiPresetRepository {
     bool isLocal = false,
     String? localModelSource,
     String? reasoningEffort,
+    bool openRouterZdrOnly = false,
+    bool openRouterExcludeChinaProviders = false,
+    bool openRouterExcludeTrainingProviders = false,
+    AiEndpointFormat endpointFormat = AiEndpointFormat.openAiCompatible,
+    bool supportsVision = false,
   }) async {
     late int presetId;
     if (id == null) {
@@ -57,6 +62,11 @@ class AiPresetRepository {
               isLocal: Value(isLocal),
               localModelSource: Value(localModelSource),
               reasoningEffort: Value(reasoningEffort),
+              openRouterZdrOnly: Value(openRouterZdrOnly),
+              openRouterExcludeChinaProviders: Value(openRouterExcludeChinaProviders),
+              openRouterExcludeTrainingProviders: Value(openRouterExcludeTrainingProviders),
+              endpointFormat: Value(endpointFormat),
+              supportsVision: Value(supportsVision),
             ),
           );
       await (_db.update(_db.aiPresets)..where((p) => p.id.equals(presetId))).write(
@@ -78,6 +88,11 @@ class AiPresetRepository {
           isLocal: Value(isLocal),
           localModelSource: Value(localModelSource),
           reasoningEffort: Value(reasoningEffort),
+          openRouterZdrOnly: Value(openRouterZdrOnly),
+          openRouterExcludeChinaProviders: Value(openRouterExcludeChinaProviders),
+          openRouterExcludeTrainingProviders: Value(openRouterExcludeTrainingProviders),
+          endpointFormat: Value(endpointFormat),
+          supportsVision: Value(supportsVision),
           updatedAt: Value(DateTime.now()),
         ),
       );

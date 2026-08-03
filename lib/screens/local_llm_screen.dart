@@ -127,6 +127,22 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
     );
   }
 
+  /// 카탈로그 엔트리의 설명 문구는 언어별로 달라야 하므로 id 기준으로 l10n에서 조회한다.
+  String _modelDescription(AppLocalizations l10n, String id) {
+    switch (id) {
+      case 'huihui-qwen3.5-08b':
+        return l10n.localLlmModelDescHuihuiQwen3508b;
+      case 'huihui-qwen35-4b':
+        return l10n.localLlmModelDescHuihuiQwen354b;
+      case 'huihui-gemma4-e2b':
+        return l10n.localLlmModelDescHuihuiGemma4E2b;
+      case 'huihui-gemma4-e4b':
+        return l10n.localLlmModelDescHuihuiGemma4E4b;
+      default:
+        return '';
+    }
+  }
+
   Widget _buildCatalogCard(AppLocalizations l10n, LocalModelCatalogEntry entry) {
     final isCurrent = LocalLlmEngine.instance.current?.source == entry.source;
     final isBusy = _busyKey == entry.id;
@@ -145,7 +161,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
                   children: [
                     Text(entry.label, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text(entry.description, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                    Text(_modelDescription(l10n, entry.id), style: const TextStyle(color: Colors.white54, fontSize: 12)),
                     const SizedBox(height: 4),
                     Text('~${entry.approxSizeMb} MB', style: const TextStyle(color: Colors.white24, fontSize: 11)),
                   ],

@@ -13,6 +13,7 @@ import '../data/db/database.dart';
 import '../data/local_image_store.dart';
 import '../data/repositories/ai_preset_repository.dart';
 import '../data/repositories/character_repository.dart';
+import '../data/repositories/chat_memory_repository.dart';
 import '../data/repositories/chat_message_repository.dart';
 import '../data/repositories/chat_session_repository.dart';
 import '../data/repositories/chat_turn_repository.dart';
@@ -52,6 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late final ConversationProfileRepository _profileRepo;
   late final PlotConversationProfileRepository _plotProfileRepo;
   late final CharacterRepository _characterRepo;
+  late final ChatMemoryRepository _memoryRepo;
   late final AiChatService _aiChatService;
   final ImageGenClient _imageGenClient = ImageGenClient();
   final SnapshotSettingsStore _snapshotSettingsStore = SnapshotSettingsStore();
@@ -70,6 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _snapshotting = false;
   String _streamingText = '';
   String _reasoningText = '';
+  AiGenerationCancelToken? _cancelToken;
 
   /// 재시도 중인 턴 id. 새 버전이 완성될 때까지 이 턴의 기존 말풍선은 화면에서 미리 감춘다.
   int? _retryingTurnId;
@@ -92,6 +95,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _profileRepo = ConversationProfileRepository(db);
     _plotProfileRepo = PlotConversationProfileRepository(db);
     _characterRepo = CharacterRepository(db);
+    _memoryRepo = ChatMemoryRepository(db);
     _aiChatService = AiChatService(db: db);
     _loadSessionContext();
   }
@@ -167,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _generateAiReply() async {
     await _withPreset(
-      (preset, plotId) => _aiChatService.generateReply(
+      (preset, plotId, cancelToken) => _aiChatService.generateReply(
         sessionId: widget.sessionId,
         plotId: plotId,
         preset: preset,
@@ -175,6 +179,7 @@ class _ChatScreenState extends State<ChatScreen> {
         userProfileDescription: _profileDescription,
         onDelta: _onDelta,
         onReasoning: _onReasoning,
+        cancelToken: cancelToken,
       ),
     );
   }
@@ -183,7 +188,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => _retryingTurnId = turnId);
     try {
       await _withPreset(
-        (preset, plotId) => _aiChatService.retryReply(
+        (preset, plotId, cancelToken) => _aiChatService.retryReply(
           sessionId: widget.sessionId,
           plotId: plotId,
           preset: preset,
@@ -192,6 +197,7 @@ class _ChatScreenState extends State<ChatScreen> {
           turnId: turnId,
           onDelta: _onDelta,
           onReasoning: _onReasoning,
+          cancelToken: cancelToken,
         ),
       );
     } finally {
@@ -201,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _reviseTurn(int turnId, String instruction) async {
     await _withPreset(
-      (preset, plotId) => _aiChatService.reviseReply(
+      (preset, plotId, cancelToken) => _aiChatService.reviseReply(
         sessionId: widget.sessionId,
         plotId: plotId,
         preset: preset,
@@ -211,6 +217,7 @@ class _ChatScreenState extends State<ChatScreen> {
         instruction: instruction,
         onDelta: _onDelta,
         onReasoning: _onReasoning,
+        cancelToken: cancelToken,
       ),
     );
   }
@@ -224,7 +231,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _withPreset(
-    Future<void> Function(AiPreset preset, int plotId) action,
+    Future<void> Function(AiPreset preset, int plotId, AiGenerationCancelToken cancelToken) action,
   ) async {
     final preset = _selectedPreset;
     final plotId = _plotId;
@@ -240,15 +247,17 @@ class _ChatScreenState extends State<ChatScreen> {
       }
       return;
     }
+    final cancelToken = AiGenerationCancelToken();
     setState(() {
       _generating = true;
       _streamingText = '';
       _reasoningText = '';
+      _cancelToken = cancelToken;
     });
     try {
-      await action(preset, plotId);
+      await action(preset, plotId, cancelToken);
     } catch (e) {
-      if (mounted) {
+      if (mounted && !cancelToken.isCancelled) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -263,9 +272,16 @@ class _ChatScreenState extends State<ChatScreen> {
           _generating = false;
           _streamingText = '';
           _reasoningText = '';
+          _cancelToken = null;
         });
       }
     }
+  }
+
+  /// 답변 생성 중 전송 버튼이 바뀐 중지 버튼을 눌렀을 때. 지금까지 받은 부분 응답은
+  /// [AiChatService]가 최종 메시지로 그대로 저장한다.
+  void _cancelGeneration() {
+    _cancelToken?.cancel();
   }
 
   /// 왼쪽 드래그/'<' 버튼은 항상 이전 버전으로. 오른쪽 드래그/'>' 버튼은 다음 버전으로
@@ -597,6 +613,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                   .toList();
                         final showPreview =
                             _generating && _streamingText.isNotEmpty;
+                        // 첫 토큰(또는 추론 델타)이 오기 전까지 보여주는 '생성 중' 표시.
+                        final showTypingIndicator = _generating &&
+                            _streamingText.isEmpty &&
+                            _reasoningText.isEmpty;
                         // 완결되지 않은 텍스트라도 MessageFormatParser는 안전하게 처리한다
                         // (미완성 태그는 이어지는 내용으로 취급될 뿐 예외를 던지지 않는다).
                         // 최종 저장 결과와 동일한 방식으로 화자별 말풍선을 나눠 보여줘서,
@@ -616,6 +636,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           itemCount:
                               items.length +
                               (showReasoning ? 1 : 0) +
+                              (showTypingIndicator ? 1 : 0) +
                               previewSegments.length +
                               1,
                           itemBuilder: (context, rawIndex) {
@@ -623,14 +644,21 @@ class _ChatScreenState extends State<ChatScreen> {
                               return _buildDisclaimerBanner(context);
                             }
                             final index = rawIndex - 1;
+                            if (index == items.length && showTypingIndicator) {
+                              return const Padding(
+                                padding: EdgeInsets.only(bottom: 12),
+                                child: _TypingIndicator(),
+                              );
+                            }
                             if (index == items.length && showReasoning) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
                                 child: _ReasoningBlock(text: _reasoningText),
                               );
                             }
-                            final previewStart =
-                                items.length + (showReasoning ? 1 : 0);
+                            final previewStart = items.length +
+                                (showReasoning ? 1 : 0) +
+                                (showTypingIndicator ? 1 : 0);
                             if (index >= previewStart) {
                               final segment =
                                   previewSegments[index - previewStart];
@@ -892,6 +920,14 @@ class _ChatScreenState extends State<ChatScreen> {
               showChevron: true,
               onTap: () => Navigator.of(context).pop(),
             ),
+            _DrawerMenuItem(
+              title: l10n.chatDrawerMemoryTitle,
+              showChevron: true,
+              onTap: () {
+                Navigator.of(context).pop();
+                _showMemorySheet(context);
+              },
+            ),
             const Spacer(),
             InkWell(
               onTap: () {
@@ -923,6 +959,47 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  /// 드로어 '기억 보기'. 컨텍스트 길이 제한으로 잘려나간 오래된 대화를 요약해둔 내용을
+  /// 읽기 전용으로 보여준다(투명성 확보용, 자동으로만 생성/갱신되고 여기선 편집하지 않는다).
+  void _showMemorySheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1B1B1B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: StreamBuilder<ChatMemorySummary?>(
+              stream: _memoryRepo.watchForSession(widget.sessionId),
+              builder: (context, snapshot) {
+                final summary = snapshot.data;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.chatMemorySheetTitle,
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      summary?.summaryText.isNotEmpty == true ? summary!.summaryText : l10n.chatMemoryEmptyMessage,
+                      style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -978,7 +1055,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: _sendMessage,
+            onTap: _generating ? _cancelGeneration : _sendMessage,
             child: Container(
               width: 40,
               height: 40,
@@ -986,8 +1063,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: _bubblePurple,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.arrow_upward,
+              child: Icon(
+                _generating ? Icons.stop_rounded : Icons.arrow_upward,
                 color: Colors.white,
                 size: 20,
               ),
@@ -1676,6 +1753,29 @@ class _IntroImageLine extends StatelessWidget {
   }
 }
 
+/// 요청을 보낸 뒤 첫 토큰(또는 추론 델타)이 도착하기 전까지 보여주는 '생성 중' 표시.
+class _TypingIndicator extends StatelessWidget {
+  const _TypingIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const SizedBox(
+          width: 14,
+          height: 14,
+          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          AppLocalizations.of(context)!.chatGeneratingIndicator,
+          style: const TextStyle(color: Colors.white54, fontSize: 13),
+        ),
+      ],
+    );
+  }
+}
+
 class _NarratorLine extends StatelessWidget {
   const _NarratorLine({required this.text});
 
@@ -1683,20 +1783,17 @@ class _NarratorLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 40),
-      child: Row(
-        children: [
-          const Icon(Icons.reorder, color: Colors.white54, size: 16),
-          const SizedBox(width: 6),
-          Expanded(
-            child: _FormattedMessageText(
-              text,
-              style: const TextStyle(color: Colors.white54, fontSize: 14),
-            ),
+    return Row(
+      children: [
+        const Icon(Icons.reorder, color: Colors.white54, size: 16),
+        const SizedBox(width: 6),
+        Expanded(
+          child: _FormattedMessageText(
+            text,
+            style: const TextStyle(color: Colors.white54, fontSize: 14),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

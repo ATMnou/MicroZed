@@ -22,8 +22,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  static const _background = Color(0xFF141414);
-
   final _tabs = const [
     _HomeTab(),
     ConversationTab(),
@@ -33,27 +31,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final background = Theme.of(context).colorScheme.surface;
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: background,
       body: SafeArea(
         child: IndexedStack(
           index: _currentIndex,
           children: _tabs,
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(context),
+      bottomNavigationBar: _buildBottomNav(context, background),
     );
   }
 
-  Widget _buildBottomNav(BuildContext context) {
+  Widget _buildBottomNav(BuildContext context, Color background) {
     final l10n = AppLocalizations.of(context)!;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     return BottomNavigationBar(
-      backgroundColor: _background,
+      backgroundColor: background,
       currentIndex: _currentIndex,
       onTap: (index) => setState(() => _currentIndex = index),
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.white38,
+      selectedItemColor: onSurface,
+      unselectedItemColor: onSurface.withValues(alpha: 0.38),
       showUnselectedLabels: true,
       items: [
         BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.navHome),

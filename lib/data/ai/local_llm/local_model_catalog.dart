@@ -5,14 +5,15 @@ class LocalModelCatalogEntry {
   const LocalModelCatalogEntry({
     required this.id,
     required this.label,
-    required this.description,
     required this.source,
     required this.approxSizeMb,
   });
 
   final String id;
   final String label;
-  final String description;
+
+  /// 설명 문구는 다국어 지원을 위해 여기 담지 않는다. 화면에서 [id] 기준으로
+  /// `AppLocalizations.localLlmModelDesc*` 키를 조회해서 써야 한다.
   final String source;
   final int approxSizeMb;
 }
@@ -21,26 +22,32 @@ class LocalModelCatalogEntry {
 // 원작 모델보다 거절 응답이 적어 이 앱 용도에 더 잘 맞는다.
 const List<LocalModelCatalogEntry> kLocalModelCatalog = [
   LocalModelCatalogEntry(
+    id: 'huihui-qwen3.5-08b',
+    label: 'Huihui Qwen 3.5 0.8B Abliterated',
+    source:
+        'hf://mradermacher/Huihui-Qwen3.5-0.8B-abliterated-GGUF/'
+        'Huihui-Qwen3.5-0.8B-abliterated.IQ4_XS.gguf',
+    approxSizeMb: 490,
+  ),
+  LocalModelCatalogEntry(
+    id: 'huihui-qwen35-4b',
+    label: 'Huihui Qwen3.5 4B Abliterated',
+    source:
+        'hf://mradermacher/Huihui-Qwen3.5-4B-abliterated-GGUF/'
+        'Huihui-Qwen3.5-4B-abliterated.Q4_K_M.gguf',
+    approxSizeMb: 2580,
+  ),
+  LocalModelCatalogEntry(
     id: 'huihui-gemma4-e2b',
     label: 'Huihui Gemma 4 E2B Abliterated',
-    description: '가장 가볍고 빠름. 검열 완화(abliterated) 버전. 저사양 기기에 적합.',
     source:
         'hf://huihui-ai/Huihui-gemma-4-E2B-it-qat-q4_0-unquantized-abliterated-GGUF/'
         'Huihui-gemma-4-E2B-it-qat-q4_0-unquantized-abliterated-Q4_K.gguf',
     approxSizeMb: 3260,
   ),
   LocalModelCatalogEntry(
-    id: 'huihui-qwen35-4b',
-    label: 'Huihui Qwen3.5 4B Abliterated',
-    description: '속도와 품질의 균형. 검열 완화 버전. 한국어 대응이 비교적 좋음.',
-    source: 'hf://mradermacher/Huihui-Qwen3.5-4B-abliterated-GGUF/'
-        'Huihui-Qwen3.5-4B-abliterated.Q4_K_M.gguf',
-    approxSizeMb: 2580,
-  ),
-  LocalModelCatalogEntry(
     id: 'huihui-gemma4-e4b',
     label: 'Huihui Gemma 4 E4B Abliterated',
-    description: '더 나은 품질. 검열 완화 버전. 고사양 기기/PC 권장.',
     source:
         'hf://huihui-ai/Huihui-gemma-4-E4B-it-qat-q4_0-unquantized-abliterated-GGUF/'
         'Huihui-gemma-4-E4B-it-qat-q4_0-unquantized-abliterated-Q4_K.gguf',

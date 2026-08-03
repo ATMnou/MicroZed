@@ -136,6 +136,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get localLlmRecommendedSectionTitle => '추천 모델';
 
   @override
+  String get localLlmModelDescHuihuiQwen3508b => 'IQ4 XS임 성능 기대 ㄴㄴ';
+
+  @override
+  String get localLlmModelDescHuihuiQwen354b => '속도와 품질의 균형. 한국어 대응이 비교적 좋음.';
+
+  @override
+  String get localLlmModelDescHuihuiGemma4E2b => '가장 가볍고 빠름. 저사양 기기에 적합.';
+
+  @override
+  String get localLlmModelDescHuihuiGemma4E4b => '더 나은 품질. 고사양 기기/PC 권장.';
+
+  @override
   String get localLlmImportSectionTitle => '내 파일에서 가져오기';
 
   @override
@@ -202,6 +214,49 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get preferencesImageDisplayFullWidthOption => '가로 꽉 채우기';
+
+  @override
+  String get preferencesAiSectionTitle => 'AI 설정';
+
+  @override
+  String get preferencesThemeSectionTitle => '테마';
+
+  @override
+  String get preferencesThemeDarkOption => '다크';
+
+  @override
+  String get preferencesThemeLightOption => '화이트';
+
+  @override
+  String get preferencesThemeAmoledOption => 'AMOLED 블랙';
+
+  @override
+  String get preferencesThemeSystemOption => '시스템 자동';
+
+  @override
+  String get preferencesVersionSectionTitle => '버전 정보';
+
+  @override
+  String preferencesCurrentVersionLabel(String version) {
+    return '현재 버전 $version';
+  }
+
+  @override
+  String get preferencesCheckUpdateButton => '업데이트 확인';
+
+  @override
+  String preferencesUpdateAvailableMessage(String version) {
+    return '새 버전 $version이(가) 있어요.';
+  }
+
+  @override
+  String get preferencesUpToDateMessage => '최신 버전을 사용하고 있어요.';
+
+  @override
+  String get preferencesUpdateCheckFailedMessage => '업데이트 확인에 실패했어요.';
+
+  @override
+  String get preferencesViewReleaseButton => '릴리스 보기';
 
   @override
   String get preferencesDangerZoneTitle => '위험 구역';
@@ -274,7 +329,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get conversationTabEmpty => '아직 진행 중인 대화가 없어요';
 
   @override
-  String get conversationTabSortLatest => '최신순';
+  String conversationTabSelectedCount(int count) {
+    return '$count개 선택됨';
+  }
+
+  @override
+  String get conversationTabDeleteConfirmTitle => '대화방 삭제';
+
+  @override
+  String get conversationTabDeleteConfirmContent =>
+      '선택한 대화방을 삭제할까요? 되돌릴 수 없어요.';
 
   @override
   String get conversationTilePlaceholder => '대화를 시작해보세요';
@@ -376,6 +440,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get chatGeneratingIndicator => '답변 생성 중...';
+
+  @override
   String get chatReviseDialogTitle => 'AI 수정';
 
   @override
@@ -404,6 +471,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get chatDrawerChoicesDisabled => '사용 안함';
+
+  @override
+  String get chatDrawerMemoryTitle => '기억 보기';
+
+  @override
+  String get chatMemorySheetTitle => '이전 대화 요약';
+
+  @override
+  String get chatMemoryEmptyMessage => '아직 요약된 기억이 없어요. 대화가 길어지면 자동으로 만들어져요.';
 
   @override
   String get chatDrawerExitButton => '대화방 나가기';
@@ -475,6 +551,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get characterDetailIntroSectionTitle => '인트로';
 
   @override
+  String get characterDetailIntroNarratorLabel => '내레이션';
+
+  @override
+  String get characterDetailIntroUserLabel => '나';
+
+  @override
+  String get characterDetailIntroImageLabel => '이미지';
+
+  @override
   String get plotEditTabPrompt => '프롬프트';
 
   @override
@@ -498,9 +583,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get plotEditExportDataMenuItem => '전용 형식으로 내보내기 (전체 데이터)';
 
   @override
-  String get plotEditDraftSaveButton => '임시저장';
-
-  @override
   String get plotEditSaveButtonEdit => '수정';
 
   @override
@@ -508,6 +590,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get plotEditExportSuccessMessage => 'SillyTavern 카드로 내보냈어요.';
+
+  @override
+  String get plotEditExportDataSuccessMessage => '전용 형식(.mzplot)으로 내보냈어요.';
 
   @override
   String plotEditExportFailureMessage(Object error) {
@@ -648,9 +733,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get plotEditCoverTitle => '커버';
 
   @override
-  String get plotEditPreviewButton => '미리보기';
-
-  @override
   String get plotEditCoverImagePlaceholder => '커버 이미지';
 
   @override
@@ -760,6 +842,53 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aiPresetReasoningEffortHigh => '높음';
+
+  @override
+  String get aiPresetEndpointFormatLabel => '엔드포인트 형식';
+
+  @override
+  String get aiPresetEndpointFormatDescription => '선택한 형식에 맞는 요청/응답 파서로 통신해요.';
+
+  @override
+  String get aiPresetEndpointFormatOpenAi => 'OpenAI 호환';
+
+  @override
+  String get aiPresetEndpointFormatAnthropic => 'Anthropic';
+
+  @override
+  String get aiPresetSupportsVisionLabel => '이미지 인식(비전) 지원';
+
+  @override
+  String get aiPresetSupportsVisionDescription =>
+      '켜두면 ZedTalk에서 첨부한 이미지를 이 프리셋의 모델에게 함께 보내요. 실제로 이미지를 이해하는 모델일 때만 켜주세요.';
+
+  @override
+  String get aiPresetOpenRouterSectionTitle => 'OpenRouter 전용 옵션';
+
+  @override
+  String get aiPresetOpenRouterSectionDescription =>
+      'Base URL이 openrouter.ai일 때만 적용돼요.';
+
+  @override
+  String get aiPresetOpenRouterZdrOnlyLabel => 'ZDR 제공자만 사용';
+
+  @override
+  String get aiPresetOpenRouterZdrOnlyDescription =>
+      '데이터를 저장하지 않는(Zero Data Retention) 제공자로만 라우팅해요.';
+
+  @override
+  String get aiPresetOpenRouterExcludeChinaLabel => '중국 제공자 제외';
+
+  @override
+  String get aiPresetOpenRouterExcludeChinaDescription =>
+      '알리바바 등 중국 소재 제공자는 라우팅에서 제외해요.';
+
+  @override
+  String get aiPresetOpenRouterExcludeTrainingLabel => '데이터 학습 제공자 제외';
+
+  @override
+  String get aiPresetOpenRouterExcludeTrainingDescription =>
+      '요청 데이터를 학습에 활용할 수 있는 제공자는 제외해요.';
 
   @override
   String get lorebookConnectTitle => '로어북 연결';
@@ -992,4 +1121,212 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get snapshotSettingsSavedMessage => '저장했어요.';
+
+  @override
+  String get createTabAiGenerateButton => 'AI로 생성';
+
+  @override
+  String get plotAiGenerateTitle => 'AI로 플롯 생성';
+
+  @override
+  String get plotAiGeneratePresetLabel => '사용할 AI 프리셋';
+
+  @override
+  String get plotAiGeneratePresetEmptyHint =>
+      '먼저 환경설정 > AI 설정에서 AI 프리셋을 만들어주세요.';
+
+  @override
+  String get plotAiGeneratePromptLabel => '어떤 플롯을 만들까요?';
+
+  @override
+  String get plotAiGeneratePromptHint => '장르, 배경, 등장인물 특징 등을 자유롭게 설명해주세요';
+
+  @override
+  String get plotAiGenerateWebSearchLabel => '웹 검색으로 참고자료 찾기';
+
+  @override
+  String get plotAiGenerateWebSearchUnsupportedHint =>
+      '선택한 프리셋에서는 네이티브 웹 검색을 지원하지 않아요(OpenRouter 또는 OpenAI 계열만 가능).';
+
+  @override
+  String get plotAiGenerateLoreLengthLabel => '로어 길이';
+
+  @override
+  String get plotAiGenerateLoreLengthShort => '짧게';
+
+  @override
+  String get plotAiGenerateLoreLengthMedium => '보통';
+
+  @override
+  String get plotAiGenerateLoreLengthLong => '길게';
+
+  @override
+  String get plotAiGenerateAccuracyLabel => '정확도';
+
+  @override
+  String get plotAiGenerateAccuracyAccurate => '정확함(Accurate)';
+
+  @override
+  String get plotAiGenerateAccuracyMixed => '혼합(Mixed)';
+
+  @override
+  String get plotAiGenerateSubmitButton => '생성하기';
+
+  @override
+  String get plotAiGeneratePromptEmptyMessage => '어떤 플롯을 만들지 먼저 설명해주세요.';
+
+  @override
+  String plotAiGenerateFailureMessage(Object error) {
+    return '플롯 생성에 실패했어요: $error';
+  }
+
+  @override
+  String get plotAiGenerateGeneratingMessage => 'AI가 플롯을 만들고 있어요...';
+
+  @override
+  String get lanSyncSectionTitle => 'LAN 동기화';
+
+  @override
+  String get lanSyncScreenTitle => 'LAN 동기화';
+
+  @override
+  String get lanSyncExportSectionTitle => '이 기기에서 내보내기';
+
+  @override
+  String get lanSyncExportSectionDescription =>
+      '같은 Wi-Fi/LAN에 연결된 다른 기기에서 아래 정보로 접속하면 전체 데이터를 가져갈 수 있어요.';
+
+  @override
+  String get lanSyncStartHostButton => '연결 대기 시작';
+
+  @override
+  String get lanSyncStopHostButton => '중지';
+
+  @override
+  String get lanSyncWaitingMessage => '다른 기기의 접속을 기다리는 중...';
+
+  @override
+  String get lanSyncAddressLabel => '주소';
+
+  @override
+  String get lanSyncPortLabel => '포트';
+
+  @override
+  String get lanSyncPinLabel => 'PIN';
+
+  @override
+  String get lanSyncExportedMessage => '전송을 완료했어요.';
+
+  @override
+  String lanSyncExportFailedMessage(Object error) {
+    return '전송에 실패했어요: $error';
+  }
+
+  @override
+  String get lanSyncNoAddressWarning =>
+      '이 기기에서 LAN 주소를 찾지 못했어요. Wi-Fi 연결을 확인해주세요.';
+
+  @override
+  String get lanSyncImportSectionTitle => '다른 기기에서 가져오기';
+
+  @override
+  String get lanSyncImportSectionDescription =>
+      '내보내는 쪽 화면에 표시된 주소/포트/PIN을 입력해주세요.';
+
+  @override
+  String get lanSyncHostFieldLabel => '주소(IP)';
+
+  @override
+  String get lanSyncPortFieldLabel => '포트';
+
+  @override
+  String get lanSyncPinFieldLabel => 'PIN';
+
+  @override
+  String get lanSyncImportButton => '가져오기';
+
+  @override
+  String get lanSyncImportConfirmTitle => '전체 데이터 교체';
+
+  @override
+  String get lanSyncImportConfirmContent =>
+      '받아온 데이터로 이 기기의 전체 데이터를 덮어써요. 되돌릴 수 없어요.';
+
+  @override
+  String lanSyncImportFailedMessage(Object error) {
+    return '가져오기에 실패했어요: $error';
+  }
+
+  @override
+  String createTabSelectedCount(int count) {
+    return '$count개 선택됨';
+  }
+
+  @override
+  String get createTabDeleteSelectedConfirmTitle => '플롯 삭제';
+
+  @override
+  String get createTabDeleteSelectedConfirmContent =>
+      '선택한 플롯을 삭제할까요? 되돌릴 수 없어요.';
+
+  @override
+  String get createTabExportPackageButton => '패키지로 내보내기(.mzpack)';
+
+  @override
+  String createTabExportPackageSuccessMessage(int count) {
+    return '$count개 플롯을 내보냈어요.';
+  }
+
+  @override
+  String createTabExportPackageFailureMessage(Object error) {
+    return '내보내기에 실패했어요: $error';
+  }
+
+  @override
+  String get createTabImportFromPackageTitle => '플롯 패키지에서 가져오기(.mzpack)';
+
+  @override
+  String get createTabImportFromPackageSubtitle => '여러 플롯을 한 번에 불러와요';
+
+  @override
+  String createTabImportPackageSuccessMessage(int count) {
+    return '$count개 플롯을 가져왔어요.';
+  }
+
+  @override
+  String get conversationTabTalkLabel => '톡';
+
+  @override
+  String get characterDetailTalkButton => 'ZedTalk';
+
+  @override
+  String get talkListEmpty => '아직 톡한 캐릭터가 없어요';
+
+  @override
+  String get talkAttachmentSheetTitle => '첨부';
+
+  @override
+  String get talkAttachmentImageOption => '이미지';
+
+  @override
+  String get talkAttachmentVideoOption => '동영상';
+
+  @override
+  String get talkAttachmentDocumentOption => '문서';
+
+  @override
+  String get talkVisionUnsupportedNote =>
+      '이 프리셋은 이미지 인식을 지원하지 않아서, 첨부한 이미지는 AI에게 전달되지 않아요.';
+
+  @override
+  String get talkPresetSheetTitle => '사용할 AI 프리셋';
+
+  @override
+  String get talkNoPresetMessage => '먼저 AI 프리셋을 골라주세요.';
+
+  @override
+  String get talkDeleteConfirmTitle => '톡 삭제';
+
+  @override
+  String get talkDeleteConfirmContent => '선택한 톡을 삭제할까요? 되돌릴 수 없어요.';
 }

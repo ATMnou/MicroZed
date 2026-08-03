@@ -136,6 +136,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get localLlmRecommendedSectionTitle => 'Recommended models';
 
   @override
+  String get localLlmModelDescHuihuiQwen3508b =>
+      'IQ4 XS, don\'t expect much performance.';
+
+  @override
+  String get localLlmModelDescHuihuiQwen354b =>
+      'Balanced speed and quality. Handles Korean reasonably well.';
+
+  @override
+  String get localLlmModelDescHuihuiGemma4E2b =>
+      'Lightest and fastest. Good for low-spec devices.';
+
+  @override
+  String get localLlmModelDescHuihuiGemma4E4b =>
+      'Better quality. Recommended for high-spec devices/PC.';
+
+  @override
   String get localLlmImportSectionTitle => 'Import from a file';
 
   @override
@@ -203,6 +219,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get preferencesImageDisplayFullWidthOption => 'Fill width';
+
+  @override
+  String get preferencesAiSectionTitle => 'AI settings';
+
+  @override
+  String get preferencesThemeSectionTitle => 'Theme';
+
+  @override
+  String get preferencesThemeDarkOption => 'Dark';
+
+  @override
+  String get preferencesThemeLightOption => 'Light';
+
+  @override
+  String get preferencesThemeAmoledOption => 'AMOLED black';
+
+  @override
+  String get preferencesThemeSystemOption => 'System default';
+
+  @override
+  String get preferencesVersionSectionTitle => 'Version';
+
+  @override
+  String preferencesCurrentVersionLabel(String version) {
+    return 'Current version $version';
+  }
+
+  @override
+  String get preferencesCheckUpdateButton => 'Check for updates';
+
+  @override
+  String preferencesUpdateAvailableMessage(String version) {
+    return 'Version $version is available.';
+  }
+
+  @override
+  String get preferencesUpToDateMessage => 'You\'re on the latest version.';
+
+  @override
+  String get preferencesUpdateCheckFailedMessage =>
+      'Couldn\'t check for updates.';
+
+  @override
+  String get preferencesViewReleaseButton => 'View release';
 
   @override
   String get preferencesDangerZoneTitle => 'Danger zone';
@@ -275,7 +335,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get conversationTabEmpty => 'No conversations yet';
 
   @override
-  String get conversationTabSortLatest => 'Latest';
+  String conversationTabSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get conversationTabDeleteConfirmTitle => 'Delete chats';
+
+  @override
+  String get conversationTabDeleteConfirmContent =>
+      'Delete the selected chats? This can\'t be undone.';
 
   @override
   String get conversationTilePlaceholder => 'Start a conversation';
@@ -384,6 +453,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get chatGeneratingIndicator => 'Generating reply...';
+
+  @override
   String get chatReviseDialogTitle => 'Revise with AI';
 
   @override
@@ -414,6 +486,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatDrawerChoicesDisabled => 'Off';
+
+  @override
+  String get chatDrawerMemoryTitle => 'View memory';
+
+  @override
+  String get chatMemorySheetTitle => 'Previous conversation summary';
+
+  @override
+  String get chatMemoryEmptyMessage =>
+      'No summarized memory yet. It\'s created automatically as the chat gets longer.';
 
   @override
   String get chatDrawerExitButton => 'Leave chat room';
@@ -487,6 +569,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get characterDetailIntroSectionTitle => 'Intro';
 
   @override
+  String get characterDetailIntroNarratorLabel => 'Narration';
+
+  @override
+  String get characterDetailIntroUserLabel => 'Me';
+
+  @override
+  String get characterDetailIntroImageLabel => 'Image';
+
+  @override
   String get plotEditTabPrompt => 'Prompt';
 
   @override
@@ -510,9 +601,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plotEditExportDataMenuItem => 'Export in native format (all data)';
 
   @override
-  String get plotEditDraftSaveButton => 'Save draft';
-
-  @override
   String get plotEditSaveButtonEdit => 'Save';
 
   @override
@@ -520,6 +608,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plotEditExportSuccessMessage => 'Exported as a SillyTavern card.';
+
+  @override
+  String get plotEditExportDataSuccessMessage =>
+      'Exported in native format (.mzplot).';
 
   @override
   String plotEditExportFailureMessage(Object error) {
@@ -662,9 +754,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plotEditCoverTitle => 'Cover';
 
   @override
-  String get plotEditPreviewButton => 'Preview';
-
-  @override
   String get plotEditCoverImagePlaceholder => 'Cover image';
 
   @override
@@ -777,6 +866,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPresetReasoningEffortHigh => 'High';
+
+  @override
+  String get aiPresetEndpointFormatLabel => 'Endpoint format';
+
+  @override
+  String get aiPresetEndpointFormatDescription =>
+      'Uses the request/response parser matching the selected format.';
+
+  @override
+  String get aiPresetEndpointFormatOpenAi => 'OpenAI-compatible';
+
+  @override
+  String get aiPresetEndpointFormatAnthropic => 'Anthropic';
+
+  @override
+  String get aiPresetSupportsVisionLabel =>
+      'Supports image recognition (vision)';
+
+  @override
+  String get aiPresetSupportsVisionDescription =>
+      'When on, ZedTalk sends attached images to this preset\'s model. Only enable it for models that actually understand images.';
+
+  @override
+  String get aiPresetOpenRouterSectionTitle => 'OpenRouter-only options';
+
+  @override
+  String get aiPresetOpenRouterSectionDescription =>
+      'Only applies when the base URL is openrouter.ai.';
+
+  @override
+  String get aiPresetOpenRouterZdrOnlyLabel => 'ZDR providers only';
+
+  @override
+  String get aiPresetOpenRouterZdrOnlyDescription =>
+      'Route only to providers with Zero Data Retention.';
+
+  @override
+  String get aiPresetOpenRouterExcludeChinaLabel => 'Exclude Chinese providers';
+
+  @override
+  String get aiPresetOpenRouterExcludeChinaDescription =>
+      'Exclude China-based providers (e.g. Alibaba) from routing.';
+
+  @override
+  String get aiPresetOpenRouterExcludeTrainingLabel =>
+      'Exclude training-data providers';
+
+  @override
+  String get aiPresetOpenRouterExcludeTrainingDescription =>
+      'Exclude providers that may use request data for training.';
 
   @override
   String get lorebookConnectTitle => 'Connect lorebook';
@@ -1014,4 +1153,219 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get snapshotSettingsSavedMessage => 'Saved.';
+
+  @override
+  String get createTabAiGenerateButton => 'Generate with AI';
+
+  @override
+  String get plotAiGenerateTitle => 'Generate plot with AI';
+
+  @override
+  String get plotAiGeneratePresetLabel => 'AI preset to use';
+
+  @override
+  String get plotAiGeneratePresetEmptyHint =>
+      'Create an AI preset in Preferences > AI settings first.';
+
+  @override
+  String get plotAiGeneratePromptLabel => 'What plot do you want to make?';
+
+  @override
+  String get plotAiGeneratePromptHint =>
+      'Describe the genre, setting, characters, etc. freely';
+
+  @override
+  String get plotAiGenerateWebSearchLabel =>
+      'Look up references via web search';
+
+  @override
+  String get plotAiGenerateWebSearchUnsupportedHint =>
+      'The selected preset doesn\'t support native web search (only OpenRouter or OpenAI-family endpoints do).';
+
+  @override
+  String get plotAiGenerateLoreLengthLabel => 'Lore length';
+
+  @override
+  String get plotAiGenerateLoreLengthShort => 'Short';
+
+  @override
+  String get plotAiGenerateLoreLengthMedium => 'Medium';
+
+  @override
+  String get plotAiGenerateLoreLengthLong => 'Long';
+
+  @override
+  String get plotAiGenerateAccuracyLabel => 'Accuracy';
+
+  @override
+  String get plotAiGenerateAccuracyAccurate => 'Accurate';
+
+  @override
+  String get plotAiGenerateAccuracyMixed => 'Mixed';
+
+  @override
+  String get plotAiGenerateSubmitButton => 'Generate';
+
+  @override
+  String get plotAiGeneratePromptEmptyMessage =>
+      'Describe what plot you want first.';
+
+  @override
+  String plotAiGenerateFailureMessage(Object error) {
+    return 'Failed to generate plot: $error';
+  }
+
+  @override
+  String get plotAiGenerateGeneratingMessage => 'AI is generating the plot...';
+
+  @override
+  String get lanSyncSectionTitle => 'LAN sync';
+
+  @override
+  String get lanSyncScreenTitle => 'LAN sync';
+
+  @override
+  String get lanSyncExportSectionTitle => 'Export from this device';
+
+  @override
+  String get lanSyncExportSectionDescription =>
+      'Connect from another device on the same Wi-Fi/LAN using the info below to pull all data.';
+
+  @override
+  String get lanSyncStartHostButton => 'Start waiting for connection';
+
+  @override
+  String get lanSyncStopHostButton => 'Stop';
+
+  @override
+  String get lanSyncWaitingMessage =>
+      'Waiting for another device to connect...';
+
+  @override
+  String get lanSyncAddressLabel => 'Address';
+
+  @override
+  String get lanSyncPortLabel => 'Port';
+
+  @override
+  String get lanSyncPinLabel => 'PIN';
+
+  @override
+  String get lanSyncExportedMessage => 'Transfer complete.';
+
+  @override
+  String lanSyncExportFailedMessage(Object error) {
+    return 'Transfer failed: $error';
+  }
+
+  @override
+  String get lanSyncNoAddressWarning =>
+      'Couldn\'t find a LAN address on this device. Check your Wi-Fi connection.';
+
+  @override
+  String get lanSyncImportSectionTitle => 'Import from another device';
+
+  @override
+  String get lanSyncImportSectionDescription =>
+      'Enter the address/port/PIN shown on the exporting device\'s screen.';
+
+  @override
+  String get lanSyncHostFieldLabel => 'Address (IP)';
+
+  @override
+  String get lanSyncPortFieldLabel => 'Port';
+
+  @override
+  String get lanSyncPinFieldLabel => 'PIN';
+
+  @override
+  String get lanSyncImportButton => 'Import';
+
+  @override
+  String get lanSyncImportConfirmTitle => 'Replace all data';
+
+  @override
+  String get lanSyncImportConfirmContent =>
+      'This overwrites all data on this device with what\'s received. This can\'t be undone.';
+
+  @override
+  String lanSyncImportFailedMessage(Object error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String createTabSelectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get createTabDeleteSelectedConfirmTitle => 'Delete plots';
+
+  @override
+  String get createTabDeleteSelectedConfirmContent =>
+      'Delete the selected plots? This can\'t be undone.';
+
+  @override
+  String get createTabExportPackageButton => 'Export as package (.mzpack)';
+
+  @override
+  String createTabExportPackageSuccessMessage(int count) {
+    return 'Exported $count plots.';
+  }
+
+  @override
+  String createTabExportPackageFailureMessage(Object error) {
+    return 'Failed to export: $error';
+  }
+
+  @override
+  String get createTabImportFromPackageTitle =>
+      'Import from plot package (.mzpack)';
+
+  @override
+  String get createTabImportFromPackageSubtitle =>
+      'Import multiple plots at once';
+
+  @override
+  String createTabImportPackageSuccessMessage(int count) {
+    return 'Imported $count plots.';
+  }
+
+  @override
+  String get conversationTabTalkLabel => 'Talk';
+
+  @override
+  String get characterDetailTalkButton => 'ZedTalk';
+
+  @override
+  String get talkListEmpty => 'No ZedTalk chats yet';
+
+  @override
+  String get talkAttachmentSheetTitle => 'Attach';
+
+  @override
+  String get talkAttachmentImageOption => 'Image';
+
+  @override
+  String get talkAttachmentVideoOption => 'Video';
+
+  @override
+  String get talkAttachmentDocumentOption => 'Document';
+
+  @override
+  String get talkVisionUnsupportedNote =>
+      'This preset doesn\'t support image recognition, so the attached image won\'t be sent to the AI.';
+
+  @override
+  String get talkPresetSheetTitle => 'AI preset to use';
+
+  @override
+  String get talkNoPresetMessage => 'Choose an AI preset first.';
+
+  @override
+  String get talkDeleteConfirmTitle => 'Delete chats';
+
+  @override
+  String get talkDeleteConfirmContent =>
+      'Delete the selected ZedTalk chats? This can\'t be undone.';
 }

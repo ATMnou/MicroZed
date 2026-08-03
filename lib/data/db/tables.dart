@@ -10,6 +10,18 @@ enum IntroEntryType { character, narrator, user, image }
 /// 실제 채팅 메시지의 발화자 종류. image는 AI에게는 전달되지 않고 화면에만 보여준다.
 enum MessageSender { character, narrator, user, image }
 
+/// AI 프리셋이 어떤 요청/응답 형식을 쓰는 엔드포인트인지. openAiCompatible이 기본값이고,
+/// anthropic은 Anthropic Messages API(`/v1/messages`, system 필드 분리, `x-api-key` 헤더) 전용
+/// 클라이언트로 라우팅된다.
+enum AiEndpointFormat { openAiCompatible, anthropic }
+
+/// ZedTalk(짧은 메신저형 대화) 메시지의 발화자. 롤플레이 채팅과 달리 나레이터가 없다.
+enum TalkMessageSender { user, character }
+
+/// ZedTalk 메시지에 첨부할 수 있는 미디어 종류. 비전을 지원하는 프리셋에서만 image가
+/// 실제로 AI에게 전달되고, 나머지는 화면에만 보여준다.
+enum TalkAttachmentType { image, video, document }
+
 /// 플롯(캐릭터 세트 + 프롬프트 + 소개). 제작 탭의 플롯 목록, 캐릭터 상세 화면, 플롯 편집 화면이 다루는 핵심 엔티티.
 class Plots extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -67,6 +79,19 @@ class IntroEntries extends Table {
   IntColumn get type => intEnum<IntroEntryType>()();
   TextColumn get content => text()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+/// 세션마다 하나씩 쌓이는 장기 기억(오래된 대화 요약). [coveredUpToMessageId]는 이 요약이
+/// 몇 번째 메시지까지 반영했는지를 가리킨다 - 컨텍스트 길이 제한으로 더 많은 메시지가
+/// 잘려나갈 때마다, 잘려나간 구간 전체를 다시 요약해서 이 값과 함께 갱신한다(세션당 1행,
+/// 누적/재요약 방식이라 별도 버전 이력은 두지 않는다).
+class ChatMemorySummaries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get sessionId =>
+      integer().references(ChatSessions, #id, onDelete: KeyAction.cascade)();
+  IntColumn get coveredUpToMessageId => integer()();
+  TextColumn get summaryText => text()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// 마이페이지 > 대화 프로필 편집에서 관리하는, 유저가 대화에서 사용할 프로필.
@@ -133,6 +158,49 @@ class AiPresets extends Table {
 
   /// 로컬 모델의 위치. `hf://...` (다운로드 후 캐시된 모델) 또는 로컬 파일 경로.
   TextColumn get localModelSource => text().nullable()();
+
+  /// 아래 3개는 baseUrl이 openrouter.ai일 때만 UI에 노출되는 OpenRouter 전용 라우팅 옵션.
+  /// OpenRouter의 `provider` 요청 필드로 그대로 실어 보낸다.
+  /// ZDR(Zero Data Retention) 정책을 지키는 제공자로만 라우팅을 강제한다.
+  BoolColumn get openRouterZdrOnly => boolean().withDefault(const Constant(false))();
+
+  /// 알려진 중국 소재 제공자(알리바바 등)를 라우팅에서 제외한다.
+  BoolColumn get openRouterExcludeChinaProviders => boolean().withDefault(const Constant(false))();
+
+  /// 요청 데이터를 학습에 활용할 수 있는 제공자를 라우팅에서 제외한다.
+  BoolColumn get openRouterExcludeTrainingProviders => boolean().withDefault(const Constant(false))();
+
+  /// 기본값(openAiCompatible)이면 기존과 동일하게 동작한다. [isLocal]이 true면 이 값은
+  /// 무시되고 로컬 llama.cpp 엔진으로 라우팅된다.
+  IntColumn get endpointFormat =>
+      intEnum<AiEndpointFormat>().withDefault(const Constant(0))();
+
+  /// ZedTalk에서 이미지 첨부를 실제로 모델에 보낼지. 사용자가 고른 모델이 비전을
+  /// 지원하는지 앱이 자동으로 알 방법이 없어서(모델명만으로는 신뢰할 수 없음) 수동 토글이다.
+  BoolColumn get supportsVision => boolean().withDefault(const Constant(false))();
+}
+
+/// ZedTalk 대화방. 롤플레이용 [ChatSessions]과 별개로, 플롯당 여러 개 만들 수 있다
+/// (롤플레이는 플롯당 활성 세션이 1개뿐이지만 ZedTalk은 그런 제약이 없다).
+class TalkSessions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get plotId => integer().references(Plots, #id, onDelete: KeyAction.cascade)();
+  IntColumn get presetId => integer().nullable().references(AiPresets, #id, onDelete: KeyAction.setNull)();
+  BoolColumn get pinned => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// ChatMessages와 달리 턴/버전 개념이 없는 단순한 메시지 하나. 재시도/AI 수정 없이
+/// 보낸 순서 그대로 쌓인다.
+class TalkMessages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get sessionId => integer().references(TalkSessions, #id, onDelete: KeyAction.cascade)();
+  IntColumn get sender => intEnum<TalkMessageSender>()();
+  TextColumn get content => text().withDefault(const Constant(''))();
+  TextColumn get attachmentPath => text().nullable()();
+  IntColumn get attachmentType => intEnum<TalkAttachmentType>().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// 대화 탭에 나열되는 개별 대화방. 어떤 플롯/프로필/프리셋으로 진행 중인지를 연결한다.
@@ -211,6 +279,10 @@ class TokenUsageLogs extends Table {
 
   /// 엔드포인트가 가격을 알려줄 때만(예: OpenRouter) 값이 있다. USD 기준.
   RealColumn get costUsd => real().nullable()();
+
+  /// OpenRouter처럼 여러 업스트림으로 라우팅하는 엔드포인트가 실제로 요청을 처리한
+  /// 제공자명을 알려줄 때만 값이 있다(예: "DeepInfra"). 없으면 baseUrl host로 대체 표시.
+  TextColumn get provider => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 

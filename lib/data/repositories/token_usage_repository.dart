@@ -26,6 +26,7 @@ class TokenUsageRepository {
     required int promptTokens,
     required int completionTokens,
     double? costUsd,
+    String? provider,
   }) {
     return _db.into(_db.tokenUsageLogs).insert(
           TokenUsageLogsCompanion.insert(
@@ -35,6 +36,7 @@ class TokenUsageRepository {
             promptTokens: Value(promptTokens),
             completionTokens: Value(completionTokens),
             costUsd: Value(costUsd),
+            provider: Value(provider),
           ),
         );
   }

@@ -64,6 +64,9 @@ class BackupService {
       'chatSessions': (await _db.select(_db.chatSessions).get()).map((r) => r.toJson()).toList(),
       'chatTurns': (await _db.select(_db.chatTurns).get()).map((r) => r.toJson()).toList(),
       'chatMessages': (await _db.select(_db.chatMessages).get()).map((r) => r.toJson()).toList(),
+      'chatMemorySummaries': (await _db.select(_db.chatMemorySummaries).get()).map((r) => r.toJson()).toList(),
+      'talkSessions': (await _db.select(_db.talkSessions).get()).map((r) => r.toJson()).toList(),
+      'talkMessages': (await _db.select(_db.talkMessages).get()).map((r) => r.toJson()).toList(),
       'tokenUsageLogs': (await _db.select(_db.tokenUsageLogs).get()).map((r) => r.toJson()).toList(),
       'lorebooks': (await _db.select(_db.lorebooks).get()).map((r) => r.toJson()).toList(),
       'lorebookEntries': (await _db.select(_db.lorebookEntries).get()).map((r) => r.toJson()).toList(),
@@ -146,6 +149,9 @@ class BackupService {
     final chatSessionsJson = rowsFor('chatSessions');
     final chatTurnsJson = rowsFor('chatTurns');
     final chatMessagesJson = rowsFor('chatMessages');
+    final chatMemorySummariesJson = rowsFor('chatMemorySummaries');
+    final talkSessionsJson = rowsFor('talkSessions');
+    final talkMessagesJson = rowsFor('talkMessages');
     final tokenUsageLogsJson = rowsFor('tokenUsageLogs');
     final lorebooksJson = rowsFor('lorebooks');
     final lorebookEntriesJson = rowsFor('lorebookEntries');
@@ -183,8 +189,11 @@ class BackupService {
       // 자식 -> 부모 순서로 기존 데이터를 모두 비운다.
       await _db.delete(_db.chatMessages).go();
       await _db.delete(_db.chatTurns).go();
+      await _db.delete(_db.chatMemorySummaries).go();
       await _db.delete(_db.tokenUsageLogs).go();
       await _db.delete(_db.chatSessions).go();
+      await _db.delete(_db.talkMessages).go();
+      await _db.delete(_db.talkSessions).go();
       await _db.delete(_db.introEntries).go();
       await _db.delete(_db.introVersions).go();
       await _db.delete(_db.lorebookPlotLinks).go();
@@ -246,6 +255,21 @@ class BackupService {
             ? row.copyWith(content: remapPath(row.content) ?? row.content)
             : row;
         await _db.into(_db.chatMessages).insert(remapped, mode: InsertMode.insertOrReplace);
+      }
+      for (final json in chatMemorySummariesJson) {
+        final row = ChatMemorySummary.fromJson(json);
+        await _db.into(_db.chatMemorySummaries).insert(row, mode: InsertMode.insertOrReplace);
+      }
+      for (final json in talkSessionsJson) {
+        final row = TalkSession.fromJson(json);
+        await _db.into(_db.talkSessions).insert(row, mode: InsertMode.insertOrReplace);
+      }
+      for (final json in talkMessagesJson) {
+        final row = TalkMessage.fromJson(json);
+        final remapped = row.attachmentType == TalkAttachmentType.image
+            ? row.copyWith(attachmentPath: Value(remapPath(row.attachmentPath)))
+            : row;
+        await _db.into(_db.talkMessages).insert(remapped, mode: InsertMode.insertOrReplace);
       }
       for (final json in tokenUsageLogsJson) {
         final row = TokenUsageLog.fromJson(json);

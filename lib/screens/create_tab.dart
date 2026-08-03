@@ -4,15 +4,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
+import '../data/export/plot_package_exporter.dart';
 import '../data/import/character_card_parser.dart';
 import '../data/import/character_card_source.dart';
 import '../data/import/plot_data_importer.dart';
 import '../data/import/plot_import_service.dart';
+import '../data/import/plot_package_importer.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../data/repositories/plot_repository.dart';
 import '../l10n/app_localizations.dart';
 import 'lorebook_detail_screen.dart';
 import 'lorebook_edit_screen.dart';
+import 'plot_ai_generate_screen.dart';
 import 'plot_edit_screen.dart';
 
 /// '제작' 탭 화면.
@@ -32,6 +35,11 @@ class _CreateTabState extends State<CreateTab> {
   String _query = '';
   int _activeTab = 0;
   bool _importing = false;
+
+  /// 톱니바퀴로 진입하는 다중 선택(체크박스) 모드. 플롯 탭에서만 쓴다.
+  bool _selecting = false;
+  final Set<int> _selectedPlotIds = {};
+  bool _exportingPackage = false;
 
   @override
   void initState() {
@@ -84,6 +92,8 @@ class _CreateTabState extends State<CreateTab> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               if (_activeTab == 0) ...[
+                _buildAiGenerateButton(),
+                const SizedBox(height: 12),
                 _buildImportButton(),
                 const SizedBox(height: 12),
               ],
@@ -122,7 +132,18 @@ class _CreateTabState extends State<CreateTab> {
                       ),
                     )
                   : ListView(
-                      children: plots.map((p) => _PlotTile(data: p)).toList(),
+                      children: plots
+                          .map((p) => _PlotTile(
+                                data: p,
+                                selecting: _selecting,
+                                selected: _selectedPlotIds.contains(p.plot.id),
+                                onToggleSelected: () => setState(() {
+                                  if (!_selectedPlotIds.add(p.plot.id)) {
+                                    _selectedPlotIds.remove(p.plot.id);
+                                  }
+                                }),
+                              ))
+                          .toList(),
                     ),
             ),
           ],
@@ -202,7 +223,46 @@ class _CreateTabState extends State<CreateTab> {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: _searching
+      child: _selecting
+          ? Row(
+              children: [
+                Text(
+                  l10n.createTabSelectedCount(_selectedPlotIds.length),
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: _selectedPlotIds.isEmpty || _exportingPackage ? null : _exportSelectedAsPackage,
+                  icon: _exportingPackage
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                        )
+                      : Icon(
+                          Icons.ios_share,
+                          color: _selectedPlotIds.isEmpty ? Colors.white24 : Colors.white,
+                          size: 20,
+                        ),
+                ),
+                IconButton(
+                  onPressed: _selectedPlotIds.isEmpty ? null : _confirmDeleteSelectedPlots,
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: _selectedPlotIds.isEmpty ? Colors.white24 : Colors.redAccent,
+                    size: 22,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => setState(() {
+                    _selecting = false;
+                    _selectedPlotIds.clear();
+                  }),
+                  icon: const Icon(Icons.close, color: Colors.white, size: 22),
+                ),
+              ],
+            )
+          : _searching
           ? Row(
               children: [
                 Expanded(
@@ -280,6 +340,17 @@ class _CreateTabState extends State<CreateTab> {
                     size: 24,
                   ),
                 ),
+                if (_activeTab == 0) ...[
+                  const SizedBox(width: 16),
+                  GestureDetector(
+                    onTap: () => setState(() => _selecting = true),
+                    child: const Icon(
+                      Icons.settings_outlined,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                ],
               ],
             ),
     );
@@ -311,6 +382,29 @@ class _CreateTabState extends State<CreateTab> {
     return total.toString().replaceAllMapped(
       RegExp(r'\B(?=(\d{3})+(?!\d))'),
       (m) => ',',
+    );
+  }
+
+  Widget _buildAiGenerateButton() {
+    final l10n = AppLocalizations.of(context)!;
+    return OutlinedButton.icon(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const PlotAiGenerateScreen()),
+        );
+      },
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1E1E1E),
+        side: const BorderSide(color: Color(0xFF3A3A3A)),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      ),
+      icon: const Icon(Icons.auto_awesome, size: 18),
+      label: Text(
+        l10n.createTabAiGenerateButton,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
     );
   }
 
@@ -408,6 +502,18 @@ class _CreateTabState extends State<CreateTab> {
                 ),
                 onTap: () => Navigator.of(sheetContext).pop('plot_data'),
               ),
+              ListTile(
+                leading: const Icon(Icons.inventory_2_outlined, color: Colors.white),
+                title: Text(
+                  l10n.createTabImportFromPackageTitle,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  l10n.createTabImportFromPackageSubtitle,
+                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop('plot_pack'),
+              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -424,6 +530,8 @@ class _CreateTabState extends State<CreateTab> {
       }
     } else if (choice == 'plot_data') {
       await _runPlotDataImport();
+    } else if (choice == 'plot_pack') {
+      await _runPlotPackageImport();
     }
   }
 
@@ -453,6 +561,103 @@ class _CreateTabState extends State<CreateTab> {
       );
     } finally {
       if (mounted) setState(() => _importing = false);
+    }
+  }
+
+  /// 여러 플롯을 한 번에 담은 전용 패키지(.mzpack)를 가져온다. 성공하면 편집 화면으로
+  /// 넘어가지 않고(플롯이 여러 개일 수 있어서) 목록에 몇 개가 추가됐는지만 알려준다.
+  Future<void> _runPlotPackageImport() async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['mzpack'],
+    );
+    if (result == null || result.files.isEmpty) return; // 취소됨
+    setState(() => _importing = true);
+    try {
+      final bytes = await result.files.single.readAsBytes();
+      final importResult = await PlotPackageImporter(AppDatabase.instance).importFromBytes(bytes);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.createTabImportPackageSuccessMessage(importResult.plotCount))),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.createTabImportFailureMessage(e))),
+      );
+    } finally {
+      if (mounted) setState(() => _importing = false);
+    }
+  }
+
+  Future<void> _confirmDeleteSelectedPlots() async {
+    if (_selectedPlotIds.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: Text(
+          l10n.createTabDeleteSelectedConfirmTitle,
+          style: const TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          l10n.createTabDeleteSelectedConfirmContent,
+          style: const TextStyle(color: Colors.white54),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    for (final plotId in _selectedPlotIds) {
+      await _plotRepository.deletePlot(plotId);
+    }
+    if (!mounted) return;
+    setState(() {
+      _selecting = false;
+      _selectedPlotIds.clear();
+    });
+  }
+
+  Future<void> _exportSelectedAsPackage() async {
+    if (_selectedPlotIds.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
+    setState(() => _exportingPackage = true);
+    try {
+      final bytes = await PlotPackageExporter(AppDatabase.instance).exportPlots(_selectedPlotIds.toList());
+      final timestamp = DateTime.now().toIso8601String().replaceAll(RegExp(r'[:.]'), '-');
+      final path = await FilePicker.saveFile(
+        fileName: 'microzed_plots_$timestamp.mzpack',
+        type: FileType.custom,
+        allowedExtensions: const ['mzpack'],
+        bytes: bytes,
+      );
+      if (path == null) return; // 취소됨
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.createTabExportPackageSuccessMessage(_selectedPlotIds.length))),
+      );
+      setState(() {
+        _selecting = false;
+        _selectedPlotIds.clear();
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.createTabExportPackageFailureMessage(e))),
+      );
+    } finally {
+      if (mounted) setState(() => _exportingPackage = false);
     }
   }
 
@@ -567,9 +772,17 @@ class _CreateTabState extends State<CreateTab> {
 }
 
 class _PlotTile extends StatelessWidget {
-  const _PlotTile({required this.data});
+  const _PlotTile({
+    required this.data,
+    this.selecting = false,
+    this.selected = false,
+    this.onToggleSelected,
+  });
 
   final PlotSummary data;
+  final bool selecting;
+  final bool selected;
+  final VoidCallback? onToggleSelected;
 
   Future<void> _confirmDelete(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
@@ -657,17 +870,27 @@ class _PlotTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => PlotEditScreen(plotId: data.plot.id),
-          ),
-        );
-      },
+      onTap: selecting
+          ? onToggleSelected
+          : () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => PlotEditScreen(plotId: data.plot.id),
+                ),
+              );
+            },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: [
+            if (selecting) ...[
+              Checkbox(
+                value: selected,
+                onChanged: (_) => onToggleSelected?.call(),
+                activeColor: const Color(0xFF7A6FF0),
+              ),
+              const SizedBox(width: 4),
+            ],
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: data.plot.coverImagePath != null
@@ -708,14 +931,15 @@ class _PlotTile extends StatelessWidget {
                 ],
               ),
             ),
-            GestureDetector(
-              onTap: () => _showOptionsMenu(context),
-              child: const Icon(
-                Icons.more_vert,
-                color: Colors.white54,
-                size: 18,
+            if (!selecting)
+              GestureDetector(
+                onTap: () => _showOptionsMenu(context),
+                child: const Icon(
+                  Icons.more_vert,
+                  color: Colors.white54,
+                  size: 18,
+                ),
               ),
-            ),
           ],
         ),
       ),

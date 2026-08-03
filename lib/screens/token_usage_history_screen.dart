@@ -63,9 +63,13 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
     }
   }
 
-  String _providerOf(String baseUrl) {
-    final host = Uri.tryParse(baseUrl)?.host;
-    return (host == null || host.isEmpty) ? baseUrl : host;
+  /// OpenRouter처럼 여러 업스트림으로 라우팅하는 엔드포인트는 그 자신이 제공자가 아니므로,
+  /// 응답에서 캡처해둔 실제 라우팅 제공자명이 있으면 그걸 우선 쓰고, 없을 때만 baseUrl host로
+  /// 대체한다.
+  String _providerOf(TokenUsageLog log) {
+    if (log.provider != null && log.provider!.isNotEmpty) return log.provider!;
+    final host = Uri.tryParse(log.baseUrl)?.host;
+    return (host == null || host.isEmpty) ? log.baseUrl : host;
   }
 
   String _formatCost(double cost) {
@@ -133,7 +137,7 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) => _LogCard(
                 log: logs[index],
-                provider: _providerOf(logs[index].baseUrl),
+                provider: _providerOf(logs[index]),
                 formattedDate: _formatDate(logs[index].createdAt),
                 formatCost: _formatCost,
               ),

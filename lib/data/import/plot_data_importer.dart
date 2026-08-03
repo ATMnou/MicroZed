@@ -63,7 +63,14 @@ class PlotDataImporter {
     } catch (_) {
       throw PlotDataImportException('zip 파일을 읽지 못했어요. 손상되었거나 올바른 파일이 아니에요.');
     }
+    return importArchive(archive);
+  }
 
+  /// [importFromBytes]의 핵심 로직. 이미 디코딩된 [Archive]를 받아서 그대로 가져온다 -
+  /// `.mzpack`(여러 플롯 묶음)이 하나의 바깥 zip 안에 플롯별 `manifest.json`/`data.json`/
+  /// `images/*`를 서브 디렉터리로 담고 있을 때, 플롯 단위로 쪼갠 서브 [Archive]를 만들어
+  /// 이 메서드를 여러 번 호출하는 식으로 재사용한다([PlotPackageImporter] 참고).
+  Future<PlotDataImportResult> importArchive(Archive archive) async {
     final manifestFile = archive.findFile('manifest.json');
     final dataFile = archive.findFile('data.json');
     if (manifestFile == null || dataFile == null) {

@@ -289,4 +289,8 @@ class ChatSessionRepository {
   }
 
   Future<void> delete(int sessionId) => (_db.delete(_db.chatSessions)..where((s) => s.id.equals(sessionId))).go();
+
+  /// 대화 탭 다중 선택 삭제용. 여러 세션을 한 번에 지운다.
+  Future<void> deleteMany(Iterable<int> sessionIds) =>
+      (_db.delete(_db.chatSessions)..where((s) => s.id.isIn(sessionIds))).go();
 }

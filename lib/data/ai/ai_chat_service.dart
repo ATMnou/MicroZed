@@ -2,36 +2,52 @@ import 'dart:convert';
 
 import '../db/database.dart';
 import '../repositories/character_repository.dart';
+import '../repositories/chat_memory_repository.dart';
 import '../repositories/chat_turn_repository.dart';
 import '../repositories/lorebook_repository.dart';
 import '../repositories/plot_repository.dart';
 import '../repositories/token_usage_repository.dart';
 import '../secure/api_key_store.dart';
+import 'anthropic_client.dart';
 import 'local_llm/local_llm_engine.dart';
 import 'message_format_parser.dart';
 import 'openai_compatible_client.dart';
 import 'prompt_builder.dart';
 import 'system_prompt_store.dart';
 
+/// 스트리밍 생성을 도중에 멈출 수 있게 해주는 토큰. 채팅 화면에서 전송 버튼이 중지
+/// 버튼으로 바뀌었을 때 눌리면 [cancel]이 호출된다. `await for` 루프 안에서 매 델타마다
+/// [isCancelled]를 확인해 break하면, Dart가 하위 스트림 구독(HTTP 커넥션 포함)까지
+/// 알아서 정리해준다.
+class AiGenerationCancelToken {
+  bool _cancelled = false;
+  bool get isCancelled => _cancelled;
+  void cancel() => _cancelled = true;
+}
+
 /// 채팅 화면이 사용자의 메시지에 대한 AI 응답을 생성할 때 쓰는 오케스트레이터.
 /// 프롬프트 조립 → 스트리밍 요청 → 응답 파싱 → 턴/버전별 저장까지 담당한다.
 class AiChatService {
-  AiChatService({required AppDatabase db, OpenAiCompatibleClient? client})
+  AiChatService({required AppDatabase db, OpenAiCompatibleClient? client, AnthropicClient? anthropicClient})
       : _client = client ?? OpenAiCompatibleClient(),
+        _anthropicClient = anthropicClient ?? AnthropicClient(),
         _characterRepo = CharacterRepository(db),
         _plotRepo = PlotRepository(db),
         _turnRepo = ChatTurnRepository(db),
         _tokenUsageRepo = TokenUsageRepository(db),
         _lorebookRepo = LorebookRepository(db),
+        _memoryRepo = ChatMemoryRepository(db),
         _apiKeyStore = ApiKeyStore(),
         _systemPromptStore = SystemPromptStore();
 
   final OpenAiCompatibleClient _client;
+  final AnthropicClient _anthropicClient;
   final CharacterRepository _characterRepo;
   final PlotRepository _plotRepo;
   final ChatTurnRepository _turnRepo;
   final TokenUsageRepository _tokenUsageRepo;
   final LorebookRepository _lorebookRepo;
+  final ChatMemoryRepository _memoryRepo;
   final ApiKeyStore _apiKeyStore;
   final SystemPromptStore _systemPromptStore;
 
@@ -44,6 +60,7 @@ class AiChatService {
     String userProfileDescription = '',
     required void Function(String accumulatedText) onDelta,
     void Function(String reasoning)? onReasoning,
+    AiGenerationCancelToken? cancelToken,
   }) async {
     final turnId = await _turnRepo.createTurn(sessionId);
     await _generateVersion(
@@ -56,6 +73,7 @@ class AiChatService {
       versionIndex: 0,
       onDelta: onDelta,
       onReasoning: onReasoning,
+      cancelToken: cancelToken,
     );
   }
 
@@ -69,6 +87,7 @@ class AiChatService {
     required int turnId,
     required void Function(String accumulatedText) onDelta,
     void Function(String reasoning)? onReasoning,
+    AiGenerationCancelToken? cancelToken,
   }) async {
     final nextIndex = await _turnRepo.nextVersionIndex(turnId);
     await _generateVersion(
@@ -81,6 +100,7 @@ class AiChatService {
       versionIndex: nextIndex,
       onDelta: onDelta,
       onReasoning: onReasoning,
+      cancelToken: cancelToken,
     );
     await _turnRepo.setActiveVersion(turnId, nextIndex);
   }
@@ -97,6 +117,7 @@ class AiChatService {
     required String instruction,
     required void Function(String accumulatedText) onDelta,
     void Function(String reasoning)? onReasoning,
+    AiGenerationCancelToken? cancelToken,
   }) async {
     final turn = await _turnRepo.getTurn(turnId);
     if (turn == null) return;
@@ -115,6 +136,7 @@ class AiChatService {
       versionIndex: nextIndex,
       onDelta: onDelta,
       onReasoning: onReasoning,
+      cancelToken: cancelToken,
       extraMessages: [
         {'role': 'assistant', 'content': currentRawText},
         {'role': 'user', 'content': '방금 그 답변을 다음 지시에 따라 다시 써 주세요: ${instruction.trim()}'},
@@ -190,6 +212,29 @@ class AiChatService {
     return result;
   }
 
+  /// 세션/턴에 저장하지 않는 단발성 생성(플롯 AI 생성 등)에 쓰는 범용 호출.
+  /// 스트리밍을 다 모아서 완성된 텍스트만 돌려준다.
+  Future<String> completeOneShot({
+    required AiPreset preset,
+    required List<Map<String, String>> messages,
+    bool webSearch = false,
+  }) async {
+    final buffer = StringBuffer();
+    await for (final delta in _streamCompletion(preset: preset, messages: messages, webSearch: webSearch)) {
+      buffer.write(delta);
+    }
+    return buffer.toString().trim();
+  }
+
+  /// 네이티브 웹 검색을 켤 수 있는 조합인지(로컬 모델은 지원 안 함, 원격은 OpenRouter 또는
+  /// OpenAI 계열 OpenAI 호환 엔드포인트만 - Anthropic 형식은 이 앱에서 아직 별도 지원 안 함).
+  static bool supportsWebSearch(AiPreset preset) {
+    if (preset.isLocal) return false;
+    if (preset.endpointFormat == AiEndpointFormat.anthropic) return false;
+    final host = Uri.tryParse(preset.baseUrl)?.host.toLowerCase() ?? '';
+    return host.contains('openrouter.ai') || host.contains('openai.com');
+  }
+
   /// [generateSuggestions]/[summarizeSceneForSnapshot]가 공유하는 보조 호출.
   /// 지금까지의 대화 기록 + [instruction]을 전달해 스트리밍 응답을 그대로 넘긴다.
   Stream<String> _streamAuxCompletion({
@@ -234,6 +279,7 @@ class AiChatService {
     required List<Map<String, String>> messages,
     void Function(TokenUsage usage)? onUsage,
     void Function(String reasoning)? onReasoning,
+    bool webSearch = false,
   }) async* {
     if (preset.isLocal) {
       final source = preset.localModelSource;
@@ -258,6 +304,31 @@ class AiChatService {
     if (apiKey == null || apiKey.isEmpty) {
       throw StateError('선택한 프리셋에 API 키가 설정되어 있지 않아요.');
     }
+
+    if (preset.endpointFormat == AiEndpointFormat.anthropic) {
+      String? system;
+      final rest = <Map<String, String>>[];
+      for (final message in messages) {
+        if (message['role'] == 'system' && system == null) {
+          system = message['content'];
+        } else {
+          rest.add(message);
+        }
+      }
+      yield* _anthropicClient.streamMessages(
+        baseUrl: preset.baseUrl,
+        apiKey: apiKey,
+        model: preset.modelName,
+        system: system,
+        messages: rest,
+        temperature: preset.temperature,
+        maxTokens: preset.maxTokens,
+        onUsage: onUsage,
+        onReasoning: onReasoning,
+      );
+      return;
+    }
+
     yield* _client.streamChatCompletion(
       baseUrl: preset.baseUrl,
       apiKey: apiKey,
@@ -267,6 +338,10 @@ class AiChatService {
       topK: preset.topK,
       maxTokens: preset.maxTokens,
       reasoningEffort: preset.reasoningEffort,
+      openRouterZdrOnly: preset.openRouterZdrOnly,
+      openRouterExcludeChinaProviders: preset.openRouterExcludeChinaProviders,
+      openRouterExcludeTrainingProviders: preset.openRouterExcludeTrainingProviders,
+      webSearch: webSearch,
       onUsage: onUsage,
       onReasoning: onReasoning,
     );
@@ -288,6 +363,52 @@ class AiChatService {
     return const [];
   }
 
+  /// [PromptBuilder.buildHistoryMessages]가 `contextLength`를 넘는 오래된 메시지를 그냥
+  /// 잘라내기만 하는 것과 별개로, 잘려나가는 구간을 장기 기억(요약)으로 남겨서 시스템
+  /// 프롬프트에 얹어준다. 잘리는 경계가 이전과 같으면(대부분의 턴이 그렇다) 저장된 요약을
+  /// 그대로 재사용하고, 경계가 더 늘어났을 때만 잘려나간 구간 전체를 다시 요약한다
+  /// (요약을 요약하는 식으로 점점 부정확해지는 걸 피하려고, 매번 원본 대화에서 다시 만든다).
+  Future<String?> _ensureMemorySummary({
+    required int sessionId,
+    required AiPreset preset,
+    required List<ChatMessage> history,
+    required List<Character> characters,
+  }) async {
+    final contextLength = preset.contextLength;
+    if (contextLength == null || contextLength <= 0) return null;
+
+    final withoutImages = history.where((m) => m.senderType != MessageSender.image).toList();
+    if (withoutImages.length <= contextLength) return null;
+
+    final droppedCount = withoutImages.length - contextLength;
+    final dropped = withoutImages.sublist(0, droppedCount);
+    final lastDroppedId = dropped.last.id;
+
+    final existing = await _memoryRepo.getForSession(sessionId);
+    if (existing != null && existing.coveredUpToMessageId == lastDroppedId) {
+      return existing.summaryText;
+    }
+
+    final droppedText = PromptBuilder.reconstructRawText(messages: dropped, characters: characters);
+    final summary = await _summarizeHistory(preset, droppedText);
+    await _memoryRepo.upsert(sessionId: sessionId, coveredUpToMessageId: lastDroppedId, summaryText: summary);
+    return summary;
+  }
+
+  Future<String> _summarizeHistory(AiPreset preset, String rawText) async {
+    final messages = <Map<String, String>>[
+      {
+        'role': 'system',
+        'content': '너는 롤플레이 채팅의 오래된 대화 기록을 요약하는 도우미야. 아래 대화 기록을 앞으로 이어질 롤플레이에 '
+            '필요한 핵심 사실/설정/관계 변화 위주로 5~10문장 정도로 압축해줘. 대화체가 아니라 요약문으로 쓰고, '
+            '다른 설명 없이 요약 내용만 출력해.',
+      },
+      {'role': 'user', 'content': rawText},
+    ];
+    final summary = await completeOneShot(preset: preset, messages: messages);
+    return summary.isEmpty ? '(요약 실패)' : summary;
+  }
+
   Future<void> _generateVersion({
     required int sessionId,
     required int plotId,
@@ -298,6 +419,7 @@ class AiChatService {
     required int versionIndex,
     required void Function(String accumulatedText) onDelta,
     void Function(String reasoning)? onReasoning,
+    AiGenerationCancelToken? cancelToken,
     List<Map<String, String>> extraMessages = const [],
   }) async {
     final plot = await _plotRepo.getById(plotId);
@@ -306,6 +428,12 @@ class AiChatService {
     final conversationText = history.map((m) => m.content).join('\n');
     final loreContext = await _lorebookRepo.buildLoreContext(plotId, conversationText);
     final customTemplate = await _systemPromptStore.read();
+    final memorySummary = await _ensureMemorySummary(
+      sessionId: sessionId,
+      preset: preset,
+      history: history,
+      characters: characters,
+    );
 
     final systemPrompt = PromptBuilder.buildSystemPrompt(
       plot: plot,
@@ -318,6 +446,7 @@ class AiChatService {
     );
     final messages = <Map<String, String>>[
       {'role': 'system', 'content': systemPrompt},
+      if (memorySummary != null) {'role': 'system', 'content': '이전 대화 요약:\n$memorySummary'},
       ...PromptBuilder.buildHistoryMessages(
         history: history,
         characters: characters,
@@ -336,6 +465,7 @@ class AiChatService {
     )) {
       buffer.write(delta);
       onDelta(buffer.toString());
+      if (cancelToken?.isCancelled == true) break;
     }
 
     if (usage != null) {
@@ -346,6 +476,7 @@ class AiChatService {
         promptTokens: usage!.promptTokens,
         completionTokens: usage!.completionTokens,
         costUsd: usage!.costUsd,
+        provider: usage!.provider,
       );
     }
 

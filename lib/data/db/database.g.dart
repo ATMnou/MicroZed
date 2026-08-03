@@ -3000,6 +3000,76 @@ class $AiPresetsTable extends AiPresets
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _openRouterZdrOnlyMeta = const VerificationMeta(
+    'openRouterZdrOnly',
+  );
+  @override
+  late final GeneratedColumn<bool> openRouterZdrOnly = GeneratedColumn<bool>(
+    'open_router_zdr_only',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("open_router_zdr_only" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _openRouterExcludeChinaProvidersMeta =
+      const VerificationMeta('openRouterExcludeChinaProviders');
+  @override
+  late final GeneratedColumn<bool> openRouterExcludeChinaProviders =
+      GeneratedColumn<bool>(
+        'open_router_exclude_china_providers',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("open_router_exclude_china_providers" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  static const VerificationMeta _openRouterExcludeTrainingProvidersMeta =
+      const VerificationMeta('openRouterExcludeTrainingProviders');
+  @override
+  late final GeneratedColumn<bool> openRouterExcludeTrainingProviders =
+      GeneratedColumn<bool>(
+        'open_router_exclude_training_providers',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("open_router_exclude_training_providers" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<AiEndpointFormat, int>
+  endpointFormat = GeneratedColumn<int>(
+    'endpoint_format',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  ).withConverter<AiEndpointFormat>($AiPresetsTable.$converterendpointFormat);
+  static const VerificationMeta _supportsVisionMeta = const VerificationMeta(
+    'supportsVision',
+  );
+  @override
+  late final GeneratedColumn<bool> supportsVision = GeneratedColumn<bool>(
+    'supports_vision',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("supports_vision" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3019,6 +3089,11 @@ class $AiPresetsTable extends AiPresets
     isLocal,
     reasoningEffort,
     localModelSource,
+    openRouterZdrOnly,
+    openRouterExcludeChinaProviders,
+    openRouterExcludeTrainingProviders,
+    endpointFormat,
+    supportsVision,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3155,6 +3230,42 @@ class $AiPresetsTable extends AiPresets
         ),
       );
     }
+    if (data.containsKey('open_router_zdr_only')) {
+      context.handle(
+        _openRouterZdrOnlyMeta,
+        openRouterZdrOnly.isAcceptableOrUnknown(
+          data['open_router_zdr_only']!,
+          _openRouterZdrOnlyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('open_router_exclude_china_providers')) {
+      context.handle(
+        _openRouterExcludeChinaProvidersMeta,
+        openRouterExcludeChinaProviders.isAcceptableOrUnknown(
+          data['open_router_exclude_china_providers']!,
+          _openRouterExcludeChinaProvidersMeta,
+        ),
+      );
+    }
+    if (data.containsKey('open_router_exclude_training_providers')) {
+      context.handle(
+        _openRouterExcludeTrainingProvidersMeta,
+        openRouterExcludeTrainingProviders.isAcceptableOrUnknown(
+          data['open_router_exclude_training_providers']!,
+          _openRouterExcludeTrainingProvidersMeta,
+        ),
+      );
+    }
+    if (data.containsKey('supports_vision')) {
+      context.handle(
+        _supportsVisionMeta,
+        supportsVision.isAcceptableOrUnknown(
+          data['supports_vision']!,
+          _supportsVisionMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3232,6 +3343,28 @@ class $AiPresetsTable extends AiPresets
         DriftSqlType.string,
         data['${effectivePrefix}local_model_source'],
       ),
+      openRouterZdrOnly: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}open_router_zdr_only'],
+      )!,
+      openRouterExcludeChinaProviders: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}open_router_exclude_china_providers'],
+      )!,
+      openRouterExcludeTrainingProviders: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}open_router_exclude_training_providers'],
+      )!,
+      endpointFormat: $AiPresetsTable.$converterendpointFormat.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}endpoint_format'],
+        )!,
+      ),
+      supportsVision: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}supports_vision'],
+      )!,
     );
   }
 
@@ -3239,6 +3372,11 @@ class $AiPresetsTable extends AiPresets
   $AiPresetsTable createAlias(String alias) {
     return $AiPresetsTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<AiEndpointFormat, int, int>
+  $converterendpointFormat = const EnumIndexConverter<AiEndpointFormat>(
+    AiEndpointFormat.values,
+  );
 }
 
 class AiPreset extends DataClass implements Insertable<AiPreset> {
@@ -3273,6 +3411,25 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
 
   /// 로컬 모델의 위치. `hf://...` (다운로드 후 캐시된 모델) 또는 로컬 파일 경로.
   final String? localModelSource;
+
+  /// 아래 3개는 baseUrl이 openrouter.ai일 때만 UI에 노출되는 OpenRouter 전용 라우팅 옵션.
+  /// OpenRouter의 `provider` 요청 필드로 그대로 실어 보낸다.
+  /// ZDR(Zero Data Retention) 정책을 지키는 제공자로만 라우팅을 강제한다.
+  final bool openRouterZdrOnly;
+
+  /// 알려진 중국 소재 제공자(알리바바 등)를 라우팅에서 제외한다.
+  final bool openRouterExcludeChinaProviders;
+
+  /// 요청 데이터를 학습에 활용할 수 있는 제공자를 라우팅에서 제외한다.
+  final bool openRouterExcludeTrainingProviders;
+
+  /// 기본값(openAiCompatible)이면 기존과 동일하게 동작한다. [isLocal]이 true면 이 값은
+  /// 무시되고 로컬 llama.cpp 엔진으로 라우팅된다.
+  final AiEndpointFormat endpointFormat;
+
+  /// ZedTalk에서 이미지 첨부를 실제로 모델에 보낼지. 사용자가 고른 모델이 비전을
+  /// 지원하는지 앱이 자동으로 알 방법이 없어서(모델명만으로는 신뢰할 수 없음) 수동 토글이다.
+  final bool supportsVision;
   const AiPreset({
     required this.id,
     required this.name,
@@ -3291,6 +3448,11 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
     required this.isLocal,
     this.reasoningEffort,
     this.localModelSource,
+    required this.openRouterZdrOnly,
+    required this.openRouterExcludeChinaProviders,
+    required this.openRouterExcludeTrainingProviders,
+    required this.endpointFormat,
+    required this.supportsVision,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3324,6 +3486,19 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
     if (!nullToAbsent || localModelSource != null) {
       map['local_model_source'] = Variable<String>(localModelSource);
     }
+    map['open_router_zdr_only'] = Variable<bool>(openRouterZdrOnly);
+    map['open_router_exclude_china_providers'] = Variable<bool>(
+      openRouterExcludeChinaProviders,
+    );
+    map['open_router_exclude_training_providers'] = Variable<bool>(
+      openRouterExcludeTrainingProviders,
+    );
+    {
+      map['endpoint_format'] = Variable<int>(
+        $AiPresetsTable.$converterendpointFormat.toSql(endpointFormat),
+      );
+    }
+    map['supports_vision'] = Variable<bool>(supportsVision);
     return map;
   }
 
@@ -3356,6 +3531,13 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
       localModelSource: localModelSource == null && nullToAbsent
           ? const Value.absent()
           : Value(localModelSource),
+      openRouterZdrOnly: Value(openRouterZdrOnly),
+      openRouterExcludeChinaProviders: Value(openRouterExcludeChinaProviders),
+      openRouterExcludeTrainingProviders: Value(
+        openRouterExcludeTrainingProviders,
+      ),
+      endpointFormat: Value(endpointFormat),
+      supportsVision: Value(supportsVision),
     );
   }
 
@@ -3384,6 +3566,17 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
       isLocal: serializer.fromJson<bool>(json['isLocal']),
       reasoningEffort: serializer.fromJson<String?>(json['reasoningEffort']),
       localModelSource: serializer.fromJson<String?>(json['localModelSource']),
+      openRouterZdrOnly: serializer.fromJson<bool>(json['openRouterZdrOnly']),
+      openRouterExcludeChinaProviders: serializer.fromJson<bool>(
+        json['openRouterExcludeChinaProviders'],
+      ),
+      openRouterExcludeTrainingProviders: serializer.fromJson<bool>(
+        json['openRouterExcludeTrainingProviders'],
+      ),
+      endpointFormat: $AiPresetsTable.$converterendpointFormat.fromJson(
+        serializer.fromJson<int>(json['endpointFormat']),
+      ),
+      supportsVision: serializer.fromJson<bool>(json['supportsVision']),
     );
   }
   @override
@@ -3409,6 +3602,17 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
       'isLocal': serializer.toJson<bool>(isLocal),
       'reasoningEffort': serializer.toJson<String?>(reasoningEffort),
       'localModelSource': serializer.toJson<String?>(localModelSource),
+      'openRouterZdrOnly': serializer.toJson<bool>(openRouterZdrOnly),
+      'openRouterExcludeChinaProviders': serializer.toJson<bool>(
+        openRouterExcludeChinaProviders,
+      ),
+      'openRouterExcludeTrainingProviders': serializer.toJson<bool>(
+        openRouterExcludeTrainingProviders,
+      ),
+      'endpointFormat': serializer.toJson<int>(
+        $AiPresetsTable.$converterendpointFormat.toJson(endpointFormat),
+      ),
+      'supportsVision': serializer.toJson<bool>(supportsVision),
     };
   }
 
@@ -3430,6 +3634,11 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
     bool? isLocal,
     Value<String?> reasoningEffort = const Value.absent(),
     Value<String?> localModelSource = const Value.absent(),
+    bool? openRouterZdrOnly,
+    bool? openRouterExcludeChinaProviders,
+    bool? openRouterExcludeTrainingProviders,
+    AiEndpointFormat? endpointFormat,
+    bool? supportsVision,
   }) => AiPreset(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -3455,6 +3664,14 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
     localModelSource: localModelSource.present
         ? localModelSource.value
         : this.localModelSource,
+    openRouterZdrOnly: openRouterZdrOnly ?? this.openRouterZdrOnly,
+    openRouterExcludeChinaProviders:
+        openRouterExcludeChinaProviders ?? this.openRouterExcludeChinaProviders,
+    openRouterExcludeTrainingProviders:
+        openRouterExcludeTrainingProviders ??
+        this.openRouterExcludeTrainingProviders,
+    endpointFormat: endpointFormat ?? this.endpointFormat,
+    supportsVision: supportsVision ?? this.supportsVision,
   );
   AiPreset copyWithCompanion(AiPresetsCompanion data) {
     return AiPreset(
@@ -3487,6 +3704,23 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
       localModelSource: data.localModelSource.present
           ? data.localModelSource.value
           : this.localModelSource,
+      openRouterZdrOnly: data.openRouterZdrOnly.present
+          ? data.openRouterZdrOnly.value
+          : this.openRouterZdrOnly,
+      openRouterExcludeChinaProviders:
+          data.openRouterExcludeChinaProviders.present
+          ? data.openRouterExcludeChinaProviders.value
+          : this.openRouterExcludeChinaProviders,
+      openRouterExcludeTrainingProviders:
+          data.openRouterExcludeTrainingProviders.present
+          ? data.openRouterExcludeTrainingProviders.value
+          : this.openRouterExcludeTrainingProviders,
+      endpointFormat: data.endpointFormat.present
+          ? data.endpointFormat.value
+          : this.endpointFormat,
+      supportsVision: data.supportsVision.present
+          ? data.supportsVision.value
+          : this.supportsVision,
     );
   }
 
@@ -3509,13 +3743,22 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
           ..write('additionalSystemPrompt: $additionalSystemPrompt, ')
           ..write('isLocal: $isLocal, ')
           ..write('reasoningEffort: $reasoningEffort, ')
-          ..write('localModelSource: $localModelSource')
+          ..write('localModelSource: $localModelSource, ')
+          ..write('openRouterZdrOnly: $openRouterZdrOnly, ')
+          ..write(
+            'openRouterExcludeChinaProviders: $openRouterExcludeChinaProviders, ',
+          )
+          ..write(
+            'openRouterExcludeTrainingProviders: $openRouterExcludeTrainingProviders, ',
+          )
+          ..write('endpointFormat: $endpointFormat, ')
+          ..write('supportsVision: $supportsVision')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     name,
     description,
@@ -3533,7 +3776,12 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
     isLocal,
     reasoningEffort,
     localModelSource,
-  );
+    openRouterZdrOnly,
+    openRouterExcludeChinaProviders,
+    openRouterExcludeTrainingProviders,
+    endpointFormat,
+    supportsVision,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3554,7 +3802,14 @@ class AiPreset extends DataClass implements Insertable<AiPreset> {
           other.additionalSystemPrompt == this.additionalSystemPrompt &&
           other.isLocal == this.isLocal &&
           other.reasoningEffort == this.reasoningEffort &&
-          other.localModelSource == this.localModelSource);
+          other.localModelSource == this.localModelSource &&
+          other.openRouterZdrOnly == this.openRouterZdrOnly &&
+          other.openRouterExcludeChinaProviders ==
+              this.openRouterExcludeChinaProviders &&
+          other.openRouterExcludeTrainingProviders ==
+              this.openRouterExcludeTrainingProviders &&
+          other.endpointFormat == this.endpointFormat &&
+          other.supportsVision == this.supportsVision);
 }
 
 class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
@@ -3575,6 +3830,11 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
   final Value<bool> isLocal;
   final Value<String?> reasoningEffort;
   final Value<String?> localModelSource;
+  final Value<bool> openRouterZdrOnly;
+  final Value<bool> openRouterExcludeChinaProviders;
+  final Value<bool> openRouterExcludeTrainingProviders;
+  final Value<AiEndpointFormat> endpointFormat;
+  final Value<bool> supportsVision;
   const AiPresetsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -3593,6 +3853,11 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     this.isLocal = const Value.absent(),
     this.reasoningEffort = const Value.absent(),
     this.localModelSource = const Value.absent(),
+    this.openRouterZdrOnly = const Value.absent(),
+    this.openRouterExcludeChinaProviders = const Value.absent(),
+    this.openRouterExcludeTrainingProviders = const Value.absent(),
+    this.endpointFormat = const Value.absent(),
+    this.supportsVision = const Value.absent(),
   });
   AiPresetsCompanion.insert({
     this.id = const Value.absent(),
@@ -3612,6 +3877,11 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     this.isLocal = const Value.absent(),
     this.reasoningEffort = const Value.absent(),
     this.localModelSource = const Value.absent(),
+    this.openRouterZdrOnly = const Value.absent(),
+    this.openRouterExcludeChinaProviders = const Value.absent(),
+    this.openRouterExcludeTrainingProviders = const Value.absent(),
+    this.endpointFormat = const Value.absent(),
+    this.supportsVision = const Value.absent(),
   }) : name = Value(name),
        baseUrl = Value(baseUrl),
        modelName = Value(modelName);
@@ -3633,6 +3903,11 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     Expression<bool>? isLocal,
     Expression<String>? reasoningEffort,
     Expression<String>? localModelSource,
+    Expression<bool>? openRouterZdrOnly,
+    Expression<bool>? openRouterExcludeChinaProviders,
+    Expression<bool>? openRouterExcludeTrainingProviders,
+    Expression<int>? endpointFormat,
+    Expression<bool>? supportsVision,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3653,6 +3928,14 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
       if (isLocal != null) 'is_local': isLocal,
       if (reasoningEffort != null) 'reasoning_effort': reasoningEffort,
       if (localModelSource != null) 'local_model_source': localModelSource,
+      if (openRouterZdrOnly != null) 'open_router_zdr_only': openRouterZdrOnly,
+      if (openRouterExcludeChinaProviders != null)
+        'open_router_exclude_china_providers': openRouterExcludeChinaProviders,
+      if (openRouterExcludeTrainingProviders != null)
+        'open_router_exclude_training_providers':
+            openRouterExcludeTrainingProviders,
+      if (endpointFormat != null) 'endpoint_format': endpointFormat,
+      if (supportsVision != null) 'supports_vision': supportsVision,
     });
   }
 
@@ -3674,6 +3957,11 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     Value<bool>? isLocal,
     Value<String?>? reasoningEffort,
     Value<String?>? localModelSource,
+    Value<bool>? openRouterZdrOnly,
+    Value<bool>? openRouterExcludeChinaProviders,
+    Value<bool>? openRouterExcludeTrainingProviders,
+    Value<AiEndpointFormat>? endpointFormat,
+    Value<bool>? supportsVision,
   }) {
     return AiPresetsCompanion(
       id: id ?? this.id,
@@ -3694,6 +3982,15 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
       isLocal: isLocal ?? this.isLocal,
       reasoningEffort: reasoningEffort ?? this.reasoningEffort,
       localModelSource: localModelSource ?? this.localModelSource,
+      openRouterZdrOnly: openRouterZdrOnly ?? this.openRouterZdrOnly,
+      openRouterExcludeChinaProviders:
+          openRouterExcludeChinaProviders ??
+          this.openRouterExcludeChinaProviders,
+      openRouterExcludeTrainingProviders:
+          openRouterExcludeTrainingProviders ??
+          this.openRouterExcludeTrainingProviders,
+      endpointFormat: endpointFormat ?? this.endpointFormat,
+      supportsVision: supportsVision ?? this.supportsVision,
     );
   }
 
@@ -3753,6 +4050,27 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
     if (localModelSource.present) {
       map['local_model_source'] = Variable<String>(localModelSource.value);
     }
+    if (openRouterZdrOnly.present) {
+      map['open_router_zdr_only'] = Variable<bool>(openRouterZdrOnly.value);
+    }
+    if (openRouterExcludeChinaProviders.present) {
+      map['open_router_exclude_china_providers'] = Variable<bool>(
+        openRouterExcludeChinaProviders.value,
+      );
+    }
+    if (openRouterExcludeTrainingProviders.present) {
+      map['open_router_exclude_training_providers'] = Variable<bool>(
+        openRouterExcludeTrainingProviders.value,
+      );
+    }
+    if (endpointFormat.present) {
+      map['endpoint_format'] = Variable<int>(
+        $AiPresetsTable.$converterendpointFormat.toSql(endpointFormat.value),
+      );
+    }
+    if (supportsVision.present) {
+      map['supports_vision'] = Variable<bool>(supportsVision.value);
+    }
     return map;
   }
 
@@ -3775,7 +4093,16 @@ class AiPresetsCompanion extends UpdateCompanion<AiPreset> {
           ..write('additionalSystemPrompt: $additionalSystemPrompt, ')
           ..write('isLocal: $isLocal, ')
           ..write('reasoningEffort: $reasoningEffort, ')
-          ..write('localModelSource: $localModelSource')
+          ..write('localModelSource: $localModelSource, ')
+          ..write('openRouterZdrOnly: $openRouterZdrOnly, ')
+          ..write(
+            'openRouterExcludeChinaProviders: $openRouterExcludeChinaProviders, ',
+          )
+          ..write(
+            'openRouterExcludeTrainingProviders: $openRouterExcludeTrainingProviders, ',
+          )
+          ..write('endpointFormat: $endpointFormat, ')
+          ..write('supportsVision: $supportsVision')
           ..write(')'))
         .toString();
   }
@@ -5378,6 +5705,1261 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
   }
 }
 
+class $ChatMemorySummariesTable extends ChatMemorySummaries
+    with TableInfo<$ChatMemorySummariesTable, ChatMemorySummary> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChatMemorySummariesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<int> sessionId = GeneratedColumn<int>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES chat_sessions (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _coveredUpToMessageIdMeta =
+      const VerificationMeta('coveredUpToMessageId');
+  @override
+  late final GeneratedColumn<int> coveredUpToMessageId = GeneratedColumn<int>(
+    'covered_up_to_message_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _summaryTextMeta = const VerificationMeta(
+    'summaryText',
+  );
+  @override
+  late final GeneratedColumn<String> summaryText = GeneratedColumn<String>(
+    'summary_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sessionId,
+    coveredUpToMessageId,
+    summaryText,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'chat_memory_summaries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ChatMemorySummary> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('covered_up_to_message_id')) {
+      context.handle(
+        _coveredUpToMessageIdMeta,
+        coveredUpToMessageId.isAcceptableOrUnknown(
+          data['covered_up_to_message_id']!,
+          _coveredUpToMessageIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_coveredUpToMessageIdMeta);
+    }
+    if (data.containsKey('summary_text')) {
+      context.handle(
+        _summaryTextMeta,
+        summaryText.isAcceptableOrUnknown(
+          data['summary_text']!,
+          _summaryTextMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_summaryTextMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChatMemorySummary map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChatMemorySummary(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}session_id'],
+      )!,
+      coveredUpToMessageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}covered_up_to_message_id'],
+      )!,
+      summaryText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}summary_text'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ChatMemorySummariesTable createAlias(String alias) {
+    return $ChatMemorySummariesTable(attachedDatabase, alias);
+  }
+}
+
+class ChatMemorySummary extends DataClass
+    implements Insertable<ChatMemorySummary> {
+  final int id;
+  final int sessionId;
+  final int coveredUpToMessageId;
+  final String summaryText;
+  final DateTime updatedAt;
+  const ChatMemorySummary({
+    required this.id,
+    required this.sessionId,
+    required this.coveredUpToMessageId,
+    required this.summaryText,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['session_id'] = Variable<int>(sessionId);
+    map['covered_up_to_message_id'] = Variable<int>(coveredUpToMessageId);
+    map['summary_text'] = Variable<String>(summaryText);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  ChatMemorySummariesCompanion toCompanion(bool nullToAbsent) {
+    return ChatMemorySummariesCompanion(
+      id: Value(id),
+      sessionId: Value(sessionId),
+      coveredUpToMessageId: Value(coveredUpToMessageId),
+      summaryText: Value(summaryText),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ChatMemorySummary.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChatMemorySummary(
+      id: serializer.fromJson<int>(json['id']),
+      sessionId: serializer.fromJson<int>(json['sessionId']),
+      coveredUpToMessageId: serializer.fromJson<int>(
+        json['coveredUpToMessageId'],
+      ),
+      summaryText: serializer.fromJson<String>(json['summaryText']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'sessionId': serializer.toJson<int>(sessionId),
+      'coveredUpToMessageId': serializer.toJson<int>(coveredUpToMessageId),
+      'summaryText': serializer.toJson<String>(summaryText),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  ChatMemorySummary copyWith({
+    int? id,
+    int? sessionId,
+    int? coveredUpToMessageId,
+    String? summaryText,
+    DateTime? updatedAt,
+  }) => ChatMemorySummary(
+    id: id ?? this.id,
+    sessionId: sessionId ?? this.sessionId,
+    coveredUpToMessageId: coveredUpToMessageId ?? this.coveredUpToMessageId,
+    summaryText: summaryText ?? this.summaryText,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  ChatMemorySummary copyWithCompanion(ChatMemorySummariesCompanion data) {
+    return ChatMemorySummary(
+      id: data.id.present ? data.id.value : this.id,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      coveredUpToMessageId: data.coveredUpToMessageId.present
+          ? data.coveredUpToMessageId.value
+          : this.coveredUpToMessageId,
+      summaryText: data.summaryText.present
+          ? data.summaryText.value
+          : this.summaryText,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChatMemorySummary(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('coveredUpToMessageId: $coveredUpToMessageId, ')
+          ..write('summaryText: $summaryText, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, sessionId, coveredUpToMessageId, summaryText, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChatMemorySummary &&
+          other.id == this.id &&
+          other.sessionId == this.sessionId &&
+          other.coveredUpToMessageId == this.coveredUpToMessageId &&
+          other.summaryText == this.summaryText &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ChatMemorySummariesCompanion extends UpdateCompanion<ChatMemorySummary> {
+  final Value<int> id;
+  final Value<int> sessionId;
+  final Value<int> coveredUpToMessageId;
+  final Value<String> summaryText;
+  final Value<DateTime> updatedAt;
+  const ChatMemorySummariesCompanion({
+    this.id = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.coveredUpToMessageId = const Value.absent(),
+    this.summaryText = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  ChatMemorySummariesCompanion.insert({
+    this.id = const Value.absent(),
+    required int sessionId,
+    required int coveredUpToMessageId,
+    required String summaryText,
+    this.updatedAt = const Value.absent(),
+  }) : sessionId = Value(sessionId),
+       coveredUpToMessageId = Value(coveredUpToMessageId),
+       summaryText = Value(summaryText);
+  static Insertable<ChatMemorySummary> custom({
+    Expression<int>? id,
+    Expression<int>? sessionId,
+    Expression<int>? coveredUpToMessageId,
+    Expression<String>? summaryText,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sessionId != null) 'session_id': sessionId,
+      if (coveredUpToMessageId != null)
+        'covered_up_to_message_id': coveredUpToMessageId,
+      if (summaryText != null) 'summary_text': summaryText,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  ChatMemorySummariesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? sessionId,
+    Value<int>? coveredUpToMessageId,
+    Value<String>? summaryText,
+    Value<DateTime>? updatedAt,
+  }) {
+    return ChatMemorySummariesCompanion(
+      id: id ?? this.id,
+      sessionId: sessionId ?? this.sessionId,
+      coveredUpToMessageId: coveredUpToMessageId ?? this.coveredUpToMessageId,
+      summaryText: summaryText ?? this.summaryText,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<int>(sessionId.value);
+    }
+    if (coveredUpToMessageId.present) {
+      map['covered_up_to_message_id'] = Variable<int>(
+        coveredUpToMessageId.value,
+      );
+    }
+    if (summaryText.present) {
+      map['summary_text'] = Variable<String>(summaryText.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChatMemorySummariesCompanion(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('coveredUpToMessageId: $coveredUpToMessageId, ')
+          ..write('summaryText: $summaryText, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TalkSessionsTable extends TalkSessions
+    with TableInfo<$TalkSessionsTable, TalkSession> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TalkSessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _plotIdMeta = const VerificationMeta('plotId');
+  @override
+  late final GeneratedColumn<int> plotId = GeneratedColumn<int>(
+    'plot_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES plots (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _presetIdMeta = const VerificationMeta(
+    'presetId',
+  );
+  @override
+  late final GeneratedColumn<int> presetId = GeneratedColumn<int>(
+    'preset_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES ai_presets (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _pinnedMeta = const VerificationMeta('pinned');
+  @override
+  late final GeneratedColumn<bool> pinned = GeneratedColumn<bool>(
+    'pinned',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pinned" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    plotId,
+    presetId,
+    pinned,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'talk_sessions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TalkSession> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('plot_id')) {
+      context.handle(
+        _plotIdMeta,
+        plotId.isAcceptableOrUnknown(data['plot_id']!, _plotIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_plotIdMeta);
+    }
+    if (data.containsKey('preset_id')) {
+      context.handle(
+        _presetIdMeta,
+        presetId.isAcceptableOrUnknown(data['preset_id']!, _presetIdMeta),
+      );
+    }
+    if (data.containsKey('pinned')) {
+      context.handle(
+        _pinnedMeta,
+        pinned.isAcceptableOrUnknown(data['pinned']!, _pinnedMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TalkSession map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TalkSession(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      plotId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}plot_id'],
+      )!,
+      presetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}preset_id'],
+      ),
+      pinned: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pinned'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TalkSessionsTable createAlias(String alias) {
+    return $TalkSessionsTable(attachedDatabase, alias);
+  }
+}
+
+class TalkSession extends DataClass implements Insertable<TalkSession> {
+  final int id;
+  final int plotId;
+  final int? presetId;
+  final bool pinned;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const TalkSession({
+    required this.id,
+    required this.plotId,
+    this.presetId,
+    required this.pinned,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['plot_id'] = Variable<int>(plotId);
+    if (!nullToAbsent || presetId != null) {
+      map['preset_id'] = Variable<int>(presetId);
+    }
+    map['pinned'] = Variable<bool>(pinned);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  TalkSessionsCompanion toCompanion(bool nullToAbsent) {
+    return TalkSessionsCompanion(
+      id: Value(id),
+      plotId: Value(plotId),
+      presetId: presetId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(presetId),
+      pinned: Value(pinned),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory TalkSession.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TalkSession(
+      id: serializer.fromJson<int>(json['id']),
+      plotId: serializer.fromJson<int>(json['plotId']),
+      presetId: serializer.fromJson<int?>(json['presetId']),
+      pinned: serializer.fromJson<bool>(json['pinned']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'plotId': serializer.toJson<int>(plotId),
+      'presetId': serializer.toJson<int?>(presetId),
+      'pinned': serializer.toJson<bool>(pinned),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  TalkSession copyWith({
+    int? id,
+    int? plotId,
+    Value<int?> presetId = const Value.absent(),
+    bool? pinned,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => TalkSession(
+    id: id ?? this.id,
+    plotId: plotId ?? this.plotId,
+    presetId: presetId.present ? presetId.value : this.presetId,
+    pinned: pinned ?? this.pinned,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  TalkSession copyWithCompanion(TalkSessionsCompanion data) {
+    return TalkSession(
+      id: data.id.present ? data.id.value : this.id,
+      plotId: data.plotId.present ? data.plotId.value : this.plotId,
+      presetId: data.presetId.present ? data.presetId.value : this.presetId,
+      pinned: data.pinned.present ? data.pinned.value : this.pinned,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TalkSession(')
+          ..write('id: $id, ')
+          ..write('plotId: $plotId, ')
+          ..write('presetId: $presetId, ')
+          ..write('pinned: $pinned, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, plotId, presetId, pinned, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TalkSession &&
+          other.id == this.id &&
+          other.plotId == this.plotId &&
+          other.presetId == this.presetId &&
+          other.pinned == this.pinned &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
+  final Value<int> id;
+  final Value<int> plotId;
+  final Value<int?> presetId;
+  final Value<bool> pinned;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const TalkSessionsCompanion({
+    this.id = const Value.absent(),
+    this.plotId = const Value.absent(),
+    this.presetId = const Value.absent(),
+    this.pinned = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  TalkSessionsCompanion.insert({
+    this.id = const Value.absent(),
+    required int plotId,
+    this.presetId = const Value.absent(),
+    this.pinned = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : plotId = Value(plotId);
+  static Insertable<TalkSession> custom({
+    Expression<int>? id,
+    Expression<int>? plotId,
+    Expression<int>? presetId,
+    Expression<bool>? pinned,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (plotId != null) 'plot_id': plotId,
+      if (presetId != null) 'preset_id': presetId,
+      if (pinned != null) 'pinned': pinned,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  TalkSessionsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? plotId,
+    Value<int?>? presetId,
+    Value<bool>? pinned,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return TalkSessionsCompanion(
+      id: id ?? this.id,
+      plotId: plotId ?? this.plotId,
+      presetId: presetId ?? this.presetId,
+      pinned: pinned ?? this.pinned,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (plotId.present) {
+      map['plot_id'] = Variable<int>(plotId.value);
+    }
+    if (presetId.present) {
+      map['preset_id'] = Variable<int>(presetId.value);
+    }
+    if (pinned.present) {
+      map['pinned'] = Variable<bool>(pinned.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TalkSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('plotId: $plotId, ')
+          ..write('presetId: $presetId, ')
+          ..write('pinned: $pinned, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TalkMessagesTable extends TalkMessages
+    with TableInfo<$TalkMessagesTable, TalkMessage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TalkMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<int> sessionId = GeneratedColumn<int>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES talk_sessions (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TalkMessageSender, int> sender =
+      GeneratedColumn<int>(
+        'sender',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<TalkMessageSender>($TalkMessagesTable.$convertersender);
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _attachmentPathMeta = const VerificationMeta(
+    'attachmentPath',
+  );
+  @override
+  late final GeneratedColumn<String> attachmentPath = GeneratedColumn<String>(
+    'attachment_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TalkAttachmentType?, int>
+  attachmentType =
+      GeneratedColumn<int>(
+        'attachment_type',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<TalkAttachmentType?>(
+        $TalkMessagesTable.$converterattachmentTypen,
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sessionId,
+    sender,
+    content,
+    attachmentPath,
+    attachmentType,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'talk_messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TalkMessage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    }
+    if (data.containsKey('attachment_path')) {
+      context.handle(
+        _attachmentPathMeta,
+        attachmentPath.isAcceptableOrUnknown(
+          data['attachment_path']!,
+          _attachmentPathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TalkMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TalkMessage(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}session_id'],
+      )!,
+      sender: $TalkMessagesTable.$convertersender.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}sender'],
+        )!,
+      ),
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      attachmentPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attachment_path'],
+      ),
+      attachmentType: $TalkMessagesTable.$converterattachmentTypen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}attachment_type'],
+        ),
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TalkMessagesTable createAlias(String alias) {
+    return $TalkMessagesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<TalkMessageSender, int, int> $convertersender =
+      const EnumIndexConverter<TalkMessageSender>(TalkMessageSender.values);
+  static JsonTypeConverter2<TalkAttachmentType, int, int>
+  $converterattachmentType = const EnumIndexConverter<TalkAttachmentType>(
+    TalkAttachmentType.values,
+  );
+  static JsonTypeConverter2<TalkAttachmentType?, int?, int?>
+  $converterattachmentTypen = JsonTypeConverter2.asNullable(
+    $converterattachmentType,
+  );
+}
+
+class TalkMessage extends DataClass implements Insertable<TalkMessage> {
+  final int id;
+  final int sessionId;
+  final TalkMessageSender sender;
+  final String content;
+  final String? attachmentPath;
+  final TalkAttachmentType? attachmentType;
+  final DateTime createdAt;
+  const TalkMessage({
+    required this.id,
+    required this.sessionId,
+    required this.sender,
+    required this.content,
+    this.attachmentPath,
+    this.attachmentType,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['session_id'] = Variable<int>(sessionId);
+    {
+      map['sender'] = Variable<int>(
+        $TalkMessagesTable.$convertersender.toSql(sender),
+      );
+    }
+    map['content'] = Variable<String>(content);
+    if (!nullToAbsent || attachmentPath != null) {
+      map['attachment_path'] = Variable<String>(attachmentPath);
+    }
+    if (!nullToAbsent || attachmentType != null) {
+      map['attachment_type'] = Variable<int>(
+        $TalkMessagesTable.$converterattachmentTypen.toSql(attachmentType),
+      );
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  TalkMessagesCompanion toCompanion(bool nullToAbsent) {
+    return TalkMessagesCompanion(
+      id: Value(id),
+      sessionId: Value(sessionId),
+      sender: Value(sender),
+      content: Value(content),
+      attachmentPath: attachmentPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(attachmentPath),
+      attachmentType: attachmentType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(attachmentType),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory TalkMessage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TalkMessage(
+      id: serializer.fromJson<int>(json['id']),
+      sessionId: serializer.fromJson<int>(json['sessionId']),
+      sender: $TalkMessagesTable.$convertersender.fromJson(
+        serializer.fromJson<int>(json['sender']),
+      ),
+      content: serializer.fromJson<String>(json['content']),
+      attachmentPath: serializer.fromJson<String?>(json['attachmentPath']),
+      attachmentType: $TalkMessagesTable.$converterattachmentTypen.fromJson(
+        serializer.fromJson<int?>(json['attachmentType']),
+      ),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'sessionId': serializer.toJson<int>(sessionId),
+      'sender': serializer.toJson<int>(
+        $TalkMessagesTable.$convertersender.toJson(sender),
+      ),
+      'content': serializer.toJson<String>(content),
+      'attachmentPath': serializer.toJson<String?>(attachmentPath),
+      'attachmentType': serializer.toJson<int?>(
+        $TalkMessagesTable.$converterattachmentTypen.toJson(attachmentType),
+      ),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  TalkMessage copyWith({
+    int? id,
+    int? sessionId,
+    TalkMessageSender? sender,
+    String? content,
+    Value<String?> attachmentPath = const Value.absent(),
+    Value<TalkAttachmentType?> attachmentType = const Value.absent(),
+    DateTime? createdAt,
+  }) => TalkMessage(
+    id: id ?? this.id,
+    sessionId: sessionId ?? this.sessionId,
+    sender: sender ?? this.sender,
+    content: content ?? this.content,
+    attachmentPath: attachmentPath.present
+        ? attachmentPath.value
+        : this.attachmentPath,
+    attachmentType: attachmentType.present
+        ? attachmentType.value
+        : this.attachmentType,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  TalkMessage copyWithCompanion(TalkMessagesCompanion data) {
+    return TalkMessage(
+      id: data.id.present ? data.id.value : this.id,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      sender: data.sender.present ? data.sender.value : this.sender,
+      content: data.content.present ? data.content.value : this.content,
+      attachmentPath: data.attachmentPath.present
+          ? data.attachmentPath.value
+          : this.attachmentPath,
+      attachmentType: data.attachmentType.present
+          ? data.attachmentType.value
+          : this.attachmentType,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TalkMessage(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('sender: $sender, ')
+          ..write('content: $content, ')
+          ..write('attachmentPath: $attachmentPath, ')
+          ..write('attachmentType: $attachmentType, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sessionId,
+    sender,
+    content,
+    attachmentPath,
+    attachmentType,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TalkMessage &&
+          other.id == this.id &&
+          other.sessionId == this.sessionId &&
+          other.sender == this.sender &&
+          other.content == this.content &&
+          other.attachmentPath == this.attachmentPath &&
+          other.attachmentType == this.attachmentType &&
+          other.createdAt == this.createdAt);
+}
+
+class TalkMessagesCompanion extends UpdateCompanion<TalkMessage> {
+  final Value<int> id;
+  final Value<int> sessionId;
+  final Value<TalkMessageSender> sender;
+  final Value<String> content;
+  final Value<String?> attachmentPath;
+  final Value<TalkAttachmentType?> attachmentType;
+  final Value<DateTime> createdAt;
+  const TalkMessagesCompanion({
+    this.id = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.sender = const Value.absent(),
+    this.content = const Value.absent(),
+    this.attachmentPath = const Value.absent(),
+    this.attachmentType = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  TalkMessagesCompanion.insert({
+    this.id = const Value.absent(),
+    required int sessionId,
+    required TalkMessageSender sender,
+    this.content = const Value.absent(),
+    this.attachmentPath = const Value.absent(),
+    this.attachmentType = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : sessionId = Value(sessionId),
+       sender = Value(sender);
+  static Insertable<TalkMessage> custom({
+    Expression<int>? id,
+    Expression<int>? sessionId,
+    Expression<int>? sender,
+    Expression<String>? content,
+    Expression<String>? attachmentPath,
+    Expression<int>? attachmentType,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sessionId != null) 'session_id': sessionId,
+      if (sender != null) 'sender': sender,
+      if (content != null) 'content': content,
+      if (attachmentPath != null) 'attachment_path': attachmentPath,
+      if (attachmentType != null) 'attachment_type': attachmentType,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  TalkMessagesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? sessionId,
+    Value<TalkMessageSender>? sender,
+    Value<String>? content,
+    Value<String?>? attachmentPath,
+    Value<TalkAttachmentType?>? attachmentType,
+    Value<DateTime>? createdAt,
+  }) {
+    return TalkMessagesCompanion(
+      id: id ?? this.id,
+      sessionId: sessionId ?? this.sessionId,
+      sender: sender ?? this.sender,
+      content: content ?? this.content,
+      attachmentPath: attachmentPath ?? this.attachmentPath,
+      attachmentType: attachmentType ?? this.attachmentType,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<int>(sessionId.value);
+    }
+    if (sender.present) {
+      map['sender'] = Variable<int>(
+        $TalkMessagesTable.$convertersender.toSql(sender.value),
+      );
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (attachmentPath.present) {
+      map['attachment_path'] = Variable<String>(attachmentPath.value);
+    }
+    if (attachmentType.present) {
+      map['attachment_type'] = Variable<int>(
+        $TalkMessagesTable.$converterattachmentTypen.toSql(
+          attachmentType.value,
+        ),
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TalkMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('sender: $sender, ')
+          ..write('content: $content, ')
+          ..write('attachmentPath: $attachmentPath, ')
+          ..write('attachmentType: $attachmentType, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TokenUsageLogsTable extends TokenUsageLogs
     with TableInfo<$TokenUsageLogsTable, TokenUsageLog> {
   @override
@@ -5465,6 +7047,17 @@ class $TokenUsageLogsTable extends TokenUsageLogs
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _providerMeta = const VerificationMeta(
+    'provider',
+  );
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+    'provider',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -5486,6 +7079,7 @@ class $TokenUsageLogsTable extends TokenUsageLogs
     promptTokens,
     completionTokens,
     costUsd,
+    provider,
     createdAt,
   ];
   @override
@@ -5551,6 +7145,12 @@ class $TokenUsageLogsTable extends TokenUsageLogs
         costUsd.isAcceptableOrUnknown(data['cost_usd']!, _costUsdMeta),
       );
     }
+    if (data.containsKey('provider')) {
+      context.handle(
+        _providerMeta,
+        provider.isAcceptableOrUnknown(data['provider']!, _providerMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -5594,6 +7194,10 @@ class $TokenUsageLogsTable extends TokenUsageLogs
         DriftSqlType.double,
         data['${effectivePrefix}cost_usd'],
       ),
+      provider: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -5617,6 +7221,10 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
 
   /// 엔드포인트가 가격을 알려줄 때만(예: OpenRouter) 값이 있다. USD 기준.
   final double? costUsd;
+
+  /// OpenRouter처럼 여러 업스트림으로 라우팅하는 엔드포인트가 실제로 요청을 처리한
+  /// 제공자명을 알려줄 때만 값이 있다(예: "DeepInfra"). 없으면 baseUrl host로 대체 표시.
+  final String? provider;
   final DateTime createdAt;
   const TokenUsageLog({
     required this.id,
@@ -5626,6 +7234,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
     required this.promptTokens,
     required this.completionTokens,
     this.costUsd,
+    this.provider,
     required this.createdAt,
   });
   @override
@@ -5639,6 +7248,9 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
     map['completion_tokens'] = Variable<int>(completionTokens);
     if (!nullToAbsent || costUsd != null) {
       map['cost_usd'] = Variable<double>(costUsd);
+    }
+    if (!nullToAbsent || provider != null) {
+      map['provider'] = Variable<String>(provider);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
@@ -5655,6 +7267,9 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
       costUsd: costUsd == null && nullToAbsent
           ? const Value.absent()
           : Value(costUsd),
+      provider: provider == null && nullToAbsent
+          ? const Value.absent()
+          : Value(provider),
       createdAt: Value(createdAt),
     );
   }
@@ -5672,6 +7287,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
       promptTokens: serializer.fromJson<int>(json['promptTokens']),
       completionTokens: serializer.fromJson<int>(json['completionTokens']),
       costUsd: serializer.fromJson<double?>(json['costUsd']),
+      provider: serializer.fromJson<String?>(json['provider']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -5686,6 +7302,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
       'promptTokens': serializer.toJson<int>(promptTokens),
       'completionTokens': serializer.toJson<int>(completionTokens),
       'costUsd': serializer.toJson<double?>(costUsd),
+      'provider': serializer.toJson<String?>(provider),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -5698,6 +7315,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
     int? promptTokens,
     int? completionTokens,
     Value<double?> costUsd = const Value.absent(),
+    Value<String?> provider = const Value.absent(),
     DateTime? createdAt,
   }) => TokenUsageLog(
     id: id ?? this.id,
@@ -5707,6 +7325,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
     promptTokens: promptTokens ?? this.promptTokens,
     completionTokens: completionTokens ?? this.completionTokens,
     costUsd: costUsd.present ? costUsd.value : this.costUsd,
+    provider: provider.present ? provider.value : this.provider,
     createdAt: createdAt ?? this.createdAt,
   );
   TokenUsageLog copyWithCompanion(TokenUsageLogsCompanion data) {
@@ -5724,6 +7343,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
           ? data.completionTokens.value
           : this.completionTokens,
       costUsd: data.costUsd.present ? data.costUsd.value : this.costUsd,
+      provider: data.provider.present ? data.provider.value : this.provider,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -5738,6 +7358,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
           ..write('promptTokens: $promptTokens, ')
           ..write('completionTokens: $completionTokens, ')
           ..write('costUsd: $costUsd, ')
+          ..write('provider: $provider, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -5752,6 +7373,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
     promptTokens,
     completionTokens,
     costUsd,
+    provider,
     createdAt,
   );
   @override
@@ -5765,6 +7387,7 @@ class TokenUsageLog extends DataClass implements Insertable<TokenUsageLog> {
           other.promptTokens == this.promptTokens &&
           other.completionTokens == this.completionTokens &&
           other.costUsd == this.costUsd &&
+          other.provider == this.provider &&
           other.createdAt == this.createdAt);
 }
 
@@ -5776,6 +7399,7 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
   final Value<int> promptTokens;
   final Value<int> completionTokens;
   final Value<double?> costUsd;
+  final Value<String?> provider;
   final Value<DateTime> createdAt;
   const TokenUsageLogsCompanion({
     this.id = const Value.absent(),
@@ -5785,6 +7409,7 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
     this.promptTokens = const Value.absent(),
     this.completionTokens = const Value.absent(),
     this.costUsd = const Value.absent(),
+    this.provider = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   TokenUsageLogsCompanion.insert({
@@ -5795,6 +7420,7 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
     this.promptTokens = const Value.absent(),
     this.completionTokens = const Value.absent(),
     this.costUsd = const Value.absent(),
+    this.provider = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : presetName = Value(presetName),
        baseUrl = Value(baseUrl),
@@ -5807,6 +7433,7 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
     Expression<int>? promptTokens,
     Expression<int>? completionTokens,
     Expression<double>? costUsd,
+    Expression<String>? provider,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -5817,6 +7444,7 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
       if (promptTokens != null) 'prompt_tokens': promptTokens,
       if (completionTokens != null) 'completion_tokens': completionTokens,
       if (costUsd != null) 'cost_usd': costUsd,
+      if (provider != null) 'provider': provider,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -5829,6 +7457,7 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
     Value<int>? promptTokens,
     Value<int>? completionTokens,
     Value<double?>? costUsd,
+    Value<String?>? provider,
     Value<DateTime>? createdAt,
   }) {
     return TokenUsageLogsCompanion(
@@ -5839,6 +7468,7 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
       promptTokens: promptTokens ?? this.promptTokens,
       completionTokens: completionTokens ?? this.completionTokens,
       costUsd: costUsd ?? this.costUsd,
+      provider: provider ?? this.provider,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -5867,6 +7497,9 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
     if (costUsd.present) {
       map['cost_usd'] = Variable<double>(costUsd.value);
     }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -5883,6 +7516,7 @@ class TokenUsageLogsCompanion extends UpdateCompanion<TokenUsageLog> {
           ..write('promptTokens: $promptTokens, ')
           ..write('completionTokens: $completionTokens, ')
           ..write('costUsd: $costUsd, ')
+          ..write('provider: $provider, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -6904,6 +8538,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ChatSessionsTable chatSessions = $ChatSessionsTable(this);
   late final $ChatTurnsTable chatTurns = $ChatTurnsTable(this);
   late final $ChatMessagesTable chatMessages = $ChatMessagesTable(this);
+  late final $ChatMemorySummariesTable chatMemorySummaries =
+      $ChatMemorySummariesTable(this);
+  late final $TalkSessionsTable talkSessions = $TalkSessionsTable(this);
+  late final $TalkMessagesTable talkMessages = $TalkMessagesTable(this);
   late final $TokenUsageLogsTable tokenUsageLogs = $TokenUsageLogsTable(this);
   late final $LorebooksTable lorebooks = $LorebooksTable(this);
   late final $LorebookEntriesTable lorebookEntries = $LorebookEntriesTable(
@@ -6926,6 +8564,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     chatSessions,
     chatTurns,
     chatMessages,
+    chatMemorySummaries,
+    talkSessions,
+    talkMessages,
     tokenUsageLogs,
     lorebooks,
     lorebookEntries,
@@ -7032,6 +8673,34 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('chat_messages', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'chat_sessions',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('chat_memory_summaries', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'plots',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('talk_sessions', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'ai_presets',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('talk_sessions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'talk_sessions',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('talk_messages', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -7178,6 +8847,24 @@ final class $$PlotsTableReferences
     ).filter((f) => f.plotId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_chatSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TalkSessionsTable, List<TalkSession>>
+  _talkSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.talkSessions,
+    aliasName: 'plots__id__talk_sessions__plot_id',
+  );
+
+  $$TalkSessionsTableProcessedTableManager get talkSessionsRefs {
+    final manager = $$TalkSessionsTableTableManager(
+      $_db,
+      $_db.talkSessions,
+    ).filter((f) => f.plotId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_talkSessionsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7377,6 +9064,31 @@ class $$PlotsTableFilterComposer extends Composer<_$AppDatabase, $PlotsTable> {
           }) => $$ChatSessionsTableFilterComposer(
             $db: $db,
             $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> talkSessionsRefs(
+    Expression<bool> Function($$TalkSessionsTableFilterComposer f) f,
+  ) {
+    final $$TalkSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.plotId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.talkSessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7639,6 +9351,31 @@ class $$PlotsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> talkSessionsRefs<T extends Object>(
+    Expression<T> Function($$TalkSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$TalkSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.plotId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.talkSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> lorebookPlotLinksRefs<T extends Object>(
     Expression<T> Function($$LorebookPlotLinksTableAnnotationComposer a) f,
   ) {
@@ -7685,6 +9422,7 @@ class $$PlotsTableTableManager
             bool introEntriesRefs,
             bool plotConversationProfilesRefs,
             bool chatSessionsRefs,
+            bool talkSessionsRefs,
             bool lorebookPlotLinksRefs,
           })
         > {
@@ -7756,6 +9494,7 @@ class $$PlotsTableTableManager
                 introEntriesRefs = false,
                 plotConversationProfilesRefs = false,
                 chatSessionsRefs = false,
+                talkSessionsRefs = false,
                 lorebookPlotLinksRefs = false,
               }) {
                 return PrefetchHooks(
@@ -7767,6 +9506,7 @@ class $$PlotsTableTableManager
                     if (plotConversationProfilesRefs)
                       db.plotConversationProfiles,
                     if (chatSessionsRefs) db.chatSessions,
+                    if (talkSessionsRefs) db.talkSessions,
                     if (lorebookPlotLinksRefs) db.lorebookPlotLinks,
                   ],
                   addJoins: null,
@@ -7873,6 +9613,27 @@ class $$PlotsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (talkSessionsRefs)
+                        await $_getPrefetchedData<
+                          Plot,
+                          $PlotsTable,
+                          TalkSession
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PlotsTableReferences
+                              ._talkSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PlotsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).talkSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.plotId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (lorebookPlotLinksRefs)
                         await $_getPrefetchedData<
                           Plot,
@@ -7920,6 +9681,7 @@ typedef $$PlotsTableProcessedTableManager =
         bool introEntriesRefs,
         bool plotConversationProfilesRefs,
         bool chatSessionsRefs,
+        bool talkSessionsRefs,
         bool lorebookPlotLinksRefs,
       })
     >;
@@ -10259,6 +12021,11 @@ typedef $$AiPresetsTableCreateCompanionBuilder =
       Value<bool> isLocal,
       Value<String?> reasoningEffort,
       Value<String?> localModelSource,
+      Value<bool> openRouterZdrOnly,
+      Value<bool> openRouterExcludeChinaProviders,
+      Value<bool> openRouterExcludeTrainingProviders,
+      Value<AiEndpointFormat> endpointFormat,
+      Value<bool> supportsVision,
     });
 typedef $$AiPresetsTableUpdateCompanionBuilder =
     AiPresetsCompanion Function({
@@ -10279,6 +12046,11 @@ typedef $$AiPresetsTableUpdateCompanionBuilder =
       Value<bool> isLocal,
       Value<String?> reasoningEffort,
       Value<String?> localModelSource,
+      Value<bool> openRouterZdrOnly,
+      Value<bool> openRouterExcludeChinaProviders,
+      Value<bool> openRouterExcludeTrainingProviders,
+      Value<AiEndpointFormat> endpointFormat,
+      Value<bool> supportsVision,
     });
 
 final class $$AiPresetsTableReferences
@@ -10298,6 +12070,24 @@ final class $$AiPresetsTableReferences
     ).filter((f) => f.presetId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_chatSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TalkSessionsTable, List<TalkSession>>
+  _talkSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.talkSessions,
+    aliasName: 'ai_presets__id__talk_sessions__preset_id',
+  );
+
+  $$TalkSessionsTableProcessedTableManager get talkSessionsRefs {
+    final manager = $$TalkSessionsTableTableManager(
+      $_db,
+      $_db.talkSessions,
+    ).filter((f) => f.presetId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_talkSessionsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -10398,6 +12188,33 @@ class $$AiPresetsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get openRouterZdrOnly => $composableBuilder(
+    column: $table.openRouterZdrOnly,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get openRouterExcludeChinaProviders => $composableBuilder(
+    column: $table.openRouterExcludeChinaProviders,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get openRouterExcludeTrainingProviders =>
+      $composableBuilder(
+        column: $table.openRouterExcludeTrainingProviders,
+        builder: (column) => ColumnFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<AiEndpointFormat, AiEndpointFormat, int>
+  get endpointFormat => $composableBuilder(
+    column: $table.endpointFormat,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<bool> get supportsVision => $composableBuilder(
+    column: $table.supportsVision,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> chatSessionsRefs(
     Expression<bool> Function($$ChatSessionsTableFilterComposer f) f,
   ) {
@@ -10414,6 +12231,31 @@ class $$AiPresetsTableFilterComposer
           }) => $$ChatSessionsTableFilterComposer(
             $db: $db,
             $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> talkSessionsRefs(
+    Expression<bool> Function($$TalkSessionsTableFilterComposer f) f,
+  ) {
+    final $$TalkSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.presetId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.talkSessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -10517,6 +12359,33 @@ class $$AiPresetsTableOrderingComposer
     column: $table.localModelSource,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get openRouterZdrOnly => $composableBuilder(
+    column: $table.openRouterZdrOnly,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get openRouterExcludeChinaProviders =>
+      $composableBuilder(
+        column: $table.openRouterExcludeChinaProviders,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<bool> get openRouterExcludeTrainingProviders =>
+      $composableBuilder(
+        column: $table.openRouterExcludeTrainingProviders,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<int> get endpointFormat => $composableBuilder(
+    column: $table.endpointFormat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get supportsVision => $composableBuilder(
+    column: $table.supportsVision,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AiPresetsTableAnnotationComposer
@@ -10591,6 +12460,34 @@ class $$AiPresetsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get openRouterZdrOnly => $composableBuilder(
+    column: $table.openRouterZdrOnly,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get openRouterExcludeChinaProviders =>
+      $composableBuilder(
+        column: $table.openRouterExcludeChinaProviders,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get openRouterExcludeTrainingProviders =>
+      $composableBuilder(
+        column: $table.openRouterExcludeTrainingProviders,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<AiEndpointFormat, int> get endpointFormat =>
+      $composableBuilder(
+        column: $table.endpointFormat,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get supportsVision => $composableBuilder(
+    column: $table.supportsVision,
+    builder: (column) => column,
+  );
+
   Expression<T> chatSessionsRefs<T extends Object>(
     Expression<T> Function($$ChatSessionsTableAnnotationComposer a) f,
   ) {
@@ -10615,6 +12512,31 @@ class $$AiPresetsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> talkSessionsRefs<T extends Object>(
+    Expression<T> Function($$TalkSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$TalkSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.presetId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.talkSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$AiPresetsTableTableManager
@@ -10630,7 +12552,7 @@ class $$AiPresetsTableTableManager
           $$AiPresetsTableUpdateCompanionBuilder,
           (AiPreset, $$AiPresetsTableReferences),
           AiPreset,
-          PrefetchHooks Function({bool chatSessionsRefs})
+          PrefetchHooks Function({bool chatSessionsRefs, bool talkSessionsRefs})
         > {
   $$AiPresetsTableTableManager(_$AppDatabase db, $AiPresetsTable table)
     : super(
@@ -10662,6 +12584,13 @@ class $$AiPresetsTableTableManager
                 Value<bool> isLocal = const Value.absent(),
                 Value<String?> reasoningEffort = const Value.absent(),
                 Value<String?> localModelSource = const Value.absent(),
+                Value<bool> openRouterZdrOnly = const Value.absent(),
+                Value<bool> openRouterExcludeChinaProviders =
+                    const Value.absent(),
+                Value<bool> openRouterExcludeTrainingProviders =
+                    const Value.absent(),
+                Value<AiEndpointFormat> endpointFormat = const Value.absent(),
+                Value<bool> supportsVision = const Value.absent(),
               }) => AiPresetsCompanion(
                 id: id,
                 name: name,
@@ -10680,6 +12609,13 @@ class $$AiPresetsTableTableManager
                 isLocal: isLocal,
                 reasoningEffort: reasoningEffort,
                 localModelSource: localModelSource,
+                openRouterZdrOnly: openRouterZdrOnly,
+                openRouterExcludeChinaProviders:
+                    openRouterExcludeChinaProviders,
+                openRouterExcludeTrainingProviders:
+                    openRouterExcludeTrainingProviders,
+                endpointFormat: endpointFormat,
+                supportsVision: supportsVision,
               ),
           createCompanionCallback:
               ({
@@ -10700,6 +12636,13 @@ class $$AiPresetsTableTableManager
                 Value<bool> isLocal = const Value.absent(),
                 Value<String?> reasoningEffort = const Value.absent(),
                 Value<String?> localModelSource = const Value.absent(),
+                Value<bool> openRouterZdrOnly = const Value.absent(),
+                Value<bool> openRouterExcludeChinaProviders =
+                    const Value.absent(),
+                Value<bool> openRouterExcludeTrainingProviders =
+                    const Value.absent(),
+                Value<AiEndpointFormat> endpointFormat = const Value.absent(),
+                Value<bool> supportsVision = const Value.absent(),
               }) => AiPresetsCompanion.insert(
                 id: id,
                 name: name,
@@ -10718,6 +12661,13 @@ class $$AiPresetsTableTableManager
                 isLocal: isLocal,
                 reasoningEffort: reasoningEffort,
                 localModelSource: localModelSource,
+                openRouterZdrOnly: openRouterZdrOnly,
+                openRouterExcludeChinaProviders:
+                    openRouterExcludeChinaProviders,
+                openRouterExcludeTrainingProviders:
+                    openRouterExcludeTrainingProviders,
+                endpointFormat: endpointFormat,
+                supportsVision: supportsVision,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -10727,36 +12677,63 @@ class $$AiPresetsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({chatSessionsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (chatSessionsRefs) db.chatSessions],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (chatSessionsRefs)
-                    await $_getPrefetchedData<
-                      AiPreset,
-                      $AiPresetsTable,
-                      ChatSession
-                    >(
-                      currentTable: table,
-                      referencedTable: $$AiPresetsTableReferences
-                          ._chatSessionsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$AiPresetsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).chatSessionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.presetId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({chatSessionsRefs = false, talkSessionsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (chatSessionsRefs) db.chatSessions,
+                    if (talkSessionsRefs) db.talkSessions,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (chatSessionsRefs)
+                        await $_getPrefetchedData<
+                          AiPreset,
+                          $AiPresetsTable,
+                          ChatSession
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AiPresetsTableReferences
+                              ._chatSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AiPresetsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).chatSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.presetId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (talkSessionsRefs)
+                        await $_getPrefetchedData<
+                          AiPreset,
+                          $AiPresetsTable,
+                          TalkSession
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AiPresetsTableReferences
+                              ._talkSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AiPresetsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).talkSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.presetId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -10773,7 +12750,7 @@ typedef $$AiPresetsTableProcessedTableManager =
       $$AiPresetsTableUpdateCompanionBuilder,
       (AiPreset, $$AiPresetsTableReferences),
       AiPreset,
-      PrefetchHooks Function({bool chatSessionsRefs})
+      PrefetchHooks Function({bool chatSessionsRefs, bool talkSessionsRefs})
     >;
 typedef $$ChatSessionsTableCreateCompanionBuilder =
     ChatSessionsCompanion Function({
@@ -10916,6 +12893,27 @@ final class $$ChatSessionsTableReferences
     ).filter((f) => f.sessionId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_chatMessagesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ChatMemorySummariesTable, List<ChatMemorySummary>>
+  _chatMemorySummariesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.chatMemorySummaries,
+        aliasName: 'chat_sessions__id__chat_memory_summaries__session_id',
+      );
+
+  $$ChatMemorySummariesTableProcessedTableManager get chatMemorySummariesRefs {
+    final manager = $$ChatMemorySummariesTableTableManager(
+      $_db,
+      $_db.chatMemorySummaries,
+    ).filter((f) => f.sessionId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _chatMemorySummariesRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -11095,6 +13093,31 @@ class $$ChatSessionsTableFilterComposer
           }) => $$ChatMessagesTableFilterComposer(
             $db: $db,
             $table: $db.chatMessages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> chatMemorySummariesRefs(
+    Expression<bool> Function($$ChatMemorySummariesTableFilterComposer f) f,
+  ) {
+    final $$ChatMemorySummariesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chatMemorySummaries,
+      getReferencedColumn: (t) => t.sessionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatMemorySummariesTableFilterComposer(
+            $db: $db,
+            $table: $db.chatMemorySummaries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -11413,6 +13436,32 @@ class $$ChatSessionsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> chatMemorySummariesRefs<T extends Object>(
+    Expression<T> Function($$ChatMemorySummariesTableAnnotationComposer a) f,
+  ) {
+    final $$ChatMemorySummariesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.chatMemorySummaries,
+          getReferencedColumn: (t) => t.sessionId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ChatMemorySummariesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.chatMemorySummaries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$ChatSessionsTableTableManager
@@ -11435,6 +13484,7 @@ class $$ChatSessionsTableTableManager
             bool presetId,
             bool chatTurnsRefs,
             bool chatMessagesRefs,
+            bool chatMemorySummariesRefs,
           })
         > {
   $$ChatSessionsTableTableManager(_$AppDatabase db, $ChatSessionsTable table)
@@ -11512,12 +13562,14 @@ class $$ChatSessionsTableTableManager
                 presetId = false,
                 chatTurnsRefs = false,
                 chatMessagesRefs = false,
+                chatMemorySummariesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (chatTurnsRefs) db.chatTurns,
                     if (chatMessagesRefs) db.chatMessages,
+                    if (chatMemorySummariesRefs) db.chatMemorySummaries,
                   ],
                   addJoins:
                       <
@@ -11645,6 +13697,27 @@ class $$ChatSessionsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (chatMemorySummariesRefs)
+                        await $_getPrefetchedData<
+                          ChatSession,
+                          $ChatSessionsTable,
+                          ChatMemorySummary
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ChatSessionsTableReferences
+                              ._chatMemorySummariesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ChatSessionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).chatMemorySummariesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.sessionId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -11672,6 +13745,7 @@ typedef $$ChatSessionsTableProcessedTableManager =
         bool presetId,
         bool chatTurnsRefs,
         bool chatMessagesRefs,
+        bool chatMemorySummariesRefs,
       })
     >;
 typedef $$ChatTurnsTableCreateCompanionBuilder =
@@ -12660,6 +14734,1219 @@ typedef $$ChatMessagesTableProcessedTableManager =
       ChatMessage,
       PrefetchHooks Function({bool sessionId, bool characterId, bool turnId})
     >;
+typedef $$ChatMemorySummariesTableCreateCompanionBuilder =
+    ChatMemorySummariesCompanion Function({
+      Value<int> id,
+      required int sessionId,
+      required int coveredUpToMessageId,
+      required String summaryText,
+      Value<DateTime> updatedAt,
+    });
+typedef $$ChatMemorySummariesTableUpdateCompanionBuilder =
+    ChatMemorySummariesCompanion Function({
+      Value<int> id,
+      Value<int> sessionId,
+      Value<int> coveredUpToMessageId,
+      Value<String> summaryText,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$ChatMemorySummariesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ChatMemorySummariesTable,
+          ChatMemorySummary
+        > {
+  $$ChatMemorySummariesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $ChatSessionsTable _sessionIdTable(_$AppDatabase db) => db.chatSessions
+      .createAlias('chat_memory_summaries__session_id__chat_sessions__id');
+
+  $$ChatSessionsTableProcessedTableManager get sessionId {
+    final $_column = $_itemColumn<int>('session_id')!;
+
+    final manager = $$ChatSessionsTableTableManager(
+      $_db,
+      $_db.chatSessions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sessionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ChatMemorySummariesTableFilterComposer
+    extends Composer<_$AppDatabase, $ChatMemorySummariesTable> {
+  $$ChatMemorySummariesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get coveredUpToMessageId => $composableBuilder(
+    column: $table.coveredUpToMessageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get summaryText => $composableBuilder(
+    column: $table.summaryText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ChatSessionsTableFilterComposer get sessionId {
+    final $$ChatSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.chatSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ChatMemorySummariesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChatMemorySummariesTable> {
+  $$ChatMemorySummariesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get coveredUpToMessageId => $composableBuilder(
+    column: $table.coveredUpToMessageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get summaryText => $composableBuilder(
+    column: $table.summaryText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ChatSessionsTableOrderingComposer get sessionId {
+    final $$ChatSessionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.chatSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatSessionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ChatMemorySummariesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChatMemorySummariesTable> {
+  $$ChatMemorySummariesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get coveredUpToMessageId => $composableBuilder(
+    column: $table.coveredUpToMessageId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get summaryText => $composableBuilder(
+    column: $table.summaryText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ChatSessionsTableAnnotationComposer get sessionId {
+    final $$ChatSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.chatSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ChatMemorySummariesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ChatMemorySummariesTable,
+          ChatMemorySummary,
+          $$ChatMemorySummariesTableFilterComposer,
+          $$ChatMemorySummariesTableOrderingComposer,
+          $$ChatMemorySummariesTableAnnotationComposer,
+          $$ChatMemorySummariesTableCreateCompanionBuilder,
+          $$ChatMemorySummariesTableUpdateCompanionBuilder,
+          (ChatMemorySummary, $$ChatMemorySummariesTableReferences),
+          ChatMemorySummary,
+          PrefetchHooks Function({bool sessionId})
+        > {
+  $$ChatMemorySummariesTableTableManager(
+    _$AppDatabase db,
+    $ChatMemorySummariesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChatMemorySummariesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChatMemorySummariesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ChatMemorySummariesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> sessionId = const Value.absent(),
+                Value<int> coveredUpToMessageId = const Value.absent(),
+                Value<String> summaryText = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ChatMemorySummariesCompanion(
+                id: id,
+                sessionId: sessionId,
+                coveredUpToMessageId: coveredUpToMessageId,
+                summaryText: summaryText,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int sessionId,
+                required int coveredUpToMessageId,
+                required String summaryText,
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => ChatMemorySummariesCompanion.insert(
+                id: id,
+                sessionId: sessionId,
+                coveredUpToMessageId: coveredUpToMessageId,
+                summaryText: summaryText,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ChatMemorySummariesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({sessionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (sessionId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.sessionId,
+                                referencedTable:
+                                    $$ChatMemorySummariesTableReferences
+                                        ._sessionIdTable(db),
+                                referencedColumn:
+                                    $$ChatMemorySummariesTableReferences
+                                        ._sessionIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ChatMemorySummariesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ChatMemorySummariesTable,
+      ChatMemorySummary,
+      $$ChatMemorySummariesTableFilterComposer,
+      $$ChatMemorySummariesTableOrderingComposer,
+      $$ChatMemorySummariesTableAnnotationComposer,
+      $$ChatMemorySummariesTableCreateCompanionBuilder,
+      $$ChatMemorySummariesTableUpdateCompanionBuilder,
+      (ChatMemorySummary, $$ChatMemorySummariesTableReferences),
+      ChatMemorySummary,
+      PrefetchHooks Function({bool sessionId})
+    >;
+typedef $$TalkSessionsTableCreateCompanionBuilder =
+    TalkSessionsCompanion Function({
+      Value<int> id,
+      required int plotId,
+      Value<int?> presetId,
+      Value<bool> pinned,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$TalkSessionsTableUpdateCompanionBuilder =
+    TalkSessionsCompanion Function({
+      Value<int> id,
+      Value<int> plotId,
+      Value<int?> presetId,
+      Value<bool> pinned,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$TalkSessionsTableReferences
+    extends BaseReferences<_$AppDatabase, $TalkSessionsTable, TalkSession> {
+  $$TalkSessionsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PlotsTable _plotIdTable(_$AppDatabase db) =>
+      db.plots.createAlias('talk_sessions__plot_id__plots__id');
+
+  $$PlotsTableProcessedTableManager get plotId {
+    final $_column = $_itemColumn<int>('plot_id')!;
+
+    final manager = $$PlotsTableTableManager(
+      $_db,
+      $_db.plots,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_plotIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $AiPresetsTable _presetIdTable(_$AppDatabase db) =>
+      db.aiPresets.createAlias('talk_sessions__preset_id__ai_presets__id');
+
+  $$AiPresetsTableProcessedTableManager? get presetId {
+    final $_column = $_itemColumn<int>('preset_id');
+    if ($_column == null) return null;
+    final manager = $$AiPresetsTableTableManager(
+      $_db,
+      $_db.aiPresets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_presetIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$TalkMessagesTable, List<TalkMessage>>
+  _talkMessagesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.talkMessages,
+    aliasName: 'talk_sessions__id__talk_messages__session_id',
+  );
+
+  $$TalkMessagesTableProcessedTableManager get talkMessagesRefs {
+    final manager = $$TalkMessagesTableTableManager(
+      $_db,
+      $_db.talkMessages,
+    ).filter((f) => f.sessionId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_talkMessagesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$TalkSessionsTableFilterComposer
+    extends Composer<_$AppDatabase, $TalkSessionsTable> {
+  $$TalkSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get pinned => $composableBuilder(
+    column: $table.pinned,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PlotsTableFilterComposer get plotId {
+    final $$PlotsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableFilterComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AiPresetsTableFilterComposer get presetId {
+    final $$AiPresetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.aiPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AiPresetsTableFilterComposer(
+            $db: $db,
+            $table: $db.aiPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> talkMessagesRefs(
+    Expression<bool> Function($$TalkMessagesTableFilterComposer f) f,
+  ) {
+    final $$TalkMessagesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkMessages,
+      getReferencedColumn: (t) => t.sessionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkMessagesTableFilterComposer(
+            $db: $db,
+            $table: $db.talkMessages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$TalkSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TalkSessionsTable> {
+  $$TalkSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get pinned => $composableBuilder(
+    column: $table.pinned,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PlotsTableOrderingComposer get plotId {
+    final $$PlotsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableOrderingComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AiPresetsTableOrderingComposer get presetId {
+    final $$AiPresetsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.aiPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AiPresetsTableOrderingComposer(
+            $db: $db,
+            $table: $db.aiPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TalkSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TalkSessionsTable> {
+  $$TalkSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get pinned =>
+      $composableBuilder(column: $table.pinned, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$PlotsTableAnnotationComposer get plotId {
+    final $$PlotsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AiPresetsTableAnnotationComposer get presetId {
+    final $$AiPresetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.presetId,
+      referencedTable: $db.aiPresets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AiPresetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.aiPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> talkMessagesRefs<T extends Object>(
+    Expression<T> Function($$TalkMessagesTableAnnotationComposer a) f,
+  ) {
+    final $$TalkMessagesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkMessages,
+      getReferencedColumn: (t) => t.sessionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkMessagesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.talkMessages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$TalkSessionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TalkSessionsTable,
+          TalkSession,
+          $$TalkSessionsTableFilterComposer,
+          $$TalkSessionsTableOrderingComposer,
+          $$TalkSessionsTableAnnotationComposer,
+          $$TalkSessionsTableCreateCompanionBuilder,
+          $$TalkSessionsTableUpdateCompanionBuilder,
+          (TalkSession, $$TalkSessionsTableReferences),
+          TalkSession,
+          PrefetchHooks Function({
+            bool plotId,
+            bool presetId,
+            bool talkMessagesRefs,
+          })
+        > {
+  $$TalkSessionsTableTableManager(_$AppDatabase db, $TalkSessionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TalkSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TalkSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TalkSessionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> plotId = const Value.absent(),
+                Value<int?> presetId = const Value.absent(),
+                Value<bool> pinned = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => TalkSessionsCompanion(
+                id: id,
+                plotId: plotId,
+                presetId: presetId,
+                pinned: pinned,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int plotId,
+                Value<int?> presetId = const Value.absent(),
+                Value<bool> pinned = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => TalkSessionsCompanion.insert(
+                id: id,
+                plotId: plotId,
+                presetId: presetId,
+                pinned: pinned,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$TalkSessionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({plotId = false, presetId = false, talkMessagesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (talkMessagesRefs) db.talkMessages,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (plotId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.plotId,
+                                    referencedTable:
+                                        $$TalkSessionsTableReferences
+                                            ._plotIdTable(db),
+                                    referencedColumn:
+                                        $$TalkSessionsTableReferences
+                                            ._plotIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (presetId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.presetId,
+                                    referencedTable:
+                                        $$TalkSessionsTableReferences
+                                            ._presetIdTable(db),
+                                    referencedColumn:
+                                        $$TalkSessionsTableReferences
+                                            ._presetIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (talkMessagesRefs)
+                        await $_getPrefetchedData<
+                          TalkSession,
+                          $TalkSessionsTable,
+                          TalkMessage
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TalkSessionsTableReferences
+                              ._talkMessagesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TalkSessionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).talkMessagesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.sessionId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$TalkSessionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TalkSessionsTable,
+      TalkSession,
+      $$TalkSessionsTableFilterComposer,
+      $$TalkSessionsTableOrderingComposer,
+      $$TalkSessionsTableAnnotationComposer,
+      $$TalkSessionsTableCreateCompanionBuilder,
+      $$TalkSessionsTableUpdateCompanionBuilder,
+      (TalkSession, $$TalkSessionsTableReferences),
+      TalkSession,
+      PrefetchHooks Function({
+        bool plotId,
+        bool presetId,
+        bool talkMessagesRefs,
+      })
+    >;
+typedef $$TalkMessagesTableCreateCompanionBuilder =
+    TalkMessagesCompanion Function({
+      Value<int> id,
+      required int sessionId,
+      required TalkMessageSender sender,
+      Value<String> content,
+      Value<String?> attachmentPath,
+      Value<TalkAttachmentType?> attachmentType,
+      Value<DateTime> createdAt,
+    });
+typedef $$TalkMessagesTableUpdateCompanionBuilder =
+    TalkMessagesCompanion Function({
+      Value<int> id,
+      Value<int> sessionId,
+      Value<TalkMessageSender> sender,
+      Value<String> content,
+      Value<String?> attachmentPath,
+      Value<TalkAttachmentType?> attachmentType,
+      Value<DateTime> createdAt,
+    });
+
+final class $$TalkMessagesTableReferences
+    extends BaseReferences<_$AppDatabase, $TalkMessagesTable, TalkMessage> {
+  $$TalkMessagesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $TalkSessionsTable _sessionIdTable(_$AppDatabase db) => db.talkSessions
+      .createAlias('talk_messages__session_id__talk_sessions__id');
+
+  $$TalkSessionsTableProcessedTableManager get sessionId {
+    final $_column = $_itemColumn<int>('session_id')!;
+
+    final manager = $$TalkSessionsTableTableManager(
+      $_db,
+      $_db.talkSessions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sessionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TalkMessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $TalkMessagesTable> {
+  $$TalkMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TalkMessageSender, TalkMessageSender, int>
+  get sender => $composableBuilder(
+    column: $table.sender,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get attachmentPath => $composableBuilder(
+    column: $table.attachmentPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TalkAttachmentType?, TalkAttachmentType, int>
+  get attachmentType => $composableBuilder(
+    column: $table.attachmentType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TalkSessionsTableFilterComposer get sessionId {
+    final $$TalkSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.talkSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TalkMessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TalkMessagesTable> {
+  $$TalkMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sender => $composableBuilder(
+    column: $table.sender,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get attachmentPath => $composableBuilder(
+    column: $table.attachmentPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get attachmentType => $composableBuilder(
+    column: $table.attachmentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TalkSessionsTableOrderingComposer get sessionId {
+    final $$TalkSessionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.talkSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TalkMessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TalkMessagesTable> {
+  $$TalkMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TalkMessageSender, int> get sender =>
+      $composableBuilder(column: $table.sender, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<String> get attachmentPath => $composableBuilder(
+    column: $table.attachmentPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<TalkAttachmentType?, int>
+  get attachmentType => $composableBuilder(
+    column: $table.attachmentType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$TalkSessionsTableAnnotationComposer get sessionId {
+    final $$TalkSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sessionId,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.talkSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TalkMessagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TalkMessagesTable,
+          TalkMessage,
+          $$TalkMessagesTableFilterComposer,
+          $$TalkMessagesTableOrderingComposer,
+          $$TalkMessagesTableAnnotationComposer,
+          $$TalkMessagesTableCreateCompanionBuilder,
+          $$TalkMessagesTableUpdateCompanionBuilder,
+          (TalkMessage, $$TalkMessagesTableReferences),
+          TalkMessage,
+          PrefetchHooks Function({bool sessionId})
+        > {
+  $$TalkMessagesTableTableManager(_$AppDatabase db, $TalkMessagesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TalkMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TalkMessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TalkMessagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> sessionId = const Value.absent(),
+                Value<TalkMessageSender> sender = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<String?> attachmentPath = const Value.absent(),
+                Value<TalkAttachmentType?> attachmentType =
+                    const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => TalkMessagesCompanion(
+                id: id,
+                sessionId: sessionId,
+                sender: sender,
+                content: content,
+                attachmentPath: attachmentPath,
+                attachmentType: attachmentType,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int sessionId,
+                required TalkMessageSender sender,
+                Value<String> content = const Value.absent(),
+                Value<String?> attachmentPath = const Value.absent(),
+                Value<TalkAttachmentType?> attachmentType =
+                    const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => TalkMessagesCompanion.insert(
+                id: id,
+                sessionId: sessionId,
+                sender: sender,
+                content: content,
+                attachmentPath: attachmentPath,
+                attachmentType: attachmentType,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$TalkMessagesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({sessionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (sessionId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.sessionId,
+                                referencedTable: $$TalkMessagesTableReferences
+                                    ._sessionIdTable(db),
+                                referencedColumn: $$TalkMessagesTableReferences
+                                    ._sessionIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TalkMessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TalkMessagesTable,
+      TalkMessage,
+      $$TalkMessagesTableFilterComposer,
+      $$TalkMessagesTableOrderingComposer,
+      $$TalkMessagesTableAnnotationComposer,
+      $$TalkMessagesTableCreateCompanionBuilder,
+      $$TalkMessagesTableUpdateCompanionBuilder,
+      (TalkMessage, $$TalkMessagesTableReferences),
+      TalkMessage,
+      PrefetchHooks Function({bool sessionId})
+    >;
 typedef $$TokenUsageLogsTableCreateCompanionBuilder =
     TokenUsageLogsCompanion Function({
       Value<int> id,
@@ -12669,6 +15956,7 @@ typedef $$TokenUsageLogsTableCreateCompanionBuilder =
       Value<int> promptTokens,
       Value<int> completionTokens,
       Value<double?> costUsd,
+      Value<String?> provider,
       Value<DateTime> createdAt,
     });
 typedef $$TokenUsageLogsTableUpdateCompanionBuilder =
@@ -12680,6 +15968,7 @@ typedef $$TokenUsageLogsTableUpdateCompanionBuilder =
       Value<int> promptTokens,
       Value<int> completionTokens,
       Value<double?> costUsd,
+      Value<String?> provider,
       Value<DateTime> createdAt,
     });
 
@@ -12724,6 +16013,11 @@ class $$TokenUsageLogsTableFilterComposer
 
   ColumnFilters<double> get costUsd => $composableBuilder(
     column: $table.costUsd,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get provider => $composableBuilder(
+    column: $table.provider,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12777,6 +16071,11 @@ class $$TokenUsageLogsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get provider => $composableBuilder(
+    column: $table.provider,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -12818,6 +16117,9 @@ class $$TokenUsageLogsTableAnnotationComposer
 
   GeneratedColumn<double> get costUsd =>
       $composableBuilder(column: $table.costUsd, builder: (column) => column);
+
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -12863,6 +16165,7 @@ class $$TokenUsageLogsTableTableManager
                 Value<int> promptTokens = const Value.absent(),
                 Value<int> completionTokens = const Value.absent(),
                 Value<double?> costUsd = const Value.absent(),
+                Value<String?> provider = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => TokenUsageLogsCompanion(
                 id: id,
@@ -12872,6 +16175,7 @@ class $$TokenUsageLogsTableTableManager
                 promptTokens: promptTokens,
                 completionTokens: completionTokens,
                 costUsd: costUsd,
+                provider: provider,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -12883,6 +16187,7 @@ class $$TokenUsageLogsTableTableManager
                 Value<int> promptTokens = const Value.absent(),
                 Value<int> completionTokens = const Value.absent(),
                 Value<double?> costUsd = const Value.absent(),
+                Value<String?> provider = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => TokenUsageLogsCompanion.insert(
                 id: id,
@@ -12892,6 +16197,7 @@ class $$TokenUsageLogsTableTableManager
                 promptTokens: promptTokens,
                 completionTokens: completionTokens,
                 costUsd: costUsd,
+                provider: provider,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -14066,6 +17372,12 @@ class $AppDatabaseManager {
       $$ChatTurnsTableTableManager(_db, _db.chatTurns);
   $$ChatMessagesTableTableManager get chatMessages =>
       $$ChatMessagesTableTableManager(_db, _db.chatMessages);
+  $$ChatMemorySummariesTableTableManager get chatMemorySummaries =>
+      $$ChatMemorySummariesTableTableManager(_db, _db.chatMemorySummaries);
+  $$TalkSessionsTableTableManager get talkSessions =>
+      $$TalkSessionsTableTableManager(_db, _db.talkSessions);
+  $$TalkMessagesTableTableManager get talkMessages =>
+      $$TalkMessagesTableTableManager(_db, _db.talkMessages);
   $$TokenUsageLogsTableTableManager get tokenUsageLogs =>
       $$TokenUsageLogsTableTableManager(_db, _db.tokenUsageLogs);
   $$LorebooksTableTableManager get lorebooks =>

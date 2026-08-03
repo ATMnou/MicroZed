@@ -136,6 +136,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get localLlmRecommendedSectionTitle => 'おすすめモデル';
 
   @override
+  String get localLlmModelDescHuihuiQwen3508b => 'IQ4 XSなので性能はあまり期待しないでください。';
+
+  @override
+  String get localLlmModelDescHuihuiQwen354b => '速度と品質のバランス型。日本語対応も比較的良好。';
+
+  @override
+  String get localLlmModelDescHuihuiGemma4E2b => '最も軽くて速い。低スペック端末向け。';
+
+  @override
+  String get localLlmModelDescHuihuiGemma4E4b => 'より高品質。ハイスペック端末/PC推奨。';
+
+  @override
   String get localLlmImportSectionTitle => 'ファイルから読み込み';
 
   @override
@@ -202,6 +214,49 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get preferencesImageDisplayFullWidthOption => '横幅いっぱいに表示';
+
+  @override
+  String get preferencesAiSectionTitle => 'AI設定';
+
+  @override
+  String get preferencesThemeSectionTitle => 'テーマ';
+
+  @override
+  String get preferencesThemeDarkOption => 'ダーク';
+
+  @override
+  String get preferencesThemeLightOption => 'ホワイト';
+
+  @override
+  String get preferencesThemeAmoledOption => 'AMOLEDブラック';
+
+  @override
+  String get preferencesThemeSystemOption => 'システムに合わせる';
+
+  @override
+  String get preferencesVersionSectionTitle => 'バージョン情報';
+
+  @override
+  String preferencesCurrentVersionLabel(String version) {
+    return '現在のバージョン $version';
+  }
+
+  @override
+  String get preferencesCheckUpdateButton => 'アップデート確認';
+
+  @override
+  String preferencesUpdateAvailableMessage(String version) {
+    return '新しいバージョン$versionがあります。';
+  }
+
+  @override
+  String get preferencesUpToDateMessage => '最新バージョンを使用しています。';
+
+  @override
+  String get preferencesUpdateCheckFailedMessage => 'アップデートの確認に失敗しました。';
+
+  @override
+  String get preferencesViewReleaseButton => 'リリースを見る';
 
   @override
   String get preferencesDangerZoneTitle => '危険な操作';
@@ -274,7 +329,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get conversationTabEmpty => '進行中の会話はまだありません';
 
   @override
-  String get conversationTabSortLatest => '新着順';
+  String conversationTabSelectedCount(int count) {
+    return '$count件選択中';
+  }
+
+  @override
+  String get conversationTabDeleteConfirmTitle => '会話を削除';
+
+  @override
+  String get conversationTabDeleteConfirmContent => '選択した会話を削除しますか?元に戻せません。';
 
   @override
   String get conversationTilePlaceholder => '会話を始めてみましょう';
@@ -378,6 +441,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get chatGeneratingIndicator => '返信を生成中...';
+
+  @override
   String get chatReviseDialogTitle => 'AI修正';
 
   @override
@@ -406,6 +472,15 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get chatDrawerChoicesDisabled => '使用しない';
+
+  @override
+  String get chatDrawerMemoryTitle => '記憶を見る';
+
+  @override
+  String get chatMemorySheetTitle => 'これまでの会話の要約';
+
+  @override
+  String get chatMemoryEmptyMessage => 'まだ要約された記憶がありません。会話が長くなると自動的に作られます。';
 
   @override
   String get chatDrawerExitButton => '会話ルームを退出';
@@ -477,6 +552,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get characterDetailIntroSectionTitle => 'イントロ';
 
   @override
+  String get characterDetailIntroNarratorLabel => 'ナレーション';
+
+  @override
+  String get characterDetailIntroUserLabel => '私';
+
+  @override
+  String get characterDetailIntroImageLabel => '画像';
+
+  @override
   String get plotEditTabPrompt => 'プロンプト';
 
   @override
@@ -500,9 +584,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get plotEditExportDataMenuItem => '専用形式でエクスポート(全データ)';
 
   @override
-  String get plotEditDraftSaveButton => '下書き保存';
-
-  @override
   String get plotEditSaveButtonEdit => '更新';
 
   @override
@@ -510,6 +591,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get plotEditExportSuccessMessage => 'SillyTavernカードとしてエクスポートしました。';
+
+  @override
+  String get plotEditExportDataSuccessMessage => '専用形式(.mzplot)でエクスポートしました。';
 
   @override
   String plotEditExportFailureMessage(Object error) {
@@ -649,9 +733,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get plotEditCoverTitle => 'カバー';
 
   @override
-  String get plotEditPreviewButton => 'プレビュー';
-
-  @override
   String get plotEditCoverImagePlaceholder => 'カバー画像';
 
   @override
@@ -761,6 +842,54 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiPresetReasoningEffortHigh => '高い';
+
+  @override
+  String get aiPresetEndpointFormatLabel => 'エンドポイント形式';
+
+  @override
+  String get aiPresetEndpointFormatDescription =>
+      '選択した形式に合わせたリクエスト/レスポンス処理で通信します。';
+
+  @override
+  String get aiPresetEndpointFormatOpenAi => 'OpenAI互換';
+
+  @override
+  String get aiPresetEndpointFormatAnthropic => 'Anthropic';
+
+  @override
+  String get aiPresetSupportsVisionLabel => '画像認識(ビジョン)対応';
+
+  @override
+  String get aiPresetSupportsVisionDescription =>
+      'オンにすると、ZedTalkで添付した画像をこのプリセットのモデルに一緒に送ります。実際に画像を理解できるモデルの場合のみオンにしてください。';
+
+  @override
+  String get aiPresetOpenRouterSectionTitle => 'OpenRouter専用オプション';
+
+  @override
+  String get aiPresetOpenRouterSectionDescription =>
+      'Base URLがopenrouter.aiの場合のみ適用されます。';
+
+  @override
+  String get aiPresetOpenRouterZdrOnlyLabel => 'ZDR提供者のみ使用';
+
+  @override
+  String get aiPresetOpenRouterZdrOnlyDescription =>
+      'データを保持しない(Zero Data Retention)提供者にのみルーティングします。';
+
+  @override
+  String get aiPresetOpenRouterExcludeChinaLabel => '中国の提供者を除外';
+
+  @override
+  String get aiPresetOpenRouterExcludeChinaDescription =>
+      'アリババなど中国拠点の提供者をルーティングから除外します。';
+
+  @override
+  String get aiPresetOpenRouterExcludeTrainingLabel => '学習利用提供者を除外';
+
+  @override
+  String get aiPresetOpenRouterExcludeTrainingDescription =>
+      'リクエストデータを学習に利用する可能性がある提供者を除外します。';
 
   @override
   String get lorebookConnectTitle => 'ロアブック接続';
@@ -992,4 +1121,210 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get snapshotSettingsSavedMessage => '保存しました。';
+
+  @override
+  String get createTabAiGenerateButton => 'AIで生成';
+
+  @override
+  String get plotAiGenerateTitle => 'AIでプロット生成';
+
+  @override
+  String get plotAiGeneratePresetLabel => '使用するAIプリセット';
+
+  @override
+  String get plotAiGeneratePresetEmptyHint => '先に環境設定 > AI設定でAIプリセットを作成してください。';
+
+  @override
+  String get plotAiGeneratePromptLabel => 'どんなプロットを作りますか?';
+
+  @override
+  String get plotAiGeneratePromptHint => 'ジャンル、背景、登場人物の特徴などを自由に説明してください';
+
+  @override
+  String get plotAiGenerateWebSearchLabel => 'Web検索で参考資料を探す';
+
+  @override
+  String get plotAiGenerateWebSearchUnsupportedHint =>
+      '選択したプリセットはネイティブWeb検索に対応していません(OpenRouterまたはOpenAI系のみ対応)。';
+
+  @override
+  String get plotAiGenerateLoreLengthLabel => 'ロアの長さ';
+
+  @override
+  String get plotAiGenerateLoreLengthShort => '短め';
+
+  @override
+  String get plotAiGenerateLoreLengthMedium => '普通';
+
+  @override
+  String get plotAiGenerateLoreLengthLong => '長め';
+
+  @override
+  String get plotAiGenerateAccuracyLabel => '正確さ';
+
+  @override
+  String get plotAiGenerateAccuracyAccurate => '正確(Accurate)';
+
+  @override
+  String get plotAiGenerateAccuracyMixed => 'ミックス(Mixed)';
+
+  @override
+  String get plotAiGenerateSubmitButton => '生成する';
+
+  @override
+  String get plotAiGeneratePromptEmptyMessage => 'まずどんなプロットを作りたいか説明してください。';
+
+  @override
+  String plotAiGenerateFailureMessage(Object error) {
+    return 'プロットの生成に失敗しました: $error';
+  }
+
+  @override
+  String get plotAiGenerateGeneratingMessage => 'AIがプロットを生成しています...';
+
+  @override
+  String get lanSyncSectionTitle => 'LAN同期';
+
+  @override
+  String get lanSyncScreenTitle => 'LAN同期';
+
+  @override
+  String get lanSyncExportSectionTitle => 'この端末からエクスポート';
+
+  @override
+  String get lanSyncExportSectionDescription =>
+      '同じWi-Fi/LANに接続した別の端末から下記情報で接続すると、全データを取得できます。';
+
+  @override
+  String get lanSyncStartHostButton => '接続待機を開始';
+
+  @override
+  String get lanSyncStopHostButton => '中止';
+
+  @override
+  String get lanSyncWaitingMessage => '他の端末からの接続を待っています...';
+
+  @override
+  String get lanSyncAddressLabel => 'アドレス';
+
+  @override
+  String get lanSyncPortLabel => 'ポート';
+
+  @override
+  String get lanSyncPinLabel => 'PIN';
+
+  @override
+  String get lanSyncExportedMessage => '転送が完了しました。';
+
+  @override
+  String lanSyncExportFailedMessage(Object error) {
+    return '転送に失敗しました: $error';
+  }
+
+  @override
+  String get lanSyncNoAddressWarning =>
+      'この端末でLANアドレスが見つかりませんでした。Wi-Fi接続を確認してください。';
+
+  @override
+  String get lanSyncImportSectionTitle => '他の端末から取り込む';
+
+  @override
+  String get lanSyncImportSectionDescription =>
+      'エクスポート側の画面に表示されたアドレス/ポート/PINを入力してください。';
+
+  @override
+  String get lanSyncHostFieldLabel => 'アドレス(IP)';
+
+  @override
+  String get lanSyncPortFieldLabel => 'ポート';
+
+  @override
+  String get lanSyncPinFieldLabel => 'PIN';
+
+  @override
+  String get lanSyncImportButton => '取り込む';
+
+  @override
+  String get lanSyncImportConfirmTitle => '全データを置き換え';
+
+  @override
+  String get lanSyncImportConfirmContent => '受信したデータでこの端末の全データを上書きします。元に戻せません。';
+
+  @override
+  String lanSyncImportFailedMessage(Object error) {
+    return '取り込みに失敗しました: $error';
+  }
+
+  @override
+  String createTabSelectedCount(int count) {
+    return '$count件選択中';
+  }
+
+  @override
+  String get createTabDeleteSelectedConfirmTitle => 'プロットを削除';
+
+  @override
+  String get createTabDeleteSelectedConfirmContent =>
+      '選択したプロットを削除しますか?元に戻せません。';
+
+  @override
+  String get createTabExportPackageButton => 'パッケージとしてエクスポート(.mzpack)';
+
+  @override
+  String createTabExportPackageSuccessMessage(int count) {
+    return '$count件のプロットをエクスポートしました。';
+  }
+
+  @override
+  String createTabExportPackageFailureMessage(Object error) {
+    return 'エクスポートに失敗しました: $error';
+  }
+
+  @override
+  String get createTabImportFromPackageTitle => 'プロットパッケージから読み込む(.mzpack)';
+
+  @override
+  String get createTabImportFromPackageSubtitle => '複数のプロットを一度に読み込みます';
+
+  @override
+  String createTabImportPackageSuccessMessage(int count) {
+    return '$count件のプロットを読み込みました。';
+  }
+
+  @override
+  String get conversationTabTalkLabel => 'トーク';
+
+  @override
+  String get characterDetailTalkButton => 'ZedTalk';
+
+  @override
+  String get talkListEmpty => 'まだトークしたキャラクターがいません';
+
+  @override
+  String get talkAttachmentSheetTitle => '添付';
+
+  @override
+  String get talkAttachmentImageOption => '画像';
+
+  @override
+  String get talkAttachmentVideoOption => '動画';
+
+  @override
+  String get talkAttachmentDocumentOption => 'ドキュメント';
+
+  @override
+  String get talkVisionUnsupportedNote =>
+      'このプリセットは画像認識に対応していないため、添付した画像はAIに送信されません。';
+
+  @override
+  String get talkPresetSheetTitle => '使用するAIプリセット';
+
+  @override
+  String get talkNoPresetMessage => 'まずAIプリセットを選んでください。';
+
+  @override
+  String get talkDeleteConfirmTitle => 'トークを削除';
+
+  @override
+  String get talkDeleteConfirmContent => '選択したトークを削除しますか?元に戻せません。';
 }

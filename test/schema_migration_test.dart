@@ -6,11 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:microzed/data/db/database.dart';
 import 'package:path/path.dart' as p;
 
-/// v9(로컬 LLM까지만 있던, 실제 배포된 1.1.1 스키마) -> v11(reasoningEffort +
-/// PlotConversationProfiles + ChatSessions.plotConversationProfileId 추가) 마이그레이션이
-/// 실제 파일 기반 sqlite에서 데이터 손실 없이 동작하는지 검증한다.
+/// v9(로컬 LLM까지만 있던, 실제 배포된 1.1.1 스키마) -> v16(reasoningEffort +
+/// PlotConversationProfiles + ChatSessions.plotConversationProfileId +
+/// TokenUsageLogs.provider + AiPresets의 OpenRouter 전용 라우팅 옵션 3종 + endpointFormat +
+/// ChatMemorySummaries 테이블 + AiPresets.supportsVision + TalkSessions/TalkMessages 테이블
+/// 추가) 마이그레이션이 실제 파일 기반 sqlite에서 데이터 손실 없이 동작하는지 검증한다.
 void main() {
-  test('upgrades from schema v9 to v11 without losing existing data', () async {
+  test('upgrades from schema v9 to v16 without losing existing data', () async {
     final tempPath = p.join(
       Directory.systemTemp.path,
       'microzed_migration_test_${DateTime.now().microsecondsSinceEpoch}.sqlite',
@@ -48,16 +50,30 @@ void main() {
     await raw.runCustom('ALTER TABLE ai_presets DROP COLUMN reasoning_effort');
     await raw.runCustom('ALTER TABLE chat_sessions DROP COLUMN plot_conversation_profile_id');
     await raw.runCustom('DROP TABLE plot_conversation_profiles');
+    await raw.runCustom('ALTER TABLE token_usage_logs DROP COLUMN provider');
+    await raw.runCustom('ALTER TABLE ai_presets DROP COLUMN open_router_zdr_only');
+    await raw.runCustom('ALTER TABLE ai_presets DROP COLUMN open_router_exclude_china_providers');
+    await raw.runCustom('ALTER TABLE ai_presets DROP COLUMN open_router_exclude_training_providers');
+    await raw.runCustom('ALTER TABLE ai_presets DROP COLUMN endpoint_format');
+    await raw.runCustom('DROP TABLE chat_memory_summaries');
+    await raw.runCustom('ALTER TABLE ai_presets DROP COLUMN supports_vision');
+    await raw.runCustom('DROP TABLE talk_messages');
+    await raw.runCustom('DROP TABLE talk_sessions');
     await raw.runCustom('PRAGMA user_version = 9');
     await raw.close();
 
-    // 3) 지금 앱 코드로 다시 열면 onUpgrade(9, 11)이 실행돼야 한다. 예외 없이 열리고,
+    // 3) 지금 앱 코드로 다시 열면 onUpgrade(9, 16)이 실행돼야 한다. 예외 없이 열리고,
     //    기존 데이터는 그대로 남아 있고, 새로 생긴 것들은 정상적으로 쓸 수 있어야 한다.
     db = AppDatabase.forTesting(NativeDatabase(file));
     final preset = await (db.select(db.aiPresets)..where((p) => p.id.equals(presetId))).getSingle();
     expect(preset.name, 'Existing Preset');
     expect(preset.baseUrl, 'https://api.example.com/v1');
     expect(preset.reasoningEffort, isNull);
+    expect(preset.openRouterZdrOnly, false);
+    expect(preset.openRouterExcludeChinaProviders, false);
+    expect(preset.openRouterExcludeTrainingProviders, false);
+    expect(preset.endpointFormat, AiEndpointFormat.openAiCompatible);
+    expect(preset.supportsVision, false);
 
     final plot = await (db.select(db.plots)..where((p) => p.id.equals(plotId))).getSingle();
     expect(plot.title, 'Existing Plot');
@@ -76,6 +92,43 @@ void main() {
     final plotProfile =
         await (db.select(db.plotConversationProfiles)..where((p) => p.id.equals(newPlotProfileId))).getSingle();
     expect(plotProfile.name, 'Test Profile');
+
+    final logId = await db.into(db.tokenUsageLogs).insert(
+          TokenUsageLogsCompanion.insert(
+            presetName: 'Existing Preset',
+            baseUrl: 'https://openrouter.ai/api/v1',
+            modelName: 'some-model',
+            provider: const Value('DeepInfra'),
+          ),
+        );
+    final log = await (db.select(db.tokenUsageLogs)..where((l) => l.id.equals(logId))).getSingle();
+    expect(log.provider, 'DeepInfra');
+
+    final memoryId = await db.into(db.chatMemorySummaries).insert(
+          ChatMemorySummariesCompanion.insert(
+            sessionId: sessionId,
+            coveredUpToMessageId: 1,
+            summaryText: '요약',
+          ),
+        );
+    final memory =
+        await (db.select(db.chatMemorySummaries)..where((m) => m.id.equals(memoryId))).getSingle();
+    expect(memory.summaryText, '요약');
+
+    final talkSessionId = await db.into(db.talkSessions).insert(
+          TalkSessionsCompanion.insert(plotId: plotId),
+        );
+    final talkMessageId = await db.into(db.talkMessages).insert(
+          TalkMessagesCompanion.insert(
+            sessionId: talkSessionId,
+            sender: TalkMessageSender.user,
+            content: const Value('안녕'),
+          ),
+        );
+    final talkMessage =
+        await (db.select(db.talkMessages)..where((m) => m.id.equals(talkMessageId))).getSingle();
+    expect(talkMessage.content, '안녕');
+    expect(talkMessage.sender, TalkMessageSender.user);
 
     await db.close();
   });

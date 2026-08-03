@@ -32,6 +32,12 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
   /// null(끔) 또는 'low'/'medium'/'high'.
   String? _reasoningEffort;
 
+  bool _openRouterZdrOnly = false;
+  bool _openRouterExcludeChinaProviders = false;
+  bool _openRouterExcludeTrainingProviders = false;
+  AiEndpointFormat _endpointFormat = AiEndpointFormat.openAiCompatible;
+  bool _supportsVision = false;
+
   bool _loading = true;
   bool _saving = false;
   bool _obscureApiKey = true;
@@ -42,6 +48,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
   static const _purple = Color(0xFF7A6FF0);
 
   bool get _isEditing => widget.presetId != null;
+  bool get _isOpenRouter => _baseUrlController.text.toLowerCase().contains('openrouter.ai');
 
   @override
   void initState() {
@@ -64,6 +71,11 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       _additionalSystemPromptController.text =
           preset?.additionalSystemPrompt ?? '';
       _reasoningEffort = preset?.reasoningEffort;
+      _openRouterZdrOnly = preset?.openRouterZdrOnly ?? false;
+      _openRouterExcludeChinaProviders = preset?.openRouterExcludeChinaProviders ?? false;
+      _openRouterExcludeTrainingProviders = preset?.openRouterExcludeTrainingProviders ?? false;
+      _endpointFormat = preset?.endpointFormat ?? AiEndpointFormat.openAiCompatible;
+      _supportsVision = preset?.supportsVision ?? false;
       final apiKey = await _repository.readApiKey(widget.presetId!);
       if (apiKey != null) _apiKeyController.text = apiKey;
     }
@@ -92,6 +104,11 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       contextLength: int.tryParse(_contextLengthController.text.trim()),
       additionalSystemPrompt: _additionalSystemPromptController.text.trim(),
       reasoningEffort: _reasoningEffort,
+      openRouterZdrOnly: _openRouterZdrOnly,
+      openRouterExcludeChinaProviders: _openRouterExcludeChinaProviders,
+      openRouterExcludeTrainingProviders: _openRouterExcludeTrainingProviders,
+      endpointFormat: _endpointFormat,
+      supportsVision: _supportsVision,
     );
     if (mounted) Navigator.of(context).pop();
   }
@@ -157,6 +174,15 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                   maxLines: 2,
                 ),
                 const SizedBox(height: 16),
+                _buildEndpointFormatSelector(l10n),
+                const SizedBox(height: 12),
+                _openRouterSwitch(
+                  label: l10n.aiPresetSupportsVisionLabel,
+                  description: l10n.aiPresetSupportsVisionDescription,
+                  value: _supportsVision,
+                  onChanged: (v) => setState(() => _supportsVision = v),
+                ),
+                const SizedBox(height: 4),
                 _field(
                   label: 'Base URL',
                   controller: _baseUrlController,
@@ -293,6 +319,16 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                 ),
                 const SizedBox(height: 16),
                 _buildReasoningEffortSelector(l10n),
+                AnimatedBuilder(
+                  animation: _baseUrlController,
+                  builder: (context, _) {
+                    if (!_isOpenRouter) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: _buildOpenRouterOptions(l10n),
+                    );
+                  },
+                ),
               ],
             ),
       bottomNavigationBar: SafeArea(
@@ -367,6 +403,101 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
           }).toList(),
         ),
       ],
+    );
+  }
+
+  Widget _buildEndpointFormatSelector(AppLocalizations l10n) {
+    final options = <AiEndpointFormat, String>{
+      AiEndpointFormat.openAiCompatible: l10n.aiPresetEndpointFormatOpenAi,
+      AiEndpointFormat.anthropic: l10n.aiPresetEndpointFormatAnthropic,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.aiPresetEndpointFormatLabel,
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.aiPresetEndpointFormatDescription,
+          style: const TextStyle(color: Colors.white38, fontSize: 12),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: options.entries.map((entry) {
+            final selected = _endpointFormat == entry.key;
+            return ChoiceChip(
+              label: Text(entry.value),
+              selected: selected,
+              onSelected: (_) => setState(() => _endpointFormat = entry.key),
+              backgroundColor: _cardBg,
+              selectedColor: _purple.withValues(alpha: 0.25),
+              labelStyle: TextStyle(
+                color: selected ? _purple : Colors.white70,
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              ),
+              side: BorderSide(color: selected ? _purple : _borderGrey),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOpenRouterOptions(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.aiPresetOpenRouterSectionTitle,
+          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.aiPresetOpenRouterSectionDescription,
+          style: const TextStyle(color: Colors.white38, fontSize: 12),
+        ),
+        const SizedBox(height: 8),
+        _openRouterSwitch(
+          label: l10n.aiPresetOpenRouterZdrOnlyLabel,
+          description: l10n.aiPresetOpenRouterZdrOnlyDescription,
+          value: _openRouterZdrOnly,
+          onChanged: (v) => setState(() => _openRouterZdrOnly = v),
+        ),
+        _openRouterSwitch(
+          label: l10n.aiPresetOpenRouterExcludeChinaLabel,
+          description: l10n.aiPresetOpenRouterExcludeChinaDescription,
+          value: _openRouterExcludeChinaProviders,
+          onChanged: (v) => setState(() => _openRouterExcludeChinaProviders = v),
+        ),
+        _openRouterSwitch(
+          label: l10n.aiPresetOpenRouterExcludeTrainingLabel,
+          description: l10n.aiPresetOpenRouterExcludeTrainingDescription,
+          value: _openRouterExcludeTrainingProviders,
+          onChanged: (v) => setState(() => _openRouterExcludeTrainingProviders = v),
+        ),
+      ],
+    );
+  }
+
+  Widget _openRouterSwitch({
+    required String label,
+    required String description,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SwitchListTile(
+      value: value,
+      onChanged: onChanged,
+      contentPadding: EdgeInsets.zero,
+      activeThumbColor: _purple,
+      title: Text(label, style: const TextStyle(color: Colors.white, fontSize: 13.5)),
+      subtitle: Text(description, style: const TextStyle(color: Colors.white38, fontSize: 11.5)),
     );
   }
 

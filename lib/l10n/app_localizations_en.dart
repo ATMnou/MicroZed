@@ -1368,4 +1368,112 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get talkDeleteConfirmContent =>
       'Delete the selected ZedTalk chats? This can\'t be undone.';
+
+  @override
+  String get talkCharacterPickerTitle => 'Choose who to talk to';
+
+  @override
+  String get talkDrawerStartFreshTitle => 'Start fresh';
+
+  @override
+  String get talkDrawerStartFreshSubtitle => 'Create a new chat room';
+
+  @override
+  String get talkDrawerResumeTitle => 'Other chat rooms';
+
+  @override
+  String get talkDrawerDeleteTitle => 'Delete chat room';
+
+  @override
+  String get talkDrawerProfileTitle => 'Chat profile';
+
+  @override
+  String get talkDrawerChoicesTitle => 'Choices';
+
+  @override
+  String get talkDrawerExitButton => 'Leave chat room';
+
+  @override
+  String get talkResumeSheetTitle => 'Other chat rooms';
+
+  @override
+  String get talkResumeSheetEmpty => 'No other chat rooms for this plot';
+
+  @override
+  String get talkSheetStartFreshFromHere => 'Start fresh from here';
+
+  @override
+  String get talkEditMessageTitle => 'Edit message';
+
+  @override
+  String get lorebookImportButtonTooltip =>
+      'Import (SillyTavern World Info / JanitorAI)';
+
+  @override
+  String get lorebookExportButtonTooltip => 'Export as SillyTavern World Info';
+
+  @override
+  String lorebookImportSuccessMessage(Object count) {
+    return 'Loaded $count entries. Tap Save to actually apply them.';
+  }
+
+  @override
+  String lorebookImportFailureMessage(Object error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String get lorebookExportSuccessMessage => 'Exported as World Info JSON.';
+
+  @override
+  String lorebookExportFailureMessage(Object error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get createTabImportTargetSheetTitle => 'Choose where to import into';
+
+  @override
+  String get createTabImportTargetNewPlot => 'Create as a new plot';
+
+  @override
+  String get createTabImportLorebookTargetSheetTitle =>
+      'How should the lorebook be added?';
+
+  @override
+  String get createTabImportLorebookTargetNew => 'Create a new lorebook';
+
+  @override
+  String get myPageSummarySettingsButton =>
+      'Summary (long-term memory) settings';
+
+  @override
+  String get summarySettingsTitle => 'Summary (long-term memory) settings';
+
+  @override
+  String get summarySettingsDescription =>
+      'If an AI preset has a context length (a cap on recent messages) set, older messages beyond that range are automatically summarized and included in the system prompt. Here you can turn this off, or customize the summary prompt and which preset generates it.';
+
+  @override
+  String get summarySettingsEnabledLabel => 'Enable long-term memory summary';
+
+  @override
+  String get summarySettingsPromptLabel => 'Summary prompt';
+
+  @override
+  String get summarySettingsPromptHint =>
+      'Leave empty to use the default prompt';
+
+  @override
+  String get summarySettingsPresetLabel => 'Preset used for summarizing';
+
+  @override
+  String get summarySettingsPresetDefaultOption =>
+      'Use the same preset as the chat';
+
+  @override
+  String get summarySettingsSaveButton => 'Save';
+
+  @override
+  String get summarySettingsSavedMessage => 'Saved.';
 }

@@ -1327,4 +1327,108 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get talkDeleteConfirmContent => '選択したトークを削除しますか?元に戻せません。';
+
+  @override
+  String get talkCharacterPickerTitle => '会話するキャラクターを選んでください';
+
+  @override
+  String get talkDrawerStartFreshTitle => '最初から始める';
+
+  @override
+  String get talkDrawerStartFreshSubtitle => '新しいトークルームを作ります';
+
+  @override
+  String get talkDrawerResumeTitle => '他のトークルーム';
+
+  @override
+  String get talkDrawerDeleteTitle => 'トークルームを削除';
+
+  @override
+  String get talkDrawerProfileTitle => '会話プロフィール';
+
+  @override
+  String get talkDrawerChoicesTitle => '選択肢';
+
+  @override
+  String get talkDrawerExitButton => 'トークルームを退出';
+
+  @override
+  String get talkResumeSheetTitle => '他のトークルーム';
+
+  @override
+  String get talkResumeSheetEmpty => 'このプロットの他のトークルームはありません';
+
+  @override
+  String get talkSheetStartFreshFromHere => 'ここから最初から始める';
+
+  @override
+  String get talkEditMessageTitle => 'メッセージを編集';
+
+  @override
+  String get lorebookImportButtonTooltip =>
+      'インポート(SillyTavern World Info / JanitorAI)';
+
+  @override
+  String get lorebookExportButtonTooltip => 'SillyTavern World Infoでエクスポート';
+
+  @override
+  String lorebookImportSuccessMessage(Object count) {
+    return '$count件の項目を読み込みました。保存を押すと反映されます。';
+  }
+
+  @override
+  String lorebookImportFailureMessage(Object error) {
+    return 'インポートに失敗しました: $error';
+  }
+
+  @override
+  String get lorebookExportSuccessMessage => 'World Info JSONでエクスポートしました。';
+
+  @override
+  String lorebookExportFailureMessage(Object error) {
+    return 'エクスポートに失敗しました: $error';
+  }
+
+  @override
+  String get createTabImportTargetSheetTitle => 'インポート先を選んでください';
+
+  @override
+  String get createTabImportTargetNewPlot => '新しいプロットとして作成';
+
+  @override
+  String get createTabImportLorebookTargetSheetTitle => 'ロアブックをどう追加しますか?';
+
+  @override
+  String get createTabImportLorebookTargetNew => '新しいロアブックを作成';
+
+  @override
+  String get myPageSummarySettingsButton => '要約(長期記憶)設定';
+
+  @override
+  String get summarySettingsTitle => '要約(長期記憶)設定';
+
+  @override
+  String get summarySettingsDescription =>
+      'AIプリセットにコンテキスト長(最近のメッセージ数の上限)が設定されていると、その範囲を超えた古い会話を自動で要約してシステムプロンプトに含めます。ここでこの機能をオフにしたり、要約プロンプトや使用するプリセットを指定できます。';
+
+  @override
+  String get summarySettingsEnabledLabel => '長期記憶の要約を使う';
+
+  @override
+  String get summarySettingsPromptLabel => '要約プロンプト';
+
+  @override
+  String get summarySettingsPromptHint => '空欄なら既定のプロンプトを使います';
+
+  @override
+  String get summarySettingsPresetLabel => '要約に使うプリセット';
+
+  @override
+  String get summarySettingsPresetDefaultOption => 'チャットと同じプリセットを使う';
+
+  @override
+  String get summarySettingsSaveButton => '保存';
+
+  @override
+  String get summarySettingsSavedMessage => '保存しました。';
 }

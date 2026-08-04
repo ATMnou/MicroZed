@@ -83,6 +83,40 @@ class PlotImportService {
     return PlotImportResult(plotId: plotId, hadIntro: hadIntro, hadLorebook: hadLorebook);
   }
 
+  /// [importAsNewPlot]과 달리 새 플롯을 만들지 않고, 기존 [plotId]에 카드의 캐릭터를
+  /// 대표 캐릭터가 아닌 추가 캐릭터로 얹는다(기존 캐릭터/인트로/프로필은 손대지 않음).
+  /// 카드에 로어북이 있으면, [mergeLorebookId]가 주어졌을 때 그 기존 로어북에 항목을
+  /// 이어 붙이고, 없으면 예전처럼 새 로어북을 만들어 이 플롯에 추가로 연결한다(기존에
+  /// 이 플롯에 연결돼 있던 다른 로어북 링크는 그대로 유지된다).
+  Future<PlotImportResult> mergeIntoPlot(
+    int plotId,
+    ParsedCharacterCard card, {
+    int? mergeLorebookId,
+  }) async {
+    final characterName = _truncate(card.name, _nameMaxLength);
+
+    String? imagePath;
+    final avatarBytes = card.avatarBytes;
+    if (avatarBytes != null) {
+      imagePath = await _imageStore.saveBytes('card', avatarBytes);
+    }
+
+    final existingCharacters = await _characterRepository.getByPlot(plotId);
+    final characterId = await _characterRepository.add(
+      plotId: plotId,
+      name: characterName.isEmpty ? '캐릭터 1' : characterName,
+      description: _buildCharacterDescription(card),
+      imagePath: imagePath,
+      isRepresentative: false,
+      sortOrder: existingCharacters.length,
+    );
+
+    final hadIntro = await _importIntro(plotId, characterId, characterName, card);
+    final hadLorebook = await _importLorebook(plotId, card, mergeLorebookId: mergeLorebookId);
+
+    return PlotImportResult(plotId: plotId, hadIntro: hadIntro, hadLorebook: hadLorebook);
+  }
+
   /// 인트로를 실제로 만들었으면 true, 카드에 오프닝이 아예 없어서 건너뛰었으면 false.
   Future<bool> _importIntro(
     int plotId,
@@ -118,12 +152,20 @@ class PlotImportService {
     return true;
   }
 
-  /// 로어북을 실제로 만들었으면 true, 카드에 character_book이 없어서 건너뛰었으면 false.
-  Future<bool> _importLorebook(int plotId, ParsedCharacterCard card) async {
+  /// 로어북을 실제로 만들었으면(또는 기존 로어북에 항목을 추가했으면) true, 카드에
+  /// character_book이 없어서 건너뛰었으면 false. [mergeLorebookId]가 주어지면 새 로어북을
+  /// 만들지 않고 그 로어북에 항목만 이어 붙인다. 이 플롯에 이미 연결돼 있던 다른 로어북
+  /// 링크는 [setLorebookLinksForPlot]이 덮어쓰지 않도록 기존 링크와 합쳐서 저장한다.
+  Future<bool> _importLorebook(int plotId, ParsedCharacterCard card, {int? mergeLorebookId}) async {
     if (card.loreEntries.isEmpty) return false;
-    final bookName = card.bookName?.trim() ?? '';
-    final title = bookName.isNotEmpty ? bookName : '${card.name} 세계관';
-    final lorebookId = await _lorebookRepository.upsert(title: title);
+    int lorebookId;
+    if (mergeLorebookId != null) {
+      lorebookId = mergeLorebookId;
+    } else {
+      final bookName = card.bookName?.trim() ?? '';
+      final title = bookName.isNotEmpty ? bookName : '${card.name} 세계관';
+      lorebookId = await _lorebookRepository.upsert(title: title);
+    }
     for (final entry in card.loreEntries) {
       final entryId = await _lorebookRepository.addEntry(lorebookId);
       await _lorebookRepository.updateEntry(
@@ -133,7 +175,8 @@ class PlotImportService {
         content: entry.content,
       );
     }
-    await _lorebookRepository.setLorebookLinksForPlot(plotId, {lorebookId});
+    final existingLinks = await _lorebookRepository.linkedLorebookIds(plotId);
+    await _lorebookRepository.setLorebookLinksForPlot(plotId, {...existingLinks, lorebookId});
     return true;
   }
 

@@ -544,10 +544,21 @@ class _CreateTabState extends State<CreateTab> {
       allowedExtensions: const ['mzplot'],
     );
     if (result == null || result.files.isEmpty) return; // 취소됨
+    final target = await _pickImportTargetPlot();
+    if (target.cancelled) return;
+    int? mergeLorebookId;
+    if (target.plotId != null) {
+      if (!mounted) return;
+      mergeLorebookId = await _pickLorebookMergeTarget(target.plotId!);
+    }
     setState(() => _importing = true);
     try {
       final bytes = await result.files.single.readAsBytes();
-      final importResult = await PlotDataImporter(AppDatabase.instance).importFromBytes(bytes);
+      final importResult = await PlotDataImporter(AppDatabase.instance).importFromBytes(
+        bytes,
+        targetPlotId: target.plotId,
+        mergeLorebookId: mergeLorebookId,
+      );
       if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute(
@@ -707,6 +718,113 @@ class _CreateTabState extends State<CreateTab> {
     );
   }
 
+  /// 새 플롯으로 만들지, 기존 플롯에 병합할지 고르는 시트. 취소하면 null, 새로 만들기면
+  /// `plotId: null`, 기존 플롯을 골랐으면 그 plotId.
+  Future<({bool cancelled, int? plotId})> _pickImportTargetPlot() async {
+    final l10n = AppLocalizations.of(context)!;
+    final plots = await _plotRepository.watchAll().first;
+    if (!mounted) return (cancelled: true, plotId: null);
+    final choice = await showModalBottomSheet<int?>(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.7),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      l10n.createTabImportTargetSheetTitle,
+                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.add_circle_outline, color: Colors.white),
+                  title: Text(l10n.createTabImportTargetNewPlot, style: const TextStyle(color: Colors.white)),
+                  onTap: () => Navigator.of(sheetContext).pop(-1),
+                ),
+                const Divider(color: Color(0xFF2A2A2A), height: 1),
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: plots.length,
+                    itemBuilder: (context, index) {
+                      final plot = plots[index].plot;
+                      return ListTile(
+                        title: Text(plot.title, style: const TextStyle(color: Colors.white)),
+                        onTap: () => Navigator.of(sheetContext).pop(plot.id),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (choice == null) return (cancelled: true, plotId: null);
+    return (cancelled: false, plotId: choice == -1 ? null : choice);
+  }
+
+  /// 병합 대상 플롯에 이미 연결된 로어북이 있을 때만 부른다. 새로 만들기를 고르거나
+  /// 시트를 그냥 닫으면 null(=새 로어북 생성)을 돌려준다.
+  Future<int?> _pickLorebookMergeTarget(int plotId) async {
+    final l10n = AppLocalizations.of(context)!;
+    final linked = await _lorebookRepository.watchLinkedLorebooks(plotId).first;
+    if (linked.isEmpty) return null;
+    if (!mounted) return null;
+    return showModalBottomSheet<int?>(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    l10n.createTabImportLorebookTargetSheetTitle,
+                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.add_circle_outline, color: Colors.white),
+                title: Text(l10n.createTabImportLorebookTargetNew, style: const TextStyle(color: Colors.white)),
+                onTap: () => Navigator.of(sheetContext).pop(),
+              ),
+              const Divider(color: Color(0xFF2A2A2A), height: 1),
+              for (final lorebook in linked)
+                ListTile(
+                  title: Text(lorebook.title, style: const TextStyle(color: Colors.white)),
+                  onTap: () => Navigator.of(sheetContext).pop(lorebook.id),
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _runImport(
     Future<ParsedCharacterCard?> Function() loader,
   ) async {
@@ -715,9 +833,25 @@ class _CreateTabState extends State<CreateTab> {
     try {
       final card = await loader();
       if (card == null) return; // 취소됨
-      final result = await PlotImportService(
-        AppDatabase.instance,
-      ).importAsNewPlot(card);
+      if (!mounted) return;
+      final target = await _pickImportTargetPlot();
+      if (target.cancelled) return;
+
+      final PlotImportResult result;
+      if (target.plotId == null) {
+        result = await PlotImportService(AppDatabase.instance).importAsNewPlot(card);
+      } else {
+        int? mergeLorebookId;
+        if (card.loreEntries.isNotEmpty) {
+          if (!mounted) return;
+          mergeLorebookId = await _pickLorebookMergeTarget(target.plotId!);
+        }
+        result = await PlotImportService(AppDatabase.instance).mergeIntoPlot(
+          target.plotId!,
+          card,
+          mergeLorebookId: mergeLorebookId,
+        );
+      }
       if (!mounted) return;
       if (!result.hadIntro) {
         ScaffoldMessenger.of(context).showSnackBar(

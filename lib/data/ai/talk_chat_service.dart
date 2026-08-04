@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
 import '../db/database.dart';
@@ -9,13 +10,17 @@ import 'anthropic_client.dart';
 import 'openai_compatible_client.dart';
 
 /// ZedTalk 전용 시스템 프롬프트. 롤플레이용 [PromptBuilder]의 장문 설정 템플릿과 달리,
-/// 카카오톡처럼 짧고 일상적인 대화 톤을 유도한다.
+/// 카카오톡처럼 짧고 일상적인 대화 톤을 유도한다. [now]는 실제 기기 시각을 그대로 실어서,
+/// AI가 "지금 몇 시야?" 같은 질문이나 날짜가 바뀌는 상황에 자연스럽게 반응하게 한다.
 String buildTalkSystemPrompt({
   required String characterName,
   required String characterDescription,
   required String userProfileName,
+  required DateTime now,
 }) {
-  return '너는 메신저 앱에서 "$characterName"(이)라는 사람으로서 "$userProfileName"과 1:1로 대화하는 중이야.\n'
+  final nowText = DateFormat('yyyy년 M월 d일 EEEE a h시 mm분', 'ko').format(now);
+  return '지금은 $nowText이야.\n\n'
+      '너는 메신저 앱에서 "$characterName"(이)라는 사람으로서 "$userProfileName"과 1:1로 대화하는 중이야.\n'
       '캐릭터 설정: $characterDescription\n\n'
       '롤플레이 소설처럼 길게 서술하지 말고, 실제 메신저에서 친구랑 대화하듯 짧고 자연스러운 문장(1~3문장) 위주로 답해. '
       '이모티콘이나 줄임말을 과하지 않게 섞어도 좋아. 나레이션이나 행동 묘사(*...* 같은 표현)는 쓰지 마.';

@@ -77,7 +77,6 @@ class _ChatScreenState extends State<ChatScreen> {
   /// 재시도 중인 턴 id. 새 버전이 완성될 때까지 이 턴의 기존 말풍선은 화면에서 미리 감춘다.
   int? _retryingTurnId;
 
-  static const _background = Color(0xFF141414);
   static const _bubbleGrey = Color(0xFF2A2A2A);
   static const _bubblePurple = Color(0xFF7A6FF0);
   static const _pillGrey = Color(0xFF262626);
@@ -508,7 +507,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 style: const TextStyle(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: _background,
+                  fillColor: const Color(0xFF141414),
                   contentPadding: const EdgeInsets.all(12),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -591,7 +590,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: _background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       endDrawer: _buildChatMenuDrawer(context),
       body: _loading
@@ -820,7 +819,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: _background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(
@@ -1025,7 +1024,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildInputBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-      color: _background,
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: Row(
         children: [
           GestureDetector(

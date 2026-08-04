@@ -47,4 +47,15 @@ class TalkMessageRepository {
   }
 
   Future<void> delete(int messageId) => (_db.delete(_db.talkMessages)..where((m) => m.id.equals(messageId))).go();
+
+  /// 유저 말풍선 메뉴의 '삭제'. 그 메시지부터(포함) 이후 전부 지운다.
+  Future<void> deleteFrom(int sessionId, int messageId) => (_db.delete(_db.talkMessages)
+        ..where((m) => m.sessionId.equals(sessionId) & m.id.isBiggerOrEqualValue(messageId)))
+      .go();
+
+  Future<void> updateContent(int messageId, String content) {
+    return (_db.update(_db.talkMessages)..where((m) => m.id.equals(messageId))).write(
+      TalkMessagesCompanion(content: Value(content)),
+    );
+  }
 }

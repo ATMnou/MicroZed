@@ -16,6 +16,7 @@ import 'ai_preset_screen.dart';
 import 'lan_sync_screen.dart';
 import 'local_llm_screen.dart';
 import 'snapshot_settings_screen.dart';
+import 'summary_settings_screen.dart';
 import 'system_prompt_edit_screen.dart';
 
 /// 마이페이지 > '환경설정'. 채팅에 붙는 인트로/스냅샷 이미지를 정사각형으로 보여줄지,
@@ -28,7 +29,6 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
-  static const _background = Color(0xFF141414);
   static const _cardBg = Color(0xFF1E1E1E);
   static const _borderGrey = Color(0xFF3A3A3A);
   static const _purple = Color(0xFF7A6FF0);
@@ -55,9 +55,9 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: _background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(
@@ -202,6 +202,12 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               label: l10n.myPageSnapshotSettingsButton,
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const SnapshotSettingsScreen()),
+              ),
+            ),
+            _buildNavButton(
+              label: l10n.myPageSummarySettingsButton,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SummarySettingsScreen()),
               ),
             ),
           ],

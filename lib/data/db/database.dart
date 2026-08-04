@@ -47,7 +47,7 @@ class AppDatabase extends _$AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -116,6 +116,15 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(aiPresets, aiPresets.supportsVision);
             await m.createTable(talkSessions);
             await m.createTable(talkMessages);
+          }
+          // from < 16이었던 사용자는 바로 위 블록의 createTable(talkSessions)가 이미 현재
+          // Dart 스키마(character_id 등 포함) 그대로 테이블을 만들어주므로, 여기서 또
+          // addColumn을 하면 '컬럼 중복' 에러가 난다. v16에서 이미 talk_sessions가 있었던
+          // 사용자만 컬럼을 추가하면 된다.
+          if (from >= 16 && from < 17) {
+            await m.addColumn(talkSessions, talkSessions.characterId);
+            await m.addColumn(talkSessions, talkSessions.conversationProfileId);
+            await m.addColumn(talkSessions, talkSessions.plotConversationProfileId);
           }
         },
       );

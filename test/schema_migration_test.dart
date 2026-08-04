@@ -6,13 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:microzed/data/db/database.dart';
 import 'package:path/path.dart' as p;
 
-/// v9(로컬 LLM까지만 있던, 실제 배포된 1.1.1 스키마) -> v16(reasoningEffort +
+/// v9(로컬 LLM까지만 있던, 실제 배포된 1.1.1 스키마) -> v17(reasoningEffort +
 /// PlotConversationProfiles + ChatSessions.plotConversationProfileId +
 /// TokenUsageLogs.provider + AiPresets의 OpenRouter 전용 라우팅 옵션 3종 + endpointFormat +
-/// ChatMemorySummaries 테이블 + AiPresets.supportsVision + TalkSessions/TalkMessages 테이블
-/// 추가) 마이그레이션이 실제 파일 기반 sqlite에서 데이터 손실 없이 동작하는지 검증한다.
+/// ChatMemorySummaries 테이블 + AiPresets.supportsVision + TalkSessions/TalkMessages 테이블 +
+/// TalkSessions.characterId/conversationProfileId/plotConversationProfileId 추가)
+/// 마이그레이션이 실제 파일 기반 sqlite에서 데이터 손실 없이 동작하는지 검증한다.
 void main() {
-  test('upgrades from schema v9 to v16 without losing existing data', () async {
+  test('upgrades from schema v9 to v17 without losing existing data', () async {
     final tempPath = p.join(
       Directory.systemTemp.path,
       'microzed_migration_test_${DateTime.now().microsecondsSinceEpoch}.sqlite',
@@ -115,8 +116,11 @@ void main() {
         await (db.select(db.chatMemorySummaries)..where((m) => m.id.equals(memoryId))).getSingle();
     expect(memory.summaryText, '요약');
 
+    final characterId = await db.into(db.characters).insert(
+          CharactersCompanion.insert(plotId: plotId, name: 'Test Character'),
+        );
     final talkSessionId = await db.into(db.talkSessions).insert(
-          TalkSessionsCompanion.insert(plotId: plotId),
+          TalkSessionsCompanion.insert(plotId: plotId, characterId: const Value(null)),
         );
     final talkMessageId = await db.into(db.talkMessages).insert(
           TalkMessagesCompanion.insert(
@@ -129,6 +133,15 @@ void main() {
         await (db.select(db.talkMessages)..where((m) => m.id.equals(talkMessageId))).getSingle();
     expect(talkMessage.content, '안녕');
     expect(talkMessage.sender, TalkMessageSender.user);
+
+    final talkSession = await (db.select(db.talkSessions)..where((s) => s.id.equals(talkSessionId))).getSingle();
+    expect(talkSession.characterId, isNull);
+    await (db.update(db.talkSessions)..where((s) => s.id.equals(talkSessionId))).write(
+      TalkSessionsCompanion(characterId: Value(characterId)),
+    );
+    final updatedTalkSession =
+        await (db.select(db.talkSessions)..where((s) => s.id.equals(talkSessionId))).getSingle();
+    expect(updatedTalkSession.characterId, characterId);
 
     await db.close();
   });

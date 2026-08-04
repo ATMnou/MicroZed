@@ -56,21 +56,33 @@ class PlotDataImporter {
   final LorebookRepository _lorebookRepository;
   final LocalImageStore _imageStore;
 
-  Future<PlotDataImportResult> importFromBytes(Uint8List zipBytes) async {
+  Future<PlotDataImportResult> importFromBytes(
+    Uint8List zipBytes, {
+    int? targetPlotId,
+    int? mergeLorebookId,
+  }) async {
     final Archive archive;
     try {
       archive = ZipDecoder().decodeBytes(zipBytes);
     } catch (_) {
       throw PlotDataImportException('zip 파일을 읽지 못했어요. 손상되었거나 올바른 파일이 아니에요.');
     }
-    return importArchive(archive);
+    return importArchive(archive, targetPlotId: targetPlotId, mergeLorebookId: mergeLorebookId);
   }
 
   /// [importFromBytes]의 핵심 로직. 이미 디코딩된 [Archive]를 받아서 그대로 가져온다 -
   /// `.mzpack`(여러 플롯 묶음)이 하나의 바깥 zip 안에 플롯별 `manifest.json`/`data.json`/
   /// `images/*`를 서브 디렉터리로 담고 있을 때, 플롯 단위로 쪼갠 서브 [Archive]를 만들어
   /// 이 메서드를 여러 번 호출하는 식으로 재사용한다([PlotPackageImporter] 참고).
-  Future<PlotDataImportResult> importArchive(Archive archive) async {
+  ///
+  /// [targetPlotId]가 주어지면 새 플롯을 만들지 않고 그 플롯에 캐릭터/인트로/플롯 전용
+  /// 프로필을 추가로 얹는다(대표 캐릭터로 지정하지 않음). [mergeLorebookId]가 함께 주어지면
+  /// 가져온 로어북 항목들을 새 로어북들로 나누지 않고 그 기존 로어북 하나에 전부 이어 붙인다.
+  Future<PlotDataImportResult> importArchive(
+    Archive archive, {
+    int? targetPlotId,
+    int? mergeLorebookId,
+  }) async {
     final manifestFile = archive.findFile('manifest.json');
     final dataFile = archive.findFile('data.json');
     if (manifestFile == null || dataFile == null) {
@@ -121,14 +133,19 @@ class PlotDataImporter {
         .where((t) => t.isNotEmpty)
         .toList();
 
-    final plotId = await _plotRepository.upsertPlot(
-      title: plotJson['title'] as String? ?? '',
-      description: plotJson['description'] as String? ?? '',
-      shortIntro: plotJson['shortIntro'] as String? ?? '',
-      hashtags: hashtags,
-      coverImagePath: remapImage(plotJson['coverImagePath'] as String?),
-    );
+    final plotId = targetPlotId ??
+        await _plotRepository.upsertPlot(
+          title: plotJson['title'] as String? ?? '',
+          description: plotJson['description'] as String? ?? '',
+          shortIntro: plotJson['shortIntro'] as String? ?? '',
+          hashtags: hashtags,
+          coverImagePath: remapImage(plotJson['coverImagePath'] as String?),
+        );
 
+    // 기존 플롯에 병합할 때는 대표 캐릭터를 새로 지정하지 않고(이미 있으니), 정렬 순서도
+    // 기존 캐릭터들 뒤로 이어 붙인다.
+    final existingCharacterCount =
+        targetPlotId == null ? 0 : (await _characterRepository.getByPlot(targetPlotId)).length;
     final characterIdMap = <int, int>{};
     for (final json in rowsFor('characters')) {
       final newId = await _characterRepository.add(
@@ -136,8 +153,8 @@ class PlotDataImporter {
         name: json['name'] as String? ?? '',
         description: json['description'] as String? ?? '',
         imagePath: remapImage(json['imagePath'] as String?),
-        isRepresentative: json['isRepresentative'] as bool? ?? false,
-        sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
+        isRepresentative: targetPlotId == null ? (json['isRepresentative'] as bool? ?? false) : false,
+        sortOrder: existingCharacterCount + ((json['sortOrder'] as num?)?.toInt() ?? 0),
         aboutText: json['aboutText'] as String? ?? '',
       );
       characterIdMap[(json['id'] as num).toInt()] = newId;
@@ -181,34 +198,52 @@ class PlotDataImporter {
       );
     }
 
-    final lorebookIdMap = <int, int>{};
-    for (final json in rowsFor('lorebooks')) {
-      final newId = await _lorebookRepository.upsert(
-        title: json['title'] as String? ?? '',
-        shortIntro: json['shortIntro'] as String? ?? '',
-      );
-      lorebookIdMap[(json['id'] as num).toInt()] = newId;
+    // mergeLorebookId가 있으면 원본의 로어북 구분을 무시하고 모든 항목을 그 기존
+    // 로어북 하나에 이어 붙인다. 없으면 예전처럼 원본 로어북들을 그대로 새로 만든다.
+    final linkedLorebookIds = <int>{};
+    if (mergeLorebookId != null) {
+      for (final json in rowsFor('lorebookEntries')) {
+        final entryId = await _lorebookRepository.addEntry(mergeLorebookId);
+        await _lorebookRepository.updateEntry(
+          id: entryId,
+          title: json['title'] as String? ?? '',
+          keywords: json['keywords'] as String? ?? '',
+          content: json['content'] as String? ?? '',
+        );
+      }
+      if (rowsFor('lorebookEntries').isNotEmpty) linkedLorebookIds.add(mergeLorebookId);
+    } else {
+      final lorebookIdMap = <int, int>{};
+      for (final json in rowsFor('lorebooks')) {
+        final newId = await _lorebookRepository.upsert(
+          title: json['title'] as String? ?? '',
+          shortIntro: json['shortIntro'] as String? ?? '',
+        );
+        lorebookIdMap[(json['id'] as num).toInt()] = newId;
+      }
+      for (final json in rowsFor('lorebookEntries')) {
+        final oldLorebookId = (json['lorebookId'] as num?)?.toInt();
+        final newLorebookId = oldLorebookId == null ? null : lorebookIdMap[oldLorebookId];
+        if (newLorebookId == null) continue;
+        final entryId = await _lorebookRepository.addEntry(newLorebookId);
+        await _lorebookRepository.updateEntry(
+          id: entryId,
+          title: json['title'] as String? ?? '',
+          keywords: json['keywords'] as String? ?? '',
+          content: json['content'] as String? ?? '',
+        );
+      }
+      linkedLorebookIds.addAll(lorebookIdMap.values);
     }
-    for (final json in rowsFor('lorebookEntries')) {
-      final oldLorebookId = (json['lorebookId'] as num?)?.toInt();
-      final newLorebookId = oldLorebookId == null ? null : lorebookIdMap[oldLorebookId];
-      if (newLorebookId == null) continue;
-      final entryId = await _lorebookRepository.addEntry(newLorebookId);
-      await _lorebookRepository.updateEntry(
-        id: entryId,
-        title: json['title'] as String? ?? '',
-        keywords: json['keywords'] as String? ?? '',
-        content: json['content'] as String? ?? '',
-      );
-    }
-    if (lorebookIdMap.isNotEmpty) {
-      await _lorebookRepository.setLorebookLinksForPlot(plotId, lorebookIdMap.values.toSet());
+    if (linkedLorebookIds.isNotEmpty) {
+      final existingLinks = await _lorebookRepository.linkedLorebookIds(plotId);
+      await _lorebookRepository.setLorebookLinksForPlot(plotId, {...existingLinks, ...linkedLorebookIds});
     }
 
     return PlotDataImportResult(
       plotId: plotId,
       characterCount: characterIdMap.length,
-      lorebookCount: lorebookIdMap.length,
+      lorebookCount: linkedLorebookIds.length,
     );
   }
 }

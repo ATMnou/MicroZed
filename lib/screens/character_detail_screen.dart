@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
+import '../data/repositories/character_repository.dart';
 import '../data/repositories/chat_session_repository.dart';
 import '../data/repositories/intro_entry_repository.dart';
 import '../data/repositories/plot_conversation_profile_repository.dart';
@@ -13,6 +14,7 @@ import '../widgets/local_avatar.dart';
 import 'chat_screen.dart';
 import 'plot_edit_screen.dart';
 import 'plot_profile_picker_screen.dart';
+import 'talk_character_picker_screen.dart';
 import 'talk_chat_screen.dart';
 
 /// 홈에서 플롯 카드를 눌렀을 때 표시되는 캐릭터 정보 화면. 실제 DB의 플롯/대표 캐릭터/
@@ -38,14 +40,13 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
   late final ChatSessionRepository _sessionRepository;
   late final PlotConversationProfileRepository _plotProfileRepository;
   late final TalkSessionRepository _talkSessionRepository;
+  late final CharacterRepository _characterRepository;
 
   Plot? _plot;
   Character? _character;
   IntroEntry? _firstIntroEntry;
   int _conversationCount = 0;
   bool _loading = true;
-
-  static const _background = Color(0xFF141414);
 
   @override
   void initState() {
@@ -56,18 +57,43 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
     _sessionRepository = ChatSessionRepository(db);
     _plotProfileRepository = PlotConversationProfileRepository(db);
     _talkSessionRepository = TalkSessionRepository(db);
+    _characterRepository = CharacterRepository(db);
     _load();
   }
 
-  /// 'ZedTalk' 버튼. 이 플롯에 이미 톡방이 있으면 가장 최근 것을 이어서 열고,
-  /// 없으면 새로 만든다(롤플레이와 달리 세션 시작 전 프로필을 고르는 절차는 없다).
+  /// 'ZedTalk' 버튼. 이 플롯에 이미 톡방이 있으면 가장 최근 것을 이어서 열고(캐릭터는 이미
+  /// 그 방에 정해져 있으니 다시 묻지 않는다), 없으면 새로 만든다 — 플롯에 캐릭터가 여럿이면
+  /// 새로 만들기 전에 어떤 캐릭터와 대화할지 먼저 고르게 한다.
   Future<void> _startTalk(BuildContext context) async {
-    var sessionId = await _talkSessionRepository.mostRecentSessionIdForPlot(widget.plotId);
-    sessionId ??= await _talkSessionRepository.createSession(plotId: widget.plotId);
+    final existingSessionId = await _talkSessionRepository.mostRecentSessionIdForPlot(widget.plotId);
+    int sessionId;
+    if (existingSessionId != null) {
+      sessionId = existingSessionId;
+    } else {
+      if (!context.mounted) return;
+      final pick = await _pickTalkCharacter(context);
+      if (pick.cancelled) return;
+      if (!context.mounted) return;
+      sessionId = await _talkSessionRepository.createSession(plotId: widget.plotId, characterId: pick.characterId);
+    }
     if (!context.mounted) return;
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => TalkChatScreen(sessionId: sessionId!)),
+      MaterialPageRoute(builder: (_) => TalkChatScreen(sessionId: sessionId)),
     );
+  }
+
+  /// 플롯 캐릭터가 1명 이하면 고를 필요 없이 바로 그 캐릭터 id(없으면 null)를 돌려준다.
+  /// 2명 이상이면 선택 화면을 띄우고, 취소하면 `cancelled: true`(호출부가 중단 처리).
+  Future<({bool cancelled, int? characterId})> _pickTalkCharacter(BuildContext context) async {
+    final characters = await _characterRepository.getByPlot(widget.plotId);
+    if (characters.length <= 1) {
+      return (cancelled: false, characterId: characters.isEmpty ? null : characters.first.id);
+    }
+    if (!context.mounted) return (cancelled: true, characterId: null);
+    final chosen = await Navigator.of(context).push<int>(
+      MaterialPageRoute(builder: (_) => TalkCharacterPickerScreen(plotId: widget.plotId)),
+    );
+    return chosen == null ? (cancelled: true, characterId: null) : (cancelled: false, characterId: chosen);
   }
 
   /// 이 플롯에 이미 활성 세션이 있으면 그대로 이어서 열고, 없으면 새로 만든다.
@@ -127,7 +153,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: _loading
           ? const Center(
@@ -154,7 +180,7 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: _background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(

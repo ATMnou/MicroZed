@@ -1329,4 +1329,108 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get talkDeleteConfirmContent => '선택한 톡을 삭제할까요? 되돌릴 수 없어요.';
+
+  @override
+  String get talkCharacterPickerTitle => '대화할 캐릭터를 선택하세요';
+
+  @override
+  String get talkDrawerStartFreshTitle => '새로 시작';
+
+  @override
+  String get talkDrawerStartFreshSubtitle => '새 톡방을 만들어요';
+
+  @override
+  String get talkDrawerResumeTitle => '다른 톡방 보기';
+
+  @override
+  String get talkDrawerDeleteTitle => '톡방 삭제';
+
+  @override
+  String get talkDrawerProfileTitle => '대화 프로필';
+
+  @override
+  String get talkDrawerChoicesTitle => '선택지';
+
+  @override
+  String get talkDrawerExitButton => '톡방 나가기';
+
+  @override
+  String get talkResumeSheetTitle => '다른 톡방';
+
+  @override
+  String get talkResumeSheetEmpty => '이 플롯의 다른 톡방이 없어요';
+
+  @override
+  String get talkSheetStartFreshFromHere => '여기서 새로 시작';
+
+  @override
+  String get talkEditMessageTitle => '메시지 수정';
+
+  @override
+  String get lorebookImportButtonTooltip =>
+      '가져오기 (SillyTavern World Info / JanitorAI)';
+
+  @override
+  String get lorebookExportButtonTooltip => 'SillyTavern World Info로 내보내기';
+
+  @override
+  String lorebookImportSuccessMessage(Object count) {
+    return '$count개 항목을 불러왔어요. 저장을 눌러야 실제로 반영돼요.';
+  }
+
+  @override
+  String lorebookImportFailureMessage(Object error) {
+    return '가져오기에 실패했어요: $error';
+  }
+
+  @override
+  String get lorebookExportSuccessMessage => 'World Info JSON으로 내보냈어요.';
+
+  @override
+  String lorebookExportFailureMessage(Object error) {
+    return '내보내기에 실패했어요: $error';
+  }
+
+  @override
+  String get createTabImportTargetSheetTitle => '가져올 위치를 선택하세요';
+
+  @override
+  String get createTabImportTargetNewPlot => '새 플롯으로 만들기';
+
+  @override
+  String get createTabImportLorebookTargetSheetTitle => '로어북을 어떻게 추가할까요?';
+
+  @override
+  String get createTabImportLorebookTargetNew => '새 로어북 만들기';
+
+  @override
+  String get myPageSummarySettingsButton => '요약(장기 기억) 설정';
+
+  @override
+  String get summarySettingsTitle => '요약(장기 기억) 설정';
+
+  @override
+  String get summarySettingsDescription =>
+      'AI 프리셋에 컨텍스트 길이(최근 메시지 개수 상한)를 설정해두면, 그 범위를 벗어나는 오래된 대화를 자동으로 요약해서 시스템 프롬프트에 함께 실어요. 여기서 이 기능을 끄거나, 요약 프롬프트/사용할 프리셋을 직접 고를 수 있어요.';
+
+  @override
+  String get summarySettingsEnabledLabel => '장기 기억 요약 사용';
+
+  @override
+  String get summarySettingsPromptLabel => '요약 프롬프트';
+
+  @override
+  String get summarySettingsPromptHint => '비워두면 기본 프롬프트를 사용해요';
+
+  @override
+  String get summarySettingsPresetLabel => '요약에 사용할 프리셋';
+
+  @override
+  String get summarySettingsPresetDefaultOption => '채팅과 동일한 프리셋 사용';
+
+  @override
+  String get summarySettingsSaveButton => '저장';
+
+  @override
+  String get summarySettingsSavedMessage => '저장했어요.';
 }

@@ -15,6 +15,9 @@ class CharacterRepository {
         .watch();
   }
 
+  Future<Character?> getById(int id) =>
+      (_db.select(_db.characters)..where((c) => c.id.equals(id))).getSingleOrNull();
+
   Future<List<Character>> getByPlot(int plotId) {
     return (_db.select(_db.characters)
           ..where((c) => c.plotId.equals(plotId))

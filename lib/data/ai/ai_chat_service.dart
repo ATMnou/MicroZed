@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../db/database.dart';
+import '../repositories/ai_preset_repository.dart';
 import '../repositories/character_repository.dart';
 import '../repositories/chat_memory_repository.dart';
 import '../repositories/chat_turn_repository.dart';
@@ -13,6 +14,7 @@ import 'local_llm/local_llm_engine.dart';
 import 'message_format_parser.dart';
 import 'openai_compatible_client.dart';
 import 'prompt_builder.dart';
+import 'summary_settings_store.dart';
 import 'system_prompt_store.dart';
 
 /// 스트리밍 생성을 도중에 멈출 수 있게 해주는 토큰. 채팅 화면에서 전송 버튼이 중지
@@ -37,8 +39,10 @@ class AiChatService {
         _tokenUsageRepo = TokenUsageRepository(db),
         _lorebookRepo = LorebookRepository(db),
         _memoryRepo = ChatMemoryRepository(db),
+        _presetRepo = AiPresetRepository(db),
         _apiKeyStore = ApiKeyStore(),
-        _systemPromptStore = SystemPromptStore();
+        _systemPromptStore = SystemPromptStore(),
+        _summarySettingsStore = SummarySettingsStore();
 
   final OpenAiCompatibleClient _client;
   final AnthropicClient _anthropicClient;
@@ -48,8 +52,10 @@ class AiChatService {
   final TokenUsageRepository _tokenUsageRepo;
   final LorebookRepository _lorebookRepo;
   final ChatMemoryRepository _memoryRepo;
+  final AiPresetRepository _presetRepo;
   final ApiKeyStore _apiKeyStore;
   final SystemPromptStore _systemPromptStore;
+  final SummarySettingsStore _summarySettingsStore;
 
   /// 새 유저 메시지에 대한 첫 응답. 새 턴을 만들고 버전 0을 채운다.
   Future<void> generateReply({
@@ -377,6 +383,9 @@ class AiChatService {
     final contextLength = preset.contextLength;
     if (contextLength == null || contextLength <= 0) return null;
 
+    final summarySettings = await _summarySettingsStore.read();
+    if (!summarySettings.enabled) return null;
+
     final withoutImages = history.where((m) => m.senderType != MessageSender.image).toList();
     if (withoutImages.length <= contextLength) return null;
 
@@ -390,18 +399,23 @@ class AiChatService {
     }
 
     final droppedText = PromptBuilder.reconstructRawText(messages: dropped, characters: characters);
-    final summary = await _summarizeHistory(preset, droppedText);
+    final summaryPreset = summarySettings.presetId == null
+        ? preset
+        : (await _presetRepo.getById(summarySettings.presetId!)) ?? preset;
+    final summary = await _summarizeHistory(summaryPreset, droppedText, customPrompt: summarySettings.customPrompt);
     await _memoryRepo.upsert(sessionId: sessionId, coveredUpToMessageId: lastDroppedId, summaryText: summary);
     return summary;
   }
 
-  Future<String> _summarizeHistory(AiPreset preset, String rawText) async {
+  Future<String> _summarizeHistory(AiPreset preset, String rawText, {String? customPrompt}) async {
     final messages = <Map<String, String>>[
       {
         'role': 'system',
-        'content': '너는 롤플레이 채팅의 오래된 대화 기록을 요약하는 도우미야. 아래 대화 기록을 앞으로 이어질 롤플레이에 '
-            '필요한 핵심 사실/설정/관계 변화 위주로 5~10문장 정도로 압축해줘. 대화체가 아니라 요약문으로 쓰고, '
-            '다른 설명 없이 요약 내용만 출력해.',
+        'content': customPrompt?.trim().isNotEmpty == true
+            ? customPrompt!.trim()
+            : '너는 롤플레이 채팅의 오래된 대화 기록을 요약하는 도우미야. 아래 대화 기록을 앞으로 이어질 롤플레이에 '
+                '필요한 핵심 사실/설정/관계 변화 위주로 5~10문장 정도로 압축해줘. 대화체가 아니라 요약문으로 쓰고, '
+                '다른 설명 없이 요약 내용만 출력해.',
       },
       {'role': 'user', 'content': rawText},
     ];

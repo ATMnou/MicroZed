@@ -187,6 +187,17 @@ class TalkSessions extends Table {
   IntColumn get plotId => integer().references(Plots, #id, onDelete: KeyAction.cascade)();
   IntColumn get presetId => integer().nullable().references(AiPresets, #id, onDelete: KeyAction.setNull)();
   BoolColumn get pinned => boolean().withDefault(const Constant(false))();
+
+  /// 이 방의 상대 캐릭터. null이면 예전처럼 plot의 대표 캐릭터로 폴백한다
+  /// (스키마 v17 이전에 만들어진 세션 대응용).
+  IntColumn get characterId => integer().nullable().references(Characters, #id, onDelete: KeyAction.setNull)();
+
+  /// [ChatSessions]와 동일하게 전역 프로필/플롯 전용 프로필 중 하나만 값이 있을 수 있다.
+  IntColumn get conversationProfileId =>
+      integer().nullable().references(ConversationProfiles, #id, onDelete: KeyAction.setNull)();
+  IntColumn get plotConversationProfileId =>
+      integer().nullable().references(PlotConversationProfiles, #id, onDelete: KeyAction.setNull)();
+
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

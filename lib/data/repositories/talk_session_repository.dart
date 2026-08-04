@@ -61,6 +61,28 @@ class TalkSessionRepository {
     return message?.content ?? '';
   }
 
+  /// 드로어 '다른 톡방 보기'용. 이 플롯의 다른 ZedTalk 세션들(자기 자신 제외)을 최신순으로.
+  Stream<List<TalkSessionSummary>> watchOthersForPlot(int plotId, int excludeSessionId) {
+    final query = _db.select(_db.talkSessions)
+      ..where((s) => s.plotId.equals(plotId) & s.id.equals(excludeSessionId).not())
+      ..orderBy([
+        (s) => OrderingTerm.desc(s.updatedAt),
+        (s) => OrderingTerm.desc(s.id),
+      ]);
+
+    return query.watch().asyncMap((sessions) async {
+      final summaries = <TalkSessionSummary>[];
+      for (final session in sessions) {
+        summaries.add(TalkSessionSummary(
+          session: session,
+          plotTitle: '',
+          lastMessagePreview: await _lastMessagePreview(session.id),
+        ));
+      }
+      return summaries;
+    });
+  }
+
   Future<TalkSession?> getById(int id) =>
       (_db.select(_db.talkSessions)..where((s) => s.id.equals(id))).getSingleOrNull();
 
@@ -76,9 +98,13 @@ class TalkSessionRepository {
     return session?.id;
   }
 
-  Future<int> createSession({required int plotId, int? presetId}) {
+  Future<int> createSession({required int plotId, int? presetId, int? characterId}) {
     return _db.into(_db.talkSessions).insert(
-          TalkSessionsCompanion.insert(plotId: plotId, presetId: Value(presetId)),
+          TalkSessionsCompanion.insert(
+            plotId: plotId,
+            presetId: Value(presetId),
+            characterId: Value(characterId),
+          ),
         );
   }
 
@@ -92,6 +118,67 @@ class TalkSessionRepository {
     return (_db.update(_db.talkSessions)..where((s) => s.id.equals(sessionId))).write(
       TalkSessionsCompanion(updatedAt: Value(DateTime.now())),
     );
+  }
+
+  /// 전역 프로필로 전환한다. 플롯 전용 프로필 쪽은 함께 지운다([ChatSessionRepository]와 동일 규칙).
+  Future<void> setConversationProfile(int sessionId, int profileId) {
+    return (_db.update(_db.talkSessions)..where((s) => s.id.equals(sessionId))).write(
+      TalkSessionsCompanion(
+        conversationProfileId: Value(profileId),
+        plotConversationProfileId: const Value(null),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  /// 플롯 전용 프로필로 전환한다. 전역 프로필 쪽은 함께 지운다.
+  Future<void> setPlotConversationProfile(int sessionId, int plotProfileId) {
+    return (_db.update(_db.talkSessions)..where((s) => s.id.equals(sessionId))).write(
+      TalkSessionsCompanion(
+        plotConversationProfileId: Value(plotProfileId),
+        conversationProfileId: const Value(null),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  /// 유저 말풍선 메뉴의 '여기서 새로 시작'. 지금 세션은 그대로 두고(ZedTalk엔 보관 개념이
+  /// 없어서 목록에 계속 남는다), [uptoMessageId]까지의 메시지만 복제한 새 세션을 만들어
+  /// 그 뒤를 잘라낸 상태로 이어서 대화할 수 있게 한다.
+  Future<int> startFreshFromMessage({
+    required int plotId,
+    required int currentSessionId,
+    required int uptoMessageId,
+  }) async {
+    final current = await getById(currentSessionId);
+    final messages = await (_db.select(_db.talkMessages)
+          ..where((m) => m.sessionId.equals(currentSessionId))
+          ..orderBy([(m) => OrderingTerm.asc(m.id)]))
+        .get();
+    final cutIndex = messages.indexWhere((m) => m.id == uptoMessageId);
+    final toCopy = cutIndex == -1 ? messages : messages.sublist(0, cutIndex + 1);
+
+    final newSessionId = await _db.into(_db.talkSessions).insert(
+          TalkSessionsCompanion.insert(
+            plotId: plotId,
+            presetId: Value(current?.presetId),
+            characterId: Value(current?.characterId),
+            conversationProfileId: Value(current?.conversationProfileId),
+            plotConversationProfileId: Value(current?.plotConversationProfileId),
+          ),
+        );
+    for (final message in toCopy) {
+      await _db.into(_db.talkMessages).insert(
+            TalkMessagesCompanion.insert(
+              sessionId: newSessionId,
+              sender: message.sender,
+              content: Value(message.content),
+              attachmentPath: Value(message.attachmentPath),
+              attachmentType: Value(message.attachmentType),
+            ),
+          );
+    }
+    return newSessionId;
   }
 
   Future<void> delete(int sessionId) => (_db.delete(_db.talkSessions)..where((s) => s.id.equals(sessionId))).go();

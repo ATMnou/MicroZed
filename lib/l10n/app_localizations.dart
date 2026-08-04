@@ -2485,6 +2485,198 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'선택한 톡을 삭제할까요? 되돌릴 수 없어요.'**
   String get talkDeleteConfirmContent;
+
+  /// No description provided for @talkCharacterPickerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화할 캐릭터를 선택하세요'**
+  String get talkCharacterPickerTitle;
+
+  /// No description provided for @talkDrawerStartFreshTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로 시작'**
+  String get talkDrawerStartFreshTitle;
+
+  /// No description provided for @talkDrawerStartFreshSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 톡방을 만들어요'**
+  String get talkDrawerStartFreshSubtitle;
+
+  /// No description provided for @talkDrawerResumeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 톡방 보기'**
+  String get talkDrawerResumeTitle;
+
+  /// No description provided for @talkDrawerDeleteTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'톡방 삭제'**
+  String get talkDrawerDeleteTitle;
+
+  /// No description provided for @talkDrawerProfileTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화 프로필'**
+  String get talkDrawerProfileTitle;
+
+  /// No description provided for @talkDrawerChoicesTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택지'**
+  String get talkDrawerChoicesTitle;
+
+  /// No description provided for @talkDrawerExitButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'톡방 나가기'**
+  String get talkDrawerExitButton;
+
+  /// No description provided for @talkResumeSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 톡방'**
+  String get talkResumeSheetTitle;
+
+  /// No description provided for @talkResumeSheetEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 플롯의 다른 톡방이 없어요'**
+  String get talkResumeSheetEmpty;
+
+  /// No description provided for @talkSheetStartFreshFromHere.
+  ///
+  /// In ko, this message translates to:
+  /// **'여기서 새로 시작'**
+  String get talkSheetStartFreshFromHere;
+
+  /// No description provided for @talkEditMessageTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'메시지 수정'**
+  String get talkEditMessageTitle;
+
+  /// No description provided for @lorebookImportButtonTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기 (SillyTavern World Info / JanitorAI)'**
+  String get lorebookImportButtonTooltip;
+
+  /// No description provided for @lorebookExportButtonTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'SillyTavern World Info로 내보내기'**
+  String get lorebookExportButtonTooltip;
+
+  /// No description provided for @lorebookImportSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}개 항목을 불러왔어요. 저장을 눌러야 실제로 반영돼요.'**
+  String lorebookImportSuccessMessage(Object count);
+
+  /// No description provided for @lorebookImportFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기에 실패했어요: {error}'**
+  String lorebookImportFailureMessage(Object error);
+
+  /// No description provided for @lorebookExportSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'World Info JSON으로 내보냈어요.'**
+  String get lorebookExportSuccessMessage;
+
+  /// No description provided for @lorebookExportFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내기에 실패했어요: {error}'**
+  String lorebookExportFailureMessage(Object error);
+
+  /// No description provided for @createTabImportTargetSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져올 위치를 선택하세요'**
+  String get createTabImportTargetSheetTitle;
+
+  /// No description provided for @createTabImportTargetNewPlot.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 플롯으로 만들기'**
+  String get createTabImportTargetNewPlot;
+
+  /// No description provided for @createTabImportLorebookTargetSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'로어북을 어떻게 추가할까요?'**
+  String get createTabImportLorebookTargetSheetTitle;
+
+  /// No description provided for @createTabImportLorebookTargetNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 로어북 만들기'**
+  String get createTabImportLorebookTargetNew;
+
+  /// No description provided for @myPageSummarySettingsButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'요약(장기 기억) 설정'**
+  String get myPageSummarySettingsButton;
+
+  /// No description provided for @summarySettingsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'요약(장기 기억) 설정'**
+  String get summarySettingsTitle;
+
+  /// No description provided for @summarySettingsDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 프리셋에 컨텍스트 길이(최근 메시지 개수 상한)를 설정해두면, 그 범위를 벗어나는 오래된 대화를 자동으로 요약해서 시스템 프롬프트에 함께 실어요. 여기서 이 기능을 끄거나, 요약 프롬프트/사용할 프리셋을 직접 고를 수 있어요.'**
+  String get summarySettingsDescription;
+
+  /// No description provided for @summarySettingsEnabledLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'장기 기억 요약 사용'**
+  String get summarySettingsEnabledLabel;
+
+  /// No description provided for @summarySettingsPromptLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'요약 프롬프트'**
+  String get summarySettingsPromptLabel;
+
+  /// No description provided for @summarySettingsPromptHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'비워두면 기본 프롬프트를 사용해요'**
+  String get summarySettingsPromptHint;
+
+  /// No description provided for @summarySettingsPresetLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'요약에 사용할 프리셋'**
+  String get summarySettingsPresetLabel;
+
+  /// No description provided for @summarySettingsPresetDefaultOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'채팅과 동일한 프리셋 사용'**
+  String get summarySettingsPresetDefaultOption;
+
+  /// No description provided for @summarySettingsSaveButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get summarySettingsSaveButton;
+
+  /// No description provided for @summarySettingsSavedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장했어요.'**
+  String get summarySettingsSavedMessage;
 }
 
 class _AppLocalizationsDelegate

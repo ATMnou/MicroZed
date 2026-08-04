@@ -6132,6 +6132,47 @@ class $TalkSessionsTable extends TalkSessions
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<int> characterId = GeneratedColumn<int>(
+    'character_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _conversationProfileIdMeta =
+      const VerificationMeta('conversationProfileId');
+  @override
+  late final GeneratedColumn<int> conversationProfileId = GeneratedColumn<int>(
+    'conversation_profile_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES conversation_profiles (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _plotConversationProfileIdMeta =
+      const VerificationMeta('plotConversationProfileId');
+  @override
+  late final GeneratedColumn<int> plotConversationProfileId =
+      GeneratedColumn<int>(
+        'plot_conversation_profile_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES plot_conversation_profiles (id) ON DELETE SET NULL',
+        ),
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -6162,6 +6203,9 @@ class $TalkSessionsTable extends TalkSessions
     plotId,
     presetId,
     pinned,
+    characterId,
+    conversationProfileId,
+    plotConversationProfileId,
     createdAt,
     updatedAt,
   ];
@@ -6198,6 +6242,33 @@ class $TalkSessionsTable extends TalkSessions
       context.handle(
         _pinnedMeta,
         pinned.isAcceptableOrUnknown(data['pinned']!, _pinnedMeta),
+      );
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('conversation_profile_id')) {
+      context.handle(
+        _conversationProfileIdMeta,
+        conversationProfileId.isAcceptableOrUnknown(
+          data['conversation_profile_id']!,
+          _conversationProfileIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('plot_conversation_profile_id')) {
+      context.handle(
+        _plotConversationProfileIdMeta,
+        plotConversationProfileId.isAcceptableOrUnknown(
+          data['plot_conversation_profile_id']!,
+          _plotConversationProfileIdMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
@@ -6237,6 +6308,18 @@ class $TalkSessionsTable extends TalkSessions
         DriftSqlType.bool,
         data['${effectivePrefix}pinned'],
       )!,
+      characterId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}character_id'],
+      ),
+      conversationProfileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}conversation_profile_id'],
+      ),
+      plotConversationProfileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}plot_conversation_profile_id'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -6259,6 +6342,14 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
   final int plotId;
   final int? presetId;
   final bool pinned;
+
+  /// 이 방의 상대 캐릭터. null이면 예전처럼 plot의 대표 캐릭터로 폴백한다
+  /// (스키마 v17 이전에 만들어진 세션 대응용).
+  final int? characterId;
+
+  /// [ChatSessions]와 동일하게 전역 프로필/플롯 전용 프로필 중 하나만 값이 있을 수 있다.
+  final int? conversationProfileId;
+  final int? plotConversationProfileId;
   final DateTime createdAt;
   final DateTime updatedAt;
   const TalkSession({
@@ -6266,6 +6357,9 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
     required this.plotId,
     this.presetId,
     required this.pinned,
+    this.characterId,
+    this.conversationProfileId,
+    this.plotConversationProfileId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -6278,6 +6372,17 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
       map['preset_id'] = Variable<int>(presetId);
     }
     map['pinned'] = Variable<bool>(pinned);
+    if (!nullToAbsent || characterId != null) {
+      map['character_id'] = Variable<int>(characterId);
+    }
+    if (!nullToAbsent || conversationProfileId != null) {
+      map['conversation_profile_id'] = Variable<int>(conversationProfileId);
+    }
+    if (!nullToAbsent || plotConversationProfileId != null) {
+      map['plot_conversation_profile_id'] = Variable<int>(
+        plotConversationProfileId,
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -6291,6 +6396,16 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
           ? const Value.absent()
           : Value(presetId),
       pinned: Value(pinned),
+      characterId: characterId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(characterId),
+      conversationProfileId: conversationProfileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conversationProfileId),
+      plotConversationProfileId:
+          plotConversationProfileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(plotConversationProfileId),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -6306,6 +6421,13 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
       plotId: serializer.fromJson<int>(json['plotId']),
       presetId: serializer.fromJson<int?>(json['presetId']),
       pinned: serializer.fromJson<bool>(json['pinned']),
+      characterId: serializer.fromJson<int?>(json['characterId']),
+      conversationProfileId: serializer.fromJson<int?>(
+        json['conversationProfileId'],
+      ),
+      plotConversationProfileId: serializer.fromJson<int?>(
+        json['plotConversationProfileId'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -6318,6 +6440,11 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
       'plotId': serializer.toJson<int>(plotId),
       'presetId': serializer.toJson<int?>(presetId),
       'pinned': serializer.toJson<bool>(pinned),
+      'characterId': serializer.toJson<int?>(characterId),
+      'conversationProfileId': serializer.toJson<int?>(conversationProfileId),
+      'plotConversationProfileId': serializer.toJson<int?>(
+        plotConversationProfileId,
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -6328,6 +6455,9 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
     int? plotId,
     Value<int?> presetId = const Value.absent(),
     bool? pinned,
+    Value<int?> characterId = const Value.absent(),
+    Value<int?> conversationProfileId = const Value.absent(),
+    Value<int?> plotConversationProfileId = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => TalkSession(
@@ -6335,6 +6465,13 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
     plotId: plotId ?? this.plotId,
     presetId: presetId.present ? presetId.value : this.presetId,
     pinned: pinned ?? this.pinned,
+    characterId: characterId.present ? characterId.value : this.characterId,
+    conversationProfileId: conversationProfileId.present
+        ? conversationProfileId.value
+        : this.conversationProfileId,
+    plotConversationProfileId: plotConversationProfileId.present
+        ? plotConversationProfileId.value
+        : this.plotConversationProfileId,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -6344,6 +6481,15 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
       plotId: data.plotId.present ? data.plotId.value : this.plotId,
       presetId: data.presetId.present ? data.presetId.value : this.presetId,
       pinned: data.pinned.present ? data.pinned.value : this.pinned,
+      characterId: data.characterId.present
+          ? data.characterId.value
+          : this.characterId,
+      conversationProfileId: data.conversationProfileId.present
+          ? data.conversationProfileId.value
+          : this.conversationProfileId,
+      plotConversationProfileId: data.plotConversationProfileId.present
+          ? data.plotConversationProfileId.value
+          : this.plotConversationProfileId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -6356,6 +6502,9 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
           ..write('plotId: $plotId, ')
           ..write('presetId: $presetId, ')
           ..write('pinned: $pinned, ')
+          ..write('characterId: $characterId, ')
+          ..write('conversationProfileId: $conversationProfileId, ')
+          ..write('plotConversationProfileId: $plotConversationProfileId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -6363,8 +6512,17 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, plotId, presetId, pinned, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+    id,
+    plotId,
+    presetId,
+    pinned,
+    characterId,
+    conversationProfileId,
+    plotConversationProfileId,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -6373,6 +6531,9 @@ class TalkSession extends DataClass implements Insertable<TalkSession> {
           other.plotId == this.plotId &&
           other.presetId == this.presetId &&
           other.pinned == this.pinned &&
+          other.characterId == this.characterId &&
+          other.conversationProfileId == this.conversationProfileId &&
+          other.plotConversationProfileId == this.plotConversationProfileId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -6382,6 +6543,9 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
   final Value<int> plotId;
   final Value<int?> presetId;
   final Value<bool> pinned;
+  final Value<int?> characterId;
+  final Value<int?> conversationProfileId;
+  final Value<int?> plotConversationProfileId;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const TalkSessionsCompanion({
@@ -6389,6 +6553,9 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
     this.plotId = const Value.absent(),
     this.presetId = const Value.absent(),
     this.pinned = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.conversationProfileId = const Value.absent(),
+    this.plotConversationProfileId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -6397,6 +6564,9 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
     required int plotId,
     this.presetId = const Value.absent(),
     this.pinned = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.conversationProfileId = const Value.absent(),
+    this.plotConversationProfileId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : plotId = Value(plotId);
@@ -6405,6 +6575,9 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
     Expression<int>? plotId,
     Expression<int>? presetId,
     Expression<bool>? pinned,
+    Expression<int>? characterId,
+    Expression<int>? conversationProfileId,
+    Expression<int>? plotConversationProfileId,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -6413,6 +6586,11 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
       if (plotId != null) 'plot_id': plotId,
       if (presetId != null) 'preset_id': presetId,
       if (pinned != null) 'pinned': pinned,
+      if (characterId != null) 'character_id': characterId,
+      if (conversationProfileId != null)
+        'conversation_profile_id': conversationProfileId,
+      if (plotConversationProfileId != null)
+        'plot_conversation_profile_id': plotConversationProfileId,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -6423,6 +6601,9 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
     Value<int>? plotId,
     Value<int?>? presetId,
     Value<bool>? pinned,
+    Value<int?>? characterId,
+    Value<int?>? conversationProfileId,
+    Value<int?>? plotConversationProfileId,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -6431,6 +6612,11 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
       plotId: plotId ?? this.plotId,
       presetId: presetId ?? this.presetId,
       pinned: pinned ?? this.pinned,
+      characterId: characterId ?? this.characterId,
+      conversationProfileId:
+          conversationProfileId ?? this.conversationProfileId,
+      plotConversationProfileId:
+          plotConversationProfileId ?? this.plotConversationProfileId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -6451,6 +6637,19 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
     if (pinned.present) {
       map['pinned'] = Variable<bool>(pinned.value);
     }
+    if (characterId.present) {
+      map['character_id'] = Variable<int>(characterId.value);
+    }
+    if (conversationProfileId.present) {
+      map['conversation_profile_id'] = Variable<int>(
+        conversationProfileId.value,
+      );
+    }
+    if (plotConversationProfileId.present) {
+      map['plot_conversation_profile_id'] = Variable<int>(
+        plotConversationProfileId.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -6467,6 +6666,9 @@ class TalkSessionsCompanion extends UpdateCompanion<TalkSession> {
           ..write('plotId: $plotId, ')
           ..write('presetId: $presetId, ')
           ..write('pinned: $pinned, ')
+          ..write('characterId: $characterId, ')
+          ..write('conversationProfileId: $conversationProfileId, ')
+          ..write('plotConversationProfileId: $plotConversationProfileId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -8697,6 +8899,27 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'characters',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('talk_sessions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'conversation_profiles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('talk_sessions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'plot_conversation_profiles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('talk_sessions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'talk_sessions',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -9764,6 +9987,24 @@ final class $$CharactersTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$TalkSessionsTable, List<TalkSession>>
+  _talkSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.talkSessions,
+    aliasName: 'characters__id__talk_sessions__character_id',
+  );
+
+  $$TalkSessionsTableProcessedTableManager get talkSessionsRefs {
+    final manager = $$TalkSessionsTableTableManager(
+      $_db,
+      $_db.talkSessions,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_talkSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$CharactersTableFilterComposer
@@ -9874,6 +10115,31 @@ class $$CharactersTableFilterComposer
           }) => $$ChatMessagesTableFilterComposer(
             $db: $db,
             $table: $db.chatMessages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> talkSessionsRefs(
+    Expression<bool> Function($$TalkSessionsTableFilterComposer f) f,
+  ) {
+    final $$TalkSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.characterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.talkSessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -10058,6 +10324,31 @@ class $$CharactersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> talkSessionsRefs<T extends Object>(
+    Expression<T> Function($$TalkSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$TalkSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.characterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.talkSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$CharactersTableTableManager
@@ -10077,6 +10368,7 @@ class $$CharactersTableTableManager
             bool plotId,
             bool introEntriesRefs,
             bool chatMessagesRefs,
+            bool talkSessionsRefs,
           })
         > {
   $$CharactersTableTableManager(_$AppDatabase db, $CharactersTable table)
@@ -10143,12 +10435,14 @@ class $$CharactersTableTableManager
                 plotId = false,
                 introEntriesRefs = false,
                 chatMessagesRefs = false,
+                talkSessionsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (introEntriesRefs) db.introEntries,
                     if (chatMessagesRefs) db.chatMessages,
+                    if (talkSessionsRefs) db.talkSessions,
                   ],
                   addJoins:
                       <
@@ -10227,6 +10521,27 @@ class $$CharactersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (talkSessionsRefs)
+                        await $_getPrefetchedData<
+                          Character,
+                          $CharactersTable,
+                          TalkSession
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CharactersTableReferences
+                              ._talkSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).talkSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.characterId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -10251,6 +10566,7 @@ typedef $$CharactersTableProcessedTableManager =
         bool plotId,
         bool introEntriesRefs,
         bool chatMessagesRefs,
+        bool talkSessionsRefs,
       })
     >;
 typedef $$IntroVersionsTableCreateCompanionBuilder =
@@ -11225,6 +11541,25 @@ final class $$ConversationProfilesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$TalkSessionsTable, List<TalkSession>>
+  _talkSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.talkSessions,
+    aliasName:
+        'conversation_profiles__id__talk_sessions__conversation_profile_id',
+  );
+
+  $$TalkSessionsTableProcessedTableManager get talkSessionsRefs {
+    final manager = $$TalkSessionsTableTableManager($_db, $_db.talkSessions)
+        .filter(
+          (f) => f.conversationProfileId.id.sqlEquals($_itemColumn<int>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_talkSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$ConversationProfilesTableFilterComposer
@@ -11277,6 +11612,31 @@ class $$ConversationProfilesTableFilterComposer
           }) => $$ChatSessionsTableFilterComposer(
             $db: $db,
             $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> talkSessionsRefs(
+    Expression<bool> Function($$TalkSessionsTableFilterComposer f) f,
+  ) {
+    final $$TalkSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.conversationProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.talkSessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -11372,6 +11732,31 @@ class $$ConversationProfilesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> talkSessionsRefs<T extends Object>(
+    Expression<T> Function($$TalkSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$TalkSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.conversationProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.talkSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ConversationProfilesTableTableManager
@@ -11387,7 +11772,7 @@ class $$ConversationProfilesTableTableManager
           $$ConversationProfilesTableUpdateCompanionBuilder,
           (ConversationProfile, $$ConversationProfilesTableReferences),
           ConversationProfile,
-          PrefetchHooks Function({bool chatSessionsRefs})
+          PrefetchHooks Function({bool chatSessionsRefs, bool talkSessionsRefs})
         > {
   $$ConversationProfilesTableTableManager(
     _$AppDatabase db,
@@ -11444,38 +11829,63 @@ class $$ConversationProfilesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({chatSessionsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (chatSessionsRefs) db.chatSessions],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (chatSessionsRefs)
-                    await $_getPrefetchedData<
-                      ConversationProfile,
-                      $ConversationProfilesTable,
-                      ChatSession
-                    >(
-                      currentTable: table,
-                      referencedTable: $$ConversationProfilesTableReferences
-                          ._chatSessionsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$ConversationProfilesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).chatSessionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.conversationProfileId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({chatSessionsRefs = false, talkSessionsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (chatSessionsRefs) db.chatSessions,
+                    if (talkSessionsRefs) db.talkSessions,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (chatSessionsRefs)
+                        await $_getPrefetchedData<
+                          ConversationProfile,
+                          $ConversationProfilesTable,
+                          ChatSession
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ConversationProfilesTableReferences
+                              ._chatSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ConversationProfilesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).chatSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.conversationProfileId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (talkSessionsRefs)
+                        await $_getPrefetchedData<
+                          ConversationProfile,
+                          $ConversationProfilesTable,
+                          TalkSession
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ConversationProfilesTableReferences
+                              ._talkSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ConversationProfilesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).talkSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.conversationProfileId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -11492,7 +11902,7 @@ typedef $$ConversationProfilesTableProcessedTableManager =
       $$ConversationProfilesTableUpdateCompanionBuilder,
       (ConversationProfile, $$ConversationProfilesTableReferences),
       ConversationProfile,
-      PrefetchHooks Function({bool chatSessionsRefs})
+      PrefetchHooks Function({bool chatSessionsRefs, bool talkSessionsRefs})
     >;
 typedef $$PlotConversationProfilesTableCreateCompanionBuilder =
     PlotConversationProfilesCompanion Function({
@@ -11565,6 +11975,27 @@ final class $$PlotConversationProfilesTableReferences
         );
 
     final cache = $_typedResult.readTableOrNull(_chatSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TalkSessionsTable, List<TalkSession>>
+  _talkSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.talkSessions,
+    aliasName:
+        'plot_conversation_profiles__id__talk_sessions__plot_conversation_profile_id',
+  );
+
+  $$TalkSessionsTableProcessedTableManager get talkSessionsRefs {
+    final manager = $$TalkSessionsTableTableManager($_db, $_db.talkSessions)
+        .filter(
+          (f) => f.plotConversationProfileId.id.sqlEquals(
+            $_itemColumn<int>('id')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_talkSessionsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -11659,6 +12090,31 @@ class $$PlotConversationProfilesTableFilterComposer
           }) => $$ChatSessionsTableFilterComposer(
             $db: $db,
             $table: $db.chatSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> talkSessionsRefs(
+    Expression<bool> Function($$TalkSessionsTableFilterComposer f) f,
+  ) {
+    final $$TalkSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.plotConversationProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.talkSessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -11828,6 +12284,31 @@ class $$PlotConversationProfilesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> talkSessionsRefs<T extends Object>(
+    Expression<T> Function($$TalkSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$TalkSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.talkSessions,
+      getReferencedColumn: (t) => t.plotConversationProfileId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TalkSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.talkSessions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$PlotConversationProfilesTableTableManager
@@ -11843,7 +12324,11 @@ class $$PlotConversationProfilesTableTableManager
           $$PlotConversationProfilesTableUpdateCompanionBuilder,
           (PlotConversationProfile, $$PlotConversationProfilesTableReferences),
           PlotConversationProfile,
-          PrefetchHooks Function({bool plotId, bool chatSessionsRefs})
+          PrefetchHooks Function({
+            bool plotId,
+            bool chatSessionsRefs,
+            bool talkSessionsRefs,
+          })
         > {
   $$PlotConversationProfilesTableTableManager(
     _$AppDatabase db,
@@ -11919,71 +12404,102 @@ class $$PlotConversationProfilesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({plotId = false, chatSessionsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (chatSessionsRefs) db.chatSessions],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (plotId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.plotId,
-                                referencedTable:
-                                    $$PlotConversationProfilesTableReferences
-                                        ._plotIdTable(db),
-                                referencedColumn:
-                                    $$PlotConversationProfilesTableReferences
-                                        ._plotIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
+          prefetchHooksCallback:
+              ({
+                plotId = false,
+                chatSessionsRefs = false,
+                talkSessionsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (chatSessionsRefs) db.chatSessions,
+                    if (talkSessionsRefs) db.talkSessions,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (plotId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.plotId,
+                                    referencedTable:
+                                        $$PlotConversationProfilesTableReferences
+                                            ._plotIdTable(db),
+                                    referencedColumn:
+                                        $$PlotConversationProfilesTableReferences
+                                            ._plotIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (chatSessionsRefs)
+                        await $_getPrefetchedData<
+                          PlotConversationProfile,
+                          $PlotConversationProfilesTable,
+                          ChatSession
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$PlotConversationProfilesTableReferences
+                                  ._chatSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PlotConversationProfilesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).chatSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.plotConversationProfileId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (talkSessionsRefs)
+                        await $_getPrefetchedData<
+                          PlotConversationProfile,
+                          $PlotConversationProfilesTable,
+                          TalkSession
+                        >(
+                          currentTable: table,
+                          referencedTable:
+                              $$PlotConversationProfilesTableReferences
+                                  ._talkSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PlotConversationProfilesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).talkSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.plotConversationProfileId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (chatSessionsRefs)
-                    await $_getPrefetchedData<
-                      PlotConversationProfile,
-                      $PlotConversationProfilesTable,
-                      ChatSession
-                    >(
-                      currentTable: table,
-                      referencedTable: $$PlotConversationProfilesTableReferences
-                          ._chatSessionsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$PlotConversationProfilesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).chatSessionsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.plotConversationProfileId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -12000,7 +12516,11 @@ typedef $$PlotConversationProfilesTableProcessedTableManager =
       $$PlotConversationProfilesTableUpdateCompanionBuilder,
       (PlotConversationProfile, $$PlotConversationProfilesTableReferences),
       PlotConversationProfile,
-      PrefetchHooks Function({bool plotId, bool chatSessionsRefs})
+      PrefetchHooks Function({
+        bool plotId,
+        bool chatSessionsRefs,
+        bool talkSessionsRefs,
+      })
     >;
 typedef $$AiPresetsTableCreateCompanionBuilder =
     AiPresetsCompanion Function({
@@ -15074,6 +15594,9 @@ typedef $$TalkSessionsTableCreateCompanionBuilder =
       required int plotId,
       Value<int?> presetId,
       Value<bool> pinned,
+      Value<int?> characterId,
+      Value<int?> conversationProfileId,
+      Value<int?> plotConversationProfileId,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -15083,6 +15606,9 @@ typedef $$TalkSessionsTableUpdateCompanionBuilder =
       Value<int> plotId,
       Value<int?> presetId,
       Value<bool> pinned,
+      Value<int?> characterId,
+      Value<int?> conversationProfileId,
+      Value<int?> plotConversationProfileId,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -15119,6 +15645,68 @@ final class $$TalkSessionsTableReferences
       $_db.aiPresets,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_presetIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) =>
+      db.characters.createAlias('talk_sessions__character_id__characters__id');
+
+  $$CharactersTableProcessedTableManager? get characterId {
+    final $_column = $_itemColumn<int>('character_id');
+    if ($_column == null) return null;
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ConversationProfilesTable _conversationProfileIdTable(
+    _$AppDatabase db,
+  ) => db.conversationProfiles.createAlias(
+    'talk_sessions__conversation_profile_id__conversation_profiles__id',
+  );
+
+  $$ConversationProfilesTableProcessedTableManager? get conversationProfileId {
+    final $_column = $_itemColumn<int>('conversation_profile_id');
+    if ($_column == null) return null;
+    final manager = $$ConversationProfilesTableTableManager(
+      $_db,
+      $_db.conversationProfiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _conversationProfileIdTable($_db),
+    );
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $PlotConversationProfilesTable _plotConversationProfileIdTable(
+    _$AppDatabase db,
+  ) => db.plotConversationProfiles.createAlias(
+    'talk_sessions__plot_conversation_profile_id__plot_conversation_profiles__id',
+  );
+
+  $$PlotConversationProfilesTableProcessedTableManager?
+  get plotConversationProfileId {
+    final $_column = $_itemColumn<int>('plot_conversation_profile_id');
+    if ($_column == null) return null;
+    final manager = $$PlotConversationProfilesTableTableManager(
+      $_db,
+      $_db.plotConversationProfiles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _plotConversationProfileIdTable($_db),
+    );
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -15216,6 +15804,76 @@ class $$TalkSessionsTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return composer;
+  }
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ConversationProfilesTableFilterComposer get conversationProfileId {
+    final $$ConversationProfilesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.conversationProfileId,
+      referencedTable: $db.conversationProfiles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ConversationProfilesTableFilterComposer(
+            $db: $db,
+            $table: $db.conversationProfiles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$PlotConversationProfilesTableFilterComposer get plotConversationProfileId {
+    final $$PlotConversationProfilesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.plotConversationProfileId,
+          referencedTable: $db.plotConversationProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PlotConversationProfilesTableFilterComposer(
+                $db: $db,
+                $table: $db.plotConversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return composer;
   }
 
@@ -15319,6 +15977,78 @@ class $$TalkSessionsTableOrderingComposer
     );
     return composer;
   }
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ConversationProfilesTableOrderingComposer get conversationProfileId {
+    final $$ConversationProfilesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.conversationProfileId,
+          referencedTable: $db.conversationProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ConversationProfilesTableOrderingComposer(
+                $db: $db,
+                $table: $db.conversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$PlotConversationProfilesTableOrderingComposer
+  get plotConversationProfileId {
+    final $$PlotConversationProfilesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.plotConversationProfileId,
+          referencedTable: $db.plotConversationProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PlotConversationProfilesTableOrderingComposer(
+                $db: $db,
+                $table: $db.plotConversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
 }
 
 class $$TalkSessionsTableAnnotationComposer
@@ -15388,6 +16118,78 @@ class $$TalkSessionsTableAnnotationComposer
     return composer;
   }
 
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ConversationProfilesTableAnnotationComposer get conversationProfileId {
+    final $$ConversationProfilesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.conversationProfileId,
+          referencedTable: $db.conversationProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ConversationProfilesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.conversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$PlotConversationProfilesTableAnnotationComposer
+  get plotConversationProfileId {
+    final $$PlotConversationProfilesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.plotConversationProfileId,
+          referencedTable: $db.plotConversationProfiles,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$PlotConversationProfilesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.plotConversationProfiles,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
   Expression<T> talkMessagesRefs<T extends Object>(
     Expression<T> Function($$TalkMessagesTableAnnotationComposer a) f,
   ) {
@@ -15430,6 +16232,9 @@ class $$TalkSessionsTableTableManager
           PrefetchHooks Function({
             bool plotId,
             bool presetId,
+            bool characterId,
+            bool conversationProfileId,
+            bool plotConversationProfileId,
             bool talkMessagesRefs,
           })
         > {
@@ -15450,6 +16255,9 @@ class $$TalkSessionsTableTableManager
                 Value<int> plotId = const Value.absent(),
                 Value<int?> presetId = const Value.absent(),
                 Value<bool> pinned = const Value.absent(),
+                Value<int?> characterId = const Value.absent(),
+                Value<int?> conversationProfileId = const Value.absent(),
+                Value<int?> plotConversationProfileId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => TalkSessionsCompanion(
@@ -15457,6 +16265,9 @@ class $$TalkSessionsTableTableManager
                 plotId: plotId,
                 presetId: presetId,
                 pinned: pinned,
+                characterId: characterId,
+                conversationProfileId: conversationProfileId,
+                plotConversationProfileId: plotConversationProfileId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -15466,6 +16277,9 @@ class $$TalkSessionsTableTableManager
                 required int plotId,
                 Value<int?> presetId = const Value.absent(),
                 Value<bool> pinned = const Value.absent(),
+                Value<int?> characterId = const Value.absent(),
+                Value<int?> conversationProfileId = const Value.absent(),
+                Value<int?> plotConversationProfileId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => TalkSessionsCompanion.insert(
@@ -15473,6 +16287,9 @@ class $$TalkSessionsTableTableManager
                 plotId: plotId,
                 presetId: presetId,
                 pinned: pinned,
+                characterId: characterId,
+                conversationProfileId: conversationProfileId,
+                plotConversationProfileId: plotConversationProfileId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -15485,7 +16302,14 @@ class $$TalkSessionsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({plotId = false, presetId = false, talkMessagesRefs = false}) {
+              ({
+                plotId = false,
+                presetId = false,
+                characterId = false,
+                conversationProfileId = false,
+                plotConversationProfileId = false,
+                talkMessagesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
@@ -15533,6 +16357,54 @@ class $$TalkSessionsTableTableManager
                                     referencedColumn:
                                         $$TalkSessionsTableReferences
                                             ._presetIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (characterId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.characterId,
+                                    referencedTable:
+                                        $$TalkSessionsTableReferences
+                                            ._characterIdTable(db),
+                                    referencedColumn:
+                                        $$TalkSessionsTableReferences
+                                            ._characterIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (conversationProfileId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.conversationProfileId,
+                                    referencedTable:
+                                        $$TalkSessionsTableReferences
+                                            ._conversationProfileIdTable(db),
+                                    referencedColumn:
+                                        $$TalkSessionsTableReferences
+                                            ._conversationProfileIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (plotConversationProfileId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn:
+                                        table.plotConversationProfileId,
+                                    referencedTable:
+                                        $$TalkSessionsTableReferences
+                                            ._plotConversationProfileIdTable(
+                                              db,
+                                            ),
+                                    referencedColumn:
+                                        $$TalkSessionsTableReferences
+                                            ._plotConversationProfileIdTable(db)
                                             .id,
                                   )
                                   as T;
@@ -15586,6 +16458,9 @@ typedef $$TalkSessionsTableProcessedTableManager =
       PrefetchHooks Function({
         bool plotId,
         bool presetId,
+        bool characterId,
+        bool conversationProfileId,
+        bool plotConversationProfileId,
         bool talkMessagesRefs,
       })
     >;

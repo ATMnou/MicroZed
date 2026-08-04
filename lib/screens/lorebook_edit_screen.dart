@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
+import '../data/export/lorebook_exporter.dart';
+import '../data/import/lorebook_parser.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../l10n/app_localizations.dart';
 import 'lorebook_plot_picker_screen.dart';
@@ -57,6 +62,8 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
   List<_EntryForm> _entryForms = [];
   bool _loading = true;
   bool _saving = false;
+  bool _importing = false;
+  bool _exporting = false;
 
   static const _background = Color(0xFF141414);
   static const _cardBg = Color(0xFF1E1E1E);
@@ -103,6 +110,75 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
     }
     form.dispose();
     if (mounted) setState(() => _entryForms.removeAt(index));
+  }
+
+  /// SillyTavern World Info JSON 또는 JanitorAI 스타일 배열(.json)을 읽어서 파싱된 항목을
+  /// 폼 목록 맨 뒤에 미저장 상태로 추가한다. 새 로어북을 만드는 중이면 "새 로어북으로",
+  /// 기존 로어북을 열어서 가져오면 "이 로어북에 추가"가 되는 셈이라 별도 대상 선택 없이도
+  /// 지금 열려 있는 화면이 곧 가져오기 대상이다. 실제 DB 반영은 평소처럼 저장을 눌러야 한다.
+  Future<void> _importFromFile() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (_importing) return;
+    final result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: const ['json']);
+    if (result == null || result.files.isEmpty) return;
+    setState(() => _importing = true);
+    try {
+      final bytes = await result.files.single.readAsBytes();
+      final json = jsonDecode(utf8.decode(bytes));
+      final parsed = LorebookParser.parseJson(json);
+      setState(() {
+        for (final form in _entryForms) {
+          form.expanded = false;
+        }
+        for (final entry in parsed) {
+          _entryForms.add(_EntryForm(
+            title: entry.title ?? '',
+            keywords: entry.keywords.join(','),
+            content: entry.content,
+          ));
+        }
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.lorebookImportSuccessMessage(parsed.length))),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.lorebookImportFailureMessage(e))),
+      );
+    } finally {
+      if (mounted) setState(() => _importing = false);
+    }
+  }
+
+  Future<void> _exportToFile() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (_exporting || widget.lorebookId == null) return;
+    setState(() => _exporting = true);
+    try {
+      final entries = await _repository.getEntries(widget.lorebookId!);
+      final bytes = LorebookExporter.toWorldInfoJson(entries);
+      final safeTitle = _titleController.text.trim().replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+      final path = await FilePicker.saveFile(
+        fileName: '${safeTitle.isEmpty ? 'lorebook' : safeTitle}.json',
+        type: FileType.custom,
+        allowedExtensions: const ['json'],
+        bytes: bytes,
+      );
+      if (path == null) return; // 취소됨
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.lorebookExportSuccessMessage)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.lorebookExportFailureMessage(e))),
+      );
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
   }
 
   Future<void> _save() async {
@@ -171,6 +247,29 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
           ),
         ),
         actions: [
+          IconButton(
+            icon: _importing
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+                  )
+                : const Icon(Icons.file_download_outlined, color: Colors.white, size: 20),
+            tooltip: l10n.lorebookImportButtonTooltip,
+            onPressed: _importing ? null : _importFromFile,
+          ),
+          if (widget.lorebookId != null)
+            IconButton(
+              icon: _exporting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+                    )
+                  : const Icon(Icons.file_upload_outlined, color: Colors.white, size: 20),
+              tooltip: l10n.lorebookExportButtonTooltip,
+              onPressed: _exporting ? null : _exportToFile,
+            ),
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: ElevatedButton(

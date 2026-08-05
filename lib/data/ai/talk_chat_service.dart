@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 
 import '../db/database.dart';
+import '../korean_josa.dart';
 import '../secure/api_key_store.dart';
 import 'anthropic_client.dart';
 import 'openai_compatible_client.dart';
@@ -19,11 +20,12 @@ String buildTalkSystemPrompt({
   required DateTime now,
 }) {
   final nowText = DateFormat('yyyy년 M월 d일 EEEE a h시 mm분', 'ko').format(now);
-  return '지금은 $nowText이야.\n\n'
+  final prompt = '지금은 $nowText이야.\n\n'
       '너는 메신저 앱에서 "$characterName"(이)라는 사람으로서 "$userProfileName"과 1:1로 대화하는 중이야.\n'
       '캐릭터 설정: $characterDescription\n\n'
       '롤플레이 소설처럼 길게 서술하지 말고, 실제 메신저에서 친구랑 대화하듯 짧고 자연스러운 문장(1~3문장) 위주로 답해. '
       '이모티콘이나 줄임말을 과하지 않게 섞어도 좋아. 나레이션이나 행동 묘사(*...* 같은 표현)는 쓰지 마.';
+  return KoreanJosaMacro.resolve(prompt);
 }
 
 /// ZedTalk이 사용하는 경량 AI 오케스트레이터. 롤플레이용 [AiChatService]와 달리 턴/버전

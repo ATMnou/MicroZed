@@ -19,10 +19,19 @@ import '../widgets/dashed_box.dart';
 import '../widgets/local_avatar.dart';
 import 'lorebook_connect_screen.dart';
 import 'plot_conversation_profile_edit_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 'AI로 캐릭터 생성' 다이얼로그가 돌려주는 선택 결과.
 class _AiCharacterRequest {
   const _AiCharacterRequest({required this.preset, required this.prompt});
+  final AiPreset preset;
+  final String prompt;
+}
+
+/// 'AI로 인트로 생성' 다이얼로그가 돌려주는 선택 결과.
+class _AiIntroRequest {
+  const _AiIntroRequest({required this.preset, required this.prompt});
   final AiPreset preset;
   final String prompt;
 }
@@ -78,6 +87,15 @@ class PlotEditScreen extends StatefulWidget {
 
 class _PlotEditScreenState extends State<PlotEditScreen>
     with SingleTickerProviderStateMixin {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _mutedText => _p.textMuted;
+  Color get _textSecondary => _p.textSecondary;
   late final TabController _tabController;
   late final PlotRepository _plotRepository;
   late final CharacterRepository _characterRepository;
@@ -96,10 +114,6 @@ class _PlotEditScreenState extends State<PlotEditScreen>
   bool _exporting = false;
   bool _aiGeneratingCharacter = false;
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
 
   static const _tabCount = 4;
 
@@ -219,7 +233,7 @@ class _PlotEditScreenState extends State<PlotEditScreen>
         builder: (dialogContext, setDialogState) {
           return AlertDialog(
             backgroundColor: _cardBg,
-            title: Text(l10n.plotEditAddCharacterButton, style: const TextStyle(color: Colors.white)),
+            title: Text(l10n.plotEditAddCharacterButton, style: TextStyle(color: _textPrimary)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +250,7 @@ class _PlotEditScreenState extends State<PlotEditScreen>
                       value: selected,
                       isExpanded: true,
                       dropdownColor: _background,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(color: _textPrimary, fontSize: 14),
                       items: presets.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
                       onChanged: (preset) {
                         if (preset != null) setDialogState(() => selected = preset);
@@ -249,20 +263,20 @@ class _PlotEditScreenState extends State<PlotEditScreen>
                   controller: promptController,
                   maxLines: 3,
                   minLines: 2,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.plotAiGeneratePromptHint,
-                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                    hintStyle: TextStyle(color: _textFaint, fontSize: 13),
                     filled: true,
                     fillColor: _background,
                     contentPadding: const EdgeInsets.all(12),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
@@ -271,13 +285,13 @@ class _PlotEditScreenState extends State<PlotEditScreen>
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+                child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
               ),
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(
                   _AiCharacterRequest(preset: selected, prompt: promptController.text),
                 ),
-                child: Text(l10n.plotAiGenerateSubmitButton, style: const TextStyle(color: _purple)),
+                child: Text(l10n.plotAiGenerateSubmitButton, style: TextStyle(color: _purple)),
               ),
             ],
           );
@@ -442,7 +456,7 @@ class _PlotEditScreenState extends State<PlotEditScreen>
       backgroundColor: _background,
       appBar: _buildAppBar(context),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : SafeArea(
               top: false,
               child: Column(
@@ -490,14 +504,14 @@ class _PlotEditScreenState extends State<PlotEditScreen>
       backgroundColor: _background,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.close, color: Colors.white, size: 22),
+        icon: Icon(Icons.close, color: _textPrimary, size: 22),
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 0,
       title: Text(
         l10n.plotEditAppBarTitle,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: _textPrimary,
           fontSize: 17,
           fontWeight: FontWeight.w600,
         ),
@@ -505,16 +519,16 @@ class _PlotEditScreenState extends State<PlotEditScreen>
       actions: [
         PopupMenuButton<String>(
           icon: _exporting
-              ? const SizedBox(
+              ? SizedBox(
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white70,
+                    color: _textSecondary,
                   ),
                 )
-              : const Icon(Icons.more_horiz, color: Colors.white, size: 22),
-          color: const Color(0xFF1E1E1E),
+              : Icon(Icons.more_horiz, color: _textPrimary, size: 22),
+          color: _cardBg,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -528,14 +542,14 @@ class _PlotEditScreenState extends State<PlotEditScreen>
               value: 'export_card',
               child: Text(
                 l10n.plotEditExportCardMenuItem,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: _textPrimary),
               ),
             ),
             PopupMenuItem(
               value: 'export_data',
               child: Text(
                 l10n.plotEditExportDataMenuItem,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: _textPrimary),
               ),
             ),
           ],
@@ -546,7 +560,7 @@ class _PlotEditScreenState extends State<PlotEditScreen>
             onPressed: _loading || _saving ? null : _save,
             style: ElevatedButton.styleFrom(
               backgroundColor: _purple,
-              foregroundColor: Colors.white,
+              foregroundColor: _textPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
@@ -568,10 +582,10 @@ class _PlotEditScreenState extends State<PlotEditScreen>
     return TabBar(
       controller: _tabController,
       isScrollable: true,
-      indicatorColor: Colors.white,
+      indicatorColor: _textPrimary,
       indicatorSize: TabBarIndicatorSize.label,
-      labelColor: Colors.white,
-      unselectedLabelColor: Colors.white38,
+      labelColor: _textPrimary,
+      unselectedLabelColor: _textFaint,
       labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       tabs: _tabLabels(
         AppLocalizations.of(context)!,
@@ -591,18 +605,18 @@ class _SectionLabel extends StatelessWidget {
     return Row(
       children: [
         if (required)
-          const Text(
+          Text(
             '*',
             style: TextStyle(
-              color: Color(0xFF7A6FF0),
+              color: PaletteScope.of(context).primary,
               fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           ),
         Text(
           text,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: PaletteScope.of(context).textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -654,9 +668,9 @@ class _LabeledField extends StatelessWidget {
               InkWell(
                 onTap: () => _openFullscreenEditor(context),
                 borderRadius: BorderRadius.circular(6),
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.all(4),
-                  child: Icon(Icons.open_in_full, size: 15, color: Colors.white38),
+                  child: Icon(Icons.open_in_full, size: 15, color: PaletteScope.of(context).textFaint),
                 ),
               ),
             ],
@@ -667,10 +681,10 @@ class _LabeledField extends StatelessWidget {
         TextField(
           controller: controller,
           maxLines: maxLines,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
-            fillColor: _PlotEditScreenState._background,
+            fillColor: PaletteScope.of(context).background,
             contentPadding: const EdgeInsets.all(12),
             counter: showCharCount
                 ? AnimatedBuilder(
@@ -679,8 +693,8 @@ class _LabeledField extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: Text(
                         l10n.plotEditCharCountLabel(controller.text.length),
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style: TextStyle(
+                          color: PaletteScope.of(context).textFaint,
                           fontSize: 11,
                         ),
                       ),
@@ -689,13 +703,13 @@ class _LabeledField extends StatelessWidget {
                 : const SizedBox.shrink(),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: _PlotEditScreenState._borderGrey,
+              borderSide: BorderSide(
+                color: PaletteScope.of(context).border,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: _PlotEditScreenState._purple),
+              borderSide: BorderSide(color: PaletteScope.of(context).primary),
             ),
           ),
         ),
@@ -717,6 +731,9 @@ class _FullscreenTextEditScreen extends StatefulWidget {
 }
 
 class _FullscreenTextEditScreenState extends State<_FullscreenTextEditScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _textPrimary => _p.textPrimary;
+  Color get _purple => _p.primary;
   late final TextEditingController _controller = TextEditingController(text: widget.initialText);
 
   @override
@@ -729,24 +746,24 @@ class _FullscreenTextEditScreenState extends State<_FullscreenTextEditScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: _PlotEditScreenState._background,
+      backgroundColor: PaletteScope.of(context).background,
       appBar: AppBar(
-        backgroundColor: _PlotEditScreenState._background,
+        backgroundColor: PaletteScope.of(context).background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white, size: 22),
+          icon: Icon(Icons.close, color: _textPrimary, size: 22),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           widget.title,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 17, fontWeight: FontWeight.w600),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(_controller.text),
             child: Text(
               l10n.commonSave,
-              style: const TextStyle(color: Color(0xFF7A6FF0), fontSize: 15, fontWeight: FontWeight.w600),
+              style: TextStyle(color: _purple, fontSize: 15, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -761,10 +778,10 @@ class _FullscreenTextEditScreenState extends State<_FullscreenTextEditScreen> {
             maxLines: null,
             minLines: null,
             textAlignVertical: TextAlignVertical.top,
-            style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.5),
+            style: TextStyle(color: _textPrimary, fontSize: 15, height: 1.5),
             decoration: InputDecoration(
               filled: true,
-              fillColor: _PlotEditScreenState._cardBg,
+              fillColor: PaletteScope.of(context).surface,
               contentPadding: const EdgeInsets.all(14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -811,8 +828,8 @@ class _PromptTab extends StatelessWidget {
       children: [
         Text(
           l10n.plotEditBasicSettingsTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: PaletteScope.of(context).textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -821,7 +838,7 @@ class _PromptTab extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: _PlotEditScreenState._cardBg,
+            color: PaletteScope.of(context).surface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -855,8 +872,8 @@ class _PromptTab extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onAddCharacter,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: _PlotEditScreenState._borderGrey),
+                  foregroundColor: PaletteScope.of(context).textPrimary,
+                  side: BorderSide(color: PaletteScope.of(context).border),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -874,18 +891,18 @@ class _PromptTab extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: aiGeneratingCharacter ? null : onAiGenerateCharacter,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: _PlotEditScreenState._borderGrey),
+                  foregroundColor: PaletteScope.of(context).textPrimary,
+                  side: BorderSide(color: PaletteScope.of(context).border),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 icon: aiGeneratingCharacter
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 14,
                         height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: PaletteScope.of(context).textSecondary),
                       )
                     : const Icon(Icons.auto_awesome, size: 16),
                 label: Text(
@@ -908,7 +925,7 @@ class _PromptTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _PlotEditScreenState._cardBg,
+        color: PaletteScope.of(context).surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -919,8 +936,8 @@ class _PromptTab extends StatelessWidget {
             children: [
               Text(
                 l10n.plotEditDefaultCharacterName(index + 1),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: PaletteScope.of(context).textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -928,9 +945,9 @@ class _PromptTab extends StatelessWidget {
               if (index > 0)
                 GestureDetector(
                   onTap: () => onRemoveCharacter(index),
-                  child: const Icon(
+                  child: Icon(
                     Icons.delete_outline,
-                    color: Colors.white54,
+                    color: PaletteScope.of(context).textMuted,
                     size: 20,
                   ),
                 ),
@@ -963,13 +980,13 @@ class _PromptTab extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: _PlotEditScreenState._purple,
+                                color: PaletteScope.of(context).primary,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 l10n.plotEditRepresentativeBadge,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: PaletteScope.of(context).textPrimary,
                                   fontSize: 9,
                                 ),
                               ),
@@ -986,9 +1003,9 @@ class _PromptTab extends StatelessWidget {
                                 color: Colors.black54,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.delete_outline,
-                                color: Colors.white70,
+                                color: PaletteScope.of(context).textSecondary,
                                 size: 16,
                               ),
                             ),
@@ -1005,16 +1022,16 @@ class _PromptTab extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.add,
-                            color: Color(0xFF7A6FF0),
+                            color: PaletteScope.of(context).primary,
                             size: 20,
                           ),
                           const SizedBox(height: 2),
                           Text(
                             l10n.plotEditCharacterImagePlaceholder,
-                            style: const TextStyle(
-                              color: Colors.white38,
+                            style: TextStyle(
+                              color: PaletteScope.of(context).textFaint,
                               fontSize: 9,
                             ),
                           ),
@@ -1055,6 +1072,9 @@ class _PlotProfilesSection extends StatefulWidget {
 }
 
 class _PlotProfilesSectionState extends State<_PlotProfilesSection> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _textFaint => _p.textFaint;
+  Color get _textPrimary => _p.textPrimary;
   late final PlotConversationProfileRepository _repository;
 
   @override
@@ -1072,7 +1092,7 @@ class _PlotProfilesSectionState extends State<_PlotProfilesSection> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Text(
           l10n.plotProfileSavePlotFirst,
-          style: const TextStyle(color: Colors.white38, fontSize: 13),
+          style: TextStyle(color: _textFaint, fontSize: 13),
         ),
       );
     }
@@ -1081,12 +1101,12 @@ class _PlotProfilesSectionState extends State<_PlotProfilesSection> {
       children: [
         Text(
           l10n.plotProfileSectionTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(color: _textPrimary, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
           l10n.plotProfileSectionDescription,
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: _textFaint, fontSize: 12),
         ),
         const SizedBox(height: 12),
         StreamBuilder<List<PlotConversationProfile>>(
@@ -1117,8 +1137,8 @@ class _PlotProfilesSectionState extends State<_PlotProfilesSection> {
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: _PlotEditScreenState._borderGrey),
+                    foregroundColor: _textPrimary,
+                    side: BorderSide(color: PaletteScope.of(context).border),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     minimumSize: const Size(double.infinity, 0),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1154,7 +1174,7 @@ class _PlotProfileCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: _PlotEditScreenState._cardBg,
+        color: PaletteScope.of(context).surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -1170,7 +1190,7 @@ class _PlotProfileCard extends StatelessWidget {
                   builder: (context, snapshot) {
                     return Text(
                       snapshot.data ?? profile.name,
-                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 15, fontWeight: FontWeight.bold),
                     );
                   },
                 ),
@@ -1179,13 +1199,13 @@ class _PlotProfileCard extends StatelessWidget {
                   profile.shortIntro,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  style: TextStyle(color: PaletteScope.of(context).textMuted, fontSize: 12),
                 ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.white54, size: 18),
+            icon: Icon(Icons.edit_outlined, color: PaletteScope.of(context).textMuted, size: 18),
             onPressed: onEdit,
           ),
         ],
@@ -1204,6 +1224,9 @@ class _LorebookTab extends StatefulWidget {
 }
 
 class _LorebookTabState extends State<_LorebookTab> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _textFaint => _p.textFaint;
+  Color get _textPrimary => _p.textPrimary;
   late final LorebookRepository _repository;
 
   @override
@@ -1222,7 +1245,7 @@ class _LorebookTabState extends State<_LorebookTab> {
           child: Text(
             l10n.plotEditLorebookSavePlotFirst,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white38, fontSize: 13),
+            style: TextStyle(color: _textFaint, fontSize: 13),
           ),
         ),
       );
@@ -1236,20 +1259,20 @@ class _LorebookTabState extends State<_LorebookTab> {
             children: [
               Text(
                 l10n.plotEditLorebookConnectTitle,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: _textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(width: 4),
-              const Icon(Icons.help_outline, color: Colors.white38, size: 16),
+              Icon(Icons.help_outline, color: _textFaint, size: 16),
             ],
           ),
           const SizedBox(height: 4),
           Text(
             l10n.plotEditLorebookConnectDescription,
-            style: const TextStyle(color: Colors.white38, fontSize: 12),
+            style: TextStyle(color: _textFaint, fontSize: 12),
           ),
           const SizedBox(height: 12),
           StreamBuilder<List<Lorebook>>(
@@ -1266,9 +1289,9 @@ class _LorebookTabState extends State<_LorebookTab> {
                   );
                 },
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(
-                    color: _PlotEditScreenState._borderGrey,
+                  foregroundColor: _textPrimary,
+                  side: BorderSide(
+                    color: PaletteScope.of(context).border,
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   minimumSize: const Size(double.infinity, 0),
@@ -1305,6 +1328,16 @@ class _IntroTab extends StatefulWidget {
 enum _ComposerMode { narrator, user, character }
 
 class _IntroTabState extends State<_IntroTab> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _cardBg => _p.surface;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _mutedText => _p.textMuted;
+  Color get _textFaint => _p.textFaint;
+  Color get _textGhost => _p.textGhost;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _pillGrey => _p.surfaceAlt;
   _ComposerMode _composerMode = _ComposerMode.narrator;
   int? _selectedCharacterId;
   late final TextEditingController _composerController;
@@ -1381,6 +1414,135 @@ class _IntroTabState extends State<_IntroTab> {
     _composerController.clear();
   }
 
+  bool _aiGeneratingIntro = false;
+
+  /// 인트로 탭의 'AI로 생성' 버튼. 프리셋을 고르고(선택) 짧은 지시를 준 뒤, 지금 플롯의
+  /// 제목/설명/등록된 캐릭터를 맥락으로 첫 상황(나레이션+캐릭터 대사)을 몇 줄 만들어서
+  /// 지금 보고 있는 인트로 버전 끝에 이어붙인다.
+  Future<void> _aiGenerateIntro(int introVersionId, List<Character> characters) async {
+    final l10n = AppLocalizations.of(context)!;
+    final plotId = widget.plotId;
+    if (plotId == null) return;
+    final presets = await AiPresetRepository(AppDatabase.instance).watchAll().first;
+    if (!mounted) return;
+    if (presets.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.plotAiGeneratePresetEmptyHint)),
+      );
+      return;
+    }
+    final request = await _showAiIntroDialog(presets);
+    if (request == null) return;
+
+    setState(() => _aiGeneratingIntro = true);
+    try {
+      final plot = await PlotRepository(AppDatabase.instance).getById(plotId);
+      final lines = await PlotAiGeneratorService(AppDatabase.instance).generateIntro(
+        preset: request.preset,
+        plotTitle: plot?.title ?? '',
+        plotDescription: plot?.description ?? '',
+        characterNames: characters.map((c) => c.name).toList(),
+        userPrompt: request.prompt,
+      );
+      if (lines.isEmpty) throw StateError('AI가 올바른 형식으로 응답하지 않았어요.');
+      final characterIdByName = {for (final c in characters) c.name: c.id};
+      for (final line in lines) {
+        final characterId = line.isCharacterLine ? characterIdByName[line.characterName] : null;
+        await _repository.add(
+          plotId: plotId,
+          introVersionId: introVersionId,
+          characterId: characterId,
+          type: line.isCharacterLine && characterId != null ? IntroEntryType.character : IntroEntryType.narrator,
+          content: line.content,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.plotAiGenerateFailureMessage(e))),
+      );
+    } finally {
+      if (mounted) setState(() => _aiGeneratingIntro = false);
+    }
+  }
+
+  Future<_AiIntroRequest?> _showAiIntroDialog(List<AiPreset> presets) {
+    final l10n = AppLocalizations.of(context)!;
+    var selected = presets.first;
+    final promptController = TextEditingController();
+    return showDialog<_AiIntroRequest>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
+          return AlertDialog(
+            backgroundColor: _cardBg,
+            title: Text(l10n.plotEditIntroAiGenerateButton, style: TextStyle(color: _textPrimary)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: _p.background,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: _borderGrey),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<AiPreset>(
+                      value: selected,
+                      isExpanded: true,
+                      dropdownColor: _p.background,
+                      style: TextStyle(color: _textPrimary, fontSize: 14),
+                      items: presets.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
+                      onChanged: (preset) {
+                        if (preset != null) setDialogState(() => selected = preset);
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: promptController,
+                  maxLines: 3,
+                  minLines: 2,
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: l10n.plotAiGeneratePromptHint,
+                    hintStyle: TextStyle(color: _textFaint, fontSize: 13),
+                    filled: true,
+                    fillColor: _p.background,
+                    contentPadding: const EdgeInsets.all(12),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: _borderGrey),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(color: _purple),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(
+                  _AiIntroRequest(preset: selected, prompt: promptController.text),
+                ),
+                child: Text(l10n.plotAiGenerateSubmitButton, style: TextStyle(color: _purple)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Future<void> _reorder(
     List<IntroEntry> entries,
     int oldIndex,
@@ -1398,22 +1560,22 @@ class _IntroTabState extends State<_IntroTab> {
     final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: _cardBg,
         title: Text(
           l10n.plotEditEditContentDialogTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
         ),
         content: TextField(
           controller: controller,
           maxLines: 4,
           autofocus: true,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
+          style: TextStyle(color: _textPrimary),
+          decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF3A3A3A)),
+              borderSide: BorderSide(color: _borderGrey),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF7A6FF0)),
+              borderSide: BorderSide(color: _purple),
             ),
           ),
         ),
@@ -1422,7 +1584,7 @@ class _IntroTabState extends State<_IntroTab> {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(
               l10n.commonCancel,
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: _mutedText),
             ),
           ),
           TextButton(
@@ -1430,7 +1592,7 @@ class _IntroTabState extends State<_IntroTab> {
                 Navigator.of(dialogContext).pop(controller.text.trim()),
             child: Text(
               l10n.commonSave,
-              style: const TextStyle(color: Color(0xFF7A6FF0)),
+              style: TextStyle(color: _purple),
             ),
           ),
         ],
@@ -1450,7 +1612,7 @@ class _IntroTabState extends State<_IntroTab> {
           child: Text(
             AppLocalizations.of(context)!.plotEditIntroSavePlotFirst,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white38, fontSize: 13),
+            style: TextStyle(color: _textFaint, fontSize: 13),
           ),
         ),
       );
@@ -1464,8 +1626,8 @@ class _IntroTabState extends State<_IntroTab> {
           builder: (context, versionSnapshot) {
             final versions = versionSnapshot.data ?? const [];
             if (versions.isEmpty) {
-              return const Center(
-                child: CircularProgressIndicator(color: Color(0xFF7A6FF0)),
+              return Center(
+                child: CircularProgressIndicator(color: _purple),
               );
             }
             final currentIndex = _selectedVersionIndex.clamp(
@@ -1485,13 +1647,38 @@ class _IntroTabState extends State<_IntroTab> {
                       return ListView(
                         padding: const EdgeInsets.all(16),
                         children: [
-                          Text(
-                            l10n.plotEditIntroFirstSceneTitle,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  l10n.plotEditIntroFirstSceneTitle,
+                                  style: TextStyle(
+                                    color: _textPrimary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              TextButton.icon(
+                                onPressed: _aiGeneratingIntro
+                                    ? null
+                                    : () => _aiGenerateIntro(currentVersion.id, characters),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: _purple,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  minimumSize: const Size(0, 0),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                icon: _aiGeneratingIntro
+                                    ? SizedBox(
+                                        width: 13,
+                                        height: 13,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: _purple),
+                                      )
+                                    : const Icon(Icons.auto_awesome, size: 15),
+                                label: Text(l10n.plotEditIntroAiGenerateButton, style: const TextStyle(fontSize: 12.5)),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 16),
                           if (entries.isEmpty)
@@ -1501,8 +1688,8 @@ class _IntroTabState extends State<_IntroTab> {
                                 child: Text(
                                   l10n.plotEditIntroEmptyMessage,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white38,
+                                  style: TextStyle(
+                                    color: _textFaint,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -1527,14 +1714,14 @@ class _IntroTabState extends State<_IntroTab> {
                                     children: [
                                       ReorderableDragStartListener(
                                         index: index,
-                                        child: const Padding(
+                                        child: Padding(
                                           padding: EdgeInsets.only(
                                             top: 8,
                                             right: 4,
                                           ),
                                           child: Icon(
                                             Icons.drag_indicator,
-                                            color: Colors.white24,
+                                            color: _textGhost,
                                             size: 18,
                                           ),
                                         ),
@@ -1579,8 +1766,8 @@ class _IntroTabState extends State<_IntroTab> {
         children: [
           Text(
             AppLocalizations.of(context)!.characterDetailIntroSectionTitle,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: _textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -1595,7 +1782,7 @@ class _IntroTabState extends State<_IntroTab> {
           const SizedBox(width: 8),
           Text(
             '${currentIndex + 1}/${versions.length}',
-            style: const TextStyle(color: Colors.white70, fontSize: 13),
+            style: TextStyle(color: _textSecondary, fontSize: 13),
           ),
           const SizedBox(width: 8),
           _RoundIconButton(
@@ -1681,7 +1868,7 @@ class _IntroTabState extends State<_IntroTab> {
               Text(
                 character?.name ??
                     AppLocalizations.of(context)!.chatDefaultCharacterName,
-                style: const TextStyle(color: Color(0xFF7A6FF0), fontSize: 12),
+                style: TextStyle(color: _purple, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Row(
@@ -1694,13 +1881,13 @@ class _IntroTabState extends State<_IntroTab> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: _PlotEditScreenState._cardBg,
+                        color: PaletteScope.of(context).surface,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Text(
                         entry.content,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: _textPrimary,
                           fontSize: 14,
                         ),
                       ),
@@ -1722,12 +1909,12 @@ class _IntroTabState extends State<_IntroTab> {
       padding: const EdgeInsets.only(left: 36),
       child: Row(
         children: [
-          const Icon(Icons.reorder, color: Colors.white54, size: 16),
+          Icon(Icons.reorder, color: _mutedText, size: 16),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               entry.content,
-              style: const TextStyle(color: Colors.white54, fontSize: 14),
+              style: TextStyle(color: _mutedText, fontSize: 14),
             ),
           ),
           _buildEditDeleteButtons(entry),
@@ -1746,12 +1933,12 @@ class _IntroTabState extends State<_IntroTab> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: _PlotEditScreenState._purple,
+              color: PaletteScope.of(context).primary,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
               entry.content,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: _textPrimary, fontSize: 14),
             ),
           ),
         ),
@@ -1785,16 +1972,16 @@ class _IntroTabState extends State<_IntroTab> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF262626),
+        color: _pillGrey,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          const Icon(Icons.drag_indicator, color: Colors.white38, size: 16),
+          Icon(Icons.drag_indicator, color: _textFaint, size: 16),
           const SizedBox(width: 6),
           Text(
             AppLocalizations.of(context)!.plotEditProfileMarkerLabel,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: _mutedText, fontSize: 12),
           ),
         ],
       ),
@@ -1804,9 +1991,9 @@ class _IntroTabState extends State<_IntroTab> {
   Widget _buildComposer(int introVersionId, List<Character> characters) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Color(0xFF1A1A1A),
-        border: Border(top: BorderSide(color: Color(0xFF2A2A2A))),
+        border: Border(top: BorderSide(color: _pillGrey)),
       ),
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       child: Column(
@@ -1817,9 +2004,9 @@ class _IntroTabState extends State<_IntroTab> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.image_outlined,
-                    color: Colors.white70,
+                    color: _textSecondary,
                     size: 20,
                   ),
                   onPressed: () => _pickAndAddImage(introVersionId),
@@ -1873,13 +2060,13 @@ class _IntroTabState extends State<_IntroTab> {
               Expanded(
                 child: TextField(
                   controller: _composerController,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   onSubmitted: (_) => _send(introVersionId),
                   decoration: InputDecoration(
                     isDense: true,
                     hintText: _composerHint(context, characters),
-                    hintStyle: const TextStyle(
-                      color: Colors.white38,
+                    hintStyle: TextStyle(
+                      color: _textFaint,
                       fontSize: 13,
                       fontStyle: FontStyle.italic,
                     ),
@@ -1891,22 +2078,22 @@ class _IntroTabState extends State<_IntroTab> {
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2A2A2A),
+                  color: _pillGrey,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
+                child: Text(
                   '{{user}}',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(color: _textSecondary, fontSize: 12),
                 ),
               ),
               CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0xFF3A3A3A),
+                backgroundColor: _borderGrey,
                 child: IconButton(
                   padding: EdgeInsets.zero,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_upward,
-                    color: Colors.white54,
+                    color: _mutedText,
                     size: 16,
                   ),
                   onPressed: () => _send(introVersionId),
@@ -1934,11 +2121,11 @@ class _RoundIconButton extends StatelessWidget {
       child: Container(
         width: 28,
         height: 28,
-        decoration: const BoxDecoration(
-          color: Color(0xFF262626),
+        decoration: BoxDecoration(
+          color: PaletteScope.of(context).surfaceAlt,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.white70, size: 14),
+        child: Icon(icon, color: PaletteScope.of(context).textSecondary, size: 14),
       ),
     );
   }
@@ -1966,9 +2153,9 @@ class _CharacterDropdownTab extends StatelessWidget {
     final label = match.isEmpty
         ? AppLocalizations.of(context)!.chatDefaultCharacterName
         : match.first.name;
-    final color = selected ? Colors.white : Colors.white38;
+    final color = selected ? PaletteScope.of(context).textPrimary : PaletteScope.of(context).textFaint;
     return PopupMenuButton<int>(
-      color: const Color(0xFF262626),
+      color: PaletteScope.of(context).surfaceAlt,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: onSelected,
       itemBuilder: (context) => [
@@ -1977,7 +2164,7 @@ class _CharacterDropdownTab extends StatelessWidget {
             value: character.id,
             child: Text(
               character.name,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: PaletteScope.of(context).textPrimary),
             ),
           ),
       ],
@@ -2005,7 +2192,7 @@ class _CharacterDropdownTab extends StatelessWidget {
             ),
             if (selected) ...[
               const SizedBox(height: 4),
-              Container(width: 24, height: 2, color: Colors.white),
+              Container(width: 24, height: 2, color: PaletteScope.of(context).textPrimary),
             ],
           ],
         ),
@@ -2029,7 +2216,7 @@ class _ComposerTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? Colors.white : Colors.white38;
+    final color = selected ? PaletteScope.of(context).textPrimary : PaletteScope.of(context).textFaint;
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -2054,7 +2241,7 @@ class _ComposerTab extends StatelessWidget {
             ),
             if (selected) ...[
               const SizedBox(height: 4),
-              Container(width: 24, height: 2, color: Colors.white),
+              Container(width: 24, height: 2, color: PaletteScope.of(context).textPrimary),
             ],
           ],
         ),
@@ -2085,6 +2272,15 @@ class _AboutTab extends StatefulWidget {
 }
 
 class _AboutTabState extends State<_AboutTab> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _cardBg => _p.surface;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _mutedText => _p.textMuted;
+  Color get _pillGrey => _p.surfaceAlt;
+  Color get _textSecondary => _p.textSecondary;
   /// 캐릭터별 소개 섹션의 펼침 상태. 인덱스 0(첫 캐릭터)만 기본으로 펼쳐둔다.
   final Set<int> _expandedCharacters = {0};
   final _imageStore = LocalImageStore();
@@ -2113,23 +2309,23 @@ class _AboutTabState extends State<_AboutTab> {
     final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: _cardBg,
         title: Text(
           l10n.plotEditAddHashtagDialogTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
         ),
         content: TextField(
           controller: controller,
           autofocus: true,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
           decoration: InputDecoration(
             hintText: l10n.plotEditHashtagHint,
-            hintStyle: const TextStyle(color: Colors.white38),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF3A3A3A)),
+            hintStyle: TextStyle(color: _textFaint),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: _borderGrey),
             ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF7A6FF0)),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: _purple),
             ),
           ),
         ),
@@ -2138,7 +2334,7 @@ class _AboutTabState extends State<_AboutTab> {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(
               l10n.commonCancel,
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: _mutedText),
             ),
           ),
           TextButton(
@@ -2146,7 +2342,7 @@ class _AboutTabState extends State<_AboutTab> {
                 Navigator.of(dialogContext).pop(controller.text.trim()),
             child: Text(
               l10n.commonAdd,
-              style: const TextStyle(color: Color(0xFF7A6FF0)),
+              style: TextStyle(color: _purple),
             ),
           ),
         ],
@@ -2171,8 +2367,8 @@ class _AboutTabState extends State<_AboutTab> {
       children: [
         Text(
           l10n.plotEditCoverTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -2196,12 +2392,12 @@ class _AboutTabState extends State<_AboutTab> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.add, color: Color(0xFF7A6FF0), size: 24),
+                      Icon(Icons.add, color: _purple, size: 24),
                       const SizedBox(height: 4),
                       Text(
                         l10n.plotEditCoverImagePlaceholder,
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style: TextStyle(
+                          color: _textFaint,
                           fontSize: 11,
                         ),
                       ),
@@ -2215,8 +2411,8 @@ class _AboutTabState extends State<_AboutTab> {
           children: [
             Text(
               l10n.plotEditShortIntroLabel,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: _textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -2224,12 +2420,12 @@ class _AboutTabState extends State<_AboutTab> {
             const SizedBox(height: 8),
             TextField(
               controller: widget.shortIntroController,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: _textPrimary, fontSize: 14),
               decoration: InputDecoration(
                 hintText: l10n.plotEditShortIntroHint,
-                hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                hintStyle: TextStyle(color: _textFaint, fontSize: 13),
                 filled: true,
-                fillColor: _PlotEditScreenState._background,
+                fillColor: PaletteScope.of(context).background,
                 contentPadding: const EdgeInsets.all(12),
                 counter: AnimatedBuilder(
                   animation: widget.shortIntroController,
@@ -2239,8 +2435,8 @@ class _AboutTabState extends State<_AboutTab> {
                       l10n.plotEditCharCountLabel(
                         widget.shortIntroController.text.length,
                       ),
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: _textFaint,
                         fontSize: 11,
                       ),
                     ),
@@ -2248,14 +2444,14 @@ class _AboutTabState extends State<_AboutTab> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                    color: _PlotEditScreenState._borderGrey,
+                  borderSide: BorderSide(
+                    color: PaletteScope.of(context).border,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(
-                    color: _PlotEditScreenState._purple,
+                  borderSide: BorderSide(
+                    color: PaletteScope.of(context).primary,
                   ),
                 ),
               ),
@@ -2265,8 +2461,8 @@ class _AboutTabState extends State<_AboutTab> {
         const SizedBox(height: 20),
         Text(
           l10n.plotEditHashtagsLabel,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -2280,15 +2476,15 @@ class _AboutTabState extends State<_AboutTab> {
               for (final tag in widget.hashtags)
                 Chip(
                   label: Text('#$tag'),
-                  backgroundColor: const Color(0xFF262626),
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
+                  backgroundColor: _pillGrey,
+                  labelStyle: TextStyle(
+                    color: _textPrimary,
                     fontSize: 12,
                   ),
-                  deleteIcon: const Icon(
+                  deleteIcon: Icon(
                     Icons.close,
                     size: 14,
-                    color: Colors.white54,
+                    color: _mutedText,
                   ),
                   onDeleted: () => _removeHashtag(tag),
                   shape: RoundedRectangleBorder(
@@ -2303,8 +2499,8 @@ class _AboutTabState extends State<_AboutTab> {
         OutlinedButton.icon(
           onPressed: widget.hashtags.length >= 10 ? null : _addHashtag,
           style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.white70,
-            side: const BorderSide(color: _PlotEditScreenState._borderGrey),
+            foregroundColor: _textSecondary,
+            side: BorderSide(color: PaletteScope.of(context).border),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -2318,8 +2514,8 @@ class _AboutTabState extends State<_AboutTab> {
         const SizedBox(height: 28),
         Text(
           l10n.plotEditAboutSectionTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -2327,7 +2523,7 @@ class _AboutTabState extends State<_AboutTab> {
         const SizedBox(height: 4),
         Text(
           l10n.plotEditAboutSectionDescription,
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: _textFaint, fontSize: 12),
         ),
         const SizedBox(height: 16),
         for (var i = 0; i < widget.characterForms.length; i++) ...[
@@ -2363,8 +2559,8 @@ class _AboutTabState extends State<_AboutTab> {
                     final name = form.nameController.text.trim();
                     return Text(
                       '## ${name.isEmpty ? l10n.plotEditDefaultCharacterName(index + 1) : name}',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: _textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -2375,15 +2571,15 @@ class _AboutTabState extends State<_AboutTab> {
               IconButton(
                 onPressed: () => _addAboutImage(index),
                 tooltip: l10n.plotEditAddImageTooltip,
-                icon: const Icon(
+                icon: Icon(
                   Icons.add_photo_alternate_outlined,
-                  color: Colors.white54,
+                  color: _mutedText,
                   size: 20,
                 ),
               ),
               Icon(
                 expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                color: Colors.white54,
+                color: _mutedText,
               ),
             ],
           ),
@@ -2394,23 +2590,23 @@ class _AboutTabState extends State<_AboutTab> {
             controller: form.aboutController,
             maxLines: 6,
             minLines: 3,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
+            style: TextStyle(color: _textPrimary, fontSize: 14),
             decoration: InputDecoration(
               hintText: l10n.plotEditAboutFieldHint,
-              hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+              hintStyle: TextStyle(color: _textFaint, fontSize: 13),
               filled: true,
-              fillColor: _PlotEditScreenState._background,
+              fillColor: PaletteScope.of(context).background,
               contentPadding: const EdgeInsets.all(12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                  color: _PlotEditScreenState._borderGrey,
+                borderSide: BorderSide(
+                  color: PaletteScope.of(context).border,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(
-                  color: _PlotEditScreenState._purple,
+                borderSide: BorderSide(
+                  color: PaletteScope.of(context).primary,
                 ),
               ),
             ),

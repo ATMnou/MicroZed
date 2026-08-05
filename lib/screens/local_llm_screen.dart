@@ -7,6 +7,8 @@ import '../data/ai/local_llm/local_model_catalog.dart';
 import '../data/db/database.dart';
 import '../data/repositories/ai_preset_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 마이페이지 > '로컬 LLM'에서 진입하는 화면.
 /// 추천 모델 다운로드, 커스텀 GGUF 파일 가져오기, 로드/언로드, 저장된 로컬 프리셋
@@ -19,9 +21,17 @@ class LocalLlmScreen extends StatefulWidget {
 }
 
 class _LocalLlmScreenState extends State<LocalLlmScreen> {
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _purple = Color(0xFF7A6FF0);
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _textGhost => _p.textGhost;
+  Color get _mutedText => _p.textMuted;
+  Color get _danger => _p.danger;
+  Color get _borderGrey => _p.border;
+  Color get _textSecondary => _p.textSecondary;
 
   late final AiPresetRepository _presetRepo;
   late final LocalModelStorage _storage;
@@ -52,12 +62,12 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: _textPrimary, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.localLlmScreenTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ),
       body: SafeArea(
@@ -65,7 +75,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
-            Text(l10n.localLlmScreenDescription, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+            Text(l10n.localLlmScreenDescription, style: TextStyle(color: _textFaint, fontSize: 12)),
             const SizedBox(height: 16),
             _buildStatusCard(l10n),
             const SizedBox(height: 20),
@@ -90,7 +100,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
     );
   }
 
-  static const _sectionTitleStyle = TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600);
+  TextStyle get _sectionTitleStyle => TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600);
 
   Widget _buildStatusCard(AppLocalizations l10n) {
     final current = LocalLlmEngine.instance.current;
@@ -99,17 +109,17 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
       decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(12)),
       child: Row(
         children: [
-          Icon(Icons.memory, color: current != null ? _purple : Colors.white24, size: 22),
+          Icon(Icons.memory, color: current != null ? _purple : _textGhost, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(l10n.localLlmCurrentStatusLabel, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                Text(l10n.localLlmCurrentStatusLabel, style: TextStyle(color: _mutedText, fontSize: 12)),
                 const SizedBox(height: 2),
                 Text(
                   current?.label ?? l10n.localLlmNoModelLoaded,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -120,7 +130,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
                 await LocalLlmEngine.instance.unload();
                 if (mounted) setState(() {});
               },
-              child: Text(l10n.localLlmUnloadButton, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
+              child: Text(l10n.localLlmUnloadButton, style: TextStyle(color: _danger, fontSize: 13)),
             ),
         ],
       ),
@@ -159,11 +169,11 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(entry.label, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                    Text(entry.label, style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text(_modelDescription(l10n, entry.id), style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                    Text(_modelDescription(l10n, entry.id), style: TextStyle(color: _mutedText, fontSize: 12)),
                     const SizedBox(height: 4),
-                    Text('~${entry.approxSizeMb} MB', style: const TextStyle(color: Colors.white24, fontSize: 11)),
+                    Text('~${entry.approxSizeMb} MB', style: TextStyle(color: _textGhost, fontSize: 11)),
                   ],
                 ),
               ),
@@ -180,7 +190,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
             const SizedBox(height: 10),
             LinearProgressIndicator(
               value: _busyFraction,
-              backgroundColor: Colors.white12,
+              backgroundColor: _textGhost,
               color: _purple,
             ),
           ],
@@ -198,14 +208,14 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
     return OutlinedButton(
       onPressed: enabled ? onPressed : null,
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        disabledForegroundColor: Colors.white24,
-        side: BorderSide(color: enabled ? _purple : const Color(0xFF3A3A3A)),
+        foregroundColor: _textPrimary,
+        disabledForegroundColor: _textGhost,
+        side: BorderSide(color: enabled ? _purple : _borderGrey),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       child: busy
-          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70))
+          ? SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: _textSecondary))
           : Text(label, style: const TextStyle(fontSize: 12)),
     );
   }
@@ -253,7 +263,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
       child: Row(
         children: [
           Expanded(
-            child: Text(l10n.localLlmImportDescription, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+            child: Text(l10n.localLlmImportDescription, style: TextStyle(color: _mutedText, fontSize: 12)),
           ),
           const SizedBox(width: 8),
           _buildActionButton(
@@ -309,7 +319,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
       builder: (context, snapshot) {
         final presets = (snapshot.data ?? const []).where((p) => p.isLocal).toList();
         if (presets.isEmpty) {
-          return Text(l10n.localLlmNoSavedPresets, style: const TextStyle(color: Colors.white38, fontSize: 12));
+          return Text(l10n.localLlmNoSavedPresets, style: TextStyle(color: _textFaint, fontSize: 12));
         }
         return Column(
           children: presets.map((preset) {
@@ -322,7 +332,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(preset.name, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                    child: Text(preset.name, style: TextStyle(color: _textPrimary, fontSize: 13)),
                   ),
                   _buildActionButton(
                     label: isCurrent ? l10n.localLlmInUseLabel : l10n.localLlmLoadButton,
@@ -331,7 +341,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
                     onPressed: () => _loadSavedPreset(l10n, preset),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.white54, size: 18),
+                    icon: Icon(Icons.delete_outline, color: _mutedText, size: 18),
                     onPressed: () => _presetRepo.delete(preset.id),
                   ),
                 ],
@@ -375,7 +385,7 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
       return const SizedBox(height: 40, child: Center(child: CircularProgressIndicator(strokeWidth: 2)));
     }
     if (entries.isEmpty) {
-      return Text(l10n.localLlmNoCachedModels, style: const TextStyle(color: Colors.white38, fontSize: 12));
+      return Text(l10n.localLlmNoCachedModels, style: TextStyle(color: _textFaint, fontSize: 12));
     }
     return Column(
       children: entries.map((entry) {
@@ -390,14 +400,14 @@ class _LocalLlmScreenState extends State<LocalLlmScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(entry.fileName, style: const TextStyle(color: Colors.white, fontSize: 13), overflow: TextOverflow.ellipsis),
+                    Text(entry.fileName, style: TextStyle(color: _textPrimary, fontSize: 13), overflow: TextOverflow.ellipsis),
                     if (sizeLabel.isNotEmpty)
-                      Text(sizeLabel, style: const TextStyle(color: Colors.white24, fontSize: 11)),
+                      Text(sizeLabel, style: TextStyle(color: _textGhost, fontSize: 11)),
                   ],
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.white54, size: 18),
+                icon: Icon(Icons.delete_outline, color: _mutedText, size: 18),
                 onPressed: () async {
                   await _storage.remove(entry.cacheKey);
                   await _refreshCache();

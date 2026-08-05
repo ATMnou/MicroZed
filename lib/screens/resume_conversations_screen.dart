@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../data/db/database.dart';
 import '../data/repositories/chat_session_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 채팅 화면 드로어의 '이어하기'에서 진입하는, 저장된(보관된) 대화 목록 화면.
 class ResumeConversationsScreen extends StatefulWidget {
@@ -21,9 +23,13 @@ class ResumeConversationsScreen extends StatefulWidget {
 }
 
 class _ResumeConversationsScreenState extends State<ResumeConversationsScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _pillGrey => _p.surfaceAlt;
   late final ChatSessionRepository _repository;
 
-  static const _background = Color(0xFF141414);
 
   @override
   void initState() {
@@ -51,17 +57,17 @@ class _ResumeConversationsScreenState extends State<ResumeConversationsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           AppLocalizations.of(context)!.chatDrawerResumeTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -79,10 +85,10 @@ class _ResumeConversationsScreenState extends State<ResumeConversationsScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
                     '${sessions.length}/100',
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                    style: TextStyle(color: _textFaint, fontSize: 12),
                   ),
                 ),
-                const Divider(color: Color(0xFF2A2A2A), height: 1),
+                Divider(color: _pillGrey, height: 1),
                 Expanded(
                   child: sessions.isEmpty
                       ? Center(
@@ -90,16 +96,16 @@ class _ResumeConversationsScreenState extends State<ResumeConversationsScreen> {
                             AppLocalizations.of(
                               context,
                             )!.resumeNoSavedConversations,
-                            style: const TextStyle(
-                              color: Colors.white38,
+                            style: TextStyle(
+                              color: _textFaint,
                               fontSize: 13,
                             ),
                           ),
                         )
                       : ListView.separated(
                           itemCount: sessions.length,
-                          separatorBuilder: (_, _) => const Divider(
-                            color: Color(0xFF2A2A2A),
+                          separatorBuilder: (_, _) => Divider(
+                            color: _pillGrey,
                             height: 1,
                           ),
                           itemBuilder: (context, index) =>
@@ -151,7 +157,7 @@ class _SavedConversationTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: PaletteScope.of(context).surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -161,10 +167,10 @@ class _SavedConversationTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: Colors.white),
+                leading: Icon(Icons.delete_outline, color: PaletteScope.of(context).textPrimary),
                 title: Text(
                   l10n.commonDelete,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: PaletteScope.of(context).textPrimary),
                 ),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
@@ -195,8 +201,8 @@ class _SavedConversationTile extends StatelessWidget {
                 children: [
                   Text(
                     l10n.resumeSavedAtLabel(_formatSavedAt(archivedAt)),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: PaletteScope.of(context).textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -206,7 +212,7 @@ class _SavedConversationTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '${_relativeLabel(l10n, archivedAt)} | ${data.lastMessagePreview.isEmpty ? l10n.resumeNoSavedMessage : data.lastMessagePreview}',
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                    style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -215,9 +221,9 @@ class _SavedConversationTile extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () => _showOptionsMenu(context),
-              child: const Padding(
+              child: Padding(
                 padding: EdgeInsets.only(left: 8),
-                child: Icon(Icons.more_vert, color: Colors.white38, size: 18),
+                child: Icon(Icons.more_vert, color: PaletteScope.of(context).textFaint, size: 18),
               ),
             ),
           ],

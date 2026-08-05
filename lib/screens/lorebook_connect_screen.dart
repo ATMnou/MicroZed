@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../data/db/database.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 플롯 편집 > '로어북' 탭의 '+ 로어북 연결'에서 나오는 로어북 선택 화면.
 /// 둘러보기/최근 플레이/내 로어북 같은 탭 구분과 썸네일 이미지는 빼고,
@@ -17,6 +19,13 @@ class LorebookConnectScreen extends StatefulWidget {
 }
 
 class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _pillGrey => _p.surfaceAlt;
+  Color get _borderGrey => _p.border;
   late final LorebookRepository _repository;
 
   Set<int> _selectedLorebookIds = {};
@@ -25,8 +34,6 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
   String _query = '';
   final _searchController = TextEditingController();
 
-  static const _background = Color(0xFF141414);
-  static const _purple = Color(0xFF7A6FF0);
 
   @override
   void initState() {
@@ -76,9 +83,9 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -87,12 +94,12 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
             ? TextField(
                 controller: _searchController,
                 autofocus: true,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: _textPrimary, fontSize: 14),
                 onChanged: (v) => setState(() => _query = v),
                 decoration: InputDecoration(
                   hintText: l10n.searchHintLorebook,
-                  hintStyle: const TextStyle(
-                    color: Colors.white38,
+                  hintStyle: TextStyle(
+                    color: _textFaint,
                     fontSize: 13,
                   ),
                   border: InputBorder.none,
@@ -100,8 +107,8 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
               )
             : Text(
                 l10n.lorebookConnectTitle,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: _textPrimary,
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
                 ),
@@ -111,7 +118,7 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
           IconButton(
             icon: Icon(
               _searching ? Icons.close : Icons.search,
-              color: Colors.white,
+              color: _textPrimary,
               size: 22,
             ),
             onPressed: () => setState(() {
@@ -125,7 +132,7 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : StreamBuilder<List<LorebookSummary>>(
               stream: _repository.watchAll(),
               builder: (context, snapshot) {
@@ -136,8 +143,8 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                       _query.trim().isEmpty
                           ? l10n.createTabNoLorebooksYet
                           : l10n.commonNoSearchResults,
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: _textFaint,
                         fontSize: 13,
                       ),
                     ),
@@ -147,7 +154,7 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   itemCount: summaries.length,
                   separatorBuilder: (_, _) =>
-                      const Divider(color: Color(0xFF2A2A2A), height: 1),
+                      Divider(color: _pillGrey, height: 1),
                   itemBuilder: (context, index) {
                     final summary = summaries[index];
                     final selected = _selectedLorebookIds.contains(
@@ -166,8 +173,8 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                       activeColor: _purple,
                       title: Text(
                         summary.lorebook.title,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: _textPrimary,
                           fontSize: 14,
                         ),
                       ),
@@ -176,8 +183,8 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
                           summary.conversationCount,
                           summary.linkedPlotCount,
                         ),
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style: TextStyle(
+                          color: _textFaint,
                           fontSize: 12,
                         ),
                       ),
@@ -197,9 +204,9 @@ class _LorebookConnectScreenState extends State<LorebookConnectScreen> {
               onPressed: _loading ? null : _confirm,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _selectedLorebookIds.isEmpty
-                    ? const Color(0xFF3A3A3A)
+                    ? _borderGrey
                     : _purple,
-                foregroundColor: Colors.white,
+                foregroundColor: _textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

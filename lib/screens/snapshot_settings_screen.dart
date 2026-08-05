@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../data/ai/snapshot_settings_store.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 마이페이지 > '스냅샷 설정'. 채팅의 스냅샷 버튼이 이미지를 생성할 때 쓸 엔드포인트
 /// (OpenRouter 또는 AtlasCloud), API 키, 모델명을 저장한다.
@@ -13,6 +15,14 @@ class SnapshotSettingsScreen extends StatefulWidget {
 }
 
 class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _mutedText => _p.textMuted;
   final _store = SnapshotSettingsStore();
   final _apiKeyController = TextEditingController();
   final _modelController = TextEditingController();
@@ -21,10 +31,6 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
   bool _saving = false;
   bool _obscureApiKey = true;
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
 
   @override
   void initState() {
@@ -78,31 +84,31 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.snapshotSettingsTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 Text(
                   l10n.snapshotSettingsDescription,
-                  style: const TextStyle(
-                    color: Colors.white38,
+                  style: TextStyle(
+                    color: _textFaint,
                     fontSize: 12.5,
                     height: 1.4,
                   ),
@@ -110,8 +116,8 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                 const SizedBox(height: 20),
                 Text(
                   l10n.snapshotSettingsProviderLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -150,7 +156,7 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                                   ? 'OpenRouter'
                                   : 'AtlasCloud',
                               style: TextStyle(
-                                color: selected ? Colors.white : Colors.white54,
+                                color: selected ? _textPrimary : _mutedText,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -164,8 +170,8 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                 const SizedBox(height: 20),
                 Text(
                   l10n.snapshotSettingsModelNameLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -173,11 +179,11 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _modelController,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.snapshotSettingsModelNameHint,
-                    hintStyle: const TextStyle(
-                      color: Colors.white38,
+                    hintStyle: TextStyle(
+                      color: _textFaint,
                       fontSize: 13,
                     ),
                     filled: true,
@@ -185,19 +191,19 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                     contentPadding: const EdgeInsets.all(12),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   l10n.snapshotSettingsApiKeyLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -206,11 +212,11 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                 TextField(
                   controller: _apiKeyController,
                   obscureText: _obscureApiKey,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.snapshotSettingsApiKeyHint,
-                    hintStyle: const TextStyle(
-                      color: Colors.white38,
+                    hintStyle: TextStyle(
+                      color: _textFaint,
                       fontSize: 13,
                     ),
                     filled: true,
@@ -221,7 +227,7 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                         _obscureApiKey
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: Colors.white54,
+                        color: _mutedText,
                         size: 18,
                       ),
                       onPressed: () =>
@@ -229,11 +235,11 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
@@ -250,7 +256,7 @@ class _SnapshotSettingsScreenState extends State<SnapshotSettingsScreen> {
               onPressed: _loading || _saving ? null : _save,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
-                foregroundColor: Colors.white,
+                foregroundColor: _textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

@@ -16,6 +16,8 @@ import 'plot_edit_screen.dart';
 import 'plot_profile_picker_screen.dart';
 import 'talk_character_picker_screen.dart';
 import 'talk_chat_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 홈에서 플롯 카드를 눌렀을 때 표시되는 캐릭터 정보 화면. 실제 DB의 플롯/대표 캐릭터/
 /// 인트로 첫 줄을 불러와서 보여준다. 하단 액션은 북마크 버튼을 제거하고
@@ -35,6 +37,11 @@ class CharacterDetailScreen extends StatefulWidget {
 }
 
 class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
   late final PlotRepository _plotRepository;
   late final IntroEntryRepository _introRepository;
   late final ChatSessionRepository _sessionRepository;
@@ -156,8 +163,8 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: _buildAppBar(context),
       body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF7A6FF0)),
+          ? Center(
+              child: CircularProgressIndicator(color: _purple),
             )
           : ListView(
               children: [
@@ -183,22 +190,22 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back_ios_new,
-          color: Colors.white,
+          color: _textPrimary,
           size: 20,
         ),
         onPressed: () => Navigator.of(context).pop(),
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.home_outlined, color: Colors.white, size: 24),
+          icon: Icon(Icons.home_outlined, color: _textPrimary, size: 24),
           onPressed: () =>
               Navigator.of(context).popUntil((route) => route.isFirst),
         ),
         PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.white, size: 22),
-          color: const Color(0xFF1E1E1E),
+          icon: Icon(Icons.more_vert, color: _textPrimary, size: 22),
+          color: _cardBg,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -216,14 +223,14 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
               value: 'edit',
               child: Text(
                 AppLocalizations.of(context)!.createTabEditPlotMenuItem,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: _textPrimary),
               ),
             ),
             PopupMenuItem(
               value: 'export',
               child: Text(
                 AppLocalizations.of(context)!.characterDetailExportMenuItem,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: _textPrimary),
               ),
             ),
           ],
@@ -263,8 +270,8 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                 child: OutlinedButton(
                   onPressed: _loading ? null : () => _startTalk(context),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Color(0xFF3A3A3A)),
+                    foregroundColor: _textPrimary,
+                    side: BorderSide(color: _borderGrey),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: Text(
@@ -282,8 +289,8 @@ class _CharacterDetailScreenState extends State<CharacterDetailScreen> {
                 child: ElevatedButton(
                   onPressed: _loading ? null : () => _startOrContinueChat(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7A6FF0),
-                    foregroundColor: Colors.white,
+                    backgroundColor: _purple,
+                    foregroundColor: _textPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -323,8 +330,8 @@ class _DetailBody extends StatelessWidget {
       children: [
         Text(
           plot?.title ?? '',
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: PaletteScope.of(context).textPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -332,23 +339,23 @@ class _DetailBody extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.chat_bubble_outline,
-              color: Colors.white38,
+              color: PaletteScope.of(context).textFaint,
               size: 14,
             ),
             const SizedBox(width: 4),
             Text(
               '$conversationCount',
-              style: const TextStyle(color: Colors.white38, fontSize: 12),
+              style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 12),
             ),
           ],
         ),
         const SizedBox(height: 12),
         Text(
           plot?.description ?? '',
-          style: const TextStyle(
-            color: Colors.white54,
+          style: TextStyle(
+            color: PaletteScope.of(context).textMuted,
             fontSize: 13,
             height: 1.4,
           ),
@@ -356,8 +363,8 @@ class _DetailBody extends StatelessWidget {
         const SizedBox(height: 24),
         Text(
           l10n.characterDetailCharacterSectionTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: PaletteScope.of(context).textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.bold,
           ),
@@ -368,8 +375,8 @@ class _DetailBody extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             l10n.characterDetailIntroSectionTitle,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: PaletteScope.of(context).textPrimary,
               fontSize: 17,
               fontWeight: FontWeight.bold,
             ),
@@ -385,7 +392,7 @@ class _DetailBody extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: PaletteScope.of(context).surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -403,8 +410,8 @@ class _DetailBody extends StatelessWidget {
                 Text(
                   character?.name ??
                       AppLocalizations.of(context)!.chatDefaultCharacterName,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: PaletteScope.of(context).textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -412,7 +419,7 @@ class _DetailBody extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   character?.description ?? '',
-                  style: const TextStyle(color: Colors.white38, fontSize: 13),
+                  style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 13),
                 ),
               ],
             ),
@@ -438,22 +445,22 @@ class _DetailBody extends StatelessWidget {
               AppLocalizations.of(context)!.chatDefaultCharacterName,
           content: Text(
             entry.content,
-            style: const TextStyle(color: Colors.white, fontSize: 15),
+            style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 15),
           ),
         );
       case IntroEntryType.narrator:
         return _buildIntroBubble(
           context,
-          avatar: const CircleAvatar(
+          avatar: CircleAvatar(
             radius: 16,
-            backgroundColor: Color(0xFF2A2A2A),
-            child: Icon(Icons.reorder, color: Colors.white54, size: 16),
+            backgroundColor: PaletteScope.of(context).surfaceAlt,
+            child: Icon(Icons.reorder, color: PaletteScope.of(context).textMuted, size: 16),
           ),
           label: AppLocalizations.of(context)!.characterDetailIntroNarratorLabel,
           content: Text(
             entry.content,
-            style: const TextStyle(
-              color: Colors.white70,
+            style: TextStyle(
+              color: PaletteScope.of(context).textSecondary,
               fontSize: 15,
               fontStyle: FontStyle.italic,
             ),
@@ -462,24 +469,24 @@ class _DetailBody extends StatelessWidget {
       case IntroEntryType.user:
         return _buildIntroBubble(
           context,
-          avatar: const CircleAvatar(
+          avatar: CircleAvatar(
             radius: 16,
-            backgroundColor: Color(0xFF2A2A2A),
-            child: Icon(Icons.person, color: Colors.white54, size: 16),
+            backgroundColor: PaletteScope.of(context).surfaceAlt,
+            child: Icon(Icons.person, color: PaletteScope.of(context).textMuted, size: 16),
           ),
           label: AppLocalizations.of(context)!.characterDetailIntroUserLabel,
           content: Text(
             entry.content,
-            style: const TextStyle(color: Colors.white, fontSize: 15),
+            style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 15),
           ),
         );
       case IntroEntryType.image:
         return _buildIntroBubble(
           context,
-          avatar: const CircleAvatar(
+          avatar: CircleAvatar(
             radius: 16,
-            backgroundColor: Color(0xFF2A2A2A),
-            child: Icon(Icons.image_outlined, color: Colors.white54, size: 16),
+            backgroundColor: PaletteScope.of(context).surfaceAlt,
+            child: Icon(Icons.image_outlined, color: PaletteScope.of(context).textMuted, size: 16),
           ),
           label: AppLocalizations.of(context)!.characterDetailIntroImageLabel,
           content: ClipRRect(
@@ -488,9 +495,9 @@ class _DetailBody extends StatelessWidget {
               File(entry.content),
               height: 120,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const SizedBox(
+              errorBuilder: (_, _, _) => SizedBox(
                 height: 60,
-                child: Icon(Icons.broken_image_outlined, color: Colors.white38),
+                child: Icon(Icons.broken_image_outlined, color: PaletteScope.of(context).textFaint),
               ),
             ),
           ),
@@ -515,7 +522,7 @@ class _DetailBody extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Container(
@@ -524,7 +531,7 @@ class _DetailBody extends StatelessWidget {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2A2A2A),
+                  color: PaletteScope.of(context).surfaceAlt,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: content,

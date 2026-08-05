@@ -17,6 +17,8 @@ import 'lorebook_detail_screen.dart';
 import 'lorebook_edit_screen.dart';
 import 'plot_ai_generate_screen.dart';
 import 'plot_edit_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// '제작' 탭 화면.
 /// 플롯/로어북 탭 모두 실제 DB(Drift)에서 스트리밍한다.
@@ -28,6 +30,17 @@ class CreateTab extends StatefulWidget {
 }
 
 class _CreateTabState extends State<CreateTab> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _textFaint => _p.textFaint;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _textGhost => _p.textGhost;
+  Color get _danger => _p.danger;
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
+  Color get _mutedText => _p.textMuted;
+  Color get _purple => _p.primary;
+  Color get _pillGrey => _p.surfaceAlt;
   late final PlotRepository _plotRepository;
   late final LorebookRepository _lorebookRepository;
   final _searchController = TextEditingController();
@@ -125,8 +138,8 @@ class _CreateTabState extends State<CreateTab> {
                         _query.trim().isEmpty
                             ? l10n.homeNoPlotsYet
                             : l10n.commonNoSearchResults,
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style: TextStyle(
+                          color: _textFaint,
                           fontSize: 13,
                         ),
                       ),
@@ -176,8 +189,8 @@ class _CreateTabState extends State<CreateTab> {
                         _query.trim().isEmpty
                             ? l10n.createTabNoLorebooksYet
                             : l10n.commonNoSearchResults,
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style: TextStyle(
+                          color: _textFaint,
                           fontSize: 13,
                         ),
                       ),
@@ -192,8 +205,8 @@ class _CreateTabState extends State<CreateTab> {
                             children: [
                               Text(
                                 l10n.createTabLorebookNote1,
-                                style: const TextStyle(
-                                  color: Colors.white38,
+                                style: TextStyle(
+                                  color: _textFaint,
                                   fontSize: 12,
                                   height: 1.4,
                                 ),
@@ -201,8 +214,8 @@ class _CreateTabState extends State<CreateTab> {
                               const SizedBox(height: 4),
                               Text(
                                 l10n.createTabLorebookNote2,
-                                style: const TextStyle(
-                                  color: Colors.white38,
+                                style: TextStyle(
+                                  color: _textFaint,
                                   fontSize: 12,
                                   height: 1.4,
                                 ),
@@ -228,20 +241,20 @@ class _CreateTabState extends State<CreateTab> {
               children: [
                 Text(
                   l10n.createTabSelectedCount(_selectedPlotIds.length),
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: _textPrimary, fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
                 IconButton(
                   onPressed: _selectedPlotIds.isEmpty || _exportingPackage ? null : _exportSelectedAsPackage,
                   icon: _exportingPackage
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                          child: CircularProgressIndicator(strokeWidth: 2, color: _textSecondary),
                         )
                       : Icon(
                           Icons.ios_share,
-                          color: _selectedPlotIds.isEmpty ? Colors.white24 : Colors.white,
+                          color: _selectedPlotIds.isEmpty ? _textGhost : _textPrimary,
                           size: 20,
                         ),
                 ),
@@ -249,7 +262,7 @@ class _CreateTabState extends State<CreateTab> {
                   onPressed: _selectedPlotIds.isEmpty ? null : _confirmDeleteSelectedPlots,
                   icon: Icon(
                     Icons.delete_outline,
-                    color: _selectedPlotIds.isEmpty ? Colors.white24 : Colors.redAccent,
+                    color: _selectedPlotIds.isEmpty ? _textGhost : _danger,
                     size: 22,
                   ),
                 ),
@@ -258,7 +271,7 @@ class _CreateTabState extends State<CreateTab> {
                     _selecting = false;
                     _selectedPlotIds.clear();
                   }),
-                  icon: const Icon(Icons.close, color: Colors.white, size: 22),
+                  icon: Icon(Icons.close, color: _textPrimary, size: 22),
                 ),
               ],
             )
@@ -269,18 +282,18 @@ class _CreateTabState extends State<CreateTab> {
                   child: TextField(
                     controller: _searchController,
                     autofocus: true,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: _textPrimary, fontSize: 14),
                     onChanged: (v) => setState(() => _query = v),
                     decoration: InputDecoration(
                       hintText: _activeTab == 0
                           ? l10n.searchHintPlot
                           : l10n.searchHintLorebook,
-                      hintStyle: const TextStyle(
-                        color: Colors.white38,
+                      hintStyle: TextStyle(
+                        color: _textFaint,
                         fontSize: 13,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF1E1E1E),
+                      fillColor: _cardBg,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 10,
@@ -301,7 +314,7 @@ class _CreateTabState extends State<CreateTab> {
                   }),
                   child: Text(
                     l10n.commonCancel,
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                    style: TextStyle(color: _textSecondary, fontSize: 14),
                   ),
                 ),
               ],
@@ -313,7 +326,7 @@ class _CreateTabState extends State<CreateTab> {
                   child: Text(
                     l10n.createTabPlotLabel,
                     style: TextStyle(
-                      color: _activeTab == 0 ? Colors.white : Colors.white38,
+                      color: _activeTab == 0 ? _textPrimary : _textFaint,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -325,7 +338,7 @@ class _CreateTabState extends State<CreateTab> {
                   child: Text(
                     l10n.createTabLorebookLabel,
                     style: TextStyle(
-                      color: _activeTab == 1 ? Colors.white : Colors.white38,
+                      color: _activeTab == 1 ? _textPrimary : _textFaint,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -334,9 +347,9 @@ class _CreateTabState extends State<CreateTab> {
                 const Spacer(),
                 GestureDetector(
                   onTap: () => setState(() => _searching = true),
-                  child: const Icon(
+                  child: Icon(
                     Icons.manage_search,
-                    color: Colors.white,
+                    color: _textPrimary,
                     size: 24,
                   ),
                 ),
@@ -344,9 +357,9 @@ class _CreateTabState extends State<CreateTab> {
                   const SizedBox(width: 16),
                   GestureDetector(
                     onTap: () => setState(() => _selecting = true),
-                    child: const Icon(
+                    child: Icon(
                       Icons.settings_outlined,
-                      color: Colors.white,
+                      color: _textPrimary,
                       size: 22,
                     ),
                   ),
@@ -365,12 +378,12 @@ class _CreateTabState extends State<CreateTab> {
         children: [
           Text(
             l10n.totalCountLabel(count),
-            style: const TextStyle(color: Colors.white70, fontSize: 13),
+            style: TextStyle(color: _textSecondary, fontSize: 13),
           ),
           const SizedBox(width: 12),
           Text(
             total,
-            style: const TextStyle(color: Colors.white70, fontSize: 13),
+            style: TextStyle(color: _textSecondary, fontSize: 13),
           ),
         ],
       ),
@@ -394,9 +407,9 @@ class _CreateTabState extends State<CreateTab> {
         );
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF1E1E1E),
-        side: const BorderSide(color: Color(0xFF3A3A3A)),
+        foregroundColor: _textPrimary,
+        backgroundColor: _cardBg,
+        side: BorderSide(color: _borderGrey),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
@@ -413,19 +426,19 @@ class _CreateTabState extends State<CreateTab> {
     return OutlinedButton.icon(
       onPressed: _importing ? null : _showImportSheet,
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color(0xFF1E1E1E),
-        side: const BorderSide(color: Color(0xFF3A3A3A)),
+        foregroundColor: _textPrimary,
+        backgroundColor: _cardBg,
+        side: BorderSide(color: _borderGrey),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
       icon: _importing
-          ? const SizedBox(
+          ? SizedBox(
               width: 16,
               height: 16,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white70,
+                color: _textSecondary,
               ),
             )
           : const Icon(Icons.file_download_outlined, size: 18),
@@ -440,7 +453,7 @@ class _CreateTabState extends State<CreateTab> {
     final l10n = AppLocalizations.of(context)!;
     final choice = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -455,8 +468,8 @@ class _CreateTabState extends State<CreateTab> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     l10n.createTabImportSheetTitle,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: _textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -464,53 +477,53 @@ class _CreateTabState extends State<CreateTab> {
                 ),
               ),
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.folder_open_outlined,
-                  color: Colors.white,
+                  color: _textPrimary,
                 ),
                 title: Text(
                   l10n.createTabImportFromFileTitle,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: _textPrimary),
                 ),
                 subtitle: Text(
                   l10n.createTabImportFromFileSubtitle,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(color: _textFaint, fontSize: 12),
                 ),
                 onTap: () => Navigator.of(sheetContext).pop('file'),
               ),
               ListTile(
-                leading: const Icon(Icons.link, color: Colors.white),
+                leading: Icon(Icons.link, color: _textPrimary),
                 title: Text(
                   l10n.createTabImportFromUrlTitle,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: _textPrimary),
                 ),
                 subtitle: Text(
                   l10n.createTabImportFromUrlSubtitle,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(color: _textFaint, fontSize: 12),
                 ),
                 onTap: () => Navigator.of(sheetContext).pop('url'),
               ),
               ListTile(
-                leading: const Icon(Icons.archive_outlined, color: Colors.white),
+                leading: Icon(Icons.archive_outlined, color: _textPrimary),
                 title: Text(
                   l10n.createTabImportFromPlotDataTitle,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: _textPrimary),
                 ),
                 subtitle: Text(
                   l10n.createTabImportFromPlotDataSubtitle,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(color: _textFaint, fontSize: 12),
                 ),
                 onTap: () => Navigator.of(sheetContext).pop('plot_data'),
               ),
               ListTile(
-                leading: const Icon(Icons.inventory_2_outlined, color: Colors.white),
+                leading: Icon(Icons.inventory_2_outlined, color: _textPrimary),
                 title: Text(
                   l10n.createTabImportFromPackageTitle,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: _textPrimary),
                 ),
                 subtitle: Text(
                   l10n.createTabImportFromPackageSubtitle,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(color: _textFaint, fontSize: 12),
                 ),
                 onTap: () => Navigator.of(sheetContext).pop('plot_pack'),
               ),
@@ -608,23 +621,23 @@ class _CreateTabState extends State<CreateTab> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: _cardBg,
         title: Text(
           l10n.createTabDeleteSelectedConfirmTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
         ),
         content: Text(
           l10n.createTabDeleteSelectedConfirmContent,
-          style: const TextStyle(color: Colors.white54),
+          style: TextStyle(color: _mutedText),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.commonDelete, style: TextStyle(color: _danger)),
           ),
         ],
       ),
@@ -678,23 +691,23 @@ class _CreateTabState extends State<CreateTab> {
     return showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: _cardBg,
         title: Text(
           l10n.createTabImportUrlDialogTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
         ),
         content: TextField(
           controller: controller,
           autofocus: true,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
+          style: TextStyle(color: _textPrimary),
+          decoration: InputDecoration(
             hintText: 'https://...',
-            hintStyle: TextStyle(color: Colors.white38),
+            hintStyle: TextStyle(color: _textFaint),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF3A3A3A)),
+              borderSide: BorderSide(color: _borderGrey),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF7A6FF0)),
+              borderSide: BorderSide(color: _purple),
             ),
           ),
         ),
@@ -703,14 +716,14 @@ class _CreateTabState extends State<CreateTab> {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(
               l10n.commonCancel,
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: _mutedText),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(controller.text),
             child: Text(
               l10n.createTabImportConfirmButton,
-              style: const TextStyle(color: Color(0xFF7A6FF0)),
+              style: TextStyle(color: _purple),
             ),
           ),
         ],
@@ -726,7 +739,7 @@ class _CreateTabState extends State<CreateTab> {
     if (!mounted) return (cancelled: true, plotId: null);
     final choice = await showModalBottomSheet<int?>(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -744,16 +757,16 @@ class _CreateTabState extends State<CreateTab> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       l10n.createTabImportTargetSheetTitle,
-                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: _textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.add_circle_outline, color: Colors.white),
-                  title: Text(l10n.createTabImportTargetNewPlot, style: const TextStyle(color: Colors.white)),
+                  leading: Icon(Icons.add_circle_outline, color: _textPrimary),
+                  title: Text(l10n.createTabImportTargetNewPlot, style: TextStyle(color: _textPrimary)),
                   onTap: () => Navigator.of(sheetContext).pop(-1),
                 ),
-                const Divider(color: Color(0xFF2A2A2A), height: 1),
+                Divider(color: _pillGrey, height: 1),
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
@@ -761,7 +774,7 @@ class _CreateTabState extends State<CreateTab> {
                     itemBuilder: (context, index) {
                       final plot = plots[index].plot;
                       return ListTile(
-                        title: Text(plot.title, style: const TextStyle(color: Colors.white)),
+                        title: Text(plot.title, style: TextStyle(color: _textPrimary)),
                         onTap: () => Navigator.of(sheetContext).pop(plot.id),
                       );
                     },
@@ -787,7 +800,7 @@ class _CreateTabState extends State<CreateTab> {
     if (!mounted) return null;
     return showModalBottomSheet<int?>(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -802,19 +815,19 @@ class _CreateTabState extends State<CreateTab> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     l10n.createTabImportLorebookTargetSheetTitle,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: _textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.add_circle_outline, color: Colors.white),
-                title: Text(l10n.createTabImportLorebookTargetNew, style: const TextStyle(color: Colors.white)),
+                leading: Icon(Icons.add_circle_outline, color: _textPrimary),
+                title: Text(l10n.createTabImportLorebookTargetNew, style: TextStyle(color: _textPrimary)),
                 onTap: () => Navigator.of(sheetContext).pop(),
               ),
-              const Divider(color: Color(0xFF2A2A2A), height: 1),
+              Divider(color: _pillGrey, height: 1),
               for (final lorebook in linked)
                 ListTile(
-                  title: Text(lorebook.title, style: const TextStyle(color: Colors.white)),
+                  title: Text(lorebook.title, style: TextStyle(color: _textPrimary)),
                   onTap: () => Navigator.of(sheetContext).pop(lorebook.id),
                 ),
               const SizedBox(height: 8),
@@ -891,8 +904,8 @@ class _CreateTabState extends State<CreateTab> {
         }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF7A6FF0),
-        foregroundColor: Colors.white,
+        backgroundColor: _purple,
+        foregroundColor: _textPrimary,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       ),
@@ -923,28 +936,28 @@ class _PlotTile extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: PaletteScope.of(context).surface,
         title: Text(
           l10n.createTabDeletePlotConfirmTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: PaletteScope.of(context).textPrimary),
         ),
         content: Text(
           l10n.createTabDeletePlotConfirmContent,
-          style: const TextStyle(color: Colors.white54),
+          style: TextStyle(color: PaletteScope.of(context).textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: Text(
               l10n.commonCancel,
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: PaletteScope.of(context).textMuted),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: Text(
               l10n.commonDelete,
-              style: const TextStyle(color: Colors.redAccent),
+              style: TextStyle(color: PaletteScope.of(context).danger),
             ),
           ),
         ],
@@ -959,7 +972,7 @@ class _PlotTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: PaletteScope.of(context).surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -969,10 +982,10 @@ class _PlotTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.edit_outlined, color: Colors.white),
+                leading: Icon(Icons.edit_outlined, color: PaletteScope.of(context).textPrimary),
                 title: Text(
                   l10n.createTabEditPlotMenuItem,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: PaletteScope.of(context).textPrimary),
                 ),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
@@ -984,10 +997,10 @@ class _PlotTile extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: Colors.white),
+                leading: Icon(Icons.delete_outline, color: PaletteScope.of(context).textPrimary),
                 title: Text(
                   l10n.commonDelete,
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: PaletteScope.of(context).textPrimary),
                 ),
                 onTap: () async {
                   Navigator.of(sheetContext).pop();
@@ -1021,7 +1034,7 @@ class _PlotTile extends StatelessWidget {
               Checkbox(
                 value: selected,
                 onChanged: (_) => onToggleSelected?.call(),
-                activeColor: const Color(0xFF7A6FF0),
+                activeColor: PaletteScope.of(context).primary,
               ),
               const SizedBox(width: 4),
             ],
@@ -1037,7 +1050,7 @@ class _PlotTile extends StatelessWidget {
                   : Container(
                       width: 44,
                       height: 44,
-                      color: const Color(0xFF3A3A3A),
+                      color: PaletteScope.of(context).border,
                     ),
             ),
             const SizedBox(width: 12),
@@ -1047,8 +1060,8 @@ class _PlotTile extends StatelessWidget {
                 children: [
                   Text(
                     data.plot.title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: PaletteScope.of(context).textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1060,7 +1073,7 @@ class _PlotTile extends StatelessWidget {
                     AppLocalizations.of(
                       context,
                     )!.conversationCountLabel(data.conversationCount),
-                    style: const TextStyle(color: Colors.white38, fontSize: 13),
+                    style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 13),
                   ),
                 ],
               ),
@@ -1068,9 +1081,9 @@ class _PlotTile extends StatelessWidget {
             if (!selecting)
               GestureDetector(
                 onTap: () => _showOptionsMenu(context),
-                child: const Icon(
+                child: Icon(
                   Icons.more_vert,
-                  color: Colors.white54,
+                  color: PaletteScope.of(context).textMuted,
                   size: 18,
                 ),
               ),
@@ -1091,28 +1104,28 @@ class _LorebookTile extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: PaletteScope.of(context).surface,
         title: Text(
           l10n.createTabDeleteLorebookConfirmTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: PaletteScope.of(context).textPrimary),
         ),
         content: Text(
           l10n.createTabDeleteLorebookConfirmContent,
-          style: const TextStyle(color: Colors.white54),
+          style: TextStyle(color: PaletteScope.of(context).textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: Text(
               l10n.commonCancel,
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: PaletteScope.of(context).textMuted),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: Text(
               l10n.commonDelete,
-              style: const TextStyle(color: Colors.redAccent),
+              style: TextStyle(color: PaletteScope.of(context).danger),
             ),
           ),
         ],
@@ -1143,8 +1156,8 @@ class _LorebookTile extends StatelessWidget {
                 children: [
                   Text(
                     data.lorebook.title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: PaletteScope.of(context).textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1157,7 +1170,7 @@ class _LorebookTile extends StatelessWidget {
                       data.conversationCount,
                       data.linkedPlotCount,
                     ),
-                    style: const TextStyle(color: Colors.white38, fontSize: 13),
+                    style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 13),
                   ),
                 ],
               ),
@@ -1171,18 +1184,18 @@ class _LorebookTile extends StatelessWidget {
                   ),
                 );
               },
-              child: const Icon(
+              child: Icon(
                 Icons.edit_outlined,
-                color: Colors.white54,
+                color: PaletteScope.of(context).textMuted,
                 size: 18,
               ),
             ),
             const SizedBox(width: 16),
             GestureDetector(
               onTap: () => _confirmDelete(context),
-              child: const Icon(
+              child: Icon(
                 Icons.delete_outline,
-                color: Colors.white54,
+                color: PaletteScope.of(context).textMuted,
                 size: 18,
               ),
             ),

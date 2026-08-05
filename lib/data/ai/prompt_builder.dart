@@ -1,4 +1,5 @@
 import '../db/database.dart';
+import '../korean_josa.dart';
 
 /// 플롯/캐릭터/대화 기록으로부터 OpenAI 호환 chat completions 요청에 넣을
 /// 시스템 프롬프트와 메시지 히스토리를 만든다.
@@ -75,7 +76,7 @@ class PromptBuilder {
         ? customTemplate
         : defaultSystemPromptTemplate;
 
-    return template
+    final filled = template
         .replaceAll('{{plot_title}}', plot?.title ?? '')
         .replaceAll('{{plot_description}}', plot?.description ?? '')
         .replaceAll('{{characters_block}}', charactersBlock)
@@ -84,6 +85,10 @@ class PromptBuilder {
         .replaceAll('{{user_profile_description_block}}', profileDescBlock)
         .replaceAll('{{lore_block}}', loreBlock)
         .replaceAll('{{extra_block}}', extraBlock);
+
+    // {{user}}는 여기서 치환하지 않고 리터럴로 남기지만(모델이 응답에 그대로 써야 하는 토큰),
+    // 조사 매크로(`{{user}}[을;를]` 같은)는 실제 프로필 이름 기준으로 지금 풀어준다.
+    return KoreanJosaMacro.resolve(filled, aliases: {'{{user}}': userProfileName});
   }
 
   static List<Map<String, String>> buildHistoryMessages({

@@ -5,6 +5,8 @@ import '../data/repositories/lorebook_repository.dart';
 import '../l10n/app_localizations.dart';
 import 'lorebook_edit_screen.dart';
 import 'lorebook_plot_picker_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 제작 탭에서 로어북 행을 그냥 누르면(수정/삭제 아님) 나오는 보기 전용 화면.
 class LorebookDetailScreen extends StatefulWidget {
@@ -17,12 +19,19 @@ class LorebookDetailScreen extends StatefulWidget {
 }
 
 class _LorebookDetailScreenState extends State<LorebookDetailScreen> with SingleTickerProviderStateMixin {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _mutedText => _p.textMuted;
+  Color get _danger => _p.danger;
+  Color get _textFaint => _p.textFaint;
+  Color get _pillGrey => _p.surfaceAlt;
+  Color get _textSecondary => _p.textSecondary;
   late final TabController _tabController;
   late final LorebookRepository _repository;
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _purple = Color(0xFF7A6FF0);
 
   @override
   void initState() {
@@ -43,16 +52,16 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _cardBg,
-        title: Text(l10n.createTabDeleteLorebookConfirmTitle, style: const TextStyle(color: Colors.white)),
-        content: Text(l10n.createTabDeleteLorebookConfirmContent, style: const TextStyle(color: Colors.white54)),
+        title: Text(l10n.createTabDeleteLorebookConfirmTitle, style: TextStyle(color: _textPrimary)),
+        content: Text(l10n.createTabDeleteLorebookConfirmContent, style: TextStyle(color: _mutedText)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.commonDelete, style: TextStyle(color: _danger)),
           ),
         ],
       ),
@@ -73,11 +82,11 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
           builder: (context, snapshot) {
             final lorebook = snapshot.data;
             if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator(color: _purple));
+              return Center(child: CircularProgressIndicator(color: _purple));
             }
             if (lorebook == null) {
               return Center(
-                child: Text(AppLocalizations.of(context)!.lorebookDetailDeletedMessage, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                child: Text(AppLocalizations.of(context)!.lorebookDetailDeletedMessage, style: TextStyle(color: _textFaint, fontSize: 13)),
               );
             }
             return Column(
@@ -90,7 +99,7 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                     children: [
                       Text(
                         lorebook.title,
-                        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: _textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 6),
                       StreamBuilder<List<LorebookSummary>>(
@@ -102,7 +111,7 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                           final linkedPlotCount = summary.isEmpty ? 0 : summary.first.linkedPlotCount;
                           return Text(
                             AppLocalizations.of(context)!.lorebookTileStats(conversationCount, linkedPlotCount),
-                            style: const TextStyle(color: Colors.white38, fontSize: 12),
+                            style: TextStyle(color: _textFaint, fontSize: 12),
                           );
                         },
                       ),
@@ -111,10 +120,10 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                 ),
                 TabBar(
                   controller: _tabController,
-                  indicatorColor: Colors.white,
+                  indicatorColor: _textPrimary,
                   indicatorSize: TabBarIndicatorSize.label,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.white38,
+                  labelColor: _textPrimary,
+                  unselectedLabelColor: _textFaint,
                   labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   tabs: [
                     Tab(text: AppLocalizations.of(context)!.lorebookInfoTabLabel),
@@ -145,7 +154,7 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+            icon: Icon(Icons.arrow_back_ios_new, color: _textPrimary, size: 20),
             onPressed: () => Navigator.of(context).pop(),
           ),
           const Spacer(),
@@ -155,10 +164,10 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                 MaterialPageRoute(builder: (_) => LorebookPlotPickerScreen(lorebookId: widget.lorebookId)),
               );
             },
-            child: Text(l10n.lorebookPlotConnectTabLabel, style: const TextStyle(color: _purple, fontSize: 14, fontWeight: FontWeight.w600)),
+            child: Text(l10n.lorebookPlotConnectTabLabel, style: TextStyle(color: _purple, fontSize: 14, fontWeight: FontWeight.w600)),
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.white, size: 22),
+            icon: Icon(Icons.more_vert, color: _textPrimary, size: 22),
             color: _cardBg,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onSelected: (value) {
@@ -171,8 +180,8 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
               }
             },
             itemBuilder: (context) => [
-              PopupMenuItem(value: 'edit', child: Text(l10n.lorebookDetailEditMenuItem, style: const TextStyle(color: Colors.white))),
-              PopupMenuItem(value: 'delete', child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent))),
+              PopupMenuItem(value: 'edit', child: Text(l10n.lorebookDetailEditMenuItem, style: TextStyle(color: _textPrimary))),
+              PopupMenuItem(value: 'delete', child: Text(l10n.commonDelete, style: TextStyle(color: _danger))),
             ],
           ),
         ],
@@ -187,7 +196,7 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
         final entries = snapshot.data ?? const [];
         if (entries.isEmpty) {
           return Center(
-            child: Text(AppLocalizations.of(context)!.lorebookDetailNoEntriesMessage, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+            child: Text(AppLocalizations.of(context)!.lorebookDetailNoEntriesMessage, style: TextStyle(color: _textFaint, fontSize: 13)),
           );
         }
         return ListView.separated(
@@ -205,7 +214,7 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
                       entry.title,
-                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: _textPrimary, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                 if (keywords.isNotEmpty)
@@ -219,15 +228,15 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF262626),
+                              color: _pillGrey,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Text(keyword, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                            child: Text(keyword, style: TextStyle(color: _textSecondary, fontSize: 12)),
                           ),
                       ],
                     ),
                   ),
-                Text(entry.content, style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5)),
+                Text(entry.content, style: TextStyle(color: _textSecondary, fontSize: 14, height: 1.5)),
               ],
             );
           },
@@ -243,16 +252,16 @@ class _LorebookDetailScreenState extends State<LorebookDetailScreen> with Single
         final plots = snapshot.data ?? const [];
         if (plots.isEmpty) {
           return Center(
-            child: Text(AppLocalizations.of(context)!.lorebookDetailNoLinkedPlotsMessage, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+            child: Text(AppLocalizations.of(context)!.lorebookDetailNoLinkedPlotsMessage, style: TextStyle(color: _textFaint, fontSize: 13)),
           );
         }
         return ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: plots.length,
-          separatorBuilder: (_, _) => const Divider(color: Color(0xFF2A2A2A), height: 1),
+          separatorBuilder: (_, _) => Divider(color: _pillGrey, height: 1),
           itemBuilder: (context, index) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(plots[index].title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+            child: Text(plots[index].title, style: TextStyle(color: _textPrimary, fontSize: 14)),
           ),
         );
       },

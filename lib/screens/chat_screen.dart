@@ -10,6 +10,7 @@ import '../data/ai/prompt_builder.dart';
 import '../data/ai/snapshot_settings_store.dart';
 import '../data/chat_image_preferences.dart';
 import '../data/db/database.dart';
+import '../data/korean_josa.dart';
 import '../data/local_image_store.dart';
 import '../data/repositories/ai_preset_repository.dart';
 import '../data/repositories/character_repository.dart';
@@ -29,6 +30,8 @@ import 'ai_preset_screen.dart';
 import 'conversation_profile_edit_screen.dart';
 import 'resume_conversations_screen.dart';
 import 'snapshot_settings_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 캐릭터 채팅 화면. 세션(sessionId)에 연결된 실제 메시지를
 /// 로컬 DB(Drift)에서 스트리밍하고, 유저가 입력한 메시지를 저장한다.
@@ -42,6 +45,18 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _bubbleGrey => _p.surfaceAlt;
+  Color get _bubblePurple => _p.primary;
+  Color get _pillGrey => _p.surfaceAlt;
+  Color get _mutedText => _p.textMuted;
+  Color get _cardBg => _p.surface;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _borderGrey => _p.border;
+  Color get _background => _p.background;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _textGhost => _p.textGhost;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _inputController = TextEditingController();
 
@@ -77,10 +92,6 @@ class _ChatScreenState extends State<ChatScreen> {
   /// 재시도 중인 턴 id. 새 버전이 완성될 때까지 이 턴의 기존 말풍선은 화면에서 미리 감춘다.
   int? _retryingTurnId;
 
-  static const _bubbleGrey = Color(0xFF2A2A2A);
-  static const _bubblePurple = Color(0xFF7A6FF0);
-  static const _pillGrey = Color(0xFF262626);
-  static const _mutedText = Color(0xFF9A9A9A);
 
   @override
   void initState() {
@@ -336,7 +347,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -432,23 +443,23 @@ class _ChatScreenState extends State<ChatScreen> {
     final instruction = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: _cardBg,
         title: Text(
           l10n.chatReviseDialogTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
         ),
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLines: 3,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
           decoration: InputDecoration(
             hintText: l10n.chatReviseDialogHint,
-            hintStyle: const TextStyle(color: Colors.white38),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF3A3A3A)),
+            hintStyle: TextStyle(color: _textFaint),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: _borderGrey),
             ),
-            focusedBorder: const OutlineInputBorder(
+            focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: _bubblePurple),
             ),
           ),
@@ -458,7 +469,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(
               l10n.commonCancel,
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: _mutedText),
             ),
           ),
           TextButton(
@@ -466,7 +477,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.of(dialogContext).pop(controller.text.trim()),
             child: Text(
               l10n.chatReviseConfirmButton,
-              style: const TextStyle(color: _bubblePurple),
+              style: TextStyle(color: _bubblePurple),
             ),
           ),
         ],
@@ -492,7 +503,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) => Dialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: _cardBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -504,18 +515,18 @@ class _ChatScreenState extends State<ChatScreen> {
                 maxLines: 10,
                 minLines: 4,
                 autofocus: true,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: _textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: const Color(0xFF141414),
+                  fillColor: _background,
                   contentPadding: const EdgeInsets.all(12),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Color(0xFF3A3A3A)),
+                    borderSide: BorderSide(color: _borderGrey),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: _bubblePurple),
+                    borderSide: BorderSide(color: _bubblePurple),
                   ),
                 ),
               ),
@@ -524,11 +535,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white54),
+                    icon: Icon(Icons.close, color: _mutedText),
                     onPressed: () => Navigator.of(dialogContext).pop(),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.check_circle, color: _bubblePurple),
+                    icon: Icon(Icons.check_circle, color: _bubblePurple),
                     onPressed: () =>
                         Navigator.of(dialogContext).pop(controller.text),
                   ),
@@ -570,8 +581,10 @@ class _ChatScreenState extends State<ChatScreen> {
     return null;
   }
 
-  /// AI 응답에 그대로 저장된 `{{user}}` 자리표시자를 지금 대화 프로필 이름으로 바꿔서
-  /// 보여준다. 프로필을 나중에 바꿔도 예전 메시지가 그 이름으로 다시 렌더링된다.
+  /// AI 응답(또는 인트로 원문)에 그대로 저장된 `{{user}}` 자리표시자를 지금 대화 프로필
+  /// 이름으로 바꿔서 보여준다. 프로필을 나중에 바꿔도 예전 메시지가 그 이름으로 다시
+  /// 렌더링된다. 조사 매크로 해석은 `{{char}}`까지 함께 치환된 뒤 한 번만 해야 하므로
+  /// 여기서는 하지 않는다 - 호출부에서 `_resolveJosa`로 마무리한다.
   String _substituteUser(String content) =>
       content.replaceAll('{{user}}', _profileName);
 
@@ -579,6 +592,10 @@ class _ChatScreenState extends State<ChatScreen> {
   /// 말하는 캐릭터 자신의 이름으로 바꿔서 보여준다.
   String _substituteChar(String content, String characterName) =>
       content.replaceAll('{{char}}', characterName);
+
+  /// `{{user}}`/`{{char}}`가 전부 실제 이름으로 치환된 뒤 마지막에 한 번만 호출해서
+  /// 조사 매크로(`[을;를]` 등)를 풀어준다.
+  String _resolveJosa(String content) => KoreanJosaMacro.resolve(content);
 
   @override
   void dispose() {
@@ -594,7 +611,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: _buildAppBar(context),
       endDrawer: _buildChatMenuDrawer(context),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _bubblePurple))
+          ? Center(child: CircularProgressIndicator(color: _bubblePurple))
           : SafeArea(
               child: Column(
                 children: [
@@ -665,7 +682,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               if (segment.senderType ==
                                   MessageSender.narrator) {
                                 previewBubble = _NarratorLine(
-                                  text: _substituteUser(segment.content),
+                                  text: _resolveJosa(_substituteUser(segment.content)),
                                 );
                               } else {
                                 final character = _findCharacterByName(
@@ -680,10 +697,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                 previewBubble = _CharacterMessage(
                                   characterName: resolvedName,
                                   imagePath: character?.imagePath,
-                                  message: _substituteChar(
+                                  message: _resolveJosa(_substituteChar(
                                     _substituteUser(segment.content),
                                     resolvedName,
-                                  ),
+                                  )),
                                 );
                               }
                               return Padding(
@@ -708,10 +725,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                 bubble = _CharacterMessage(
                                   characterName: resolvedName,
                                   imagePath: character?.imagePath,
-                                  message: _substituteChar(
+                                  message: _resolveJosa(_substituteChar(
                                     _substituteUser(message.content),
                                     resolvedName,
-                                  ),
+                                  )),
                                 );
                                 final turn = item.turn;
                                 if (turn != null &&
@@ -745,7 +762,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 }
                               case MessageSender.narrator:
                                 bubble = _NarratorLine(
-                                  text: _substituteUser(message.content),
+                                  text: _resolveJosa(_substituteUser(message.content)),
                                 );
                               case MessageSender.user:
                                 bubble = _UserMessage(
@@ -822,17 +839,17 @@ class _ChatScreenState extends State<ChatScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back_ios_new,
-          color: Colors.white,
+          color: _textPrimary,
           size: 20,
         ),
         onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
         _plotTitle,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: _textPrimary,
           fontSize: 17,
           fontWeight: FontWeight.w600,
         ),
@@ -853,12 +870,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 Text(
                   _selectedPreset?.name ??
                       AppLocalizations.of(context)!.chatPresetSelectDefault,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                 ),
                 const SizedBox(width: 4),
-                const Icon(
+                Icon(
                   Icons.keyboard_arrow_down,
-                  color: Colors.white,
+                  color: _textPrimary,
                   size: 16,
                 ),
               ],
@@ -866,7 +883,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white, size: 22),
+          icon: Icon(Icons.menu, color: _textPrimary, size: 22),
           onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
         ),
       ],
@@ -903,7 +920,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.of(context).pop();
               },
             ),
-            const Divider(color: Color(0xFF2A2A2A), height: 24),
+            Divider(color: _bubbleGrey, height: 24),
             _DrawerMenuItem(
               title: l10n.chatDrawerProfileTitle,
               trailingText: _profileName,
@@ -939,15 +956,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   vertical: 16,
                   horizontal: 20,
                 ),
-                color: const Color(0xFF262626),
+                color: _bubbleGrey,
                 child: Row(
                   children: [
-                    const Icon(Icons.logout, color: Colors.white70, size: 18),
+                    Icon(Icons.logout, color: _textSecondary, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       l10n.chatDrawerExitButton,
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: _textSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -985,12 +1002,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Text(
                       l10n.chatMemorySheetTitle,
-                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: _textPrimary, fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       summary?.summaryText.isNotEmpty == true ? summary!.summaryText : l10n.chatMemoryEmptyMessage,
-                      style: const TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+                      style: TextStyle(color: _textSecondary, fontSize: 14, height: 1.5),
                     ),
                   ],
                 );
@@ -1010,11 +1027,11 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.error_outline, color: _mutedText, size: 14),
+          Icon(Icons.error_outline, color: _mutedText, size: 14),
           const SizedBox(width: 6),
           Text(
             AppLocalizations.of(context)!.chatDisclaimerBanner,
-            style: const TextStyle(color: _mutedText, fontSize: 12),
+            style: TextStyle(color: _mutedText, fontSize: 12),
           ),
         ],
       ),
@@ -1029,7 +1046,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           GestureDetector(
             onTap: () => _showSuggestionsSheet(context),
-            child: const Icon(Icons.bolt, color: Colors.white, size: 22),
+            child: Icon(Icons.bolt, color: _textPrimary, size: 22),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -1041,12 +1058,15 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               child: TextField(
                 controller: _inputController,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                onSubmitted: (_) => _sendMessage(),
+                style: TextStyle(color: _textPrimary, fontSize: 14),
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                minLines: 1,
+                maxLines: 6,
                 decoration: InputDecoration(
                   isDense: true,
                   hintText: AppLocalizations.of(context)!.chatInputHint,
-                  hintStyle: const TextStyle(color: _mutedText, fontSize: 14),
+                  hintStyle: TextStyle(color: _mutedText, fontSize: 14),
                   border: InputBorder.none,
                 ),
               ),
@@ -1058,13 +1078,13 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Container(
               width: 40,
               height: 40,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: _bubblePurple,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 _generating ? Icons.stop_rounded : Icons.arrow_upward,
-                color: Colors.white,
+                color: _textPrimary,
                 size: 20,
               ),
             ),
@@ -1078,7 +1098,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -1100,7 +1120,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       width: 36,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.white24,
+                        color: _textGhost,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -1108,8 +1128,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(height: 16),
                   Text(
                     l10n.chatModelSheetTitle,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: _textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -1117,7 +1137,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(height: 8),
                   Text(
                     l10n.chatModelSheetDescription,
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                    style: TextStyle(color: _textFaint, fontSize: 12),
                   ),
                   const SizedBox(height: 12),
                   GestureDetector(
@@ -1133,14 +1153,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       children: [
                         Text(
                           l10n.chatModelSheetPresetSettingsLink,
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style: TextStyle(
+                            color: _textSecondary,
                             fontSize: 13,
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.chevron_right,
-                          color: Colors.white70,
+                          color: _textSecondary,
                           size: 16,
                         ),
                       ],
@@ -1158,8 +1178,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               child: Text(
                                 l10n.chatModelSheetNoPresets,
-                                style: const TextStyle(
-                                  color: Colors.white38,
+                                style: TextStyle(
+                                  color: _textFaint,
                                   fontSize: 13,
                                 ),
                               ),
@@ -1183,7 +1203,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(14),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF262626),
+                                      color: _bubbleGrey,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
                                         color: selected
@@ -1201,8 +1221,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                             children: [
                                               Text(
                                                 preset.name,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
+                                                style: TextStyle(
+                                                  color: _textPrimary,
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -1210,8 +1230,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                               const SizedBox(height: 4),
                                               Text(
                                                 preset.description,
-                                                style: const TextStyle(
-                                                  color: Colors.white54,
+                                                style: TextStyle(
+                                                  color: _mutedText,
                                                   fontSize: 12,
                                                 ),
                                               ),
@@ -1219,9 +1239,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                           ),
                                         ),
                                         if (selected)
-                                          const Icon(
+                                          Icon(
                                             Icons.check,
-                                            color: Colors.white,
+                                            color: _textPrimary,
                                             size: 20,
                                           ),
                                       ],
@@ -1265,7 +1285,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -1281,7 +1301,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: _textGhost,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1359,7 +1379,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -1376,7 +1396,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     width: 36,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.white24,
+                      color: _textGhost,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1384,8 +1404,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(height: 16),
                 Text(
                   l10n.chatProfileSheetTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1406,17 +1426,17 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.all(14),
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF262626),
+                      color: _bubbleGrey,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.add, color: Colors.white70, size: 20),
+                        Icon(Icons.add, color: _textSecondary, size: 20),
                         const SizedBox(width: 12),
                         Text(
                           l10n.chatProfileSheetAddButton,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: _textPrimary,
                             fontSize: 14,
                           ),
                         ),
@@ -1471,13 +1491,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                           child: Container(
                                             width: 16,
                                             height: 16,
-                                            decoration: const BoxDecoration(
+                                            decoration: BoxDecoration(
                                               color: _bubblePurple,
                                               shape: BoxShape.circle,
                                             ),
-                                            child: const Icon(
+                                            child: Icon(
                                               Icons.check,
-                                              color: Colors.white,
+                                              color: _textPrimary,
                                               size: 11,
                                             ),
                                           ),
@@ -1488,16 +1508,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                   Expanded(
                                     child: Text(
                                       profile.name,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: _textPrimary,
                                         fontSize: 14,
                                       ),
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(
+                                    icon: Icon(
                                       Icons.edit_outlined,
-                                      color: Colors.white54,
+                                      color: _mutedText,
                                       size: 18,
                                     ),
                                     onPressed: () {
@@ -1559,8 +1579,8 @@ class _DrawerMenuItem extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: PaletteScope.of(context).textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
@@ -1569,8 +1589,8 @@ class _DrawerMenuItem extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle!,
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: PaletteScope.of(context).textFaint,
                         fontSize: 12,
                       ),
                     ),
@@ -1581,12 +1601,12 @@ class _DrawerMenuItem extends StatelessWidget {
             if (trailingText != null) ...[
               Text(
                 trailingText!,
-                style: const TextStyle(color: Colors.white70, fontSize: 13),
+                style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 13),
               ),
               const SizedBox(width: 4),
             ],
             if (showChevron)
-              const Icon(Icons.chevron_right, color: Colors.white38, size: 18),
+              Icon(Icons.chevron_right, color: PaletteScope.of(context).textFaint, size: 18),
           ],
         ),
       ),
@@ -1610,7 +1630,7 @@ class _SheetActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isDestructive ? Colors.redAccent : Colors.white;
+    final color = isDestructive ? PaletteScope.of(context).danger : PaletteScope.of(context).textPrimary;
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
@@ -1618,7 +1638,7 @@ class _SheetActionTile extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: const Color(0xFF262626),
+          color: PaletteScope.of(context).surfaceAlt,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -1692,7 +1712,7 @@ class _CharacterMessage extends StatelessWidget {
             children: [
               Text(
                 characterName,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Container(
@@ -1701,12 +1721,12 @@ class _CharacterMessage extends StatelessWidget {
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: _ChatScreenState._bubbleGrey,
+                  color: PaletteScope.of(context).surfaceAlt,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: _FormattedMessageText(
                   message,
-                  style: const TextStyle(color: Colors.white, fontSize: 15),
+                  style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 15),
                 ),
               ),
             ],
@@ -1760,15 +1780,15 @@ class _TypingIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const SizedBox(
+        SizedBox(
           width: 14,
           height: 14,
-          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+          child: CircularProgressIndicator(strokeWidth: 2, color: PaletteScope.of(context).textMuted),
         ),
         const SizedBox(width: 8),
         Text(
           AppLocalizations.of(context)!.chatGeneratingIndicator,
-          style: const TextStyle(color: Colors.white54, fontSize: 13),
+          style: TextStyle(color: PaletteScope.of(context).textMuted, fontSize: 13),
         ),
       ],
     );
@@ -1784,12 +1804,12 @@ class _NarratorLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.reorder, color: Colors.white54, size: 16),
+        Icon(Icons.reorder, color: PaletteScope.of(context).textMuted, size: 16),
         const SizedBox(width: 6),
         Expanded(
           child: _FormattedMessageText(
             text,
-            style: const TextStyle(color: Colors.white54, fontSize: 14),
+            style: TextStyle(color: PaletteScope.of(context).textMuted, fontSize: 14),
           ),
         ),
       ],
@@ -1811,28 +1831,28 @@ class _ReasoningBlock extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       margin: const EdgeInsets.only(left: 40),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: PaletteScope.of(context).surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF3A3A3A)),
+        border: Border.all(color: PaletteScope.of(context).border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const SizedBox(
+              SizedBox(
                 width: 12,
                 height: 12,
                 child: CircularProgressIndicator(
                   strokeWidth: 1.5,
-                  color: Colors.white38,
+                  color: PaletteScope.of(context).textFaint,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 l10n.chatReasoningInProgressLabel,
-                style: const TextStyle(
-                  color: Colors.white38,
+                style: TextStyle(
+                  color: PaletteScope.of(context).textFaint,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1844,8 +1864,8 @@ class _ReasoningBlock extends StatelessWidget {
             text,
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white38,
+            style: TextStyle(
+              color: PaletteScope.of(context).textFaint,
               fontSize: 12,
               fontStyle: FontStyle.italic,
             ),
@@ -1881,7 +1901,7 @@ class _UserMessage extends StatelessWidget {
             children: [
               Text(
                 userName,
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 12),
               ),
               const SizedBox(height: 4),
               GestureDetector(
@@ -1893,12 +1913,12 @@ class _UserMessage extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: _ChatScreenState._bubblePurple,
+                    color: PaletteScope.of(context).primary,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: _FormattedMessageText(
                     message,
-                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                    style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 15),
                   ),
                 ),
               ),
@@ -1952,14 +1972,14 @@ class _TurnActionRow extends StatelessWidget {
             _RoundIconButton(icon: Icons.auto_fix_high, onTap: onRevise),
             const SizedBox(width: 8),
             if (snapshotting)
-              const SizedBox(
+              SizedBox(
                 width: 32,
                 height: 32,
                 child: Padding(
                   padding: EdgeInsets.all(8),
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white70,
+                    color: PaletteScope.of(context).textSecondary,
                   ),
                 ),
               )
@@ -2000,11 +2020,11 @@ class _RoundIconButton extends StatelessWidget {
       child: Container(
         width: 32,
         height: 32,
-        decoration: const BoxDecoration(
-          color: Color(0xFF262626),
+        decoration: BoxDecoration(
+          color: PaletteScope.of(context).surfaceAlt,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.white70, size: 16),
+        child: Icon(icon, color: PaletteScope.of(context).textSecondary, size: 16),
       ),
     );
   }
@@ -2028,6 +2048,12 @@ class _SuggestionsSheet extends StatefulWidget {
 }
 
 class _SuggestionsSheetState extends State<_SuggestionsSheet> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _textGhost => _p.textGhost;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _danger => _p.danger;
+  Color get _pillGrey => _p.surfaceAlt;
   late final Future<List<String>> _future;
 
   @override
@@ -2051,7 +2077,7 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: _textGhost,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -2059,16 +2085,16 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.bolt,
-                  color: _ChatScreenState._bubblePurple,
+                  color: PaletteScope.of(context).primary,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   l10n.chatSuggestSheetTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -2078,18 +2104,18 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
             const SizedBox(height: 6),
             Text(
               l10n.chatSuggestUseHint,
-              style: const TextStyle(color: Colors.white38, fontSize: 12),
+              style: TextStyle(color: _textFaint, fontSize: 12),
             ),
             const SizedBox(height: 16),
             FutureBuilder<List<String>>(
               future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {
-                  return const Padding(
+                  return Padding(
                     padding: EdgeInsets.symmetric(vertical: 32),
                     child: Center(
                       child: CircularProgressIndicator(
-                        color: _ChatScreenState._bubblePurple,
+                        color: PaletteScope.of(context).primary,
                       ),
                     ),
                   );
@@ -2099,8 +2125,8 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       l10n.chatSuggestFailureMessage(snapshot.error!),
-                      style: const TextStyle(
-                        color: Colors.redAccent,
+                      style: TextStyle(
+                        color: _danger,
                         fontSize: 13,
                       ),
                     ),
@@ -2112,8 +2138,8 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       l10n.chatSuggestEmptyMessage,
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: _textFaint,
                         fontSize: 13,
                       ),
                     ),
@@ -2133,7 +2159,7 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF262626),
+                                color: _pillGrey,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
@@ -2141,8 +2167,8 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                                   Expanded(
                                     child: Text(
                                       suggestion,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: _textPrimary,
                                         fontSize: 14,
                                         height: 1.3,
                                       ),
@@ -2153,17 +2179,17 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet> {
                                     borderRadius: BorderRadius.circular(15),
                                     onTap: () =>
                                         widget.onSendSuggestion(suggestion),
-                                    child: const SizedBox(
+                                    child: SizedBox(
                                       width: 30,
                                       height: 30,
                                       child: DecoratedBox(
                                         decoration: BoxDecoration(
-                                          color: _ChatScreenState._bubblePurple,
+                                          color: PaletteScope.of(context).primary,
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
                                           Icons.arrow_forward,
-                                          color: Colors.white,
+                                          color: _textPrimary,
                                           size: 16,
                                         ),
                                       ),

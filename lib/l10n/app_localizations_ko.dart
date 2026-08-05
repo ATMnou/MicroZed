@@ -234,6 +234,89 @@ class AppLocalizationsKo extends AppLocalizations {
   String get preferencesThemeSystemOption => '시스템 자동';
 
   @override
+  String get paletteAddButton => '프리셋 추가';
+
+  @override
+  String get paletteDeleteConfirmTitle => '프리셋 삭제';
+
+  @override
+  String paletteDeleteConfirmContent(String name) {
+    return '\'$name\' 프리셋을 삭제할까요? 이 작업은 되돌릴 수 없어요.';
+  }
+
+  @override
+  String get paletteEditNewTitle => '프리셋 추가';
+
+  @override
+  String get paletteEditEditTitle => '프리셋 편집';
+
+  @override
+  String get paletteEditNameEmptyMessage => '프리셋 이름을 입력해주세요.';
+
+  @override
+  String get paletteEditPreviewLabel => '미리보기';
+
+  @override
+  String get paletteEditNameLabel => '프리셋 이름';
+
+  @override
+  String get paletteEditColorsLabel => '색상';
+
+  @override
+  String get paletteEditBrightnessLabel => '밝기';
+
+  @override
+  String get paletteEditBrightnessDark => '다크';
+
+  @override
+  String get paletteEditBrightnessLight => '라이트';
+
+  @override
+  String get paletteSlotBackground => '배경';
+
+  @override
+  String get paletteSlotSurface => '카드/표면';
+
+  @override
+  String get paletteSlotSurfaceAlt => '보조 표면(입력창 등)';
+
+  @override
+  String get paletteSlotBorder => '테두리';
+
+  @override
+  String get paletteSlotPrimary => '포인트 색상';
+
+  @override
+  String get paletteSlotOnPrimary => '포인트 위 텍스트';
+
+  @override
+  String get paletteSlotTextPrimary => '본문 텍스트';
+
+  @override
+  String get paletteSlotTextSecondary => '보조 텍스트';
+
+  @override
+  String get paletteSlotTextMuted => '흐린 텍스트';
+
+  @override
+  String get paletteSlotTextFaint => '더 흐린 텍스트';
+
+  @override
+  String get paletteSlotTextGhost => '가장 흐린 텍스트';
+
+  @override
+  String get colorPickerTitle => '색상 선택';
+
+  @override
+  String get colorPickerHexLabel => '헥스코드';
+
+  @override
+  String get colorPickerAlphaLabel => '투명도';
+
+  @override
+  String get colorPickerQuickPicksLabel => '빠른 선택';
+
+  @override
   String get preferencesVersionSectionTitle => '버전 정보';
 
   @override
@@ -660,6 +743,9 @@ class AppLocalizationsKo extends AppLocalizations {
       '플롯을 먼저 저장하면 인트로를 작성할 수 있어요.\n프롬프트 탭에서 제목/캐릭터를 입력하고 상단의 저장 버튼을 눌러주세요.';
 
   @override
+  String get plotEditIntroAiGenerateButton => 'AI로 생성';
+
+  @override
   String get plotEditIntroFirstSceneTitle => '첫 상황을 만들어 주세요';
 
   @override
@@ -795,6 +881,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aiPresetApiKeyHint => '직접 발급받은 API 키를 입력해주세요';
+
+  @override
+  String get aiPresetApiKeyGuideButton => '키 발급 안내';
+
+  @override
+  String get apiKeyGuideDialogTitle => 'API 키 발급 안내';
+
+  @override
+  String get apiKeyGuideOpenButton => '바로가기';
+
+  @override
+  String get apiKeyGuideOpenRouterDescription =>
+      '다양한 모델을 하나의 API 키로 쓸 수 있는 라우터 서비스예요.';
+
+  @override
+  String get apiKeyGuideFeatherlessDescription =>
+      '오픈소스 모델을 정액제로 무제한에 가깝게 쓸 수 있는 서비스예요.';
+
+  @override
+  String get apiKeyGuideFeatherlessReferralNote =>
+      '이 링크로 가입하면 첫 달 10달러 할인 혜택을 받아요.';
+
+  @override
+  String get apiKeyGuideAtlasCloudDescription => '여러 모델을 종량제로 제공하는 서비스예요.';
+
+  @override
+  String get apiKeyGuideAtlasCloudReferralNote => '이 링크로 가입하면 5달러를 추가로 충전해줘요.';
 
   @override
   String get aiPresetAdvancedSettingsTitle => '고급 설정';

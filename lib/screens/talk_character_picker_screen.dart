@@ -4,6 +4,8 @@ import '../data/db/database.dart';
 import '../data/repositories/character_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 다중 캐릭터 플롯에서 새 ZedTalk을 시작할 때, 어떤 캐릭터와 1:1로 대화할지 고르는 화면.
 /// [Navigator.pop]으로 고른 캐릭터의 id를 돌려준다(취소면 null).
@@ -17,8 +19,12 @@ class TalkCharacterPickerScreen extends StatefulWidget {
 }
 
 class _TalkCharacterPickerScreenState extends State<TalkCharacterPickerScreen> {
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _mutedText => _p.textMuted;
 
   late final CharacterRepository _characterRepository;
   bool _loading = true;
@@ -47,7 +53,7 @@ class _TalkCharacterPickerScreenState extends State<TalkCharacterPickerScreen> {
       backgroundColor: _background,
       body: SafeArea(
         child: _loading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF7A6FF0)))
+            ? Center(child: CircularProgressIndicator(color: _purple))
             : Column(
                 children: [
                   Padding(
@@ -55,14 +61,14 @@ class _TalkCharacterPickerScreenState extends State<TalkCharacterPickerScreen> {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white, size: 22),
+                          icon: Icon(Icons.close, color: _textPrimary, size: 22),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                         Expanded(
                           child: Text(
                             l10n.talkCharacterPickerTitle,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: _textPrimary, fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
                         const SizedBox(width: 48),
@@ -91,8 +97,8 @@ class _TalkCharacterPickerScreenState extends State<TalkCharacterPickerScreen> {
                                       children: [
                                         Text(
                                           character.name,
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color: _textPrimary,
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -103,7 +109,7 @@ class _TalkCharacterPickerScreenState extends State<TalkCharacterPickerScreen> {
                                             character.description,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(color: Colors.white54, fontSize: 12),
+                                            style: TextStyle(color: _mutedText, fontSize: 12),
                                           ),
                                         ],
                                       ],

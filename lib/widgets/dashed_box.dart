@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 점선 테두리 박스. 이미지/커버 업로드 자리표시자에 사용한다.
 class DashedBox extends StatelessWidget {
@@ -7,20 +8,20 @@ class DashedBox extends StatelessWidget {
     required this.child,
     this.width,
     this.height,
-    this.color = const Color(0xFF7A6FF0),
+    this.color,
     this.borderRadius = 12,
   });
 
   final Widget child;
   final double? width;
   final double? height;
-  final Color color;
+  final Color? color;
   final double borderRadius;
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _DashedRRectPainter(color: color, radius: borderRadius),
+      painter: _DashedRRectPainter(color: color ?? PaletteScope.of(context).primary, radius: borderRadius),
       child: SizedBox(
         width: width,
         height: height,

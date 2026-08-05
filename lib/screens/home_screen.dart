@@ -9,6 +9,8 @@ import 'character_detail_screen.dart';
 import 'conversation_tab.dart';
 import 'create_tab.dart';
 import 'my_page_tab.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 메인 홈 화면.
 /// 상단 콘테스트/랭킹 탭과 배너는 제거하고 'MicroZed' 타이틀로 대체했다.
@@ -73,18 +75,24 @@ class _HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<_HomeTab> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _borderGrey => _p.border;
+  Color get _textFaint => _p.textFaint;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _cardBg => _p.surface;
+  Color get _textSecondary => _p.textSecondary;
   late final PlotRepository _plotRepository;
   final _searchController = TextEditingController();
   bool _searching = false;
   String _query = '';
 
-  static const _cardColors = [
-    Color(0xFF3B5A7A),
-    Color(0xFF6B4A57),
-    Color(0xFF2E5B6B),
-    Color(0xFF6A4A2A),
-    Color(0xFF3A3A3A),
-    Color(0xFF2A4A5A),
+  List<Color> get _cardColors => [
+    const Color(0xFF3B5A7A),
+    const Color(0xFF6B4A57),
+    const Color(0xFF2E5B6B),
+    const Color(0xFF6A4A2A),
+    _borderGrey,
+    const Color(0xFF2A4A5A),
   ];
 
   @override
@@ -126,7 +134,7 @@ class _HomeTabState extends State<_HomeTab> {
                 return Center(
                   child: Text(
                     _query.trim().isEmpty ? l10n.homeNoPlotsYet : l10n.commonNoSearchResults,
-                    style: const TextStyle(color: Colors.white38, fontSize: 13),
+                    style: TextStyle(color: _textFaint, fontSize: 13),
                   ),
                 );
               }
@@ -175,13 +183,13 @@ class _HomeTabState extends State<_HomeTab> {
                   child: TextField(
                     controller: _searchController,
                     autofocus: true,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: _textPrimary, fontSize: 14),
                     onChanged: (v) => setState(() => _query = v),
                     decoration: InputDecoration(
                       hintText: l10n.searchHintPlot,
-                      hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                      hintStyle: TextStyle(color: _textFaint, fontSize: 13),
                       filled: true,
-                      fillColor: const Color(0xFF1E1E1E),
+                      fillColor: _cardBg,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -197,16 +205,16 @@ class _HomeTabState extends State<_HomeTab> {
                     _query = '';
                     _searchController.clear();
                   }),
-                  child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                  child: Text(l10n.commonCancel, style: TextStyle(color: _textSecondary, fontSize: 14)),
                 ),
               ],
             )
           : Row(
               children: [
-                const Text(
+                Text(
                   'MicroZed',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: _textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -214,7 +222,7 @@ class _HomeTabState extends State<_HomeTab> {
                 const Spacer(),
                 GestureDetector(
                   onTap: () => setState(() => _searching = true),
-                  child: const Icon(Icons.search, color: Colors.white, size: 24),
+                  child: Icon(Icons.search, color: _textPrimary, size: 24),
                 ),
               ],
             ),
@@ -268,8 +276,8 @@ class _CharacterCard extends StatelessWidget {
                   children: [
                     Text(
                       data.plot.title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: PaletteScope.of(context).textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
@@ -279,7 +287,7 @@ class _CharacterCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 12),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -287,7 +295,7 @@ class _CharacterCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         tags,
-                        style: const TextStyle(color: Colors.white38, fontSize: 11),
+                        style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 11),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -319,9 +327,9 @@ class _ChatCountBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.chat_bubble, color: Colors.white70, size: 10),
+          Icon(Icons.chat_bubble, color: PaletteScope.of(context).textSecondary, size: 10),
           const SizedBox(width: 3),
-          Text('$count', style: const TextStyle(color: Colors.white70, fontSize: 10)),
+          Text('$count', style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 10)),
         ],
       ),
     );

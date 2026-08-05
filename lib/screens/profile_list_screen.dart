@@ -5,6 +5,8 @@ import '../data/repositories/conversation_profile_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'conversation_profile_edit_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 마이페이지 > '대화 프로필 편집'에서 진입하는 프로필 목록 화면.
 class ProfileListScreen extends StatefulWidget {
@@ -15,9 +17,11 @@ class ProfileListScreen extends StatefulWidget {
 }
 
 class _ProfileListScreenState extends State<ProfileListScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _textPrimary => _p.textPrimary;
   late final ConversationProfileRepository _repository;
 
-  static const _background = Color(0xFF141414);
 
   @override
   void initState() {
@@ -34,17 +38,17 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           AppLocalizations.of(context)!.myPageEditProfileButton,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -110,20 +114,20 @@ class _AddProfileTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
+          color: PaletteScope.of(context).surface,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 20,
-              backgroundColor: Color(0xFF2A2A2A),
-              child: Icon(Icons.add, color: Colors.white70, size: 20),
+              backgroundColor: PaletteScope.of(context).surfaceAlt,
+              child: Icon(Icons.add, color: PaletteScope.of(context).textSecondary, size: 20),
             ),
             const SizedBox(width: 12),
             Text(
               AppLocalizations.of(context)!.chatProfileSheetAddButton,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 14),
             ),
           ],
         ),
@@ -148,7 +152,7 @@ class _ProfileTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: PaletteScope.of(context).surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -158,13 +162,13 @@ class _ProfileTile extends StatelessWidget {
           Expanded(
             child: Text(
               name,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 14),
             ),
           ),
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.edit_outlined,
-              color: Colors.white54,
+              color: PaletteScope.of(context).textMuted,
               size: 18,
             ),
             onPressed: onTap,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 로컬 파일 경로가 있으면 그 이미지를, 없으면 기본 아이콘을 보여주는 원형 아바타.
 class LocalAvatar extends StatelessWidget {
@@ -9,30 +10,32 @@ class LocalAvatar extends StatelessWidget {
     required this.imagePath,
     this.radius = 20,
     this.icon = Icons.person,
-    this.backgroundColor = const Color(0xFF3A3A3A),
-    this.iconColor = Colors.white54,
+    this.backgroundColor,
+    this.iconColor,
   });
 
   final String? imagePath;
   final double radius;
   final IconData icon;
-  final Color backgroundColor;
-  final Color iconColor;
+  final Color? backgroundColor;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
+    final palette = PaletteScope.of(context);
+    final bgColor = backgroundColor ?? palette.border;
     final path = imagePath;
     if (path != null && path.isNotEmpty && File(path).existsSync()) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: backgroundColor,
+        backgroundColor: bgColor,
         backgroundImage: FileImage(File(path)),
       );
     }
     return CircleAvatar(
       radius: radius,
-      backgroundColor: backgroundColor,
-      child: Icon(icon, color: iconColor, size: radius),
+      backgroundColor: bgColor,
+      child: Icon(icon, color: iconColor ?? palette.textMuted, size: radius),
     );
   }
 }

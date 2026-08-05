@@ -7,6 +7,8 @@ import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'chat_screen.dart';
 import 'talk_chat_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// '대화' 탭 화면. 상단이 '대화'(롤플레이)/'톡'(ZedTalk) 두 버튼으로 나뉘어 있고, 각각
 /// 서로 다른 세션 목록(ChatSessions/TalkSessions)을 로컬 DB에서 스트리밍한다.
@@ -18,6 +20,13 @@ class ConversationTab extends StatefulWidget {
 }
 
 class _ConversationTabState extends State<ConversationTab> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _cardBg => _p.surface;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _mutedText => _p.textMuted;
+  Color get _danger => _p.danger;
+  Color get _textFaint => _p.textFaint;
+  Color get _textGhost => _p.textGhost;
   late final ChatSessionRepository _sessionRepository;
   late final TalkSessionRepository _talkSessionRepository;
 
@@ -63,23 +72,23 @@ class _ConversationTabState extends State<ConversationTab> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: _cardBg,
         title: Text(
           isTalk ? l10n.talkDeleteConfirmTitle : l10n.conversationTabDeleteConfirmTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
         ),
         content: Text(
           isTalk ? l10n.talkDeleteConfirmContent : l10n.conversationTabDeleteConfirmContent,
-          style: const TextStyle(color: Colors.white54),
+          style: TextStyle(color: _mutedText),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.commonDelete, style: TextStyle(color: _danger)),
           ),
         ],
       ),
@@ -111,7 +120,7 @@ class _ConversationTabState extends State<ConversationTab> {
                     final sessions = snapshot.data ?? const [];
                     if (sessions.isEmpty) {
                       return Center(
-                        child: Text(l10n.conversationTabEmpty, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                        child: Text(l10n.conversationTabEmpty, style: TextStyle(color: _textFaint, fontSize: 13)),
                       );
                     }
                     return ListView(
@@ -141,7 +150,7 @@ class _ConversationTabState extends State<ConversationTab> {
                     final sessions = snapshot.data ?? const [];
                     if (sessions.isEmpty) {
                       return Center(
-                        child: Text(l10n.talkListEmpty, style: const TextStyle(color: Colors.white38, fontSize: 13)),
+                        child: Text(l10n.talkListEmpty, style: TextStyle(color: _textFaint, fontSize: 13)),
                       );
                     }
                     return ListView(
@@ -179,20 +188,20 @@ class _ConversationTabState extends State<ConversationTab> {
           children: [
             Text(
               l10n.conversationTabSelectedCount(_selectedIds.length),
-              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+              style: TextStyle(color: _textPrimary, fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const Spacer(),
             IconButton(
               onPressed: _selectedIds.isEmpty ? null : _confirmDeleteSelected,
               icon: Icon(
                 Icons.delete_outline,
-                color: _selectedIds.isEmpty ? Colors.white24 : Colors.redAccent,
+                color: _selectedIds.isEmpty ? _textGhost : _danger,
                 size: 22,
               ),
             ),
             IconButton(
               onPressed: _toggleSelecting,
-              icon: const Icon(Icons.close, color: Colors.white, size: 22),
+              icon: Icon(Icons.close, color: _textPrimary, size: 22),
             ),
           ],
         ),
@@ -207,7 +216,7 @@ class _ConversationTabState extends State<ConversationTab> {
             child: Text(
               l10n.conversationTabTitle,
               style: TextStyle(
-                color: _activeTab == 0 ? Colors.white : Colors.white38,
+                color: _activeTab == 0 ? _textPrimary : _textFaint,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -219,18 +228,18 @@ class _ConversationTabState extends State<ConversationTab> {
             child: Text(
               l10n.conversationTabTalkLabel,
               style: TextStyle(
-                color: _activeTab == 1 ? Colors.white : Colors.white38,
+                color: _activeTab == 1 ? _textPrimary : _textFaint,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
           const Spacer(),
-          const Icon(Icons.manage_search, color: Colors.white, size: 24),
+          Icon(Icons.manage_search, color: _textPrimary, size: 24),
           const SizedBox(width: 16),
           GestureDetector(
             onTap: _toggleSelecting,
-            child: const Icon(Icons.settings_outlined, color: Colors.white, size: 22),
+            child: Icon(Icons.settings_outlined, color: _textPrimary, size: 22),
           ),
         ],
       ),
@@ -274,7 +283,7 @@ class _ConversationTile extends StatelessWidget {
               Checkbox(
                 value: selected,
                 onChanged: (_) => onToggleSelected(),
-                activeColor: const Color(0xFF7A6FF0),
+                activeColor: PaletteScope.of(context).primary,
               ),
               const SizedBox(width: 4),
             ],
@@ -289,8 +298,8 @@ class _ConversationTile extends StatelessWidget {
                       Flexible(
                         child: Text(
                           title,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: PaletteScope.of(context).textPrimary,
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -299,14 +308,14 @@ class _ConversationTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      if (pinned) const Icon(Icons.push_pin, color: Colors.white38, size: 13),
-                      if (locked) const Icon(Icons.lock_outline, color: Colors.white38, size: 13),
+                      if (pinned) Icon(Icons.push_pin, color: PaletteScope.of(context).textFaint, size: 13),
+                      if (locked) Icon(Icons.lock_outline, color: PaletteScope.of(context).textFaint, size: 13),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(color: Colors.white38, fontSize: 13),
+                    style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 13),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

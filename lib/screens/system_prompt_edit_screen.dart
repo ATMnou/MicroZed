@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../data/ai/prompt_builder.dart';
 import '../data/ai/system_prompt_store.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 마이페이지 > '시스템 프롬프트 설정'에서 진입하는, AI에게 보내는 시스템 프롬프트
 /// 템플릿을 통째로 편집하는 화면. 저장된 값이 없으면 기본 템플릿을 그대로 보여준다.
@@ -14,15 +16,21 @@ class SystemPromptEditScreen extends StatefulWidget {
 }
 
 class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _mutedText => _p.textMuted;
+  Color get _danger => _p.danger;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _textFaint => _p.textFaint;
   final _store = SystemPromptStore();
   final _controller = TextEditingController();
   bool _loading = true;
   bool _saving = false;
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
 
   @override
   void initState() {
@@ -64,25 +72,25 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
         backgroundColor: _cardBg,
         title: Text(
           l10n.systemPromptResetConfirmTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
         ),
         content: Text(
           l10n.systemPromptResetConfirmContent,
-          style: const TextStyle(color: Colors.white54),
+          style: TextStyle(color: _mutedText),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: Text(
               l10n.commonCancel,
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: _mutedText),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: Text(
               l10n.systemPromptResetButton,
-              style: const TextStyle(color: Colors.redAccent),
+              style: TextStyle(color: _danger),
             ),
           ),
         ],
@@ -109,17 +117,17 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.systemPromptButtonLabel,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -131,7 +139,7 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
               onPressed: _loading || _saving ? null : _save,
               child: Text(
                 l10n.commonSave,
-                style: const TextStyle(
+                style: TextStyle(
                   color: _purple,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -142,7 +150,7 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : SafeArea(
               top: false,
               child: ListView(
@@ -166,8 +174,8 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
                         Expanded(
                           child: Text(
                             l10n.systemPromptWarning,
-                            style: const TextStyle(
-                              color: Colors.white70,
+                            style: TextStyle(
+                              color: _textSecondary,
                               fontSize: 12.5,
                               height: 1.4,
                             ),
@@ -188,8 +196,8 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
                       children: [
                         Text(
                           l10n.systemPromptPlaceholderHintTitle,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: _textPrimary,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -197,8 +205,8 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
                         const SizedBox(height: 6),
                         Text(
                           l10n.systemPromptPlaceholderHintBody,
-                          style: const TextStyle(
-                            color: Colors.white38,
+                          style: TextStyle(
+                            color: _textFaint,
                             fontSize: 11.5,
                             height: 1.4,
                           ),
@@ -211,8 +219,8 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
                     controller: _controller,
                     maxLines: null,
                     minLines: 16,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: _textPrimary,
                       fontSize: 13,
                       height: 1.5,
                     ),
@@ -222,11 +230,11 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
                       contentPadding: const EdgeInsets.all(12),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: _borderGrey),
+                        borderSide: BorderSide(color: _borderGrey),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: _purple),
+                        borderSide: BorderSide(color: _purple),
                       ),
                     ),
                   ),
@@ -234,8 +242,8 @@ class _SystemPromptEditScreenState extends State<SystemPromptEditScreen> {
                   OutlinedButton.icon(
                     onPressed: _confirmReset,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      side: const BorderSide(color: _borderGrey),
+                      foregroundColor: _textSecondary,
+                      side: BorderSide(color: _borderGrey),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       minimumSize: const Size(double.infinity, 0),
                       shape: RoundedRectangleBorder(

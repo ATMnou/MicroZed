@@ -239,6 +239,89 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preferencesThemeSystemOption => 'System default';
 
   @override
+  String get paletteAddButton => 'Add preset';
+
+  @override
+  String get paletteDeleteConfirmTitle => 'Delete preset';
+
+  @override
+  String paletteDeleteConfirmContent(String name) {
+    return 'Delete the \'$name\' preset? This can\'t be undone.';
+  }
+
+  @override
+  String get paletteEditNewTitle => 'Add preset';
+
+  @override
+  String get paletteEditEditTitle => 'Edit preset';
+
+  @override
+  String get paletteEditNameEmptyMessage => 'Please enter a preset name.';
+
+  @override
+  String get paletteEditPreviewLabel => 'Preview';
+
+  @override
+  String get paletteEditNameLabel => 'Preset name';
+
+  @override
+  String get paletteEditColorsLabel => 'Colors';
+
+  @override
+  String get paletteEditBrightnessLabel => 'Brightness';
+
+  @override
+  String get paletteEditBrightnessDark => 'Dark';
+
+  @override
+  String get paletteEditBrightnessLight => 'Light';
+
+  @override
+  String get paletteSlotBackground => 'Background';
+
+  @override
+  String get paletteSlotSurface => 'Card / surface';
+
+  @override
+  String get paletteSlotSurfaceAlt => 'Secondary surface (input fields, etc.)';
+
+  @override
+  String get paletteSlotBorder => 'Border';
+
+  @override
+  String get paletteSlotPrimary => 'Accent color';
+
+  @override
+  String get paletteSlotOnPrimary => 'Text on accent';
+
+  @override
+  String get paletteSlotTextPrimary => 'Body text';
+
+  @override
+  String get paletteSlotTextSecondary => 'Secondary text';
+
+  @override
+  String get paletteSlotTextMuted => 'Muted text';
+
+  @override
+  String get paletteSlotTextFaint => 'Fainter text';
+
+  @override
+  String get paletteSlotTextGhost => 'Faintest text';
+
+  @override
+  String get colorPickerTitle => 'Choose color';
+
+  @override
+  String get colorPickerHexLabel => 'Hex code';
+
+  @override
+  String get colorPickerAlphaLabel => 'Alpha';
+
+  @override
+  String get colorPickerQuickPicksLabel => 'Quick picks';
+
+  @override
   String get preferencesVersionSectionTitle => 'Version';
 
   @override
@@ -679,6 +762,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Save the plot first to write an intro.\nEnter the title/characters in the Prompt tab and tap the save button above.';
 
   @override
+  String get plotEditIntroAiGenerateButton => 'Generate with AI';
+
+  @override
   String get plotEditIntroFirstSceneTitle => 'Create the opening scene';
 
   @override
@@ -818,6 +904,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPresetApiKeyHint => 'Enter your own API key';
+
+  @override
+  String get aiPresetApiKeyGuideButton => 'Get an API key';
+
+  @override
+  String get apiKeyGuideDialogTitle => 'Getting an API key';
+
+  @override
+  String get apiKeyGuideOpenButton => 'Open';
+
+  @override
+  String get apiKeyGuideOpenRouterDescription =>
+      'A router service that lets you access many models with one API key.';
+
+  @override
+  String get apiKeyGuideFeatherlessDescription =>
+      'Flat-rate access to open-source models, close to unlimited usage.';
+
+  @override
+  String get apiKeyGuideFeatherlessReferralNote =>
+      'Sign up with this link for \$10 off your first month.';
+
+  @override
+  String get apiKeyGuideAtlasCloudDescription =>
+      'Pay-as-you-go access to a range of models.';
+
+  @override
+  String get apiKeyGuideAtlasCloudReferralNote =>
+      'Sign up with this link for an extra \$5 in credit.';
 
   @override
   String get aiPresetAdvancedSettingsTitle => 'Advanced settings';

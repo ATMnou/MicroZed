@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../data/db/database.dart';
 import '../data/repositories/token_usage_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 마이페이지 > '내역' 버튼에서 들어오는 토큰 사용 내역 화면.
 /// 요청마다 모델/제공자(baseUrl)/입출력 토큰/가격(엔드포인트가 알려주는 경우만)을 보여준다.
@@ -15,10 +17,15 @@ class TokenUsageHistoryScreen extends StatefulWidget {
 }
 
 class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _mutedText => _p.textMuted;
+  Color get _danger => _p.danger;
+  Color get _textFaint => _p.textFaint;
   late final TokenUsageRepository _repository;
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
 
   @override
   void initState() {
@@ -34,25 +41,25 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
         backgroundColor: _cardBg,
         title: Text(
           l10n.tokenUsageDeleteAllConfirmTitle,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: _textPrimary),
         ),
         content: Text(
           l10n.tokenUsageDeleteAllConfirmContent,
-          style: const TextStyle(color: Colors.white54),
+          style: TextStyle(color: _mutedText),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: Text(
               l10n.commonCancel,
-              style: const TextStyle(color: Colors.white54),
+              style: TextStyle(color: _mutedText),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: Text(
               l10n.commonDelete,
-              style: const TextStyle(color: Colors.redAccent),
+              style: TextStyle(color: _danger),
             ),
           ),
         ],
@@ -92,17 +99,17 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.tokenUsageTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -112,7 +119,7 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
             onPressed: _confirmDeleteAll,
             child: Text(
               l10n.tokenUsageDeleteAllButton,
-              style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+              style: TextStyle(color: _danger, fontSize: 13),
             ),
           ),
         ],
@@ -127,7 +134,7 @@ class _TokenUsageHistoryScreenState extends State<TokenUsageHistoryScreen> {
               return Center(
                 child: Text(
                   l10n.tokenUsageEmptyMessage,
-                  style: const TextStyle(color: Colors.white38, fontSize: 13),
+                  style: TextStyle(color: _textFaint, fontSize: 13),
                 ),
               );
             }
@@ -168,7 +175,7 @@ class _LogCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: PaletteScope.of(context).surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -179,8 +186,8 @@ class _LogCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   log.modelName,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: PaletteScope.of(context).textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
@@ -190,7 +197,7 @@ class _LogCard extends StatelessWidget {
               ),
               Text(
                 formattedDate,
-                style: const TextStyle(color: Colors.white38, fontSize: 11),
+                style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 11),
               ),
             ],
           ),
@@ -199,7 +206,7 @@ class _LogCard extends StatelessWidget {
             AppLocalizations.of(
               context,
             )!.tokenUsageProviderLabel(provider, log.presetName),
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: TextStyle(color: PaletteScope.of(context).textMuted, fontSize: 12),
           ),
           const SizedBox(height: 8),
           Row(
@@ -210,14 +217,14 @@ class _LogCard extends StatelessWidget {
                   log.completionTokens,
                   total,
                 ),
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 12),
               ),
               const Spacer(),
               if (log.costUsd != null)
                 Text(
                   formatCost(log.costUsd!),
-                  style: const TextStyle(
-                    color: Color(0xFF7A6FF0),
+                  style: TextStyle(
+                    color: PaletteScope.of(context).primary,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),

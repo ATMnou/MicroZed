@@ -19,6 +19,8 @@ import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'conversation_profile_edit_screen.dart';
 import 'talk_character_picker_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// ZedTalk 대화 화면. 롤플레이용 ChatScreen과 시각적으로는 비슷하지만(같은 버블/입력바
 /// 배색), 턴/버전 개념은 없이 단순한 메신저형 주고받기를 기본으로 하되, 햄버거 메뉴/
@@ -34,10 +36,16 @@ class TalkChatScreen extends StatefulWidget {
 }
 
 class _TalkChatScreenState extends State<TalkChatScreen> {
-  static const _bubbleGrey = Color(0xFF2A2A2A);
-  static const _bubblePurple = Color(0xFF7A6FF0);
-  static const _pillGrey = Color(0xFF262626);
-  static const _mutedText = Color(0xFF9A9A9A);
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _bubbleGrey => _p.surfaceAlt;
+  Color get _bubblePurple => _p.primary;
+  Color get _pillGrey => _p.surfaceAlt;
+  Color get _mutedText => _p.textMuted;
+  Color get _cardBg => _p.surface;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _textGhost => _p.textGhost;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -146,7 +154,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
     }
     final selected = await showModalBottomSheet<AiPreset>(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -161,13 +169,13 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     l10n.talkPresetSheetTitle,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: _textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
               ...presets.map((preset) => ListTile(
-                    title: Text(preset.name, style: const TextStyle(color: Colors.white)),
-                    trailing: _selectedPreset?.id == preset.id ? const Icon(Icons.check, color: _bubblePurple) : null,
+                    title: Text(preset.name, style: TextStyle(color: _textPrimary)),
+                    trailing: _selectedPreset?.id == preset.id ? Icon(Icons.check, color: _bubblePurple) : null,
                     onTap: () => Navigator.of(sheetContext).pop(preset),
                   )),
               const SizedBox(height: 8),
@@ -259,7 +267,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
     final l10n = AppLocalizations.of(context)!;
     final choice = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -274,23 +282,23 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     l10n.talkAttachmentSheetTitle,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: _textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.image_outlined, color: Colors.white),
-                title: Text(l10n.talkAttachmentImageOption, style: const TextStyle(color: Colors.white)),
+                leading: Icon(Icons.image_outlined, color: _textPrimary),
+                title: Text(l10n.talkAttachmentImageOption, style: TextStyle(color: _textPrimary)),
                 onTap: () => Navigator.of(sheetContext).pop('image'),
               ),
               ListTile(
-                leading: const Icon(Icons.videocam_outlined, color: Colors.white),
-                title: Text(l10n.talkAttachmentVideoOption, style: const TextStyle(color: Colors.white)),
+                leading: Icon(Icons.videocam_outlined, color: _textPrimary),
+                title: Text(l10n.talkAttachmentVideoOption, style: TextStyle(color: _textPrimary)),
                 onTap: () => Navigator.of(sheetContext).pop('video'),
               ),
               ListTile(
-                leading: const Icon(Icons.description_outlined, color: Colors.white),
-                title: Text(l10n.talkAttachmentDocumentOption, style: const TextStyle(color: Colors.white)),
+                leading: Icon(Icons.description_outlined, color: _textPrimary),
+                title: Text(l10n.talkAttachmentDocumentOption, style: TextStyle(color: _textPrimary)),
                 onTap: () => Navigator.of(sheetContext).pop('document'),
               ),
               const SizedBox(height: 8),
@@ -370,7 +378,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
     if (plotId == null) return;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -384,7 +392,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
               children: [
                 Text(
                   l10n.talkResumeSheetTitle,
-                  style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: _textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
                 Flexible(
@@ -397,7 +405,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           child: Text(
                             l10n.talkResumeSheetEmpty,
-                            style: const TextStyle(color: Colors.white38, fontSize: 13),
+                            style: TextStyle(color: _textFaint, fontSize: 13),
                           ),
                         );
                       }
@@ -407,14 +415,14 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                         itemBuilder: (context, index) {
                           final summary = sessions[index];
                           return ListTile(
-                            leading: const Icon(Icons.chat_bubble_outline, color: Colors.white70),
+                            leading: Icon(Icons.chat_bubble_outline, color: _textSecondary),
                             title: Text(
                               summary.lastMessagePreview.isEmpty
                                   ? l10n.talkListEmpty
                                   : summary.lastMessagePreview,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: _textPrimary),
                             ),
                             onTap: () {
                               Navigator.of(sheetContext).pop();
@@ -441,7 +449,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
     Navigator.of(context).pop();
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -457,13 +465,13 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                   child: Container(
                     width: 36,
                     height: 4,
-                    decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                    decoration: BoxDecoration(color: _textGhost, borderRadius: BorderRadius.circular(2)),
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   l10n.chatProfileSheetTitle,
-                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: _textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 InkWell(
@@ -479,9 +487,9 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                     decoration: BoxDecoration(color: _pillGrey, borderRadius: BorderRadius.circular(12)),
                     child: Row(
                       children: [
-                        const Icon(Icons.add, color: Colors.white70, size: 20),
+                        Icon(Icons.add, color: _textSecondary, size: 20),
                         const SizedBox(width: 12),
-                        Text(l10n.chatProfileSheetAddButton, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                        Text(l10n.chatProfileSheetAddButton, style: TextStyle(color: _textPrimary, fontSize: 14)),
                       ],
                     ),
                   ),
@@ -521,18 +529,18 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                                           child: Container(
                                             width: 16,
                                             height: 16,
-                                            decoration: const BoxDecoration(color: _bubblePurple, shape: BoxShape.circle),
-                                            child: const Icon(Icons.check, color: Colors.white, size: 11),
+                                            decoration: BoxDecoration(color: _bubblePurple, shape: BoxShape.circle),
+                                            child: Icon(Icons.check, color: _textPrimary, size: 11),
                                           ),
                                         ),
                                     ],
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
-                                    child: Text(profile.name, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                                    child: Text(profile.name, style: TextStyle(color: _textPrimary, fontSize: 14)),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.edit_outlined, color: Colors.white54, size: 18),
+                                    icon: Icon(Icons.edit_outlined, color: _mutedText, size: 18),
                                     onPressed: () {
                                       Navigator.of(sheetContext).pop();
                                       Navigator.of(context).push(
@@ -589,7 +597,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                 Navigator.of(context).pop();
               },
             ),
-            const Divider(color: Color(0xFF2A2A2A), height: 24),
+            Divider(color: _bubbleGrey, height: 24),
             _DrawerMenuItem(
               title: l10n.talkDrawerProfileTitle,
               trailingText: _profileName,
@@ -611,12 +619,12 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                color: const Color(0xFF262626),
+                color: _bubbleGrey,
                 child: Row(
                   children: [
-                    const Icon(Icons.logout, color: Colors.white70, size: 18),
+                    Icon(Icons.logout, color: _textSecondary, size: 18),
                     const SizedBox(width: 8),
-                    Text(l10n.talkDrawerExitButton, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                    Text(l10n.talkDrawerExitButton, style: TextStyle(color: _textSecondary, fontSize: 14)),
                   ],
                 ),
               ),
@@ -633,7 +641,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -648,7 +656,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                   width: 36,
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                  decoration: BoxDecoration(color: _textGhost, borderRadius: BorderRadius.circular(2)),
                 ),
                 _SheetActionTile(
                   icon: Icons.restart_alt,
@@ -707,7 +715,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (dialogContext) => Dialog(
-        backgroundColor: const Color(0xFF1E1E1E),
+        backgroundColor: _cardBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -720,15 +728,15 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                   Expanded(
                     child: Text(
                       l10n.talkEditMessageTitle,
-                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: _textPrimary, fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white54, size: 20),
+                    icon: Icon(Icons.close, color: _mutedText, size: 20),
                     onPressed: () => Navigator.of(dialogContext).pop(),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.check, color: _bubblePurple, size: 20),
+                    icon: Icon(Icons.check, color: _bubblePurple, size: 20),
                     onPressed: () => Navigator.of(dialogContext).pop(controller.text),
                   ),
                 ],
@@ -738,7 +746,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                 autofocus: true,
                 maxLines: 8,
                 minLines: 3,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: _textPrimary, fontSize: 14),
                 decoration: const InputDecoration(border: InputBorder.none),
               ),
             ],
@@ -792,7 +800,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: _textPrimary, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: GestureDetector(
@@ -809,13 +817,13 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                   children: [
                     Text(
                       _character?.name ?? _plotTitle,
-                      style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: _textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       _selectedPreset?.name ?? l10n.talkNoPresetMessage,
-                      style: const TextStyle(color: Colors.white38, fontSize: 11),
+                      style: TextStyle(color: _textFaint, fontSize: 11),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -827,13 +835,13 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white, size: 22),
+            icon: Icon(Icons.menu, color: _textPrimary, size: 22),
             onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
           ),
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _bubblePurple))
+          ? Center(child: CircularProgressIndicator(color: _bubblePurple))
           : SafeArea(
               child: Column(
                 children: [
@@ -887,7 +895,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     if (timeText != null) ...[
-                                      Text(timeText, style: const TextStyle(color: _mutedText, fontSize: 11)),
+                                      Text(timeText, style: TextStyle(color: _mutedText, fontSize: 11)),
                                       const SizedBox(width: 6),
                                     ],
                                     _TalkBubble(
@@ -916,7 +924,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
                                   ),
                                   if (timeText != null) ...[
                                     const SizedBox(width: 6),
-                                    Text(timeText, style: const TextStyle(color: _mutedText, fontSize: 11)),
+                                    Text(timeText, style: TextStyle(color: _mutedText, fontSize: 11)),
                                   ],
                                 ],
                               );
@@ -969,7 +977,7 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
         children: [
           GestureDetector(
             onTap: _generating ? null : _showAttachmentSheet,
-            child: Icon(Icons.add_circle_outline, color: _generating ? Colors.white24 : Colors.white, size: 22),
+            child: Icon(Icons.add_circle_outline, color: _generating ? _textGhost : _textPrimary, size: 22),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -978,12 +986,15 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
               decoration: BoxDecoration(color: _pillGrey, borderRadius: BorderRadius.circular(24)),
               child: TextField(
                 controller: _inputController,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                onSubmitted: (_) => _sendMessage(),
+                style: TextStyle(color: _textPrimary, fontSize: 14),
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                minLines: 1,
+                maxLines: 6,
                 decoration: InputDecoration(
                   isDense: true,
                   hintText: l10n.chatInputHint,
-                  hintStyle: const TextStyle(color: _mutedText, fontSize: 14),
+                  hintStyle: TextStyle(color: _mutedText, fontSize: 14),
                   border: InputBorder.none,
                 ),
               ),
@@ -995,8 +1006,8 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
             child: Container(
               width: 40,
               height: 40,
-              decoration: const BoxDecoration(color: _bubblePurple, shape: BoxShape.circle),
-              child: Icon(_generating ? Icons.stop_rounded : Icons.arrow_upward, color: Colors.white, size: 20),
+              decoration: BoxDecoration(color: _bubblePurple, shape: BoxShape.circle),
+              child: Icon(_generating ? Icons.stop_rounded : Icons.arrow_upward, color: _textPrimary, size: 20),
             ),
           ),
         ],
@@ -1041,15 +1052,15 @@ class _DateDividerPill extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: PaletteScope.of(context).textPrimary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.calendar_today, color: Colors.white54, size: 11),
+            Icon(Icons.calendar_today, color: PaletteScope.of(context).textMuted, size: 11),
             const SizedBox(width: 6),
-            Text(text, style: const TextStyle(color: Colors.white70, fontSize: 11.5, fontWeight: FontWeight.w500)),
+            Text(text, style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 11.5, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -1071,8 +1082,8 @@ class _RoundIconButton extends StatelessWidget {
       child: Container(
         width: 32,
         height: 32,
-        decoration: const BoxDecoration(color: Color(0xFF262626), shape: BoxShape.circle),
-        child: Icon(icon, color: Colors.white70, size: 16),
+        decoration: BoxDecoration(color: PaletteScope.of(context).surfaceAlt, shape: BoxShape.circle),
+        child: Icon(icon, color: PaletteScope.of(context).textSecondary, size: 16),
       ),
     );
   }
@@ -1106,19 +1117,19 @@ class _DrawerMenuItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
+                  Text(title, style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
-                    Text(subtitle!, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                    Text(subtitle!, style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 12)),
                   ],
                 ],
               ),
             ),
             if (trailingText != null) ...[
-              Text(trailingText!, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+              Text(trailingText!, style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 13)),
               const SizedBox(width: 4),
             ],
-            if (showChevron) const Icon(Icons.chevron_right, color: Colors.white38, size: 18),
+            if (showChevron) Icon(Icons.chevron_right, color: PaletteScope.of(context).textFaint, size: 18),
           ],
         ),
       ),
@@ -1143,14 +1154,14 @@ class _SheetActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isDestructive ? Colors.redAccent : Colors.white;
+    final color = isDestructive ? PaletteScope.of(context).danger : PaletteScope.of(context).textPrimary;
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(color: const Color(0xFF262626), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: PaletteScope.of(context).surfaceAlt, borderRadius: BorderRadius.circular(12)),
         child: Row(
           children: [
             Icon(icon, color: color, size: 18),
@@ -1200,13 +1211,13 @@ class _TalkBubble extends StatelessWidget {
                 children: [
                   Icon(
                     attachmentType == TalkAttachmentType.video ? Icons.videocam_outlined : Icons.description_outlined,
-                    color: Colors.white70,
+                    color: PaletteScope.of(context).textSecondary,
                     size: 16,
                   ),
                   const SizedBox(width: 6),
                   Text(
                     attachmentPath!.split(Platform.pathSeparator).last,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    style: TextStyle(color: PaletteScope.of(context).textSecondary, fontSize: 12),
                   ),
                 ],
               ),
@@ -1215,7 +1226,7 @@ class _TalkBubble extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(color: bubbleColor, borderRadius: BorderRadius.circular(16)),
-              child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 14.5, height: 1.35)),
+              child: Text(text, style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 14.5, height: 1.35)),
             ),
         ],
       ),
@@ -1231,13 +1242,13 @@ class _TalkTypingIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
+        color: PaletteScope.of(context).surfaceAlt,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const SizedBox(
+      child: SizedBox(
         width: 16,
         height: 16,
-        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+        child: CircularProgressIndicator(strokeWidth: 2, color: PaletteScope.of(context).textMuted),
       ),
     );
   }

@@ -8,6 +8,8 @@ import '../data/repositories/plot_conversation_profile_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'plot_conversation_profile_edit_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 이 플롯으로 새 채팅을 시작할 때 어떤 대화 프로필을 쓸지 고르는 화면.
 /// 플롯 전용 프로필이 있으면 스와이프 가능한 카드 뷰로 먼저 보여주고, 목록 보기로 전환하면
@@ -27,6 +29,14 @@ class PlotProfilePickerScreen extends StatefulWidget {
 typedef _ProfileChoice = ({int? globalProfileId, int? plotProfileId});
 
 class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _textFaint => _p.textFaint;
+  Color get _textGhost => _p.textGhost;
   late final PlotConversationProfileRepository _plotProfileRepo;
   late final ConversationProfileRepository _globalProfileRepo;
   final _pageController = PageController();
@@ -35,9 +45,6 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
   bool _loading = true;
   List<PlotConversationProfile> _plotProfiles = const [];
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _purple = Color(0xFF7A6FF0);
 
   @override
   void initState() {
@@ -83,7 +90,7 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
       backgroundColor: _background,
       body: SafeArea(
         child: _loading
-            ? const Center(child: CircularProgressIndicator(color: _purple))
+            ? Center(child: CircularProgressIndicator(color: _purple))
             : Column(
                 children: [
                   _buildTopBar(l10n),
@@ -100,19 +107,19 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.close, color: Colors.white, size: 22),
+            icon: Icon(Icons.close, color: _textPrimary, size: 22),
             onPressed: () => Navigator.of(context).pop(),
           ),
           Expanded(
             child: Text(
               l10n.plotProfilePickerTitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(color: _textPrimary, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           if (!_listMode)
             IconButton(
-              icon: const Icon(Icons.view_list, color: Colors.white70, size: 22),
+              icon: Icon(Icons.view_list, color: _textSecondary, size: 22),
               onPressed: () => setState(() => _listMode = true),
             )
           else
@@ -138,7 +145,7 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.chevron_left, color: Colors.white70, size: 28),
+                icon: Icon(Icons.chevron_left, color: _textSecondary, size: 28),
                 onPressed: () => _pageController.previousPage(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOut,
@@ -146,10 +153,10 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
               ),
               Text(
                 l10n.plotProfilePickerSwipeHint,
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
+                style: TextStyle(color: _textFaint, fontSize: 12),
               ),
               IconButton(
-                icon: const Icon(Icons.chevron_right, color: Colors.white70, size: 28),
+                icon: Icon(Icons.chevron_right, color: _textSecondary, size: 28),
                 onPressed: () => _pageController.nextPage(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOut,
@@ -175,7 +182,7 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
             if (hasImage)
               Image.file(File(imagePath), fit: BoxFit.cover)
             else
-              Container(color: _cardBg, child: const Icon(Icons.person, color: Colors.white24, size: 96)),
+              Container(color: _cardBg, child: Icon(Icons.person, color: _textGhost, size: 96)),
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -207,7 +214,7 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
                     future: _plotProfileRepo.resolveDisplayName(profile),
                     builder: (context, snapshot) => Text(
                       snapshot.data ?? profile.name,
-                      style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: _textPrimary, fontSize: 22, fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -215,7 +222,7 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
                     profile.shortIntro,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                    style: TextStyle(color: _textSecondary, fontSize: 14),
                   ),
                 ],
               ),
@@ -230,7 +237,7 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
                   onPressed: () => _selectPlotProfile(profile.id),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _purple,
-                    foregroundColor: Colors.white,
+                    foregroundColor: _textPrimary,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   child: Text(
@@ -253,7 +260,7 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
         Text(
           l10n.plotProfilePickerListTitle,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(color: _textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         InkWell(
@@ -265,9 +272,9 @@ class _PlotProfilePickerScreenState extends State<PlotProfilePickerScreen> {
             decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
-                const Icon(Icons.add, color: Colors.white70, size: 20),
+                Icon(Icons.add, color: _textSecondary, size: 20),
                 const SizedBox(width: 12),
-                Text(l10n.plotProfileAddButton, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                Text(l10n.plotProfileAddButton, style: TextStyle(color: _textPrimary, fontSize: 14)),
               ],
             ),
           ),
@@ -316,7 +323,7 @@ class _RoundIconButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.4), shape: BoxShape.circle),
-        child: Icon(icon, color: Colors.white, size: 18),
+        child: Icon(icon, color: PaletteScope.of(context).textPrimary, size: 18),
       ),
     );
   }
@@ -343,7 +350,7 @@ class _ListRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         margin: const EdgeInsets.only(bottom: 10),
-        decoration: BoxDecoration(color: const Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: PaletteScope.of(context).surface, borderRadius: BorderRadius.circular(12)),
         child: Row(
           children: [
             LocalAvatar(imagePath: imagePath, radius: 22),
@@ -356,7 +363,7 @@ class _ListRow extends StatelessWidget {
                     future: nameBuilder(),
                     builder: (context, snapshot) => Text(
                       snapshot.data ?? '',
-                      style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: PaletteScope.of(context).textPrimary, fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
                   if (subtitle.isNotEmpty) ...[
@@ -365,7 +372,7 @@ class _ListRow extends StatelessWidget {
                       subtitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.white54, fontSize: 12),
+                      style: TextStyle(color: PaletteScope.of(context).textMuted, fontSize: 12),
                     ),
                   ],
                 ],

@@ -6,6 +6,8 @@ import '../data/repositories/conversation_profile_repository.dart';
 import '../data/repositories/plot_conversation_profile_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 플롯 편집 > 프롬프트 탭의 '플롯 전용 대화 프로필' 추가/수정 화면.
 /// 마이페이지의 전역 프로필 편집 화면과 구조는 비슷하지만, 짧은 소개(표시 전용)가 추가되고
@@ -27,6 +29,15 @@ class PlotConversationProfileEditScreen extends StatefulWidget {
 }
 
 class _PlotConversationProfileEditScreenState extends State<PlotConversationProfileEditScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _cardBg => _p.surface;
+  Color get _textFaint => _p.textFaint;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _textGhost => _p.textGhost;
   late final PlotConversationProfileRepository _repository;
   late final ConversationProfileRepository _globalProfileRepository;
   final _imageStore = LocalImageStore();
@@ -39,9 +50,6 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
   bool _loading = true;
   bool _saving = false;
 
-  static const _background = Color(0xFF141414);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
 
   bool get _isEditing => widget.profileId != null;
 
@@ -111,24 +119,24 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: _textPrimary, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.myPageEditProfileButton,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 17, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
         actions: [
           if (_isEditing)
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.white, size: 22),
+              icon: Icon(Icons.delete_outline, color: _textPrimary, size: 22),
               onPressed: _delete,
             ),
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -144,8 +152,8 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
                           child: Container(
                             width: 24,
                             height: 24,
-                            decoration: const BoxDecoration(color: _purple, shape: BoxShape.circle),
-                            child: const Icon(Icons.edit, color: Colors.white, size: 13),
+                            decoration: BoxDecoration(color: _purple, shape: BoxShape.circle),
+                            child: Icon(Icons.edit, color: _textPrimary, size: 13),
                           ),
                         ),
                       ],
@@ -155,30 +163,30 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
                 const SizedBox(height: 24),
                 Text(
                   l10n.plotEditNameFieldLabel,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _nameController,
                   enabled: !_useGlobalName,
                   maxLength: 20,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
+                    fillColor: _cardBg,
                     contentPadding: const EdgeInsets.all(12),
-                    counterStyle: const TextStyle(color: Colors.white38, fontSize: 11),
+                    counterStyle: TextStyle(color: _textFaint, fontSize: 11),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                     disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                   ),
                 ),
@@ -192,69 +200,69 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
                   dense: true,
                   title: Text(
                     l10n.plotProfileUseGlobalNameLabel,
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                    style: TextStyle(color: _textSecondary, fontSize: 13),
                   ),
                   subtitle: _globalDefaultName == null
                       ? null
                       : Text(
                           l10n.plotProfileUseGlobalNameDescription(_globalDefaultName!),
-                          style: const TextStyle(color: Colors.white38, fontSize: 12),
+                          style: TextStyle(color: _textFaint, fontSize: 12),
                         ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   l10n.plotProfileShortIntroLabel,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   l10n.plotProfileShortIntroDescription,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(color: _textFaint, fontSize: 12),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _shortIntroController,
                   maxLines: 3,
                   maxLength: 50,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
+                    fillColor: _cardBg,
                     contentPadding: const EdgeInsets.all(12),
-                    counterStyle: const TextStyle(color: Colors.white38, fontSize: 11),
+                    counterStyle: TextStyle(color: _textFaint, fontSize: 11),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   l10n.plotProfileDescriptionLabel,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _descController,
                   maxLines: 6,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.plotProfileDescriptionHint,
-                    hintStyle: const TextStyle(color: Colors.white24, fontSize: 13, height: 1.4),
+                    hintStyle: TextStyle(color: _textGhost, fontSize: 13, height: 1.4),
                     filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
+                    fillColor: _cardBg,
                     contentPadding: const EdgeInsets.all(12),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
@@ -271,7 +279,7 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
               onPressed: _loading || _saving ? null : _save,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
-                foregroundColor: Colors.white,
+                foregroundColor: _textPrimary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(

@@ -234,6 +234,89 @@ class AppLocalizationsJa extends AppLocalizations {
   String get preferencesThemeSystemOption => 'システムに合わせる';
 
   @override
+  String get paletteAddButton => 'プリセット追加';
+
+  @override
+  String get paletteDeleteConfirmTitle => 'プリセット削除';
+
+  @override
+  String paletteDeleteConfirmContent(String name) {
+    return '\'$name\' プリセットを削除しますか？この操作は元に戻せません。';
+  }
+
+  @override
+  String get paletteEditNewTitle => 'プリセット追加';
+
+  @override
+  String get paletteEditEditTitle => 'プリセット編集';
+
+  @override
+  String get paletteEditNameEmptyMessage => 'プリセット名を入力してください。';
+
+  @override
+  String get paletteEditPreviewLabel => 'プレビュー';
+
+  @override
+  String get paletteEditNameLabel => 'プリセット名';
+
+  @override
+  String get paletteEditColorsLabel => 'カラー';
+
+  @override
+  String get paletteEditBrightnessLabel => '明るさ';
+
+  @override
+  String get paletteEditBrightnessDark => 'ダーク';
+
+  @override
+  String get paletteEditBrightnessLight => 'ライト';
+
+  @override
+  String get paletteSlotBackground => '背景';
+
+  @override
+  String get paletteSlotSurface => 'カード/表面';
+
+  @override
+  String get paletteSlotSurfaceAlt => '補助表面(入力欄など)';
+
+  @override
+  String get paletteSlotBorder => '枠線';
+
+  @override
+  String get paletteSlotPrimary => 'アクセントカラー';
+
+  @override
+  String get paletteSlotOnPrimary => 'アクセント上のテキスト';
+
+  @override
+  String get paletteSlotTextPrimary => '本文テキスト';
+
+  @override
+  String get paletteSlotTextSecondary => '補助テキスト';
+
+  @override
+  String get paletteSlotTextMuted => '薄いテキスト';
+
+  @override
+  String get paletteSlotTextFaint => 'より薄いテキスト';
+
+  @override
+  String get paletteSlotTextGhost => '最も薄いテキスト';
+
+  @override
+  String get colorPickerTitle => '色を選択';
+
+  @override
+  String get colorPickerHexLabel => '16進コード';
+
+  @override
+  String get colorPickerAlphaLabel => '不透明度';
+
+  @override
+  String get colorPickerQuickPicksLabel => 'クイック選択';
+
+  @override
   String get preferencesVersionSectionTitle => 'バージョン情報';
 
   @override
@@ -661,6 +744,9 @@ class AppLocalizationsJa extends AppLocalizations {
       'プロットを先に保存するとイントロを作成できます。\nプロンプトタブでタイトル・キャラクターを入力し、上部の保存ボタンを押してください。';
 
   @override
+  String get plotEditIntroAiGenerateButton => 'AIで生成';
+
+  @override
   String get plotEditIntroFirstSceneTitle => '最初の状況を作成してください';
 
   @override
@@ -795,6 +881,32 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get aiPresetApiKeyHint => '取得したAPIキーを入力してください';
+
+  @override
+  String get aiPresetApiKeyGuideButton => 'キー発行案内';
+
+  @override
+  String get apiKeyGuideDialogTitle => 'APIキー発行案内';
+
+  @override
+  String get apiKeyGuideOpenButton => '開く';
+
+  @override
+  String get apiKeyGuideOpenRouterDescription =>
+      '1つのAPIキーで様々なモデルを使えるルーターサービスです。';
+
+  @override
+  String get apiKeyGuideFeatherlessDescription =>
+      'オープンソースモデルを定額でほぼ無制限に使えるサービスです。';
+
+  @override
+  String get apiKeyGuideFeatherlessReferralNote => 'このリンクから登録すると初月10ドル割引になります。';
+
+  @override
+  String get apiKeyGuideAtlasCloudDescription => '複数のモデルを従量課金で使えるサービスです。';
+
+  @override
+  String get apiKeyGuideAtlasCloudReferralNote => 'このリンクから登録すると5ドル追加チャージされます。';
 
   @override
   String get aiPresetAdvancedSettingsTitle => '詳細設定';

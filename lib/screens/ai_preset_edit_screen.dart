@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../data/db/database.dart';
 import '../data/repositories/ai_preset_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
+import '../widgets/api_key_guide_dialog.dart';
 
 /// AI 프리셋 추가/수정 화면. API 키는 저장 시 secure storage로 보내지고,
 /// DB에는 참조 키만 남는다(AiPresetRepository 참고).
@@ -16,6 +19,15 @@ class AiPresetEditScreen extends StatefulWidget {
 }
 
 class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _mutedText => _p.textMuted;
+  Color get _textSecondary => _p.textSecondary;
   late final AiPresetRepository _repository;
 
   final _nameController = TextEditingController();
@@ -42,10 +54,6 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
   bool _saving = false;
   bool _obscureApiKey = true;
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
 
   bool get _isEditing => widget.presetId != null;
   bool get _isOpenRouter => _baseUrlController.text.toLowerCase().contains('openrouter.ai');
@@ -138,9 +146,9 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
@@ -149,15 +157,15 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
           _isEditing
               ? l10n.aiPresetEditTitleEdit
               : l10n.aiPresetEditTitleCreate,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -199,19 +207,32 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                   children: [
                     Text(
                       l10n.aiPresetApiKeyLabel,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: _textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      l10n.aiPresetApiKeyStorageNote,
-                      style: const TextStyle(
-                        color: Colors.white38,
-                        fontSize: 12,
+                    Expanded(
+                      child: Text(
+                        l10n.aiPresetApiKeyStorageNote,
+                        style: TextStyle(
+                          color: _textFaint,
+                          fontSize: 12,
+                        ),
                       ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => showApiKeyGuideDialog(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: _purple,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      icon: const Icon(Icons.help_outline, size: 15),
+                      label: Text(l10n.aiPresetApiKeyGuideButton, style: const TextStyle(fontSize: 12.5)),
                     ),
                   ],
                 ),
@@ -219,11 +240,11 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                 TextField(
                   controller: _apiKeyController,
                   obscureText: _obscureApiKey,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.aiPresetApiKeyHint,
-                    hintStyle: const TextStyle(
-                      color: Colors.white38,
+                    hintStyle: TextStyle(
+                      color: _textFaint,
                       fontSize: 13,
                     ),
                     filled: true,
@@ -234,7 +255,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                         _obscureApiKey
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: Colors.white54,
+                        color: _mutedText,
                         size: 18,
                       ),
                       onPressed: () =>
@@ -242,19 +263,19 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   l10n.aiPresetAdvancedSettingsTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -262,7 +283,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                 const SizedBox(height: 4),
                 Text(
                   l10n.aiPresetAdvancedSettingsDescription,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(color: _textFaint, fontSize: 12),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -342,7 +363,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
               onPressed: _loading || _saving ? null : _save,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
-                foregroundColor: Colors.white,
+                foregroundColor: _textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -373,12 +394,12 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       children: [
         Text(
           l10n.aiPresetReasoningEffortLabel,
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           l10n.aiPresetReasoningEffortDescription,
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: _textFaint, fontSize: 12),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -393,7 +414,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
               backgroundColor: _cardBg,
               selectedColor: _purple.withValues(alpha: 0.25),
               labelStyle: TextStyle(
-                color: selected ? _purple : Colors.white70,
+                color: selected ? _purple : _textSecondary,
                 fontSize: 13,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
               ),
@@ -416,12 +437,12 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       children: [
         Text(
           l10n.aiPresetEndpointFormatLabel,
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           l10n.aiPresetEndpointFormatDescription,
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: _textFaint, fontSize: 12),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -436,7 +457,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
               backgroundColor: _cardBg,
               selectedColor: _purple.withValues(alpha: 0.25),
               labelStyle: TextStyle(
-                color: selected ? _purple : Colors.white70,
+                color: selected ? _purple : _textSecondary,
                 fontSize: 13,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
               ),
@@ -455,12 +476,12 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       children: [
         Text(
           l10n.aiPresetOpenRouterSectionTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           l10n.aiPresetOpenRouterSectionDescription,
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: _textFaint, fontSize: 12),
         ),
         const SizedBox(height: 8),
         _openRouterSwitch(
@@ -496,8 +517,8 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       onChanged: onChanged,
       contentPadding: EdgeInsets.zero,
       activeThumbColor: _purple,
-      title: Text(label, style: const TextStyle(color: Colors.white, fontSize: 13.5)),
-      subtitle: Text(description, style: const TextStyle(color: Colors.white38, fontSize: 11.5)),
+      title: Text(label, style: TextStyle(color: _textPrimary, fontSize: 13.5)),
+      subtitle: Text(description, style: TextStyle(color: _textFaint, fontSize: 11.5)),
     );
   }
 
@@ -513,8 +534,8 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -524,20 +545,20 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
           controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(color: _textPrimary, fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+            hintStyle: TextStyle(color: _textFaint, fontSize: 13),
             filled: true,
             fillColor: _cardBg,
             contentPadding: const EdgeInsets.all(12),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: _borderGrey),
+              borderSide: BorderSide(color: _borderGrey),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: _purple),
+              borderSide: BorderSide(color: _purple),
             ),
           ),
         ),

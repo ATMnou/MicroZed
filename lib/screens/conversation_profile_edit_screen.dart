@@ -5,6 +5,8 @@ import '../data/local_image_store.dart';
 import '../data/repositories/conversation_profile_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 프로필 목록에서 대화 프로필을 누르면 나오는 상세 편집 화면.
 /// 설명(선택) 항목은 글자 수 제한(카운터)을 두지 않는다.
@@ -21,6 +23,13 @@ class ConversationProfileEditScreen extends StatefulWidget {
 
 class _ConversationProfileEditScreenState
     extends State<ConversationProfileEditScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _cardBg => _p.surface;
   late final ConversationProfileRepository _repository;
   final _imageStore = LocalImageStore();
   final _nameController = TextEditingController();
@@ -30,9 +39,6 @@ class _ConversationProfileEditScreenState
   bool _loading = true;
   bool _saving = false;
 
-  static const _background = Color(0xFF141414);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
 
   bool get _isEditing => widget.profileId != null;
 
@@ -94,17 +100,17 @@ class _ConversationProfileEditScreenState
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.myPageEditProfileButton,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -113,9 +119,9 @@ class _ConversationProfileEditScreenState
         actions: [
           if (_isEditing)
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.delete_outline,
-                color: Colors.white,
+                color: _textPrimary,
                 size: 22,
               ),
               onPressed: _delete,
@@ -123,7 +129,7 @@ class _ConversationProfileEditScreenState
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -139,13 +145,13 @@ class _ConversationProfileEditScreenState
                           child: Container(
                             width: 24,
                             height: 24,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: _purple,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.edit,
-                              color: Colors.white,
+                              color: _textPrimary,
                               size: 13,
                             ),
                           ),
@@ -159,8 +165,8 @@ class _ConversationProfileEditScreenState
                   children: [
                     Text(
                       l10n.plotEditNameFieldLabel,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: _textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -168,8 +174,8 @@ class _ConversationProfileEditScreenState
                     const SizedBox(width: 8),
                     Text(
                       l10n.profileEditNameDescription,
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: _textFaint,
                         fontSize: 12,
                       ),
                     ),
@@ -178,26 +184,26 @@ class _ConversationProfileEditScreenState
                 const SizedBox(height: 8),
                 TextField(
                   controller: _nameController,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
+                    fillColor: _cardBg,
                     contentPadding: const EdgeInsets.all(12),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   l10n.profileEditDescriptionLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -206,26 +212,26 @@ class _ConversationProfileEditScreenState
                 TextField(
                   controller: _descController,
                   maxLines: 4,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: const Color(0xFF1E1E1E),
+                    fillColor: _cardBg,
                     contentPadding: const EdgeInsets.all(12),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   l10n.profileEditDefaultSectionTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
@@ -234,7 +240,7 @@ class _ConversationProfileEditScreenState
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E1E1E),
+                    color: _cardBg,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -245,16 +251,16 @@ class _ConversationProfileEditScreenState
                           children: [
                             Text(
                               l10n.profileEditApplyDefaultTitle,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: _textPrimary,
                                 fontSize: 13,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               l10n.profileEditApplyDefaultDescription,
-                              style: const TextStyle(
-                                color: Colors.white38,
+                              style: TextStyle(
+                                color: _textFaint,
                                 fontSize: 12,
                               ),
                             ),
@@ -263,7 +269,7 @@ class _ConversationProfileEditScreenState
                       ),
                       Switch(
                         value: _applyAsDefault,
-                        activeThumbColor: Colors.white,
+                        activeThumbColor: _textPrimary,
                         activeTrackColor: _purple,
                         onChanged: (v) => setState(() => _applyAsDefault = v),
                       ),
@@ -283,7 +289,7 @@ class _ConversationProfileEditScreenState
               onPressed: _loading || _saving ? null : _save,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
-                foregroundColor: Colors.white,
+                foregroundColor: _textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

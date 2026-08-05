@@ -9,6 +9,8 @@ import '../data/import/lorebook_parser.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../l10n/app_localizations.dart';
 import 'lorebook_plot_picker_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 항목 편집 중 상태(제목/키워드/내용 컨트롤러 + 펼침 여부).
 class _EntryForm {
@@ -54,6 +56,14 @@ class LorebookEditScreen extends StatefulWidget {
 
 class _LorebookEditScreenState extends State<LorebookEditScreen>
     with SingleTickerProviderStateMixin {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _mutedText => _p.textMuted;
+  Color get _textFaint => _p.textFaint;
   late final TabController _tabController;
   late final LorebookRepository _repository;
 
@@ -65,10 +75,6 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
   bool _importing = false;
   bool _exporting = false;
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
 
   bool get _isEditing => widget.lorebookId != null;
 
@@ -234,14 +240,14 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white, size: 22),
+          icon: Icon(Icons.close, color: _textPrimary, size: 22),
           onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 0,
         title: Text(
           l10n.lorebookEditAppBarTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -249,24 +255,24 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         actions: [
           IconButton(
             icon: _importing
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: _mutedText),
                   )
-                : const Icon(Icons.file_download_outlined, color: Colors.white, size: 20),
+                : Icon(Icons.file_download_outlined, color: _textPrimary, size: 20),
             tooltip: l10n.lorebookImportButtonTooltip,
             onPressed: _importing ? null : _importFromFile,
           ),
           if (widget.lorebookId != null)
             IconButton(
               icon: _exporting
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: _mutedText),
                     )
-                  : const Icon(Icons.file_upload_outlined, color: Colors.white, size: 20),
+                  : Icon(Icons.file_upload_outlined, color: _textPrimary, size: 20),
               tooltip: l10n.lorebookExportButtonTooltip,
               onPressed: _exporting ? null : _exportToFile,
             ),
@@ -276,7 +282,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
               onPressed: _loading || _saving ? null : _save,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
-                foregroundColor: Colors.white,
+                foregroundColor: _textPrimary,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
@@ -293,10 +299,10 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.white,
+          indicatorColor: _textPrimary,
           indicatorSize: TabBarIndicatorSize.label,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white38,
+          labelColor: _textPrimary,
+          unselectedLabelColor: _textFaint,
           labelStyle: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -308,7 +314,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : SafeArea(
               top: false,
               child: TabBarView(
@@ -322,8 +328,8 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
                             child: Text(
                               l10n.lorebookEditSaveFirstMessage,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white38,
+                              style: TextStyle(
+                                color: _textFaint,
                                 fontSize: 13,
                               ),
                             ),
@@ -346,8 +352,8 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
       children: [
         Text(
           l10n.plotEditAboutSectionTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -355,7 +361,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         const SizedBox(height: 4),
         Text(
           l10n.lorebookEditIntroDescription,
-          style: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: _textFaint, fontSize: 12),
         ),
         const SizedBox(height: 12),
         Container(
@@ -384,8 +390,8 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         const SizedBox(height: 24),
         Text(
           l10n.lorebookEditEntriesSectionTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -398,8 +404,8 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         OutlinedButton.icon(
           onPressed: _addEntry,
           style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.white,
-            side: const BorderSide(color: _borderGrey),
+            foregroundColor: _textPrimary,
+            side: BorderSide(color: _borderGrey),
             padding: const EdgeInsets.symmetric(vertical: 12),
             minimumSize: const Size(double.infinity, 0),
             shape: RoundedRectangleBorder(
@@ -436,13 +442,13 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
                   form.expanded
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
-                  color: Colors.white54,
+                  color: _mutedText,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   l10n.lorebookEditEntryCardTitle(index + 1),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: _textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
@@ -450,9 +456,9 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
                 const Spacer(),
                 GestureDetector(
                   onTap: () => _removeEntry(index),
-                  child: const Icon(
+                  child: Icon(
                     Icons.delete_outline,
-                    color: Colors.white54,
+                    color: _mutedText,
                     size: 20,
                   ),
                 ),
@@ -501,7 +507,7 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         Row(
           children: [
             if (required)
-              const Text(
+              Text(
                 '*',
                 style: TextStyle(
                   color: _purple,
@@ -511,8 +517,8 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
               ),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: _textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -523,20 +529,20 @@ class _LorebookEditScreenState extends State<LorebookEditScreen>
         TextField(
           controller: controller,
           maxLines: maxLines,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(color: _textPrimary, fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+            hintStyle: TextStyle(color: _textFaint, fontSize: 12),
             filled: true,
             fillColor: _background,
             contentPadding: const EdgeInsets.all(12),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: _borderGrey),
+              borderSide: BorderSide(color: _borderGrey),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: _purple),
+              borderSide: BorderSide(color: _purple),
             ),
           ),
         ),
@@ -551,7 +557,6 @@ class _PlotConnectTab extends StatelessWidget {
   final int lorebookId;
   final LorebookRepository repository;
 
-  static const _borderGrey = Color(0xFF3A3A3A);
 
   @override
   Widget build(BuildContext context) {
@@ -563,8 +568,8 @@ class _PlotConnectTab extends StatelessWidget {
         children: [
           Text(
             l10n.lorebookEditConnectPlotsTitle,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: PaletteScope.of(context).textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
@@ -572,7 +577,7 @@ class _PlotConnectTab extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             l10n.lorebookEditConnectPlotsDescription,
-            style: const TextStyle(color: Colors.white38, fontSize: 12),
+            style: TextStyle(color: PaletteScope.of(context).textFaint, fontSize: 12),
           ),
           const SizedBox(height: 12),
           StreamBuilder<List<Plot>>(
@@ -592,8 +597,8 @@ class _PlotConnectTab extends StatelessWidget {
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: _borderGrey),
+                      foregroundColor: PaletteScope.of(context).textPrimary,
+                      side: BorderSide(color: PaletteScope.of(context).border),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       minimumSize: const Size(double.infinity, 0),
                       shape: RoundedRectangleBorder(
@@ -616,8 +621,8 @@ class _PlotConnectTab extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Text(
                           plot.title,
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style: TextStyle(
+                            color: PaletteScope.of(context).textSecondary,
                             fontSize: 13,
                           ),
                         ),

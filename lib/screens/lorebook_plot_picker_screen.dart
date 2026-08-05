@@ -4,6 +4,8 @@ import '../data/db/database.dart';
 import '../data/repositories/lorebook_repository.dart';
 import '../data/repositories/plot_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 로어북 편집 > '플롯 연결' 탭의 '+ 연결하기'에서 나오는 플롯 선택 화면.
 class LorebookPlotPickerScreen extends StatefulWidget {
@@ -17,14 +19,18 @@ class LorebookPlotPickerScreen extends StatefulWidget {
 }
 
 class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _pillGrey => _p.surfaceAlt;
   late final LorebookRepository _lorebookRepository;
   late final PlotRepository _plotRepository;
 
   Set<int> _selectedPlotIds = {};
   bool _loading = true;
 
-  static const _background = Color(0xFF141414);
-  static const _purple = Color(0xFF7A6FF0);
 
   @override
   void initState() {
@@ -61,17 +67,17 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.lorebookPlotConnectTabLabel,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -79,7 +85,7 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
         centerTitle: true,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : StreamBuilder<List<PlotSummary>>(
               stream: _plotRepository.watchAll(),
               builder: (context, snapshot) {
@@ -88,8 +94,8 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
                   return Center(
                     child: Text(
                       l10n.homeNoPlotsYet,
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: _textFaint,
                         fontSize: 13,
                       ),
                     ),
@@ -99,7 +105,7 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   itemCount: plots.length,
                   separatorBuilder: (_, _) =>
-                      const Divider(color: Color(0xFF2A2A2A), height: 1),
+                      Divider(color: _pillGrey, height: 1),
                   itemBuilder: (context, index) {
                     final plot = plots[index].plot;
                     final selected = _selectedPlotIds.contains(plot.id);
@@ -116,8 +122,8 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
                       activeColor: _purple,
                       title: Text(
                         plot.title,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: _textPrimary,
                           fontSize: 14,
                         ),
                       ),
@@ -137,7 +143,7 @@ class _LorebookPlotPickerScreenState extends State<LorebookPlotPickerScreen> {
               onPressed: _loading ? null : _confirm,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
-                foregroundColor: Colors.white,
+                foregroundColor: _textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),

@@ -7,6 +7,8 @@ import '../l10n/app_localizations.dart';
 import 'preferences_screen.dart';
 import 'profile_list_screen.dart';
 import 'token_usage_history_screen.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 const _repoUrl = 'https://github.com/ATMnou/MicroZed';
 
@@ -22,6 +24,14 @@ class MyPageTab extends StatefulWidget {
 }
 
 class _MyPageTabState extends State<MyPageTab> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _textPrimary => _p.textPrimary;
+  Color get _borderGrey => _p.border;
+  Color get _cardBg => _p.surface;
+  Color get _purple => _p.primary;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _textFaint => _p.textFaint;
+  Color get _mutedText => _p.textMuted;
   late final TokenUsageRepository _tokenUsageRepository;
 
   @override
@@ -59,7 +69,7 @@ class _MyPageTabState extends State<MyPageTab> {
         children: [
           Text(
             l10n.myPageTitle,
-            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(color: _textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const Spacer(),
           GestureDetector(
@@ -68,7 +78,7 @@ class _MyPageTabState extends State<MyPageTab> {
                 MaterialPageRoute(builder: (_) => const PreferencesScreen()),
               );
             },
-            child: const Icon(Icons.settings_outlined, color: Colors.white, size: 22),
+            child: Icon(Icons.settings_outlined, color: _textPrimary, size: 22),
           ),
         ],
       ),
@@ -84,8 +94,8 @@ class _MyPageTabState extends State<MyPageTab> {
         );
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: const BorderSide(color: Color(0xFF3A3A3A)),
+        foregroundColor: _textPrimary,
+        side: BorderSide(color: _borderGrey),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
@@ -98,12 +108,12 @@ class _MyPageTabState extends State<MyPageTab> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: _cardBg,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
-          const Icon(Icons.bolt, color: Color(0xFF7A6FF0), size: 20),
+          Icon(Icons.bolt, color: _purple, size: 20),
           const SizedBox(width: 8),
           StreamBuilder<TokenUsageTotals>(
             stream: _tokenUsageRepository.watchTotals(),
@@ -116,11 +126,11 @@ class _MyPageTabState extends State<MyPageTab> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l10n.myPageTokensUsedLabel, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(l10n.myPageTokensUsedLabel, style: TextStyle(color: _textSecondary, fontSize: 12)),
                   const SizedBox(height: 2),
                   Text(
                     formatted,
-                    style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: _textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               );
@@ -134,8 +144,8 @@ class _MyPageTabState extends State<MyPageTab> {
               );
             },
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white70,
-              side: const BorderSide(color: Color(0xFF3A3A3A)),
+              foregroundColor: _textSecondary,
+              side: BorderSide(color: _borderGrey),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
@@ -161,9 +171,9 @@ class _MyPageTabState extends State<MyPageTab> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
-                const Icon(Icons.description_outlined, color: Colors.white38, size: 16),
+                Icon(Icons.description_outlined, color: _textFaint, size: 16),
                 const SizedBox(width: 8),
-                Text(l10n.myPageLicensesButton, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                Text(l10n.myPageLicensesButton, style: TextStyle(color: _mutedText, fontSize: 13)),
               ],
             ),
           ),
@@ -175,9 +185,9 @@ class _MyPageTabState extends State<MyPageTab> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
-                const Icon(Icons.code, color: Colors.white38, size: 16),
+                Icon(Icons.code, color: _textFaint, size: 16),
                 const SizedBox(width: 8),
-                Text(l10n.myPageSourceCodeButton, style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                Text(l10n.myPageSourceCodeButton, style: TextStyle(color: _mutedText, fontSize: 13)),
               ],
             ),
           ),

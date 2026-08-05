@@ -1,55 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'app_theme.dart';
-import 'data/app_theme_preferences.dart';
 import 'data/chat_image_preferences.dart';
 import 'data/db/database.dart';
 import 'data/db/seed.dart';
+import 'data/theme/palette_controller.dart';
+import 'data/theme/palette_scope.dart';
 import 'l10n/app_localizations.dart';
 import 'l10n/locale_controller.dart';
 import 'screens/home_screen.dart';
 
 final localeController = LocaleController();
 final chatImagePreferences = ChatImagePreferences();
-final appThemePreferences = AppThemePreferences();
+final paletteController = PaletteController();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await seedIfEmpty(AppDatabase.instance);
   await localeController.load();
   await chatImagePreferences.load();
-  await appThemePreferences.load();
+  await paletteController.load();
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    paletteController.updatePlatformBrightness(
+      WidgetsBinding.instance.platformDispatcher.platformBrightness,
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    paletteController.updatePlatformBrightness(
+      WidgetsBinding.instance.platformDispatcher.platformBrightness,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Locale?>(
       valueListenable: localeController,
       builder: (context, locale, _) {
-        return ValueListenableBuilder<AppThemeMode>(
-          valueListenable: appThemePreferences,
-          builder: (context, appThemeMode, _) {
-            final ThemeMode themeMode;
-            final ThemeData darkVariant;
-            switch (appThemeMode) {
-              case AppThemeMode.light:
-                themeMode = ThemeMode.light;
-                darkVariant = kDarkTheme;
-              case AppThemeMode.dark:
-                themeMode = ThemeMode.dark;
-                darkVariant = kDarkTheme;
-              case AppThemeMode.amoled:
-                themeMode = ThemeMode.dark;
-                darkVariant = kAmoledTheme;
-              case AppThemeMode.system:
-                themeMode = ThemeMode.system;
-                darkVariant = kDarkTheme;
-            }
+        return ListenableBuilder(
+          listenable: paletteController,
+          builder: (context, _) {
+            final theme = paletteController.active.toThemeData();
             return MaterialApp(
               title: 'Microzed',
               debugShowCheckedModeBanner: false,
@@ -61,9 +73,10 @@ class MyApp extends StatelessWidget {
                 GlobalCupertinoLocalizations.delegate,
               ],
               supportedLocales: AppLocalizations.supportedLocales,
-              themeMode: themeMode,
-              theme: kLightTheme,
-              darkTheme: darkVariant,
+              themeMode: ThemeMode.light,
+              theme: theme,
+              darkTheme: theme,
+              builder: (context, child) => PaletteScope(child: child!),
               home: const HomeScreen(),
             );
           },

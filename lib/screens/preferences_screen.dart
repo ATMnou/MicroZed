@@ -4,17 +4,20 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/ai/local_llm/local_llm_engine.dart';
-import '../data/app_theme_preferences.dart';
 import '../data/backup/backup_service.dart';
 import '../data/chat_image_preferences.dart';
 import '../data/db/database.dart';
 import '../data/db/seed.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_controller.dart';
+import '../data/theme/palette_scope.dart';
 import '../data/update_checker.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
 import 'ai_preset_screen.dart';
 import 'lan_sync_screen.dart';
 import 'local_llm_screen.dart';
+import 'palette_edit_screen.dart';
 import 'snapshot_settings_screen.dart';
 import 'summary_settings_screen.dart';
 import 'system_prompt_edit_screen.dart';
@@ -29,9 +32,16 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _mutedText => _p.textMuted;
+  Color get _danger => _p.danger;
+  Color get _textGhost => _p.textGhost;
 
   bool _resetting = false;
   bool _backingUp = false;
@@ -60,17 +70,17 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new,
-            color: Colors.white,
+            color: _textPrimary,
             size: 20,
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.preferencesTitle,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: _textPrimary,
             fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
@@ -89,8 +99,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             const SizedBox(height: 24),
             Text(
               l10n.preferencesImageDisplayModeLabel,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: _textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -98,8 +108,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             const SizedBox(height: 4),
             Text(
               l10n.preferencesImageDisplayModeDescription,
-              style: const TextStyle(
-                color: Colors.white38,
+              style: TextStyle(
+                color: _textFaint,
                 fontSize: 12.5,
                 height: 1.4,
               ),
@@ -133,14 +143,14 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                   option == ChatImageDisplayMode.square
                                       ? l10n.preferencesImageDisplaySquareOption
                                       : l10n.preferencesImageDisplayFullWidthOption,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: _textPrimary,
                                     fontSize: 14,
                                   ),
                                 ),
                               ),
                               if (selected)
-                                const Icon(
+                                Icon(
                                   Icons.check,
                                   color: _purple,
                                   size: 20,
@@ -173,7 +183,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       children: [
         Text(
           l10n.preferencesAiSectionTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -220,8 +230,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     return OutlinedButton(
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: const BorderSide(color: _borderGrey),
+        foregroundColor: _textPrimary,
+        side: BorderSide(color: _borderGrey),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
@@ -229,16 +239,16 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
   }
 
-  String _themeOptionLabel(AppLocalizations l10n, AppThemeMode mode) {
-    switch (mode) {
-      case AppThemeMode.dark:
+  String _paletteDisplayName(AppLocalizations l10n, ColorPalette palette) {
+    switch (palette.id) {
+      case BuiltInPalettes.darkId:
         return l10n.preferencesThemeDarkOption;
-      case AppThemeMode.light:
+      case BuiltInPalettes.lightId:
         return l10n.preferencesThemeLightOption;
-      case AppThemeMode.amoled:
+      case BuiltInPalettes.amoledId:
         return l10n.preferencesThemeAmoledOption;
-      case AppThemeMode.system:
-        return l10n.preferencesThemeSystemOption;
+      default:
+        return palette.name;
     }
   }
 
@@ -249,37 +259,166 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       children: [
         Text(
           l10n.preferencesThemeSectionTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
-        ValueListenableBuilder<AppThemeMode>(
-          valueListenable: appThemePreferences,
-          builder: (context, mode, _) {
+        ListenableBuilder(
+          listenable: paletteController,
+          builder: (context, _) {
+            final selectedId = paletteController.selectedId;
             return Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: AppThemeMode.values.map((option) {
-                final selected = option == mode;
-                return ChoiceChip(
-                  label: Text(_themeOptionLabel(l10n, option)),
-                  selected: selected,
-                  onSelected: (_) => appThemePreferences.setMode(option),
-                  backgroundColor: _cardBg,
-                  selectedColor: _purple.withValues(alpha: 0.25),
-                  labelStyle: TextStyle(
-                    color: selected ? _purple : Colors.white70,
-                    fontSize: 13,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                  side: BorderSide(color: selected ? _purple : _borderGrey),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                );
-              }).toList(),
+              children: [
+                _paletteChip(
+                  label: l10n.preferencesThemeSystemOption,
+                  selected: selectedId == kSystemPaletteId,
+                  onTap: () => paletteController.select(kSystemPaletteId),
+                ),
+                ...paletteController.allPalettes.map((palette) {
+                  final selected = selectedId == palette.id;
+                  return _paletteChip(
+                    label: _paletteDisplayName(l10n, palette),
+                    selected: selected,
+                    swatch: palette.primary,
+                    onTap: () => paletteController.select(palette.id),
+                    onEdit: palette.isBuiltIn
+                        ? null
+                        : () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => PaletteEditScreen(existing: palette, startFrom: palette),
+                              ),
+                            ),
+                    onDelete: palette.isBuiltIn
+                        ? null
+                        : () => _confirmDeletePalette(context, palette),
+                  );
+                }),
+                _addPaletteChip(context),
+              ],
             );
           },
         ),
       ],
     );
+  }
+
+  Widget _paletteChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+    Color? swatch,
+    VoidCallback? onEdit,
+    VoidCallback? onDelete,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: _cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: selected ? _purple : _borderGrey),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (swatch != null) ...[
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(color: swatch, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                color: selected ? _purple : _textSecondary,
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+            if (onEdit != null || onDelete != null) ...[
+              const SizedBox(width: 4),
+              if (onEdit != null)
+                InkWell(
+                  onTap: onEdit,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: Icon(Icons.edit_outlined, size: 14, color: _textFaint),
+                  ),
+                ),
+              if (onDelete != null)
+                InkWell(
+                  onTap: onDelete,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: Icon(Icons.close, size: 14, color: _textFaint),
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _addPaletteChip(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => PaletteEditScreen(startFrom: paletteController.active),
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: _cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _borderGrey, style: BorderStyle.solid),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.add, size: 15, color: _textSecondary),
+            const SizedBox(width: 4),
+            Text(l10n.paletteAddButton, style: TextStyle(color: _textSecondary, fontSize: 13)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDeletePalette(BuildContext context, ColorPalette palette) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: _cardBg,
+        title: Text(l10n.paletteDeleteConfirmTitle, style: TextStyle(color: _textPrimary)),
+        content: Text(
+          l10n.paletteDeleteConfirmContent(palette.name),
+          style: TextStyle(color: _textSecondary, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.commonDelete, style: const TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await paletteController.deleteCustom(palette.id);
+    }
   }
 
   Widget _buildLanguageSection(BuildContext context) {
@@ -290,14 +429,14 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        leading: const Icon(Icons.language, color: Colors.white70),
-        title: Text(l10n.settingsLanguage, style: const TextStyle(color: Colors.white, fontSize: 14)),
+        leading: Icon(Icons.language, color: _textSecondary),
+        title: Text(l10n.settingsLanguage, style: TextStyle(color: _textPrimary, fontSize: 14)),
         trailing: ValueListenableBuilder<Locale?>(
           valueListenable: localeController,
           builder: (context, locale, _) {
             return Text(
               _labelForLocale(l10n, locale),
-              style: const TextStyle(color: Colors.white54, fontSize: 13),
+              style: TextStyle(color: _mutedText, fontSize: 13),
             );
           },
         ),
@@ -328,7 +467,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _cardBg,
-        title: Text(l10n.settingsLanguageDialogTitle, style: const TextStyle(color: Colors.white)),
+        title: Text(l10n.settingsLanguageDialogTitle, style: TextStyle(color: _textPrimary)),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView(
@@ -338,7 +477,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 value: locale,
                 groupValue: current,
                 activeColor: _purple,
-                title: Text(_labelForLocale(l10n, locale), style: const TextStyle(color: Colors.white)),
+                title: Text(_labelForLocale(l10n, locale), style: TextStyle(color: _textPrimary)),
                 onChanged: (value) => Navigator.of(dialogContext).pop(value),
               );
             }).toList(),
@@ -364,11 +503,11 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.myPageBackupSectionTitle, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(l10n.myPageBackupSectionTitle, style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(
             l10n.myPageBackupSectionDescription,
-            style: const TextStyle(color: Colors.white38, fontSize: 12),
+            style: TextStyle(color: _textFaint, fontSize: 12),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -378,16 +517,16 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               OutlinedButton.icon(
                 onPressed: _backingUp || _restoring ? null : _exportBackup,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: _borderGrey),
+                  foregroundColor: _textPrimary,
+                  side: BorderSide(color: _borderGrey),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
                 icon: _backingUp
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 14,
                         height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: _textSecondary),
                       )
                     : const Icon(Icons.save_alt, size: 16),
                 label: Text(l10n.myPageExportAllButton, style: const TextStyle(fontSize: 13)),
@@ -395,16 +534,16 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               OutlinedButton.icon(
                 onPressed: _backingUp || _restoring ? null : _importBackup,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: _borderGrey),
+                  foregroundColor: _textPrimary,
+                  side: BorderSide(color: _borderGrey),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
                 icon: _restoring
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 14,
                         height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: _textSecondary),
                       )
                     : const Icon(Icons.file_upload_outlined, size: 16),
                 label: Text(l10n.myPageImportAllButton, style: const TextStyle(fontSize: 13)),
@@ -414,8 +553,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   MaterialPageRoute(builder: (_) => const LanSyncScreen()),
                 ),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: _borderGrey),
+                  foregroundColor: _textPrimary,
+                  side: BorderSide(color: _borderGrey),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
@@ -470,19 +609,19 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _cardBg,
-        title: Text(l10n.myPageImportDialogTitle, style: const TextStyle(color: Colors.white)),
+        title: Text(l10n.myPageImportDialogTitle, style: TextStyle(color: _textPrimary)),
         content: Text(
           l10n.myPageImportDialogContent,
-          style: const TextStyle(color: Colors.white70, height: 1.4),
+          style: TextStyle(color: _textSecondary, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.myPageImportRestoreButton, style: const TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.myPageImportRestoreButton, style: TextStyle(color: _danger)),
           ),
         ],
       ),
@@ -526,12 +665,12 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
         children: [
           Text(
             l10n.preferencesVersionSectionTitle,
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+            style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
             l10n.preferencesCurrentVersionLabel(_currentVersion ?? '...'),
-            style: const TextStyle(color: Colors.white54, fontSize: 12.5),
+            style: TextStyle(color: _mutedText, fontSize: 12.5),
           ),
           if (result != null) ...[
             const SizedBox(height: 6),
@@ -542,7 +681,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       ? l10n.preferencesUpdateAvailableMessage(result.latestVersion ?? '')
                       : l10n.preferencesUpToDateMessage,
               style: TextStyle(
-                color: result.updateAvailable ? _purple : Colors.white38,
+                color: result.updateAvailable ? _purple : _textFaint,
                 fontSize: 12.5,
               ),
             ),
@@ -555,16 +694,16 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               OutlinedButton.icon(
                 onPressed: _checkingUpdate ? null : _checkForUpdate,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: _borderGrey),
+                  foregroundColor: _textPrimary,
+                  side: BorderSide(color: _borderGrey),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
                 icon: _checkingUpdate
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 14,
                         height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white70),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: _textSecondary),
                       )
                     : const Icon(Icons.refresh, size: 16),
                 label: Text(l10n.preferencesCheckUpdateButton, style: const TextStyle(fontSize: 13)),
@@ -574,7 +713,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   onPressed: () => launchUrl(Uri.parse(result!.releaseUrl!), mode: LaunchMode.externalApplication),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: _purple,
-                    side: const BorderSide(color: _purple),
+                    side: BorderSide(color: _purple),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   ),
@@ -605,33 +744,33 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       decoration: BoxDecoration(
         color: _cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+        border: Border.all(color: _danger.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             l10n.preferencesDangerZoneTitle,
-            style: const TextStyle(color: Colors.redAccent, fontSize: 14, fontWeight: FontWeight.w600),
+            style: TextStyle(color: _danger, fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             l10n.preferencesResetAllDescription,
-            style: const TextStyle(color: Colors.white38, fontSize: 12.5, height: 1.4),
+            style: TextStyle(color: _textFaint, fontSize: 12.5, height: 1.4),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: _resetting ? null : () => _confirmReset(context),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.redAccent,
-              side: const BorderSide(color: Colors.redAccent),
+              foregroundColor: _danger,
+              side: BorderSide(color: _danger),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
             icon: _resetting
-                ? const SizedBox(
+                ? SizedBox(
                     width: 14,
                     height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.redAccent),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: _danger),
                   )
                 : const Icon(Icons.delete_forever_outlined, size: 16),
             label: Text(l10n.preferencesResetAllButton),
@@ -647,19 +786,19 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: _cardBg,
-        title: Text(l10n.preferencesResetAllButton, style: const TextStyle(color: Colors.white)),
+        title: Text(l10n.preferencesResetAllButton, style: TextStyle(color: _textPrimary)),
         content: Text(
           l10n.preferencesResetConfirmContent,
-          style: const TextStyle(color: Colors.white70, height: 1.4),
+          style: TextStyle(color: _textSecondary, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+            child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.commonConfirm, style: const TextStyle(color: Colors.redAccent)),
+            child: Text(l10n.commonConfirm, style: TextStyle(color: _danger)),
           ),
         ],
       ),
@@ -675,29 +814,29 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
           final matches = controller.text.trim() == confirmWord;
           return AlertDialog(
             backgroundColor: _cardBg,
-            title: Text(l10n.preferencesResetAllButton, style: const TextStyle(color: Colors.white)),
+            title: Text(l10n.preferencesResetAllButton, style: TextStyle(color: _textPrimary)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   l10n.preferencesResetTypeToConfirm(confirmWord),
-                  style: const TextStyle(color: Colors.white70, height: 1.4),
+                  style: TextStyle(color: _textSecondary, height: 1.4),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: controller,
                   autofocus: true,
                   onChanged: (_) => setDialogState(() {}),
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: _textPrimary),
                   decoration: InputDecoration(
                     hintText: confirmWord,
-                    hintStyle: const TextStyle(color: Colors.white24),
-                    enabledBorder: const OutlineInputBorder(
+                    hintStyle: TextStyle(color: _textGhost),
+                    enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: _borderGrey),
                     ),
-                    focusedBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.redAccent),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: _danger),
                     ),
                   ),
                 ),
@@ -706,11 +845,11 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: Text(l10n.commonCancel, style: const TextStyle(color: Colors.white54)),
+                child: Text(l10n.commonCancel, style: TextStyle(color: _mutedText)),
               ),
               TextButton(
                 onPressed: matches ? () => Navigator.of(dialogContext).pop(true) : null,
-                child: Text(l10n.preferencesResetAllButton, style: const TextStyle(color: Colors.redAccent)),
+                child: Text(l10n.preferencesResetAllButton, style: TextStyle(color: _danger)),
               ),
             ],
           );

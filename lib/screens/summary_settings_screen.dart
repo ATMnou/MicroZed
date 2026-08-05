@@ -4,6 +4,8 @@ import '../data/ai/summary_settings_store.dart';
 import '../data/db/database.dart';
 import '../data/repositories/ai_preset_repository.dart';
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 마이페이지 > '요약(장기 기억) 설정'. 롤플레이 채팅이 컨텍스트 길이를 넘는 오래된
 /// 대화를 자동 요약하는 기존 기능(ai_chat_service.dart의 `_ensureMemorySummary`)의
@@ -16,6 +18,13 @@ class SummarySettingsScreen extends StatefulWidget {
 }
 
 class _SummarySettingsScreenState extends State<SummarySettingsScreen> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _background => _p.background;
+  Color get _cardBg => _p.surface;
+  Color get _borderGrey => _p.border;
+  Color get _purple => _p.primary;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _textFaint => _p.textFaint;
   final _store = SummarySettingsStore();
   late final AiPresetRepository _presetRepo;
   final _promptController = TextEditingController();
@@ -25,10 +34,6 @@ class _SummarySettingsScreenState extends State<SummarySettingsScreen> {
   bool _loading = true;
   bool _saving = false;
 
-  static const _background = Color(0xFF141414);
-  static const _cardBg = Color(0xFF1E1E1E);
-  static const _borderGrey = Color(0xFF3A3A3A);
-  static const _purple = Color(0xFF7A6FF0);
 
   @override
   void initState() {
@@ -77,22 +82,22 @@ class _SummarySettingsScreenState extends State<SummarySettingsScreen> {
         backgroundColor: _background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new, color: _textPrimary, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           l10n.summarySettingsTitle,
-          style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600),
+          style: TextStyle(color: _textPrimary, fontSize: 17, fontWeight: FontWeight.w600),
         ),
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator(color: _purple))
+          ? Center(child: CircularProgressIndicator(color: _purple))
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 Text(
                   l10n.summarySettingsDescription,
-                  style: const TextStyle(color: Colors.white38, fontSize: 12.5, height: 1.4),
+                  style: TextStyle(color: _textFaint, fontSize: 12.5, height: 1.4),
                 ),
                 const SizedBox(height: 20),
                 SwitchListTile(
@@ -102,39 +107,39 @@ class _SummarySettingsScreenState extends State<SummarySettingsScreen> {
                   onChanged: (v) => setState(() => _enabled = v),
                   title: Text(
                     l10n.summarySettingsEnabledLabel,
-                    style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                    style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   l10n.summarySettingsPromptLabel,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _promptController,
                   maxLines: 5,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: _textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: l10n.summarySettingsPromptHint,
-                    hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
+                    hintStyle: TextStyle(color: _textFaint, fontSize: 13),
                     filled: true,
                     fillColor: _cardBg,
                     contentPadding: const EdgeInsets.all(12),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _borderGrey),
+                      borderSide: BorderSide(color: _borderGrey),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: _purple),
+                      borderSide: BorderSide(color: _purple),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   l10n.summarySettingsPresetLabel,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 StreamBuilder<List<AiPreset>>(
@@ -153,7 +158,7 @@ class _SummarySettingsScreenState extends State<SummarySettingsScreen> {
                           isExpanded: true,
                           value: _presetId,
                           dropdownColor: _cardBg,
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          style: TextStyle(color: _textPrimary, fontSize: 14),
                           items: [
                             DropdownMenuItem<int?>(
                               value: null,
@@ -181,7 +186,7 @@ class _SummarySettingsScreenState extends State<SummarySettingsScreen> {
               onPressed: _loading || _saving ? null : _save,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _purple,
-                foregroundColor: Colors.white,
+                foregroundColor: _textPrimary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(

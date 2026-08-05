@@ -518,6 +518,168 @@ abstract class AppLocalizations {
   /// **'시스템 자동'**
   String get preferencesThemeSystemOption;
 
+  /// No description provided for @paletteAddButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 추가'**
+  String get paletteAddButton;
+
+  /// No description provided for @paletteDeleteConfirmTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 삭제'**
+  String get paletteDeleteConfirmTitle;
+
+  /// No description provided for @paletteDeleteConfirmContent.
+  ///
+  /// In ko, this message translates to:
+  /// **'\'{name}\' 프리셋을 삭제할까요? 이 작업은 되돌릴 수 없어요.'**
+  String paletteDeleteConfirmContent(String name);
+
+  /// No description provided for @paletteEditNewTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 추가'**
+  String get paletteEditNewTitle;
+
+  /// No description provided for @paletteEditEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 편집'**
+  String get paletteEditEditTitle;
+
+  /// No description provided for @paletteEditNameEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 이름을 입력해주세요.'**
+  String get paletteEditNameEmptyMessage;
+
+  /// No description provided for @paletteEditPreviewLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리보기'**
+  String get paletteEditPreviewLabel;
+
+  /// No description provided for @paletteEditNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 이름'**
+  String get paletteEditNameLabel;
+
+  /// No description provided for @paletteEditColorsLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'색상'**
+  String get paletteEditColorsLabel;
+
+  /// No description provided for @paletteEditBrightnessLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'밝기'**
+  String get paletteEditBrightnessLabel;
+
+  /// No description provided for @paletteEditBrightnessDark.
+  ///
+  /// In ko, this message translates to:
+  /// **'다크'**
+  String get paletteEditBrightnessDark;
+
+  /// No description provided for @paletteEditBrightnessLight.
+  ///
+  /// In ko, this message translates to:
+  /// **'라이트'**
+  String get paletteEditBrightnessLight;
+
+  /// No description provided for @paletteSlotBackground.
+  ///
+  /// In ko, this message translates to:
+  /// **'배경'**
+  String get paletteSlotBackground;
+
+  /// No description provided for @paletteSlotSurface.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드/표면'**
+  String get paletteSlotSurface;
+
+  /// No description provided for @paletteSlotSurfaceAlt.
+  ///
+  /// In ko, this message translates to:
+  /// **'보조 표면(입력창 등)'**
+  String get paletteSlotSurfaceAlt;
+
+  /// No description provided for @paletteSlotBorder.
+  ///
+  /// In ko, this message translates to:
+  /// **'테두리'**
+  String get paletteSlotBorder;
+
+  /// No description provided for @paletteSlotPrimary.
+  ///
+  /// In ko, this message translates to:
+  /// **'포인트 색상'**
+  String get paletteSlotPrimary;
+
+  /// No description provided for @paletteSlotOnPrimary.
+  ///
+  /// In ko, this message translates to:
+  /// **'포인트 위 텍스트'**
+  String get paletteSlotOnPrimary;
+
+  /// No description provided for @paletteSlotTextPrimary.
+  ///
+  /// In ko, this message translates to:
+  /// **'본문 텍스트'**
+  String get paletteSlotTextPrimary;
+
+  /// No description provided for @paletteSlotTextSecondary.
+  ///
+  /// In ko, this message translates to:
+  /// **'보조 텍스트'**
+  String get paletteSlotTextSecondary;
+
+  /// No description provided for @paletteSlotTextMuted.
+  ///
+  /// In ko, this message translates to:
+  /// **'흐린 텍스트'**
+  String get paletteSlotTextMuted;
+
+  /// No description provided for @paletteSlotTextFaint.
+  ///
+  /// In ko, this message translates to:
+  /// **'더 흐린 텍스트'**
+  String get paletteSlotTextFaint;
+
+  /// No description provided for @paletteSlotTextGhost.
+  ///
+  /// In ko, this message translates to:
+  /// **'가장 흐린 텍스트'**
+  String get paletteSlotTextGhost;
+
+  /// No description provided for @colorPickerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'색상 선택'**
+  String get colorPickerTitle;
+
+  /// No description provided for @colorPickerHexLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'헥스코드'**
+  String get colorPickerHexLabel;
+
+  /// No description provided for @colorPickerAlphaLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'투명도'**
+  String get colorPickerAlphaLabel;
+
+  /// No description provided for @colorPickerQuickPicksLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'빠른 선택'**
+  String get colorPickerQuickPicksLabel;
+
   /// No description provided for @preferencesVersionSectionTitle.
   ///
   /// In ko, this message translates to:
@@ -1280,6 +1442,12 @@ abstract class AppLocalizations {
   /// **'플롯을 먼저 저장하면 인트로를 작성할 수 있어요.\n프롬프트 탭에서 제목/캐릭터를 입력하고 상단의 저장 버튼을 눌러주세요.'**
   String get plotEditIntroSavePlotFirst;
 
+  /// No description provided for @plotEditIntroAiGenerateButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI로 생성'**
+  String get plotEditIntroAiGenerateButton;
+
   /// No description provided for @plotEditIntroFirstSceneTitle.
   ///
   /// In ko, this message translates to:
@@ -1531,6 +1699,54 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'직접 발급받은 API 키를 입력해주세요'**
   String get aiPresetApiKeyHint;
+
+  /// No description provided for @aiPresetApiKeyGuideButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'키 발급 안내'**
+  String get aiPresetApiKeyGuideButton;
+
+  /// No description provided for @apiKeyGuideDialogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'API 키 발급 안내'**
+  String get apiKeyGuideDialogTitle;
+
+  /// No description provided for @apiKeyGuideOpenButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'바로가기'**
+  String get apiKeyGuideOpenButton;
+
+  /// No description provided for @apiKeyGuideOpenRouterDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'다양한 모델을 하나의 API 키로 쓸 수 있는 라우터 서비스예요.'**
+  String get apiKeyGuideOpenRouterDescription;
+
+  /// No description provided for @apiKeyGuideFeatherlessDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'오픈소스 모델을 정액제로 무제한에 가깝게 쓸 수 있는 서비스예요.'**
+  String get apiKeyGuideFeatherlessDescription;
+
+  /// No description provided for @apiKeyGuideFeatherlessReferralNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 링크로 가입하면 첫 달 10달러 할인 혜택을 받아요.'**
+  String get apiKeyGuideFeatherlessReferralNote;
+
+  /// No description provided for @apiKeyGuideAtlasCloudDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'여러 모델을 종량제로 제공하는 서비스예요.'**
+  String get apiKeyGuideAtlasCloudDescription;
+
+  /// No description provided for @apiKeyGuideAtlasCloudReferralNote.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 링크로 가입하면 5달러를 추가로 충전해줘요.'**
+  String get apiKeyGuideAtlasCloudReferralNote;
 
   /// No description provided for @aiPresetAdvancedSettingsTitle.
   ///

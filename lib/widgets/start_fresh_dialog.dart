@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../data/theme/color_palette.dart';
+import '../data/theme/palette_scope.dart';
 
 /// 채팅 화면 드로어의 '새로하기'를 눌렀을 때 뜨는 확인 다이얼로그.
 /// 결과: null이면 취소, true/false면 확인 + '현재 대화 저장하기' 체크 여부.
@@ -16,15 +18,21 @@ class StartFreshDialog extends StatefulWidget {
 }
 
 class _StartFreshDialogState extends State<StartFreshDialog> {
+  ColorPalette get _p => PaletteScope.of(context);
+  Color get _purple => _p.primary;
+  Color get _cardBg => _p.surface;
+  Color get _textPrimary => _p.textPrimary;
+  Color get _mutedText => _p.textMuted;
+  Color get _textSecondary => _p.textSecondary;
+  Color get _borderGrey => _p.border;
   bool _saveCurrent = true;
 
-  static const _purple = Color(0xFF7A6FF0);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Dialog(
-      backgroundColor: const Color(0xFF1E1E1E),
+      backgroundColor: _cardBg,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
@@ -33,13 +41,13 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
           children: [
             Text(
               l10n.startFreshDialogTitle,
-              style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+              style: TextStyle(color: _textPrimary, fontSize: 17, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Text(
               l10n.startFreshDialogDescription,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white54, fontSize: 13, height: 1.4),
+              style: TextStyle(color: _mutedText, fontSize: 13, height: 1.4),
             ),
             const SizedBox(height: 16),
             InkWell(
@@ -52,7 +60,7 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
                     activeColor: _purple,
                     onChanged: (v) => setState(() => _saveCurrent = v ?? true),
                   ),
-                  Text(l10n.startFreshDialogSaveCheckbox, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                  Text(l10n.startFreshDialogSaveCheckbox, style: TextStyle(color: _textSecondary, fontSize: 13)),
                 ],
               ),
             ),
@@ -63,8 +71,8 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white70,
-                      side: const BorderSide(color: Color(0xFF3A3A3A)),
+                      foregroundColor: _textSecondary,
+                      side: BorderSide(color: _borderGrey),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
@@ -77,7 +85,7 @@ class _StartFreshDialogState extends State<StartFreshDialog> {
                     onPressed: () => Navigator.of(context).pop(_saveCurrent),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _purple,
-                      foregroundColor: Colors.white,
+                      foregroundColor: _textPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),

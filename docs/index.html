@@ -1,286 +1,279 @@
 <!doctype html>
 <html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MicroZed — Compact & Strong LLM Frontend for Power Users</title>
-<meta name="description" content="MicroZed는 BYOK(Bring Your Own Key) 방식의 캐릭터 채팅 앱입니다. 모든 데이터는 기기에만 저장되고, 오프라인 로컬 LLM도 지원합니다. Windows와 Android에서 사용할 수 있습니다.">
-<meta property="og:title" content="MicroZed — Compact & Strong LLM Frontend for Power Users">
-<meta property="og:description" content="내 API 키, 내 데이터, 내 기기. 서버 없는 로컬 우선 캐릭터 채팅 앱.">
-<meta property="og:type" content="website">
-<meta property="og:image" content="./assets/img/showcase.png">
-<link rel="icon" href="./assets/img/favicon.png">
-<link rel="apple-touch-icon" href="./assets/img/icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./assets/css/style.css">
-</head>
-<body>
-
-<header class="nav">
-  <div class="wrap">
-    <a href="#top" class="brand">
-      <img src="./assets/img/icon-192.png" alt="">
-      MicroZed
-    </a>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="#features">기능</a></li>
-        <li><a href="#byok">왜 BYOK인가</a></li>
-        <li><a href="#screenshots">스크린샷</a></li>
-        <li><a href="#download">다운로드</a></li>
-        <li><a href="#privacy">개인정보</a></li>
-      </ul>
-    </nav>
-    <div class="nav-cta">
-      <a class="btn btn-ghost btn-sm" href="https://github.com/ATMnou/MicroZed" target="_blank" rel="noopener">GitHub</a>
-      <a class="btn btn-primary btn-sm" href="#download">다운로드</a>
-    </div>
-    <button class="nav-toggle" aria-label="메뉴" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
-  </div>
-</header>
-
-<main id="top">
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="wrap">
-      <div class="hero-copy">
-        <span class="eyebrow">서버 없음 · 100% 로컬 저장</span>
-        <h1>당신의 키로,<br>당신의 <span class="accent">캐릭터</span>와<br>대화하세요.</h1>
-        <p class="lead">
-          MicroZed는 BYOK(Bring Your Own Key) 방식의 캐릭터 채팅 앱입니다.
-          플롯 · 캐릭터 · 대화 · 로어북 · API 키까지, 모든 데이터가 오직 내 기기에만 저장되고
-          어떤 서버로도 전송되지 않습니다. Windows 데스크톱과 Android를 지원합니다.
-        </p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="https://github.com/ATMnou/MicroZed" target="_blank" rel="noopener">GitHub에서 보기</a>
-          <a class="btn btn-ghost" href="https://m.onestore.co.kr/v2/ko-kr/app/0001007910" target="_blank" rel="noopener">OneStore에서 받기</a>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MicroZed — Compact & Strong LLM Frontend for Power Users</title>
+    <meta name="description" content="MicroZed는 BYOK(Bring Your Own Key) 방식의 캐릭터 채팅 앱입니다. 모든 데이터는 기기에만 저장되고, 오프라인 로컬 LLM도 지원합니다. Windows와 Android에서 사용할 수 있습니다." />
+    <meta property="og:title" content="MicroZed — Compact & Strong LLM Frontend for Power Users" />
+    <meta property="og:description" content="내 API 키, 내 데이터, 내 기기. 서버 없는 로컬 우선 캐릭터 채팅 앱." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="./assets/img/showcase.png" />
+    <link rel="icon" href="./assets/img/favicon.png" />
+    <link rel="apple-touch-icon" href="./assets/img/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap">
+        <a href="#top" class="brand">
+          <img src="./assets/img/icon-192.png" alt="" />
+          MicroZed
+        </a>
+        <nav>
+          <ul class="nav-links">
+            <li><a href="#features">기능</a></li>
+            <li><a href="#byok">왜 BYOK인가</a></li>
+            <li><a href="#screenshots">스크린샷</a></li>
+            <li><a href="#download">다운로드</a></li>
+            <li><a href="#privacy">개인정보</a></li>
+          </ul>
+        </nav>
+        <div class="nav-cta">
+          <a class="btn btn-ghost btn-sm" href="https://github.com/ATMnou/MicroZed" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn btn-primary btn-sm" href="#download">다운로드</a>
         </div>
-        <div class="badges">
-          <span class="pill">windows</span>
-          <span class="pill">android</span>
-          <span class="pill">byok</span>
-          <span class="pill">offline-llm</span>
-          <span class="pill">sillytavern-compatible</span>
-          <span class="pill">bsd-3-clause</span>
-        </div>
+        <button class="nav-toggle" aria-label="메뉴" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
       </div>
-      <div class="hero-visual">
-        <div class="phone-frame">
-          <div class="shot" style="background-position-x: 25%;"></div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- PILLARS -->
-  <section class="pillars-section">
-    <div class="wrap">
-      <div class="pillars">
-        <div class="pillar">
-          <span class="flag">--byok</span>
-          <h3>Bring Your Own Key</h3>
-          <p>OpenAI, OpenRouter, Anthropic 호환 게이트웨이 등 원하는 API 키를 직접 등록해서 사용합니다. 중간에 앱이 마진을 붙이지 않습니다.</p>
+    <main id="top">
+      <!-- HERO -->
+      <section class="hero">
+        <div class="wrap">
+          <div class="hero-copy">
+            <span class="eyebrow">서버 없음 · 100% 로컬 저장</span>
+            <h1>당신의 키로,<br />당신의 <span class="accent">캐릭터</span>와<br />대화하세요.</h1>
+            <p class="lead">
+              MicroZed는 BYOK(Bring Your Own Key) 방식의 캐릭터 채팅 앱입니다. 플롯 · 캐릭터 · 대화 · 로어북 · API 키까지, 모든 데이터가 오직 내 기기에만 저장되고 어떤 서버로도 전송되지 않습니다. Windows 데스크톱과 Android를 지원합니다.
+            </p>
+            <div class="cta-row">
+              <a class="btn btn-primary" href="https://github.com/ATMnou/MicroZed" target="_blank" rel="noopener">GitHub에서 보기</a>
+              <a class="btn btn-ghost" href="https://m.onestore.co.kr/v2/ko-kr/app/0001007910" target="_blank" rel="noopener">OneStore에서 받기</a>
+            </div>
+            <div class="badges">
+              <span class="pill">windows</span>
+              <span class="pill">android</span>
+              <span class="pill">byok</span>
+              <span class="pill">offline-llm</span>
+              <span class="pill">sillytavern-compatible</span>
+              <span class="pill">bsd-3-clause</span>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <div class="phone-frame">
+              <div class="shot" style="background-position-x: 25%"></div>
+            </div>
+          </div>
         </div>
-        <div class="pillar">
-          <span class="flag">--local-only</span>
-          <h3>완전한 로컬 저장</h3>
-          <p>플롯, 캐릭터, 대화 기록, 로어북, API 키 — 모든 데이터가 SQLite로 기기에만 저장됩니다. 운영 서버 자체가 존재하지 않습니다.</p>
-        </div>
-        <div class="pillar">
-          <span class="flag">--offline</span>
-          <h3>완전 오프라인도 가능</h3>
-          <p>llama.cpp 기반 온디바이스 로컬 LLM을 한 번 받아두면, 인터넷 없이도 완전히 기기 안에서만 대화가 이루어집니다.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- WHY BYOK -->
-  <section id="byok" class="alt">
-    <div class="wrap">
-      <div class="byok">
-        <div class="byok-copy">
-          <span class="eyebrow">차라리 광고 보는게 더 낫지 않냐고요?</span>
-          <h2>더 강한 모델을,<br>더 싼 값에.</h2>
-          <p>
-            광고 기반 앱은 대개 자체 저비용 모델을 돌리고 광고 수익으로 비용을 회수합니다.
-            반면 BYOK는 DeepSeek V3.2 같은 최신 고성능 모델을 직접 골라 쓸 수 있고,
-            실제 토큰 사용량만큼만 지불합니다.
+      <!-- PILLARS -->
+      <section class="pillars-section">
+        <div class="wrap">
+          <div class="pillars">
+            <div class="pillar">
+              <span class="flag">--byok</span>
+              <h3>Bring Your Own Key</h3>
+              <p>OpenAI, OpenRouter, Anthropic 호환 게이트웨이 등 원하는 API 키를 직접 등록해서 사용합니다. 중간에 앱이 마진을 붙이지 않습니다.</p>
+            </div>
+            <div class="pillar">
+              <span class="flag">--local-only</span>
+              <h3>완전한 로컬 저장</h3>
+              <p>플롯, 캐릭터, 대화 기록, 로어북, API 키 — 모든 데이터가 SQLite로 기기에만 저장됩니다. 운영 서버 자체가 존재하지 않습니다.</p>
+            </div>
+            <div class="pillar">
+              <span class="flag">--offline</span>
+              <h3>완전 오프라인도 가능</h3>
+              <p>llama.cpp 기반 온디바이스 로컬 LLM을 한 번 받아두면, 인터넷 없이도 완전히 기기 안에서만 대화가 이루어집니다.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- WHY BYOK -->
+      <section id="byok" class="alt">
+        <div class="wrap">
+          <div class="byok">
+            <div class="byok-copy">
+              <span class="eyebrow">차라리 광고 보는게 더 낫지 않냐고요?</span>
+              <h2>더 강한 모델을,<br />더 싼 값에.</h2>
+              <p>광고 기반 앱은 대개 자체 저비용 모델을 돌리고 광고 수익으로 비용을 회수합니다. 반면 BYOK는 DeepSeek V3.2 같은 최신 고성능 모델을 직접 골라 쓸 수 있고, 실제 토큰 사용량만큼만 지불합니다.</p>
+              <p class="verdict">아닙니다.</p>
+            </div>
+            <div class="byok-chart">
+              <img src="./assets/img/facts.png" alt="Deepseek V3.2와 광고 기반 자체 모델의 MMLU-Pro, Humanity's Last Exam, 대화 1회당 비용 비교 그래프. Deepseek V3.2가 세 항목 모두에서 우세합니다." />
+            </div>
+          </div>
+          <p class="fine-print">
+            * Deepseek V3.2 기준은 SiliconFlow, 2,347 / 265 토큰 기준 · 비교 대상 모델의 비용은 무료지만 6회당 광고 1회 노출을 감안하여 광고 수익 기준으로 환산 · 본 비교 그래프는 참고용이며 상업용 플랫폼은 인건비 등으로 원가율이 다를 수
+            있습니다.
           </p>
-          <p class="verdict">아닙니다.</p>
         </div>
-        <div class="byok-chart">
-          <img src="./assets/img/facts.png" alt="Deepseek V3.2와 광고 기반 자체 모델의 MMLU-Pro, Humanity's Last Exam, 대화 1회당 비용 비교 그래프. Deepseek V3.2가 세 항목 모두에서 우세합니다.">
-        </div>
-      </div>
-      <p class="fine-print">
-        * Deepseek V3.2 기준은 SiliconFlow, 2,347 / 265 토큰 기준 · 비교 대상 모델의 비용은 무료지만 6회당 광고 1회 노출을 감안하여 광고 수익 기준으로 환산 · 본 비교 그래프는 참고용이며 상업용 플랫폼은 인건비 등으로 원가율이 다를 수 있습니다.
-      </p>
-    </div>
-  </section>
+      </section>
 
-  <!-- FEATURES -->
-  <section id="features">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">features</span>
-        <h2>파워 유저를 위한 기능들</h2>
-        <p>캐릭터 카드 제작부터 로어북, 오프라인 모델, 백업까지 — 캐릭터 채팅에 필요한 도구를 한 앱에 담았습니다.</p>
-      </div>
-      <div class="features">
-        <div class="feature-card">
-          <span class="flag">--plot</span>
-          <h3>플롯 &amp; 캐릭터 제작</h3>
-          <p>여러 캐릭터가 참여하는 플롯을 만들고, 인트로(첫 상황)를 여러 버전으로 작성할 수 있습니다.</p>
+      <!-- FEATURES -->
+      <section id="features">
+        <div class="wrap">
+          <div class="section-head">
+            <span class="eyebrow">features</span>
+            <h2>파워 유저를 위한 기능들</h2>
+            <p>캐릭터 카드 제작부터 로어북, 오프라인 모델, 백업까지 — 캐릭터 채팅에 필요한 도구를 한 앱에 담았습니다.</p>
+          </div>
+          <div class="features">
+            <div class="feature-card">
+              <span class="flag">--plot</span>
+              <h3>플롯 &amp; 캐릭터 제작</h3>
+              <p>여러 캐릭터가 참여하는 플롯을 만들고, 인트로(첫 상황)를 여러 버전으로 작성할 수 있습니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--persona</span>
+              <h3>플롯 전용 대화 프로필</h3>
+              <p>플롯마다 전용 유저 페르소나를 개수 제한 없이 만들고, 새 채팅 시작 시 스와이프 카드로 선택합니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--lorebook</span>
+              <h3>로어북 (세계관 설정)</h3>
+              <p>키워드가 언급되면 자동으로 AI에게 전달되는 세계관 정보. SillyTavern World Info / JanitorAI 스크립트 가져오기·내보내기 지원.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--zedtalk</span>
+              <h3>ZedTalk 메신저 채팅</h3>
+              <p>카카오톡처럼 캐릭터 한 명과 짧고 일상적인 톤으로 주고받는 1:1 채팅 모드. 날짜 구분선과 실시간 시각이 AI 컨텍스트에 반영됩니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--stream</span>
+              <h3>실시간 스트리밍 채팅</h3>
+              <p>재시도·AI 수정·직접 수정, 답변 버전 넘기기, 번개 버튼으로 다음 답변 후보 3개 추천, 4단계 Reasoning Effort까지.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--local-llm</span>
+              <h3>오프라인 로컬 LLM</h3>
+              <p>llama.cpp 기반으로 Huihui Gemma 4 / Qwen3.5 등 추천 모델을 원탭 다운로드하거나 직접 GGUF 파일을 가져와 완전 오프라인으로 사용합니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--snapshot</span>
+              <h3>스냅샷 (장면 이미지 생성)</h3>
+              <p>지금까지의 대화를 AI가 한 문단으로 요약하고, OpenRouter 또는 AtlasCloud로 장면 이미지를 생성해 채팅에 삽입합니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--memory</span>
+              <h3>장기 기억 (자동 요약)</h3>
+              <p>컨텍스트 길이를 넘는 오래된 대화를 자동 요약해 시스템 프롬프트에 얹습니다. 요약 프롬프트와 전용 프리셋도 직접 설정 가능합니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--preset</span>
+              <h3>세밀한 AI 프리셋 관리</h3>
+              <p>Base URL, 모델명, Temperature, Top K, Max Tokens, Context Length, 추가 시스템 프롬프트까지 프리셋 단위로 관리합니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--import</span>
+              <h3>SillyTavern 호환</h3>
+              <p>SillyTavern 캐릭터 카드를 그대로 가져오고 내보낼 수 있습니다. 새 플롯으로 만들거나 기존 플롯에 병합할지 선택 가능합니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--backup</span>
+              <h3>백업 &amp; 전용 내보내기</h3>
+              <p>플롯 전용 형식(.mzplot)과 전체 데이터 백업(.mzbackup)으로 손실 없이 내보내고 복원할 수 있습니다.</p>
+            </div>
+            <div class="feature-card">
+              <span class="flag">--i18n</span>
+              <h3>다국어 &amp; 테마</h3>
+              <p>한국어·영어·일본어를 기본 지원하고, 다크/AMOLED 테마를 제공합니다. 더 많은 언어는 Pull Request로 추가할 수 있습니다.</p>
+            </div>
+          </div>
         </div>
-        <div class="feature-card">
-          <span class="flag">--persona</span>
-          <h3>플롯 전용 대화 프로필</h3>
-          <p>플롯마다 전용 유저 페르소나를 개수 제한 없이 만들고, 새 채팅 시작 시 스와이프 카드로 선택합니다.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--lorebook</span>
-          <h3>로어북 (세계관 설정)</h3>
-          <p>키워드가 언급되면 자동으로 AI에게 전달되는 세계관 정보. SillyTavern World Info / JanitorAI 스크립트 가져오기·내보내기 지원.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--zedtalk</span>
-          <h3>ZedTalk 메신저 채팅</h3>
-          <p>카카오톡처럼 캐릭터 한 명과 짧고 일상적인 톤으로 주고받는 1:1 채팅 모드. 날짜 구분선과 실시간 시각이 AI 컨텍스트에 반영됩니다.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--stream</span>
-          <h3>실시간 스트리밍 채팅</h3>
-          <p>재시도·AI 수정·직접 수정, 답변 버전 넘기기, 번개 버튼으로 다음 답변 후보 3개 추천, 4단계 Reasoning Effort까지.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--local-llm</span>
-          <h3>오프라인 로컬 LLM</h3>
-          <p>llama.cpp 기반으로 Huihui Gemma 4 / Qwen3.5 등 추천 모델을 원탭 다운로드하거나 직접 GGUF 파일을 가져와 완전 오프라인으로 사용합니다.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--snapshot</span>
-          <h3>스냅샷 (장면 이미지 생성)</h3>
-          <p>지금까지의 대화를 AI가 한 문단으로 요약하고, OpenRouter 또는 AtlasCloud로 장면 이미지를 생성해 채팅에 삽입합니다.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--memory</span>
-          <h3>장기 기억 (자동 요약)</h3>
-          <p>컨텍스트 길이를 넘는 오래된 대화를 자동 요약해 시스템 프롬프트에 얹습니다. 요약 프롬프트와 전용 프리셋도 직접 설정 가능합니다.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--preset</span>
-          <h3>세밀한 AI 프리셋 관리</h3>
-          <p>Base URL, 모델명, Temperature, Top K, Max Tokens, Context Length, 추가 시스템 프롬프트까지 프리셋 단위로 관리합니다.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--import</span>
-          <h3>SillyTavern 호환</h3>
-          <p>SillyTavern 캐릭터 카드를 그대로 가져오고 내보낼 수 있습니다. 새 플롯으로 만들거나 기존 플롯에 병합할지 선택 가능합니다.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--backup</span>
-          <h3>백업 &amp; 전용 내보내기</h3>
-          <p>플롯 전용 형식(.mzplot)과 전체 데이터 백업(.mzbackup)으로 손실 없이 내보내고 복원할 수 있습니다.</p>
-        </div>
-        <div class="feature-card">
-          <span class="flag">--i18n</span>
-          <h3>다국어 &amp; 테마</h3>
-          <p>한국어·영어·일본어를 기본 지원하고, 다크/AMOLED 테마를 제공합니다. 더 많은 언어는 Pull Request로 추가할 수 있습니다.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- SCREENSHOTS -->
-  <section id="screenshots" class="alt">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">screenshots</span>
-        <h2>앱 둘러보기</h2>
-        <p>홈부터 채팅, 플롯 편집, 대화 프로필, AI 프리셋까지.</p>
-      </div>
-      <div class="shots">
-        <div class="shot-item">
-          <div class="phone-frame"><div class="shot" style="background-position-x: 0%;"></div></div>
-          <div class="caption"><b>홈</b>내 플롯 목록</div>
+      <!-- SCREENSHOTS -->
+      <section id="screenshots" class="alt">
+        <div class="wrap">
+          <div class="section-head">
+            <span class="eyebrow">screenshots</span>
+            <h2>앱 둘러보기</h2>
+            <p>홈부터 채팅, 플롯 편집, 대화 프로필, AI 프리셋까지.</p>
+          </div>
+          <div class="shots">
+            <div class="shot-item">
+              <div class="phone-frame"><div class="shot" style="background-position-x: 0%"></div></div>
+              <div class="caption"><b>홈</b>내 플롯 목록</div>
+            </div>
+            <div class="shot-item">
+              <div class="phone-frame"><div class="shot" style="background-position-x: 25%"></div></div>
+              <div class="caption"><b>채팅</b>실시간 스트리밍 대화</div>
+            </div>
+            <div class="shot-item">
+              <div class="phone-frame"><div class="shot" style="background-position-x: 50%"></div></div>
+              <div class="caption"><b>플롯 편집</b>캐릭터 &amp; 로어북</div>
+            </div>
+            <div class="shot-item">
+              <div class="phone-frame"><div class="shot" style="background-position-x: 75%"></div></div>
+              <div class="caption"><b>대화 프로필</b>내 페르소나</div>
+            </div>
+            <div class="shot-item">
+              <div class="phone-frame"><div class="shot" style="background-position-x: 100%"></div></div>
+              <div class="caption"><b>AI 프리셋</b>모델 &amp; 파라미터</div>
+            </div>
+          </div>
         </div>
-        <div class="shot-item">
-          <div class="phone-frame"><div class="shot" style="background-position-x: 25%;"></div></div>
-          <div class="caption"><b>채팅</b>실시간 스트리밍 대화</div>
-        </div>
-        <div class="shot-item">
-          <div class="phone-frame"><div class="shot" style="background-position-x: 50%;"></div></div>
-          <div class="caption"><b>플롯 편집</b>캐릭터 &amp; 로어북</div>
-        </div>
-        <div class="shot-item">
-          <div class="phone-frame"><div class="shot" style="background-position-x: 75%;"></div></div>
-          <div class="caption"><b>대화 프로필</b>내 페르소나</div>
-        </div>
-        <div class="shot-item">
-          <div class="phone-frame"><div class="shot" style="background-position-x: 100%;"></div></div>
-          <div class="caption"><b>AI 프리셋</b>모델 &amp; 파라미터</div>
-        </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- PLATFORMS -->
-  <section id="platforms">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">platforms</span>
-        <h2>Flutter로 만든 크로스플랫폼 앱</h2>
-        <p>개발과 테스트는 Windows 데스크톱과 Android를 기준으로 진행됩니다.</p>
-      </div>
-      <div class="platforms">
-        <div class="platform-card">
-          <div class="tag">WIN</div>
-          <h4>Windows</h4>
-          <span>데스크톱 · 지원</span>
+      <!-- PLATFORMS -->
+      <section id="platforms">
+        <div class="wrap">
+          <div class="section-head">
+            <span class="eyebrow">platforms</span>
+            <h2>Flutter로 만든 크로스플랫폼 앱</h2>
+            <p>개발과 테스트는 Windows 데스크톱과 Android를 기준으로 진행됩니다.</p>
+          </div>
+          <div class="platforms">
+            <div class="platform-card">
+              <div class="tag">WIN</div>
+              <h4>Windows</h4>
+              <span>데스크톱 · 지원</span>
+            </div>
+            <div class="platform-card">
+              <div class="tag">AND</div>
+              <h4>Android</h4>
+              <span>모바일 · 지원</span>
+            </div>
+            <div class="platform-card dim">
+              <div class="tag">MAC/iOS</div>
+              <h4>macOS / iOS</h4>
+              <span>실험적 (Flutter 빌드 가능)</span>
+            </div>
+            <div class="platform-card dim">
+              <div class="tag">LINUX/WEB</div>
+              <h4>Linux / Web</h4>
+              <span>실험적 (Flutter 빌드 가능)</span>
+            </div>
+          </div>
         </div>
-        <div class="platform-card">
-          <div class="tag">AND</div>
-          <h4>Android</h4>
-          <span>모바일 · 지원</span>
-        </div>
-        <div class="platform-card dim">
-          <div class="tag">MAC/iOS</div>
-          <h4>macOS / iOS</h4>
-          <span>실험적 (Flutter 빌드 가능)</span>
-        </div>
-        <div class="platform-card dim">
-          <div class="tag">LINUX/WEB</div>
-          <h4>Linux / Web</h4>
-          <span>실험적 (Flutter 빌드 가능)</span>
-        </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- DOWNLOAD -->
-  <section id="download" class="alt">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">download</span>
-        <h2>시작하기</h2>
-        <p>OneStore에서 바로 받거나, 소스를 직접 빌드해서 사용할 수 있습니다.</p>
-      </div>
-      <div class="download-panel">
-        <div class="download-card">
-          <span class="flag">--install</span>
-          <h3>지금 바로 사용하기</h3>
-          <p>OneStore(Android)에서 MicroZed를 설치하세요. 사용을 시작하려면 OpenAI 호환 API 키가 필요합니다.</p>
-          <a class="btn btn-primary" href="https://m.onestore.co.kr/v2/ko-kr/app/0001007910" target="_blank" rel="noopener">OneStore에서 다운로드</a>
-        </div>
-        <div class="download-card">
-          <span class="flag">--build-from-source</span>
-          <h3>소스에서 직접 빌드하기</h3>
-          <p>Flutter SDK(stable)와, Windows라면 Visual Studio 2022(C++ 워크로드)가 필요합니다.</p>
-          <pre class="code"><span class="cmt"># 1. 의존성 설치</span>
+      <!-- DOWNLOAD -->
+      <section id="download" class="alt">
+        <div class="wrap">
+          <div class="section-head">
+            <span class="eyebrow">download</span>
+            <h2>시작하기</h2>
+            <p>OneStore에서 바로 받거나, 소스를 직접 빌드해서 사용할 수 있습니다.</p>
+          </div>
+          <div class="download-panel">
+            <div class="download-card">
+              <span class="flag">--install</span>
+              <h3>지금 바로 사용하기</h3>
+              <p>OneStore(Android)에서 MicroZed를 설치하세요. 사용을 시작하려면 OpenAI 호환 API 키가 필요합니다.</p>
+              <a class="btn btn-primary" href="https://m.onestore.co.kr/v2/ko-kr/app/0001007910" target="_blank" rel="noopener">OneStore에서 다운로드</a>
+            </div>
+            <div class="download-card">
+              <span class="flag">--build-from-source</span>
+              <h3>소스에서 직접 빌드하기</h3>
+              <p>Flutter SDK(stable)와, Windows라면 Visual Studio 2022(C++ 워크로드)가 필요합니다.</p>
+              <pre class="code"><span class="cmt"># 1. 의존성 설치</span>
 <span class="cmd">flutter pub get</span>
 
 <span class="cmt"># 2. 코드 생성 (Drift DB 등)</span>
@@ -288,50 +281,46 @@
 
 <span class="cmt"># 3. 실행 (Windows 데스크톱)</span>
 <span class="cmd">flutter run -d windows</span></pre>
-          <a class="btn btn-ghost" href="https://github.com/ATMnou/MicroZed" target="_blank" rel="noopener">GitHub 저장소 보기</a>
+              <a class="btn btn-ghost" href="https://github.com/ATMnou/MicroZed" target="_blank" rel="noopener">GitHub 저장소 보기</a>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- PRIVACY -->
-  <section id="privacy">
-    <div class="wrap">
-      <div class="privacy-box">
-        <div>
-          <span class="flag">--privacy</span>
-          <h3>개인정보, 원칙은 간단합니다</h3>
-          <ul>
-            <li>운영 서버가 없어 개발자는 어떤 사용자 데이터도 수집·열람할 수 없습니다.</li>
-            <li>모든 데이터는 기기에만 저장됩니다.</li>
-            <li>원격 AI 모델을 쓰면 대화 내용이 사용자가 선택한 제3자 API로 전송됩니다 — 로컬 LLM을 쓰면 그마저도 없습니다.</li>
-            <li>광고, 추적, 분석 SDK가 전혀 없습니다.</li>
-          </ul>
+      <!-- PRIVACY -->
+      <section id="privacy">
+        <div class="wrap">
+          <div class="privacy-box">
+            <div>
+              <span class="flag">--privacy</span>
+              <h3>개인정보, 원칙은 간단합니다</h3>
+              <ul>
+                <li>운영 서버가 없어 개발자는 어떤 사용자 데이터도 수집·열람할 수 없습니다.</li>
+                <li>모든 데이터는 기기에만 저장됩니다.</li>
+                <li>원격 AI 모델을 쓰면 대화 내용이 사용자가 선택한 제3자 API로 전송됩니다 — 로컬 LLM을 쓰면 그마저도 없습니다.</li>
+                <li>광고, 추적, 분석 SDK가 전혀 없습니다.</li>
+              </ul>
+            </div>
+            <a class="btn btn-ghost" href="./privacy.html">전문 보기 →</a>
+          </div>
         </div>
-        <a class="btn btn-ghost" href="./privacy.html">전문 보기 →</a>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <a href="#top" class="foot-brand">
+          <img src="./assets/img/icon-192.png" alt="" />
+          MicroZed
+        </a>
+        <ul class="foot-links">
+          <li><a href="https://github.com/ATMnou/MicroZed" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://m.onestore.co.kr/v2/ko-kr/app/0001007910" target="_blank" rel="noopener">OneStore</a></li>
+          <li><a href="./privacy.html">개인정보처리방침</a></li>
+          <li><a href="https://github.com/ATMnou/MicroZed/blob/main/LICENSE" target="_blank" rel="noopener">라이선스</a></li>
+        </ul>
+        <div class="copyright">© 2026 ATMnou. MicroZed is an independent personal project, licensed under BSD-3-Clause.</div>
       </div>
-    </div>
-  </section>
-
-</main>
-
-<footer>
-  <div class="wrap">
-    <a href="#top" class="foot-brand">
-      <img src="./assets/img/icon-192.png" alt="">
-      MicroZed
-    </a>
-    <ul class="foot-links">
-      <li><a href="https://github.com/ATMnou/MicroZed" target="_blank" rel="noopener">GitHub</a></li>
-      <li><a href="https://m.onestore.co.kr/v2/ko-kr/app/0001007910" target="_blank" rel="noopener">OneStore</a></li>
-      <li><a href="./privacy.html">개인정보처리방침</a></li>
-      <li><a href="https://github.com/ATMnou/MicroZed/blob/main/LICENSE" target="_blank" rel="noopener">라이선스</a></li>
-    </ul>
-    <div class="copyright">
-      © 2026 ATMnou. MicroZed is an independent personal project, licensed under BSD-3-Clause.
-    </div>
-  </div>
-</footer>
-
-</body>
+    </footer>
+  </body>
 </html>

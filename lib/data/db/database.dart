@@ -11,7 +11,12 @@ export 'tables.dart'
         MessageSender,
         AiEndpointFormat,
         TalkMessageSender,
-        TalkAttachmentType;
+        TalkAttachmentType,
+        PlotType,
+        VnEmotion,
+        VnSceneType,
+        VnInputMode,
+        VnDiceDifficulty;
 
 part 'database.g.dart';
 
@@ -36,6 +41,9 @@ part 'database.g.dart';
   Lorebooks,
   LorebookEntries,
   LorebookPlotLinks,
+  VnBackgrounds,
+  VnCharacterExpressions,
+  VnChoices,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase._() : super(_openConnection());
@@ -47,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -125,6 +133,22 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(talkSessions, talkSessions.characterId);
             await m.addColumn(talkSessions, talkSessions.conversationProfileId);
             await m.addColumn(talkSessions, talkSessions.plotConversationProfileId);
+          }
+          if (from < 18) {
+            await m.addColumn(plots, plots.plotType);
+            await m.addColumn(plots, plots.vnInputMode);
+            await m.addColumn(plots, plots.vnAiInputAssist);
+            await m.addColumn(plots, plots.vnDiceEnabled);
+            await m.addColumn(characters, characters.isPlayable);
+            await m.createTable(vnBackgrounds);
+            await m.createTable(vnCharacterExpressions);
+            await m.createTable(vnChoices);
+            await m.addColumn(introEntries, introEntries.vnBackgroundId);
+            await m.addColumn(introEntries, introEntries.vnExpression);
+            await m.addColumn(introEntries, introEntries.vnSceneType);
+            await m.addColumn(chatMessages, chatMessages.vnBackgroundId);
+            await m.addColumn(chatMessages, chatMessages.vnExpression);
+            await m.addColumn(chatSessions, chatSessions.vnPlayableCharacterId);
           }
         },
       );

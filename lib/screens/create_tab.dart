@@ -17,6 +17,7 @@ import 'lorebook_detail_screen.dart';
 import 'lorebook_edit_screen.dart';
 import 'plot_ai_generate_screen.dart';
 import 'plot_edit_screen.dart';
+import 'vn_plot_edit_screen.dart';
 import '../data/theme/color_palette.dart';
 import '../data/theme/palette_scope.dart';
 
@@ -48,6 +49,9 @@ class _CreateTabState extends State<CreateTab> {
   String _query = '';
   int _activeTab = 0;
   bool _importing = false;
+
+  /// null = 전체. 플롯 탭 상단의 전체/스토리챗/비주얼 노벨 필터.
+  PlotType? _plotTypeFilter;
 
   /// 톱니바퀴로 진입하는 다중 선택(체크박스) 모드. 플롯 탭에서만 쓴다.
   bool _selecting = false;
@@ -120,13 +124,14 @@ class _CreateTabState extends State<CreateTab> {
 
   Widget _buildPlotList() {
     return StreamBuilder<List<PlotSummary>>(
-      stream: _plotRepository.watchAll(),
+      stream: _plotRepository.watchAll(plotType: _plotTypeFilter),
       builder: (context, snapshot) {
         final l10n = AppLocalizations.of(context)!;
         final allPlots = snapshot.data ?? const [];
         final plots = _filterPlots(allPlots);
         return Column(
           children: [
+            _buildPlotTypeFilterRow(),
             _buildSummaryRow(
               count: allPlots.length,
               total: l10n.conversationCountLabel(_totalConversations(allPlots)),
@@ -366,6 +371,43 @@ class _CreateTabState extends State<CreateTab> {
                 ],
               ],
             ),
+    );
+  }
+
+  Widget _buildPlotTypeFilterRow() {
+    final l10n = AppLocalizations.of(context)!;
+    final options = <(String, PlotType?)>[
+      (l10n.createTabPlotTypeFilterAll, null),
+      (l10n.createTabPlotTypeFilterStoryChat, PlotType.storyChat),
+      (l10n.createTabPlotTypeFilterVisualNovel, PlotType.visualNovel),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: Row(
+        children: [
+          for (final option in options) ...[
+            GestureDetector(
+              onTap: () => setState(() => _plotTypeFilter = option.$2),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _plotTypeFilter == option.$2 ? _purple : _pillGrey,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  option.$1,
+                  style: TextStyle(
+                    color: _plotTypeFilter == option.$2 ? _p.onPrimary : _textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ],
+      ),
     );
   }
 
@@ -889,14 +931,67 @@ class _CreateTabState extends State<CreateTab> {
     }
   }
 
+  Future<void> _showPlotTypeChooserSheet() async {
+    final l10n = AppLocalizations.of(context)!;
+    final choice = await showModalBottomSheet<PlotType>(
+      context: context,
+      backgroundColor: _cardBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    l10n.createTabPlotTypeChooserTitle,
+                    style: TextStyle(color: _textPrimary, fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.chat_bubble_outline, color: _textPrimary),
+                title: Text(l10n.createTabPlotTypeStoryChatTitle, style: TextStyle(color: _textPrimary)),
+                subtitle: Text(
+                  l10n.createTabPlotTypeStoryChatSubtitle,
+                  style: TextStyle(color: _textFaint, fontSize: 12),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop(PlotType.storyChat),
+              ),
+              ListTile(
+                leading: Icon(Icons.auto_stories_outlined, color: _textPrimary),
+                title: Text(l10n.createTabPlotTypeVisualNovelTitle, style: TextStyle(color: _textPrimary)),
+                subtitle: Text(
+                  l10n.createTabPlotTypeVisualNovelSubtitle,
+                  style: TextStyle(color: _textFaint, fontSize: 12),
+                ),
+                onTap: () => Navigator.of(sheetContext).pop(PlotType.visualNovel),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+    if (choice == null || !mounted) return;
+    if (choice == PlotType.visualNovel) {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VnPlotEditScreen()));
+    } else {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PlotEditScreen()));
+    }
+  }
+
   Widget _buildCreateButton() {
     final l10n = AppLocalizations.of(context)!;
     return ElevatedButton.icon(
       onPressed: () {
         if (_activeTab == 0) {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const PlotEditScreen()));
+          _showPlotTypeChooserSheet();
         } else {
           Navigator.of(
             context,
@@ -916,6 +1011,13 @@ class _CreateTabState extends State<CreateTab> {
       ),
     );
   }
+}
+
+/// 플롯 타입에 맞는 편집 화면을 고른다. 제작 탭 목록 타일과 옵션 시트의 '편집'이 공유한다.
+Widget _editScreenFor(Plot plot) {
+  return plot.plotType == PlotType.visualNovel
+      ? VnPlotEditScreen(plotId: plot.id)
+      : PlotEditScreen(plotId: plot.id);
 }
 
 class _PlotTile extends StatelessWidget {
@@ -990,9 +1092,7 @@ class _PlotTile extends StatelessWidget {
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => PlotEditScreen(plotId: data.plot.id),
-                    ),
+                    MaterialPageRoute(builder: (_) => _editScreenFor(data.plot)),
                   );
                 },
               ),
@@ -1021,9 +1121,7 @@ class _PlotTile extends StatelessWidget {
           ? onToggleSelected
           : () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => PlotEditScreen(plotId: data.plot.id),
-                ),
+                MaterialPageRoute(builder: (_) => _editScreenFor(data.plot)),
               );
             },
       child: Padding(

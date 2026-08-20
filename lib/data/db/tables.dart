@@ -15,6 +15,25 @@ enum MessageSender { character, narrator, user, image }
 /// 클라이언트로 라우팅된다.
 enum AiEndpointFormat { openAiCompatible, anthropic }
 
+/// 플롯의 진행 방식. storyChat이 기본(채팅 말풍선 형태)이고, visualNovel은 배경+인물
+/// 일러스트 위에 대사창을 띄우는 비주얼 노벨 형태다. 둘 다 Plots/Characters/ChatSessions/
+/// ChatTurns/ChatMessages를 그대로 공유하고, visualNovel 전용 데이터(배경/표정/선택지)만
+/// 아래 Vn* 테이블에 별도로 붙는다.
+enum PlotType { storyChat, visualNovel }
+
+/// 비주얼 노벨 캐릭터 표정 세트의 고정 6종. 기본 전신 이미지가 없는 감정은 캐릭터의
+/// 기본 imagePath로 대체 표시한다.
+enum VnEmotion { joy, sad, angry, worried, surprised, confused }
+
+/// 비주얼 노벨 인트로 한 턴이 '대화형'(배경+캐릭터+대사)인지 '연출형'(나레이션+선택 이미지)인지.
+enum VnSceneType { dialogue, direction }
+
+/// 비주얼 노벨 플레이 설정의 기본 입력 방식. choice면 선택지 버튼 중심, freeText면 직접 입력 중심.
+enum VnInputMode { choice, freeText }
+
+/// 비주얼 노벨 선택지에 주사위를 쓸 때의 난이도. 성공 기준치(목표 눈금)를 결정한다.
+enum VnDiceDifficulty { easy, medium, hard }
+
 /// ZedTalk(짧은 메신저형 대화) 메시지의 발화자. 롤플레이 채팅과 달리 나레이터가 없다.
 enum TalkMessageSender { user, character }
 
@@ -34,6 +53,47 @@ class Plots extends Table {
       intEnum<PlotVisibility>().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  /// storyChat(기본) 또는 visualNovel. 제작 탭 플롯 생성 시 고르고, 이후에는 바꾸지 않는다.
+  IntColumn get plotType => intEnum<PlotType>().withDefault(const Constant(0))();
+
+  /// 아래 3개는 plotType이 visualNovel일 때만 의미가 있다(플레이 설정 탭).
+  IntColumn get vnInputMode => intEnum<VnInputMode>().withDefault(const Constant(0))();
+  BoolColumn get vnAiInputAssist => boolean().withDefault(const Constant(false))();
+  BoolColumn get vnDiceEnabled => boolean().withDefault(const Constant(true))();
+}
+
+/// 비주얼 노벨 플롯의 배경 이미지 라이브러리. 인트로/AI 응답의 씬 전환 태그가 title로
+/// 이 테이블을 찾아 배경을 바꾼다.
+class VnBackgrounds extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get plotId =>
+      integer().references(Plots, #id, onDelete: KeyAction.cascade)();
+  TextColumn get title => text()();
+  TextColumn get imagePath => text()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+}
+
+/// 캐릭터(플레이어블 포함)의 감정별 전신 이미지. 없는 감정은 Character.imagePath(기본 이미지)로
+/// 대체된다.
+class VnCharacterExpressions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get characterId =>
+      integer().references(Characters, #id, onDelete: KeyAction.cascade)();
+  IntColumn get emotion => intEnum<VnEmotion>()();
+  TextColumn get imagePath => text()();
+}
+
+/// 비주얼 노벨 인트로 버전에 붙는 선택지. 선택지 자체는 IntroEntries가 아니라 IntroVersions에
+/// 바로 붙는다(대화형/연출형 턴들을 다 보여준 다음, 첫 행동을 고르는 화면이라서).
+class VnChoices extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get introVersionId =>
+      integer().references(IntroVersions, #id, onDelete: KeyAction.cascade)();
+  TextColumn get content => text()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  BoolColumn get useDice => boolean().withDefault(const Constant(false))();
+  IntColumn get difficulty => intEnum<VnDiceDifficulty>().nullable()();
 }
 
 /// 플롯에 속한 캐릭터. 플롯 1개에 여러 캐릭터가 붙을 수 있다(대표 캐릭터 1개 포함).
@@ -51,6 +111,10 @@ class Characters extends Table {
   /// 플롯 편집 > 소개 탭에서 캐릭터별로 작성하는 상세 페이지용 소개 마크다운.
   /// AI에게는 전달되지 않고 상세 페이지 표시 전용이다(AI용 페르소나는 [description]).
   TextColumn get aboutText => text().withDefault(const Constant(''))();
+
+  /// 비주얼 노벨 플롯에서만 의미가 있다. true면 '플레이어블 캐릭터'(플레이어가 빙의해서
+  /// 진행하는 주인공 후보)로 취급된다.
+  BoolColumn get isPlayable => boolean().withDefault(const Constant(false))();
 }
 
 /// 플롯 하나에 여러 개 만들 수 있는 인트로(첫 상황) 버전. 채팅 시작 시 어떤 버전으로
@@ -79,6 +143,13 @@ class IntroEntries extends Table {
   IntColumn get type => intEnum<IntroEntryType>()();
   TextColumn get content => text()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  /// 아래 3개는 plotType이 visualNovel인 플롯의 인트로 줄에서만 쓰인다.
+  IntColumn get vnBackgroundId => integer()
+      .nullable()
+      .references(VnBackgrounds, #id, onDelete: KeyAction.setNull)();
+  IntColumn get vnExpression => intEnum<VnEmotion>().nullable()();
+  IntColumn get vnSceneType => intEnum<VnSceneType>().withDefault(const Constant(0))();
 }
 
 /// 세션마다 하나씩 쌓이는 장기 기억(오래된 대화 요약). [coveredUpToMessageId]는 이 요약이
@@ -238,6 +309,11 @@ class ChatSessions extends Table {
   /// null이면 현재 진행 중인 활성 대화. 값이 있으면 '새로하기'로 저장되어 '이어하기'
   /// 목록에만 노출되는 보관된 대화이며, 값은 저장된 시각이다.
   DateTimeColumn get archivedAt => dateTime().nullable()();
+
+  /// 비주얼 노벨 플롯에서만 쓰인다. 플레이어가 시작할 때 고른 플레이어블 캐릭터
+  /// (Characters.isPlayable = true인 행). null이면 아직 안 골랐거나 스토리챗 플롯이다.
+  IntColumn get vnPlayableCharacterId =>
+      integer().nullable().references(Characters, #id, onDelete: KeyAction.setNull)();
 }
 
 /// AI 응답(또는 인트로) 한 턴. 재시도/AI 수정으로 만들어지는 여러 '버전'을 묶는 단위이고,
@@ -276,6 +352,13 @@ class ChatMessages extends Table {
       .references(ChatTurns, #id, onDelete: KeyAction.cascade)();
   IntColumn get versionIndex => integer().withDefault(const Constant(0))();
   IntColumn get turnSortOrder => integer().withDefault(const Constant(0))();
+
+  /// 아래 2개는 plotType이 visualNovel인 플롯의 메시지에서만 쓰인다. AI 응답의 씬 태그
+  /// ([SCENE bg=... expr=...])를 파싱해서 채워 넣는다 - 화면에 어떤 배경/표정을 보여줄지 결정한다.
+  IntColumn get vnBackgroundId => integer()
+      .nullable()
+      .references(VnBackgrounds, #id, onDelete: KeyAction.setNull)();
+  IntColumn get vnExpression => intEnum<VnEmotion>().nullable()();
 }
 
 /// AI 응답 1회당 소모한 토큰(+ 알 수 있으면 가격) 기록. 프리셋이 나중에 삭제/수정돼도

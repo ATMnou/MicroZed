@@ -18,11 +18,14 @@ class PlotRepository {
 
   final AppDatabase _db;
 
-  Stream<List<PlotSummary>> watchAll({PlotVisibility? visibility}) {
+  Stream<List<PlotSummary>> watchAll({PlotVisibility? visibility, PlotType? plotType}) {
     final query = _db.select(_db.plots)
       ..orderBy([(p) => OrderingTerm.desc(p.updatedAt)]);
     if (visibility != null) {
       query.where((p) => p.visibility.equalsValue(visibility));
+    }
+    if (plotType != null) {
+      query.where((p) => p.plotType.equalsValue(plotType));
     }
     return query.watch().asyncMap((plots) async {
       final summaries = <PlotSummary>[];
@@ -61,6 +64,7 @@ class PlotRepository {
   /// 플롯 편집 화면 저장 버튼에서 호출한다. plotId가 null이면 신규 생성.
   /// hashtags는 콤마로 join해서 저장하고, [getById] 등으로 읽을 때는 `Plot.hashtags.split(',')`로 복원한다.
   /// 캐릭터(여러 개일 수 있음)는 [CharacterRepository]가 별도로 저장한다.
+  /// [plotType]은 생성 시에만 의미가 있다 - 기존 플롯 수정 시에는 무시된다(타입은 이후 바뀌지 않음).
   Future<int> upsertPlot({
     int? plotId,
     required String title,
@@ -68,6 +72,7 @@ class PlotRepository {
     String shortIntro = '',
     List<String> hashtags = const [],
     String? coverImagePath,
+    PlotType plotType = PlotType.storyChat,
   }) async {
     final hashtagsCsv = hashtags.join(',');
     if (plotId == null) {
@@ -78,6 +83,7 @@ class PlotRepository {
               shortIntro: Value(shortIntro),
               hashtags: Value(hashtagsCsv),
               coverImagePath: Value(coverImagePath),
+              plotType: Value(plotType),
             ),
           );
     }
@@ -92,6 +98,23 @@ class PlotRepository {
       ),
     );
     return plotId;
+  }
+
+  /// 비주얼 노벨 플레이 설정 탭 저장.
+  Future<void> updateVnPlaySettings({
+    required int plotId,
+    required VnInputMode vnInputMode,
+    required bool vnAiInputAssist,
+    required bool vnDiceEnabled,
+  }) {
+    return (_db.update(_db.plots)..where((p) => p.id.equals(plotId))).write(
+      PlotsCompanion(
+        vnInputMode: Value(vnInputMode),
+        vnAiInputAssist: Value(vnAiInputAssist),
+        vnDiceEnabled: Value(vnDiceEnabled),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
   }
 
   Future<void> deletePlot(int id) => (_db.delete(_db.plots)..where((p) => p.id.equals(id))).go();

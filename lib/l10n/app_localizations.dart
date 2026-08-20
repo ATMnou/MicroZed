@@ -980,6 +980,54 @@ abstract class AppLocalizations {
   /// **'제작하기'**
   String get createTabCreateButton;
 
+  /// No description provided for @createTabPlotTypeFilterAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get createTabPlotTypeFilterAll;
+
+  /// No description provided for @createTabPlotTypeFilterStoryChat.
+  ///
+  /// In ko, this message translates to:
+  /// **'스토리챗'**
+  String get createTabPlotTypeFilterStoryChat;
+
+  /// No description provided for @createTabPlotTypeFilterVisualNovel.
+  ///
+  /// In ko, this message translates to:
+  /// **'비주얼 노벨'**
+  String get createTabPlotTypeFilterVisualNovel;
+
+  /// No description provided for @createTabPlotTypeChooserTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯'**
+  String get createTabPlotTypeChooserTitle;
+
+  /// No description provided for @createTabPlotTypeStoryChatTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'스토리챗'**
+  String get createTabPlotTypeStoryChatTitle;
+
+  /// No description provided for @createTabPlotTypeStoryChatSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'말풍선 형태로 대화하는 롤플레이'**
+  String get createTabPlotTypeStoryChatSubtitle;
+
+  /// No description provided for @createTabPlotTypeVisualNovelTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'비주얼 노벨'**
+  String get createTabPlotTypeVisualNovelTitle;
+
+  /// No description provided for @createTabPlotTypeVisualNovelSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'배경/캐릭터 일러스트와 함께 진행하는 이야기'**
+  String get createTabPlotTypeVisualNovelSubtitle;
+
   /// No description provided for @createTabEditPlotMenuItem.
   ///
   /// In ko, this message translates to:
@@ -2893,6 +2941,762 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'저장했어요.'**
   String get summarySettingsSavedMessage;
+
+  /// No description provided for @vnEditAppBarTitleCreate.
+  ///
+  /// In ko, this message translates to:
+  /// **'비주얼 노벨 만들기'**
+  String get vnEditAppBarTitleCreate;
+
+  /// No description provided for @vnEditAppBarTitleEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'비주얼 노벨 편집'**
+  String get vnEditAppBarTitleEdit;
+
+  /// No description provided for @vnEditSaveButtonCreate.
+  ///
+  /// In ko, this message translates to:
+  /// **'제작'**
+  String get vnEditSaveButtonCreate;
+
+  /// No description provided for @vnEditSaveButtonEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'수정'**
+  String get vnEditSaveButtonEdit;
+
+  /// No description provided for @vnEditSavedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장했어요'**
+  String get vnEditSavedMessage;
+
+  /// No description provided for @vnEditTitleRequiredMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목을 입력해주세요'**
+  String get vnEditTitleRequiredMessage;
+
+  /// No description provided for @vnEditTabContents.
+  ///
+  /// In ko, this message translates to:
+  /// **'콘텐츠'**
+  String get vnEditTabContents;
+
+  /// No description provided for @vnEditTabInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'소개'**
+  String get vnEditTabInfo;
+
+  /// No description provided for @vnEditTabPlaySettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이 설정'**
+  String get vnEditTabPlaySettings;
+
+  /// No description provided for @vnEditTitleFieldLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목'**
+  String get vnEditTitleFieldLabel;
+
+  /// No description provided for @vnEditTitleFieldHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯의 제목을 입력해주세요'**
+  String get vnEditTitleFieldHint;
+
+  /// No description provided for @vnEditCharCountLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}자'**
+  String vnEditCharCountLabel(int count);
+
+  /// No description provided for @vnEditWorldviewLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'세계관'**
+  String get vnEditWorldviewLabel;
+
+  /// No description provided for @vnEditWorldviewHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'나만의 독창적인 세계관을 직접 써주세요'**
+  String get vnEditWorldviewHint;
+
+  /// No description provided for @vnEditHashtagsLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'해시태그'**
+  String get vnEditHashtagsLabel;
+
+  /// No description provided for @vnEditHashtagAddButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가 {count}/10'**
+  String vnEditHashtagAddButton(int count);
+
+  /// No description provided for @vnEditAddHashtagDialogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'해시태그 추가'**
+  String get vnEditAddHashtagDialogTitle;
+
+  /// No description provided for @vnEditHashtagHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'# 없이 입력해주세요'**
+  String get vnEditHashtagHint;
+
+  /// No description provided for @vnEditCharactersSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'등장인물'**
+  String get vnEditCharactersSectionTitle;
+
+  /// No description provided for @vnEditCharactersEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯을 함께 이끌어갈 인물들을 추가해 주세요'**
+  String get vnEditCharactersEmptyMessage;
+
+  /// No description provided for @vnEditAddCharacterButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 인물 추가'**
+  String get vnEditAddCharacterButton;
+
+  /// No description provided for @vnEditPlayableSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어블 캐릭터'**
+  String get vnEditPlayableSectionTitle;
+
+  /// No description provided for @vnEditPlayableEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어가 선택할 수 있는 플롯의 주인공을 만들어주세요'**
+  String get vnEditPlayableEmptyMessage;
+
+  /// No description provided for @vnEditSelectExistingCharacterButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'등장인물 중 선택'**
+  String get vnEditSelectExistingCharacterButton;
+
+  /// No description provided for @vnEditSelectExistingCharacterDialogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'등장인물 중 선택'**
+  String get vnEditSelectExistingCharacterDialogTitle;
+
+  /// No description provided for @vnEditSelectExistingCharacterEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택할 수 있는 등장인물이 없어요'**
+  String get vnEditSelectExistingCharacterEmptyMessage;
+
+  /// No description provided for @vnEditBackgroundsSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'배경'**
+  String get vnEditBackgroundsSectionTitle;
+
+  /// No description provided for @vnEditBackgroundsEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯의 몰입도를 높여줄 배경을 만들어 주세요'**
+  String get vnEditBackgroundsEmptyMessage;
+
+  /// No description provided for @vnEditAddBackgroundButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 배경 추가'**
+  String get vnEditAddBackgroundButton;
+
+  /// No description provided for @vnEditAddBackgroundDialogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 배경 추가'**
+  String get vnEditAddBackgroundDialogTitle;
+
+  /// No description provided for @vnEditEditBackgroundDialogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'배경 수정'**
+  String get vnEditEditBackgroundDialogTitle;
+
+  /// No description provided for @vnEditBackgroundImageLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'배경 이미지'**
+  String get vnEditBackgroundImageLabel;
+
+  /// No description provided for @vnEditBackgroundTitleLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목'**
+  String get vnEditBackgroundTitleLabel;
+
+  /// No description provided for @vnEditBackgroundTitleHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'예) 학교 교실_낮'**
+  String get vnEditBackgroundTitleHint;
+
+  /// No description provided for @vnEditSavePlotFirstMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목과 세계관을 입력하고 상단의 저장 버튼을 눌러주세요'**
+  String get vnEditSavePlotFirstMessage;
+
+  /// No description provided for @vnEditDeleteCharacterConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 인물을 삭제할까요? 표정 이미지도 함께 삭제돼요.'**
+  String get vnEditDeleteCharacterConfirmMessage;
+
+  /// No description provided for @vnEditDeleteBackgroundConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 배경을 삭제할까요?'**
+  String get vnEditDeleteBackgroundConfirmMessage;
+
+  /// No description provided for @vnEditCharacterFormTitleCreate.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 인물'**
+  String get vnEditCharacterFormTitleCreate;
+
+  /// No description provided for @vnEditCharacterFormTitleEdit.
+  ///
+  /// In ko, this message translates to:
+  /// **'인물 수정'**
+  String get vnEditCharacterFormTitleEdit;
+
+  /// No description provided for @vnEditCharacterNameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름'**
+  String get vnEditCharacterNameLabel;
+
+  /// No description provided for @vnEditCharacterNameHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름을 입력해 주세요'**
+  String get vnEditCharacterNameHint;
+
+  /// No description provided for @vnEditCharacterShortDescLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'짧은 설명'**
+  String get vnEditCharacterShortDescLabel;
+
+  /// No description provided for @vnEditCharacterShortDescHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'인물의 특징을 담은 짧은 소개를 적어 주세요'**
+  String get vnEditCharacterShortDescHint;
+
+  /// No description provided for @vnEditCharacterPersonaLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'인물 설명'**
+  String get vnEditCharacterPersonaLabel;
+
+  /// No description provided for @vnEditCharacterPersonaHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'말투, 성격, 버릇처럼 AI가 인물을 표현할 때 참고할 특징을 적어 주세요'**
+  String get vnEditCharacterPersonaHint;
+
+  /// No description provided for @vnEditCharacterImageLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'인물 이미지'**
+  String get vnEditCharacterImageLabel;
+
+  /// No description provided for @vnEditCharacterImagePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'전신 이미지 추가'**
+  String get vnEditCharacterImagePlaceholder;
+
+  /// No description provided for @vnEditExpressionSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'표정 이미지 (선택)'**
+  String get vnEditExpressionSectionTitle;
+
+  /// No description provided for @vnEditExpressionSavePlotFirstMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'먼저 인물을 저장하면 표정을 추가할 수 있어요'**
+  String get vnEditExpressionSavePlotFirstMessage;
+
+  /// No description provided for @vnEditExpressionAddTile.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 추가'**
+  String get vnEditExpressionAddTile;
+
+  /// No description provided for @vnEditExpressionJoy.
+  ///
+  /// In ko, this message translates to:
+  /// **'기쁨'**
+  String get vnEditExpressionJoy;
+
+  /// No description provided for @vnEditExpressionSad.
+  ///
+  /// In ko, this message translates to:
+  /// **'슬픔'**
+  String get vnEditExpressionSad;
+
+  /// No description provided for @vnEditExpressionAngry.
+  ///
+  /// In ko, this message translates to:
+  /// **'분노'**
+  String get vnEditExpressionAngry;
+
+  /// No description provided for @vnEditExpressionWorried.
+  ///
+  /// In ko, this message translates to:
+  /// **'걱정'**
+  String get vnEditExpressionWorried;
+
+  /// No description provided for @vnEditExpressionSurprised.
+  ///
+  /// In ko, this message translates to:
+  /// **'놀람'**
+  String get vnEditExpressionSurprised;
+
+  /// No description provided for @vnEditExpressionConfused.
+  ///
+  /// In ko, this message translates to:
+  /// **'의문'**
+  String get vnEditExpressionConfused;
+
+  /// No description provided for @vnEditIntroEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 작성된 턴이 없어요. 아래 버튼으로 첫 턴을 추가해보세요.'**
+  String get vnEditIntroEmptyMessage;
+
+  /// No description provided for @vnEditAddTurnButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'턴 추가하기'**
+  String get vnEditAddTurnButton;
+
+  /// No description provided for @vnEditSceneTypeDialogue.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화형'**
+  String get vnEditSceneTypeDialogue;
+
+  /// No description provided for @vnEditSceneTypeDirection.
+  ///
+  /// In ko, this message translates to:
+  /// **'연출형'**
+  String get vnEditSceneTypeDirection;
+
+  /// No description provided for @vnEditSpeakerNarratorLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'내레이터'**
+  String get vnEditSpeakerNarratorLabel;
+
+  /// No description provided for @vnEditNoChangeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'변화 없음'**
+  String get vnEditNoChangeLabel;
+
+  /// No description provided for @vnEditIntroContentHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'내용을 입력해주세요'**
+  String get vnEditIntroContentHint;
+
+  /// No description provided for @vnEditDirectionCaptionHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'짧은 연출 문구를 입력해주세요'**
+  String get vnEditDirectionCaptionHint;
+
+  /// No description provided for @vnEditChoicesSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택지 {count}/4'**
+  String vnEditChoicesSectionTitle(int count);
+
+  /// No description provided for @vnEditAddChoiceButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택지 추가'**
+  String get vnEditAddChoiceButton;
+
+  /// No description provided for @vnEditChoiceContentHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택지 내용을 입력해주세요'**
+  String get vnEditChoiceContentHint;
+
+  /// No description provided for @vnEditUseDiceLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'주사위 사용'**
+  String get vnEditUseDiceLabel;
+
+  /// No description provided for @vnEditDifficultyEasy.
+  ///
+  /// In ko, this message translates to:
+  /// **'쉬움'**
+  String get vnEditDifficultyEasy;
+
+  /// No description provided for @vnEditDifficultyMedium.
+  ///
+  /// In ko, this message translates to:
+  /// **'중간'**
+  String get vnEditDifficultyMedium;
+
+  /// No description provided for @vnEditDifficultyHard.
+  ///
+  /// In ko, this message translates to:
+  /// **'어려움'**
+  String get vnEditDifficultyHard;
+
+  /// No description provided for @vnEditCoverTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'커버'**
+  String get vnEditCoverTitle;
+
+  /// No description provided for @vnEditCoverImagePlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'커버 이미지'**
+  String get vnEditCoverImagePlaceholder;
+
+  /// No description provided for @vnEditShortIntroLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'짧은 소개'**
+  String get vnEditShortIntroLabel;
+
+  /// No description provided for @vnEditShortIntroHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목과 함께 보일 짧은 소개를 입력해주세요'**
+  String get vnEditShortIntroHint;
+
+  /// No description provided for @vnEditPlaySettingsSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이 방식'**
+  String get vnEditPlaySettingsSectionTitle;
+
+  /// No description provided for @vnEditInputModeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 입력 방식'**
+  String get vnEditInputModeLabel;
+
+  /// No description provided for @vnEditInputModeChoice.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택지'**
+  String get vnEditInputModeChoice;
+
+  /// No description provided for @vnEditInputModeFreeText.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 입력'**
+  String get vnEditInputModeFreeText;
+
+  /// No description provided for @vnEditInputModeChoiceDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리 준비된 선택지 중 하나를 골라 답변해요'**
+  String get vnEditInputModeChoiceDescription;
+
+  /// No description provided for @vnEditInputModeFreeTextDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어가 직접 답변을 입력해요'**
+  String get vnEditInputModeFreeTextDescription;
+
+  /// No description provided for @vnEditAiAssistLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 입력 어시스트'**
+  String get vnEditAiAssistLabel;
+
+  /// No description provided for @vnEditAiAssistDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI가 플레이어의 입력을 다듬어 주고, 플레이어블 캐릭터 이미지를 함께 표시해요.'**
+  String get vnEditAiAssistDescription;
+
+  /// No description provided for @vnEditDiceEventLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'주사위 이벤트'**
+  String get vnEditDiceEventLabel;
+
+  /// No description provided for @vnEditDiceEventDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'중요한 순간에 플레이어가 직접 주사위를 굴려요.\n결과에 따라 성공 여부가 결정돼요.'**
+  String get vnEditDiceEventDescription;
+
+  /// No description provided for @vnPlayAiAssistTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 입력 도움받기'**
+  String get vnPlayAiAssistTooltip;
+
+  /// No description provided for @vnPlayBackToChoicesButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택지로 돌아가기'**
+  String get vnPlayBackToChoicesButton;
+
+  /// No description provided for @vnPlayBackTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'뒤로'**
+  String get vnPlayBackTooltip;
+
+  /// No description provided for @vnPlayCancelGenerationTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'생성 중지'**
+  String get vnPlayCancelGenerationTooltip;
+
+  /// No description provided for @vnPlayCharacterPickerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이할 캐릭터를 선택해주세요'**
+  String get vnPlayCharacterPickerTitle;
+
+  /// No description provided for @vnPlayDefaultCharacterName.
+  ///
+  /// In ko, this message translates to:
+  /// **'캐릭터'**
+  String get vnPlayDefaultCharacterName;
+
+  /// No description provided for @vnPlayDiceBonusLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'보너스'**
+  String get vnPlayDiceBonusLabel;
+
+  /// No description provided for @vnPlayDiceConfirmButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'확인'**
+  String get vnPlayDiceConfirmButton;
+
+  /// No description provided for @vnPlayDiceGoalLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표'**
+  String get vnPlayDiceGoalLabel;
+
+  /// No description provided for @vnPlayDiceResultDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'{roll} + {bonus} = {total} / 목표 {target}'**
+  String vnPlayDiceResultDetail(int roll, int bonus, int total, int target);
+
+  /// No description provided for @vnPlayDiceResultFailure.
+  ///
+  /// In ko, this message translates to:
+  /// **'실패...'**
+  String get vnPlayDiceResultFailure;
+
+  /// No description provided for @vnPlayDiceResultSuccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'성공!'**
+  String get vnPlayDiceResultSuccess;
+
+  /// No description provided for @vnPlayDiceRollButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'운명의 주사위를 던진다'**
+  String get vnPlayDiceRollButton;
+
+  /// No description provided for @vnPlayDiceSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'운명의 주사위'**
+  String get vnPlayDiceSheetTitle;
+
+  /// No description provided for @vnPlayDiceTargetLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'성공 기준'**
+  String get vnPlayDiceTargetLabel;
+
+  /// No description provided for @vnPlayEmptyStateMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 이야기가 시작되지 않았어요'**
+  String get vnPlayEmptyStateMessage;
+
+  /// No description provided for @vnPlayFreeInputHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'행동이나 대사를 입력하세요...'**
+  String get vnPlayFreeInputHint;
+
+  /// No description provided for @vnPlayGenerateFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'이야기를 만드는 데 실패했어요: {error}'**
+  String vnPlayGenerateFailureMessage(Object error);
+
+  /// No description provided for @vnPlayGeneratingIndicator.
+  ///
+  /// In ko, this message translates to:
+  /// **'이야기를 만드는 중...'**
+  String get vnPlayGeneratingIndicator;
+
+  /// No description provided for @vnPlayHistoryEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 대화 기록이 없어요'**
+  String get vnPlayHistoryEmptyMessage;
+
+  /// No description provided for @vnPlayHistoryMenuItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'히스토리 보기'**
+  String get vnPlayHistoryMenuItem;
+
+  /// No description provided for @vnPlayHistoryNarratorLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'내레이션'**
+  String get vnPlayHistoryNarratorLabel;
+
+  /// No description provided for @vnPlayHistorySheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화 기록'**
+  String get vnPlayHistorySheetTitle;
+
+  /// No description provided for @vnPlayHistoryTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'히스토리'**
+  String get vnPlayHistoryTooltip;
+
+  /// No description provided for @vnPlayManualInputToggle.
+  ///
+  /// In ko, this message translates to:
+  /// **'직접 입력'**
+  String get vnPlayManualInputToggle;
+
+  /// No description provided for @vnPlayPresetManageLink.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 설정'**
+  String get vnPlayPresetManageLink;
+
+  /// No description provided for @vnPlayPresetSheetDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 프리셋의 설정으로 이야기가 진행돼요. 프리셋은 마이페이지에서 관리할 수 있어요.'**
+  String get vnPlayPresetSheetDescription;
+
+  /// No description provided for @vnPlayPresetSheetEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 만든 프리셋이 없어요'**
+  String get vnPlayPresetSheetEmpty;
+
+  /// No description provided for @vnPlayPresetSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 프리셋'**
+  String get vnPlayPresetSheetTitle;
+
+  /// No description provided for @vnPlayRegenerateSuggestionsTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시 제안받기'**
+  String get vnPlayRegenerateSuggestionsTooltip;
+
+  /// No description provided for @vnPlaySelectCharacterButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택'**
+  String get vnPlaySelectCharacterButton;
+
+  /// No description provided for @vnPlaySelectPresetMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 프리셋을 먼저 선택해주세요'**
+  String get vnPlaySelectPresetMessage;
+
+  /// No description provided for @vnPlaySessionLoadFailedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'세션을 불러오지 못했어요'**
+  String get vnPlaySessionLoadFailedMessage;
+
+  /// No description provided for @vnPlaySettingsSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정'**
+  String get vnPlaySettingsSheetTitle;
+
+  /// No description provided for @vnPlaySettingsTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정'**
+  String get vnPlaySettingsTooltip;
+
+  /// No description provided for @vnPlayStepBackTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전'**
+  String get vnPlayStepBackTooltip;
+
+  /// No description provided for @vnPlayStepForwardTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음'**
+  String get vnPlayStepForwardTooltip;
+
+  /// No description provided for @vnPlaySuggestionEditTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'수정'**
+  String get vnPlaySuggestionEditTooltip;
+
+  /// No description provided for @vnPlaySuggestionsEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'제안할 선택지가 없어요'**
+  String get vnPlaySuggestionsEmptyMessage;
+
+  /// No description provided for @vnPlaySuggestionsLoadingLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 행동을 생각하는 중...'**
+  String get vnPlaySuggestionsLoadingLabel;
+
+  /// No description provided for @vnPlayUntitledPlotTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목 없음'**
+  String get vnPlayUntitledPlotTitle;
 }
 
 class _AppLocalizationsDelegate

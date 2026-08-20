@@ -6,14 +6,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:microzed/data/db/database.dart';
 import 'package:path/path.dart' as p;
 
-/// v9(로컬 LLM까지만 있던, 실제 배포된 1.1.1 스키마) -> v17(reasoningEffort +
+/// v9(로컬 LLM까지만 있던, 실제 배포된 1.1.1 스키마) -> v18(reasoningEffort +
 /// PlotConversationProfiles + ChatSessions.plotConversationProfileId +
 /// TokenUsageLogs.provider + AiPresets의 OpenRouter 전용 라우팅 옵션 3종 + endpointFormat +
 /// ChatMemorySummaries 테이블 + AiPresets.supportsVision + TalkSessions/TalkMessages 테이블 +
-/// TalkSessions.characterId/conversationProfileId/plotConversationProfileId 추가)
+/// TalkSessions.characterId/conversationProfileId/plotConversationProfileId +
+/// 비주얼 노벨 관련 컬럼/테이블 일체 추가)
 /// 마이그레이션이 실제 파일 기반 sqlite에서 데이터 손실 없이 동작하는지 검증한다.
 void main() {
-  test('upgrades from schema v9 to v17 without losing existing data', () async {
+  test('upgrades from schema v9 to v18 without losing existing data', () async {
     final tempPath = p.join(
       Directory.systemTemp.path,
       'microzed_migration_test_${DateTime.now().microsecondsSinceEpoch}.sqlite',
@@ -60,6 +61,20 @@ void main() {
     await raw.runCustom('ALTER TABLE ai_presets DROP COLUMN supports_vision');
     await raw.runCustom('DROP TABLE talk_messages');
     await raw.runCustom('DROP TABLE talk_sessions');
+    await raw.runCustom('DROP TABLE vn_choices');
+    await raw.runCustom('DROP TABLE vn_character_expressions');
+    await raw.runCustom('DROP TABLE vn_backgrounds');
+    await raw.runCustom('ALTER TABLE plots DROP COLUMN plot_type');
+    await raw.runCustom('ALTER TABLE plots DROP COLUMN vn_input_mode');
+    await raw.runCustom('ALTER TABLE plots DROP COLUMN vn_ai_input_assist');
+    await raw.runCustom('ALTER TABLE plots DROP COLUMN vn_dice_enabled');
+    await raw.runCustom('ALTER TABLE characters DROP COLUMN is_playable');
+    await raw.runCustom('ALTER TABLE intro_entries DROP COLUMN vn_background_id');
+    await raw.runCustom('ALTER TABLE intro_entries DROP COLUMN vn_expression');
+    await raw.runCustom('ALTER TABLE intro_entries DROP COLUMN vn_scene_type');
+    await raw.runCustom('ALTER TABLE chat_messages DROP COLUMN vn_background_id');
+    await raw.runCustom('ALTER TABLE chat_messages DROP COLUMN vn_expression');
+    await raw.runCustom('ALTER TABLE chat_sessions DROP COLUMN vn_playable_character_id');
     await raw.runCustom('PRAGMA user_version = 9');
     await raw.close();
 
@@ -142,6 +157,84 @@ void main() {
     final updatedTalkSession =
         await (db.select(db.talkSessions)..where((s) => s.id.equals(talkSessionId))).getSingle();
     expect(updatedTalkSession.characterId, characterId);
+
+    // v18: 비주얼 노벨 관련 컬럼/테이블도 마이그레이션 후 정상적으로 읽고 쓸 수 있어야 한다.
+    expect(plot.plotType, PlotType.storyChat);
+    final character = await (db.select(db.characters)..where((c) => c.id.equals(characterId))).getSingle();
+    expect(character.isPlayable, false);
+
+    final backgroundId = await db.into(db.vnBackgrounds).insert(
+          VnBackgroundsCompanion.insert(plotId: plotId, title: '교실', imagePath: '/tmp/bg.png'),
+        );
+    final expressionId = await db.into(db.vnCharacterExpressions).insert(
+          VnCharacterExpressionsCompanion.insert(
+            characterId: characterId,
+            emotion: VnEmotion.joy,
+            imagePath: '/tmp/expr.png',
+          ),
+        );
+    final expression =
+        await (db.select(db.vnCharacterExpressions)..where((e) => e.id.equals(expressionId))).getSingle();
+    expect(expression.emotion, VnEmotion.joy);
+
+    final vnPlotId = await db.into(db.plots).insert(
+          PlotsCompanion.insert(
+            title: 'VN Plot',
+            description: 'vn desc',
+            plotType: const Value(PlotType.visualNovel),
+          ),
+        );
+    final vnPlot = await (db.select(db.plots)..where((p) => p.id.equals(vnPlotId))).getSingle();
+    expect(vnPlot.plotType, PlotType.visualNovel);
+
+    final introVersionId = await db.into(db.introVersions).insert(IntroVersionsCompanion.insert(plotId: vnPlotId));
+    final introEntryId = await db.into(db.introEntries).insert(
+          IntroEntriesCompanion.insert(
+            plotId: vnPlotId,
+            introVersionId: const Value(null),
+            type: IntroEntryType.narrator,
+            content: '한 학생이 교문 앞에 섰다',
+            vnBackgroundId: Value(backgroundId),
+            vnSceneType: const Value(VnSceneType.direction),
+          ),
+        );
+    final introEntry = await (db.select(db.introEntries)..where((e) => e.id.equals(introEntryId))).getSingle();
+    expect(introEntry.vnBackgroundId, backgroundId);
+    expect(introEntry.vnSceneType, VnSceneType.direction);
+    // introVersionId 컬럼 자체는 계속 nullable이어야 한다(예전 스키마 호환용) - 위 insert에
+    // null을 명시적으로 넘겼는데도 예외 없이 저장됐다는 사실 자체가 검증이다.
+    expect(introVersionId, isNonNegative);
+
+    final vnSessionId = await db.into(db.chatSessions).insert(
+          ChatSessionsCompanion.insert(plotId: vnPlotId, vnPlayableCharacterId: Value(characterId)),
+        );
+    final vnSession = await (db.select(db.chatSessions)..where((s) => s.id.equals(vnSessionId))).getSingle();
+    expect(vnSession.vnPlayableCharacterId, characterId);
+
+    final vnMessageId = await db.into(db.chatMessages).insert(
+          ChatMessagesCompanion.insert(
+            sessionId: vnSessionId,
+            senderType: MessageSender.narrator,
+            content: '교문이 열렸다',
+            vnBackgroundId: Value(backgroundId),
+            vnExpression: const Value(VnEmotion.surprised),
+          ),
+        );
+    final vnMessage = await (db.select(db.chatMessages)..where((m) => m.id.equals(vnMessageId))).getSingle();
+    expect(vnMessage.vnBackgroundId, backgroundId);
+    expect(vnMessage.vnExpression, VnEmotion.surprised);
+
+    final choiceId = await db.into(db.vnChoices).insert(
+          VnChoicesCompanion.insert(
+            introVersionId: introVersionId,
+            content: '문을 연다',
+            useDice: const Value(true),
+            difficulty: const Value(VnDiceDifficulty.medium),
+          ),
+        );
+    final choice = await (db.select(db.vnChoices)..where((c) => c.id.equals(choiceId))).getSingle();
+    expect(choice.useDice, true);
+    expect(choice.difficulty, VnDiceDifficulty.medium);
 
     await db.close();
   });

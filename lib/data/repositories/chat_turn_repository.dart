@@ -79,6 +79,8 @@ class ChatTurnRepository {
               turnId: Value(turnId),
               versionIndex: Value(versionIndex),
               turnSortOrder: Value(i),
+              vnBackgroundId: Value(segment.vnBackgroundId),
+              vnExpression: Value(segment.vnExpression),
             ),
           );
     }

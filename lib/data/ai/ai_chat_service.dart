@@ -16,6 +16,7 @@ import 'openai_compatible_client.dart';
 import 'prompt_builder.dart';
 import 'summary_settings_store.dart';
 import 'system_prompt_store.dart';
+import 'vn_directive_parser.dart';
 
 /// 스트리밍 생성을 도중에 멈출 수 있게 해주는 토큰. 채팅 화면에서 전송 버튼이 중지
 /// 버튼으로 바뀌었을 때 눌리면 [cancel]이 호출된다. `await for` 루프 안에서 매 델타마다
@@ -58,6 +59,9 @@ class AiChatService {
   final SummarySettingsStore _summarySettingsStore;
 
   /// 새 유저 메시지에 대한 첫 응답. 새 턴을 만들고 버전 0을 채운다.
+  ///
+  /// [vnMode]가 true면(비주얼 노벨 플롯) 시스템 프롬프트에 씬 연출 지침을 덧붙이고,
+  /// 응답을 [VnDirectiveParser]로 파싱해 배경/표정/주사위 태그를 걷어낸다.
   Future<void> generateReply({
     required int sessionId,
     required int plotId,
@@ -67,6 +71,10 @@ class AiChatService {
     required void Function(String accumulatedText) onDelta,
     void Function(String reasoning)? onReasoning,
     AiGenerationCancelToken? cancelToken,
+    bool vnMode = false,
+    List<VnBackground> vnBackgrounds = const [],
+    bool vnDiceEnabled = true,
+    void Function(VnDiceRequest request)? onVnDiceRequest,
   }) async {
     final turnId = await _turnRepo.createTurn(sessionId);
     await _generateVersion(
@@ -80,6 +88,10 @@ class AiChatService {
       onDelta: onDelta,
       onReasoning: onReasoning,
       cancelToken: cancelToken,
+      vnMode: vnMode,
+      vnBackgrounds: vnBackgrounds,
+      vnDiceEnabled: vnDiceEnabled,
+      onVnDiceRequest: onVnDiceRequest,
     );
   }
 
@@ -94,6 +106,10 @@ class AiChatService {
     required void Function(String accumulatedText) onDelta,
     void Function(String reasoning)? onReasoning,
     AiGenerationCancelToken? cancelToken,
+    bool vnMode = false,
+    List<VnBackground> vnBackgrounds = const [],
+    bool vnDiceEnabled = true,
+    void Function(VnDiceRequest request)? onVnDiceRequest,
   }) async {
     final nextIndex = await _turnRepo.nextVersionIndex(turnId);
     await _generateVersion(
@@ -107,6 +123,10 @@ class AiChatService {
       onDelta: onDelta,
       onReasoning: onReasoning,
       cancelToken: cancelToken,
+      vnMode: vnMode,
+      vnBackgrounds: vnBackgrounds,
+      vnDiceEnabled: vnDiceEnabled,
+      onVnDiceRequest: onVnDiceRequest,
     );
     await _turnRepo.setActiveVersion(turnId, nextIndex);
   }
@@ -435,6 +455,10 @@ class AiChatService {
     void Function(String reasoning)? onReasoning,
     AiGenerationCancelToken? cancelToken,
     List<Map<String, String>> extraMessages = const [],
+    bool vnMode = false,
+    List<VnBackground> vnBackgrounds = const [],
+    bool vnDiceEnabled = true,
+    void Function(VnDiceRequest request)? onVnDiceRequest,
   }) async {
     final plot = await _plotRepo.getById(plotId);
     final characters = await _characterRepo.getByPlot(plotId);
@@ -457,6 +481,9 @@ class AiChatService {
       additionalSystemPrompt: preset.additionalSystemPrompt,
       loreContext: loreContext,
       customTemplate: customTemplate,
+      extraSystemBlock: vnMode
+          ? VnDirectiveParser.buildSystemInstructions(backgrounds: vnBackgrounds, diceEnabled: vnDiceEnabled)
+          : '',
     );
     final messages = <Map<String, String>>[
       {'role': 'system', 'content': systemPrompt},
@@ -497,7 +524,14 @@ class AiChatService {
     final fullText = buffer.toString().trim();
     if (fullText.isEmpty) return;
 
-    final segments = MessageFormatParser.parse(fullText);
+    List<ParsedSpeechSegment> segments;
+    if (vnMode) {
+      final parsed = VnDirectiveParser.parse(fullText, backgrounds: vnBackgrounds);
+      segments = parsed.segments;
+      if (parsed.diceRequest != null) onVnDiceRequest?.call(parsed.diceRequest!);
+    } else {
+      segments = MessageFormatParser.parse(fullText);
+    }
     await _turnRepo.addVersionMessages(
       sessionId: sessionId,
       turnId: turnId,

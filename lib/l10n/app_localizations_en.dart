@@ -502,6 +502,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createTabCreateButton => 'Create';
 
   @override
+  String get createTabPlotTypeFilterAll => 'All';
+
+  @override
+  String get createTabPlotTypeFilterStoryChat => 'Story Chat';
+
+  @override
+  String get createTabPlotTypeFilterVisualNovel => 'Visual Novel';
+
+  @override
+  String get createTabPlotTypeChooserTitle => 'Plot';
+
+  @override
+  String get createTabPlotTypeStoryChatTitle => 'Story Chat';
+
+  @override
+  String get createTabPlotTypeStoryChatSubtitle => 'Roleplay in chat bubbles';
+
+  @override
+  String get createTabPlotTypeVisualNovelTitle => 'Visual Novel';
+
+  @override
+  String get createTabPlotTypeVisualNovelSubtitle =>
+      'A story told with background and character art';
+
+  @override
   String get createTabEditPlotMenuItem => 'Edit plot';
 
   @override
@@ -1591,4 +1616,410 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get summarySettingsSavedMessage => 'Saved.';
+
+  @override
+  String get vnEditAppBarTitleCreate => 'Create visual novel';
+
+  @override
+  String get vnEditAppBarTitleEdit => 'Edit visual novel';
+
+  @override
+  String get vnEditSaveButtonCreate => 'Create';
+
+  @override
+  String get vnEditSaveButtonEdit => 'Save';
+
+  @override
+  String get vnEditSavedMessage => 'Saved';
+
+  @override
+  String get vnEditTitleRequiredMessage => 'Please enter a title';
+
+  @override
+  String get vnEditTabContents => 'Contents';
+
+  @override
+  String get vnEditTabInfo => 'About';
+
+  @override
+  String get vnEditTabPlaySettings => 'Play settings';
+
+  @override
+  String get vnEditTitleFieldLabel => 'Title';
+
+  @override
+  String get vnEditTitleFieldHint => 'Enter the plot\'s title';
+
+  @override
+  String vnEditCharCountLabel(int count) {
+    return '$count chars';
+  }
+
+  @override
+  String get vnEditWorldviewLabel => 'Worldview';
+
+  @override
+  String get vnEditWorldviewHint => 'Write your own original worldview';
+
+  @override
+  String get vnEditHashtagsLabel => 'Hashtags';
+
+  @override
+  String vnEditHashtagAddButton(int count) {
+    return 'Add $count/10';
+  }
+
+  @override
+  String get vnEditAddHashtagDialogTitle => 'Add hashtag';
+
+  @override
+  String get vnEditHashtagHint => 'Enter without the #';
+
+  @override
+  String get vnEditCharactersSectionTitle => 'Characters';
+
+  @override
+  String get vnEditCharactersEmptyMessage =>
+      'Add characters to help lead the plot';
+
+  @override
+  String get vnEditAddCharacterButton => 'Add new character';
+
+  @override
+  String get vnEditPlayableSectionTitle => 'Playable characters';
+
+  @override
+  String get vnEditPlayableEmptyMessage =>
+      'Create protagonists players can choose from';
+
+  @override
+  String get vnEditSelectExistingCharacterButton => 'Select from characters';
+
+  @override
+  String get vnEditSelectExistingCharacterDialogTitle =>
+      'Select from characters';
+
+  @override
+  String get vnEditSelectExistingCharacterEmptyMessage =>
+      'No characters available to select';
+
+  @override
+  String get vnEditBackgroundsSectionTitle => 'Backgrounds';
+
+  @override
+  String get vnEditBackgroundsEmptyMessage =>
+      'Create backgrounds to boost immersion';
+
+  @override
+  String get vnEditAddBackgroundButton => 'Add new background';
+
+  @override
+  String get vnEditAddBackgroundDialogTitle => 'Add new background';
+
+  @override
+  String get vnEditEditBackgroundDialogTitle => 'Edit background';
+
+  @override
+  String get vnEditBackgroundImageLabel => 'Background image';
+
+  @override
+  String get vnEditBackgroundTitleLabel => 'Title';
+
+  @override
+  String get vnEditBackgroundTitleHint => 'e.g. School classroom_day';
+
+  @override
+  String get vnEditSavePlotFirstMessage =>
+      'Enter a title and worldview, then tap Save above';
+
+  @override
+  String get vnEditDeleteCharacterConfirmMessage =>
+      'Delete this character? Its expression images will be deleted too.';
+
+  @override
+  String get vnEditDeleteBackgroundConfirmMessage => 'Delete this background?';
+
+  @override
+  String get vnEditCharacterFormTitleCreate => 'New character';
+
+  @override
+  String get vnEditCharacterFormTitleEdit => 'Edit character';
+
+  @override
+  String get vnEditCharacterNameLabel => 'Name';
+
+  @override
+  String get vnEditCharacterNameHint => 'Enter a name';
+
+  @override
+  String get vnEditCharacterShortDescLabel => 'Short description';
+
+  @override
+  String get vnEditCharacterShortDescHint =>
+      'Write a short intro capturing the character\'s traits';
+
+  @override
+  String get vnEditCharacterPersonaLabel => 'Persona';
+
+  @override
+  String get vnEditCharacterPersonaHint =>
+      'Write traits like speech style, personality, and habits for the AI to reference';
+
+  @override
+  String get vnEditCharacterImageLabel => 'Character image';
+
+  @override
+  String get vnEditCharacterImagePlaceholder => 'Add full-body image';
+
+  @override
+  String get vnEditExpressionSectionTitle => 'Expression images (optional)';
+
+  @override
+  String get vnEditExpressionSavePlotFirstMessage =>
+      'Save the character first to add expressions';
+
+  @override
+  String get vnEditExpressionAddTile => 'Add image';
+
+  @override
+  String get vnEditExpressionJoy => 'Joy';
+
+  @override
+  String get vnEditExpressionSad => 'Sad';
+
+  @override
+  String get vnEditExpressionAngry => 'Angry';
+
+  @override
+  String get vnEditExpressionWorried => 'Worried';
+
+  @override
+  String get vnEditExpressionSurprised => 'Surprised';
+
+  @override
+  String get vnEditExpressionConfused => 'Confused';
+
+  @override
+  String get vnEditIntroEmptyMessage =>
+      'No turns yet. Use the button below to add the first one.';
+
+  @override
+  String get vnEditAddTurnButton => 'Add turn';
+
+  @override
+  String get vnEditSceneTypeDialogue => 'Dialogue';
+
+  @override
+  String get vnEditSceneTypeDirection => 'Direction';
+
+  @override
+  String get vnEditSpeakerNarratorLabel => 'Narrator';
+
+  @override
+  String get vnEditNoChangeLabel => 'No change';
+
+  @override
+  String get vnEditIntroContentHint => 'Enter the content';
+
+  @override
+  String get vnEditDirectionCaptionHint => 'Enter a short caption';
+
+  @override
+  String vnEditChoicesSectionTitle(int count) {
+    return 'Choices $count/4';
+  }
+
+  @override
+  String get vnEditAddChoiceButton => 'Add choice';
+
+  @override
+  String get vnEditChoiceContentHint => 'Enter the choice text';
+
+  @override
+  String get vnEditUseDiceLabel => 'Use dice';
+
+  @override
+  String get vnEditDifficultyEasy => 'Easy';
+
+  @override
+  String get vnEditDifficultyMedium => 'Medium';
+
+  @override
+  String get vnEditDifficultyHard => 'Hard';
+
+  @override
+  String get vnEditCoverTitle => 'Cover';
+
+  @override
+  String get vnEditCoverImagePlaceholder => 'Cover image';
+
+  @override
+  String get vnEditShortIntroLabel => 'Short intro';
+
+  @override
+  String get vnEditShortIntroHint =>
+      'Enter a short intro to show alongside the title';
+
+  @override
+  String get vnEditPlaySettingsSectionTitle => 'Play style';
+
+  @override
+  String get vnEditInputModeLabel => 'Default input mode';
+
+  @override
+  String get vnEditInputModeChoice => 'Choices';
+
+  @override
+  String get vnEditInputModeFreeText => 'Free text';
+
+  @override
+  String get vnEditInputModeChoiceDescription =>
+      'Answer by picking from prepared choices';
+
+  @override
+  String get vnEditInputModeFreeTextDescription =>
+      'The player types their own answer';
+
+  @override
+  String get vnEditAiAssistLabel => 'AI input assist';
+
+  @override
+  String get vnEditAiAssistDescription =>
+      'The AI polishes the player\'s input and shows the playable character\'s image alongside it.';
+
+  @override
+  String get vnEditDiceEventLabel => 'Dice events';
+
+  @override
+  String get vnEditDiceEventDescription =>
+      'At key moments, the player rolls the dice themselves.\nThe outcome decides success or failure.';
+
+  @override
+  String get vnPlayAiAssistTooltip => 'Get AI input help';
+
+  @override
+  String get vnPlayBackToChoicesButton => 'Back to choices';
+
+  @override
+  String get vnPlayBackTooltip => 'Back';
+
+  @override
+  String get vnPlayCancelGenerationTooltip => 'Stop generating';
+
+  @override
+  String get vnPlayCharacterPickerTitle => 'Choose a character to play';
+
+  @override
+  String get vnPlayDefaultCharacterName => 'Character';
+
+  @override
+  String get vnPlayDiceBonusLabel => 'Bonus';
+
+  @override
+  String get vnPlayDiceConfirmButton => 'Confirm';
+
+  @override
+  String get vnPlayDiceGoalLabel => 'Goal';
+
+  @override
+  String vnPlayDiceResultDetail(int roll, int bonus, int total, int target) {
+    return '$roll + $bonus = $total / Target $target';
+  }
+
+  @override
+  String get vnPlayDiceResultFailure => 'Failure...';
+
+  @override
+  String get vnPlayDiceResultSuccess => 'Success!';
+
+  @override
+  String get vnPlayDiceRollButton => 'Roll the dice of fate';
+
+  @override
+  String get vnPlayDiceSheetTitle => 'Dice of Fate';
+
+  @override
+  String get vnPlayDiceTargetLabel => 'Target number';
+
+  @override
+  String get vnPlayEmptyStateMessage => 'The story hasn\'t started yet';
+
+  @override
+  String get vnPlayFreeInputHint => 'Type an action or line...';
+
+  @override
+  String vnPlayGenerateFailureMessage(Object error) {
+    return 'Failed to generate the story: $error';
+  }
+
+  @override
+  String get vnPlayGeneratingIndicator => 'Generating the story...';
+
+  @override
+  String get vnPlayHistoryEmptyMessage => 'No history yet';
+
+  @override
+  String get vnPlayHistoryMenuItem => 'View history';
+
+  @override
+  String get vnPlayHistoryNarratorLabel => 'Narration';
+
+  @override
+  String get vnPlayHistorySheetTitle => 'Story log';
+
+  @override
+  String get vnPlayHistoryTooltip => 'History';
+
+  @override
+  String get vnPlayManualInputToggle => 'Type manually';
+
+  @override
+  String get vnPlayPresetManageLink => 'Manage presets';
+
+  @override
+  String get vnPlayPresetSheetDescription =>
+      'The story runs on the selected preset\'s settings. You can manage presets from My Page.';
+
+  @override
+  String get vnPlayPresetSheetEmpty => 'You haven\'t created any presets yet';
+
+  @override
+  String get vnPlayPresetSheetTitle => 'AI preset';
+
+  @override
+  String get vnPlayRegenerateSuggestionsTooltip => 'Get new suggestions';
+
+  @override
+  String get vnPlaySelectCharacterButton => 'Select';
+
+  @override
+  String get vnPlaySelectPresetMessage => 'Please select an AI preset first';
+
+  @override
+  String get vnPlaySessionLoadFailedMessage => 'Couldn\'t load this session';
+
+  @override
+  String get vnPlaySettingsSheetTitle => 'Settings';
+
+  @override
+  String get vnPlaySettingsTooltip => 'Settings';
+
+  @override
+  String get vnPlayStepBackTooltip => 'Previous';
+
+  @override
+  String get vnPlayStepForwardTooltip => 'Next';
+
+  @override
+  String get vnPlaySuggestionEditTooltip => 'Edit';
+
+  @override
+  String get vnPlaySuggestionsEmptyMessage => 'No choices to suggest';
+
+  @override
+  String get vnPlaySuggestionsLoadingLabel =>
+      'Thinking of what happens next...';
+
+  @override
+  String get vnPlayUntitledPlotTitle => 'Untitled';
 }

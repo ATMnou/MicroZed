@@ -11,12 +11,16 @@ class ChatSessionSummary {
     required this.plotTitle,
     required this.lastMessagePreview,
     this.plotCoverImagePath,
+    this.plotType = PlotType.storyChat,
   });
 
   final ChatSession session;
   final String plotTitle;
   final String lastMessagePreview;
   final String? plotCoverImagePath;
+
+  /// 목록에서 이 세션을 열 때 [ChatScreen] 대신 [VnPlayerScreen]으로 보내야 하는지 판단하는 데 쓴다.
+  final PlotType plotType;
 }
 
 /// 대화 탭의 대화방 목록과 채팅 화면 진입/설정 변경을 담당한다.
@@ -45,6 +49,7 @@ class ChatSessionRepository {
           session: session,
           plotTitle: plot.title,
           plotCoverImagePath: plot.coverImagePath,
+          plotType: plot.plotType,
           lastMessagePreview: await _lastMessagePreview(session.id),
         ));
       }
@@ -99,6 +104,7 @@ class ChatSessionRepository {
     int? conversationProfileId,
     int? plotConversationProfileId,
     int? presetId,
+    int? vnPlayableCharacterId,
   }) async {
     assert(conversationProfileId == null || plotConversationProfileId == null);
     var resolvedGlobalProfileId = conversationProfileId;
@@ -111,6 +117,7 @@ class ChatSessionRepository {
             conversationProfileId: Value(resolvedGlobalProfileId),
             plotConversationProfileId: Value(plotConversationProfileId),
             presetId: Value(presetId),
+            vnPlayableCharacterId: Value(vnPlayableCharacterId),
           ),
         );
     await _seedIntroMessages(sessionId, plotId);
@@ -153,6 +160,8 @@ class ChatSessionRepository {
                 turnId: Value(turnId),
                 versionIndex: Value(v),
                 turnSortOrder: Value(i),
+                vnBackgroundId: Value(entry.vnBackgroundId),
+                vnExpression: Value(entry.vnExpression),
               ),
             );
       }

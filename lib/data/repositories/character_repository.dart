@@ -25,6 +25,22 @@ class CharacterRepository {
         .get();
   }
 
+  /// 비주얼 노벨 편집 화면의 '등장인물' 목록(플레이어블 캐릭터 제외).
+  Stream<List<Character>> watchNonPlayableByPlot(int plotId) {
+    return (_db.select(_db.characters)
+          ..where((c) => c.plotId.equals(plotId) & c.isPlayable.equals(false))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .watch();
+  }
+
+  /// 비주얼 노벨 편집 화면의 '플레이어블 캐릭터' 목록, 플레이 화면의 캐릭터 선택 목록.
+  Stream<List<Character>> watchPlayableByPlot(int plotId) {
+    return (_db.select(_db.characters)
+          ..where((c) => c.plotId.equals(plotId) & c.isPlayable.equals(true))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .watch();
+  }
+
   Future<int> add({
     required int plotId,
     required String name,
@@ -33,6 +49,7 @@ class CharacterRepository {
     bool isRepresentative = false,
     int sortOrder = 0,
     String aboutText = '',
+    bool isPlayable = false,
   }) {
     return _db.into(_db.characters).insert(
           CharactersCompanion.insert(
@@ -43,6 +60,7 @@ class CharacterRepository {
             isRepresentative: Value(isRepresentative),
             sortOrder: Value(sortOrder),
             aboutText: Value(aboutText),
+            isPlayable: Value(isPlayable),
           ),
         );
   }
@@ -67,4 +85,47 @@ class CharacterRepository {
   }
 
   Future<void> delete(int id) => (_db.delete(_db.characters)..where((c) => c.id.equals(id))).go();
+
+  /// 비주얼 노벨 편집 화면의 '등장인물 중 선택'(플레이어블로 승격/강등)에서 쓴다.
+  Future<void> setPlayable(int id, bool isPlayable) {
+    return (_db.update(_db.characters)..where((c) => c.id.equals(id)))
+        .write(CharactersCompanion(isPlayable: Value(isPlayable)));
+  }
+
+  // ── 비주얼 노벨: 캐릭터 표정 세트 ──────────────────────────────────────
+
+  Stream<List<VnCharacterExpression>> watchExpressions(int characterId) {
+    return (_db.select(_db.vnCharacterExpressions)..where((e) => e.characterId.equals(characterId))).watch();
+  }
+
+  Future<List<VnCharacterExpression>> getExpressions(int characterId) {
+    return (_db.select(_db.vnCharacterExpressions)..where((e) => e.characterId.equals(characterId))).get();
+  }
+
+  /// 같은 감정으로 이미 등록된 이미지가 있으면 교체하고, 없으면 새로 추가한다.
+  Future<void> setExpressionImage({
+    required int characterId,
+    required VnEmotion emotion,
+    required String imagePath,
+  }) async {
+    final existing = await (_db.select(_db.vnCharacterExpressions)
+          ..where((e) => e.characterId.equals(characterId) & e.emotion.equalsValue(emotion))
+          ..limit(1))
+        .getSingleOrNull();
+    if (existing != null) {
+      await (_db.update(_db.vnCharacterExpressions)..where((e) => e.id.equals(existing.id)))
+          .write(VnCharacterExpressionsCompanion(imagePath: Value(imagePath)));
+      return;
+    }
+    await _db.into(_db.vnCharacterExpressions).insert(
+          VnCharacterExpressionsCompanion.insert(
+            characterId: characterId,
+            emotion: emotion,
+            imagePath: imagePath,
+          ),
+        );
+  }
+
+  Future<void> deleteExpression(int id) =>
+      (_db.delete(_db.vnCharacterExpressions)..where((e) => e.id.equals(id))).go();
 }

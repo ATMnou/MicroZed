@@ -6,6 +6,8 @@ class ParsedSpeechSegment {
     required this.senderType,
     required this.content,
     this.speakerName,
+    this.vnBackgroundId,
+    this.vnExpression,
   });
 
   final MessageSender senderType;
@@ -13,6 +15,20 @@ class ParsedSpeechSegment {
   /// 캐릭터 발화일 때만 값이 있다. 실제 Character는 이름으로 매칭한다.
   final String? speakerName;
   final String content;
+
+  /// 비주얼 노벨 플롯에서만 채워진다([VnDirectiveParser]가 `[SCENE ...]` 태그를 해석한 결과).
+  final int? vnBackgroundId;
+  final VnEmotion? vnExpression;
+
+  ParsedSpeechSegment copyWith({int? vnBackgroundId, VnEmotion? vnExpression}) {
+    return ParsedSpeechSegment(
+      senderType: senderType,
+      content: content,
+      speakerName: speakerName,
+      vnBackgroundId: vnBackgroundId ?? this.vnBackgroundId,
+      vnExpression: vnExpression ?? this.vnExpression,
+    );
+  }
 }
 
 final _speakerLinePattern = RegExp(r'^@([^:\n]*):\s*(.*)$');

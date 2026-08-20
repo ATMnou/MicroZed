@@ -79,6 +79,9 @@ class IntroEntryRepository {
     int? characterId,
     required IntroEntryType type,
     required String content,
+    int? vnBackgroundId,
+    VnEmotion? vnExpression,
+    VnSceneType vnSceneType = VnSceneType.dialogue,
   }) async {
     final nextOrder = await _nextSortOrder(introVersionId);
     return _db.into(_db.introEntries).insert(
@@ -89,9 +92,95 @@ class IntroEntryRepository {
             type: type,
             content: content,
             sortOrder: Value(nextOrder),
+            vnBackgroundId: Value(vnBackgroundId),
+            vnExpression: Value(vnExpression),
+            vnSceneType: Value(vnSceneType),
           ),
         );
   }
+
+  Future<void> updateVnFields(
+    int id, {
+    String? content,
+    int? vnBackgroundId,
+    bool clearBackground = false,
+    VnEmotion? vnExpression,
+    bool clearExpression = false,
+    VnSceneType? vnSceneType,
+    int? characterId,
+    bool clearCharacter = false,
+  }) {
+    return (_db.update(_db.introEntries)..where((e) => e.id.equals(id))).write(
+      IntroEntriesCompanion(
+        content: content != null ? Value(content) : const Value.absent(),
+        vnBackgroundId: clearBackground
+            ? const Value(null)
+            : (vnBackgroundId != null ? Value(vnBackgroundId) : const Value.absent()),
+        vnExpression:
+            clearExpression ? const Value(null) : (vnExpression != null ? Value(vnExpression) : const Value.absent()),
+        vnSceneType: vnSceneType != null ? Value(vnSceneType) : const Value.absent(),
+        characterId:
+            clearCharacter ? const Value(null) : (characterId != null ? Value(characterId) : const Value.absent()),
+      ),
+    );
+  }
+
+  // ── 비주얼 노벨: 인트로 버전에 붙는 선택지 ───────────────────────────────
+
+  Stream<List<VnChoice>> watchChoices(int introVersionId) {
+    return (_db.select(_db.vnChoices)
+          ..where((c) => c.introVersionId.equals(introVersionId))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .watch();
+  }
+
+  Future<List<VnChoice>> getChoices(int introVersionId) {
+    return (_db.select(_db.vnChoices)
+          ..where((c) => c.introVersionId.equals(introVersionId))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .get();
+  }
+
+  Future<int> addChoice({
+    required int introVersionId,
+    required String content,
+    bool useDice = false,
+    VnDiceDifficulty? difficulty,
+  }) async {
+    final maxOrderExp = _db.vnChoices.sortOrder.max();
+    final query = _db.selectOnly(_db.vnChoices)
+      ..addColumns([maxOrderExp])
+      ..where(_db.vnChoices.introVersionId.equals(introVersionId));
+    final row = await query.getSingle();
+    final nextOrder = (row.read(maxOrderExp) ?? -1) + 1;
+    return _db.into(_db.vnChoices).insert(
+          VnChoicesCompanion.insert(
+            introVersionId: introVersionId,
+            content: content,
+            sortOrder: Value(nextOrder),
+            useDice: Value(useDice),
+            difficulty: Value(difficulty),
+          ),
+        );
+  }
+
+  Future<void> updateChoice({
+    required int id,
+    String? content,
+    bool? useDice,
+    VnDiceDifficulty? difficulty,
+    bool clearDifficulty = false,
+  }) {
+    return (_db.update(_db.vnChoices)..where((c) => c.id.equals(id))).write(
+      VnChoicesCompanion(
+        content: content != null ? Value(content) : const Value.absent(),
+        useDice: useDice != null ? Value(useDice) : const Value.absent(),
+        difficulty: clearDifficulty ? const Value(null) : (difficulty != null ? Value(difficulty) : const Value.absent()),
+      ),
+    );
+  }
+
+  Future<void> deleteChoice(int id) => (_db.delete(_db.vnChoices)..where((c) => c.id.equals(id))).go();
 
   Future<int> _nextSortOrder(int introVersionId) async {
     final maxOrderExp = _db.introEntries.sortOrder.max();

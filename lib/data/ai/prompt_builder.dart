@@ -54,6 +54,7 @@ class PromptBuilder {
     String additionalSystemPrompt = '',
     String loreContext = '',
     String? customTemplate,
+    String extraSystemBlock = '',
   }) {
     // {{char}}는 캐릭터 소개글 안에서 그 캐릭터 자신의 이름을 가리키는 자리표시자다(SillyTavern
     // 캐릭터 카드 관례). 캐릭터별로 자기 이름으로 치환해서, 소개글을 여러 캐릭터에 재사용해도
@@ -88,7 +89,11 @@ class PromptBuilder {
 
     // {{user}}는 여기서 치환하지 않고 리터럴로 남기지만(모델이 응답에 그대로 써야 하는 토큰),
     // 조사 매크로(`{{user}}[을;를]` 같은)는 실제 프로필 이름 기준으로 지금 풀어준다.
-    return KoreanJosaMacro.resolve(filled, aliases: {'{{user}}': userProfileName});
+    final resolved = KoreanJosaMacro.resolve(filled, aliases: {'{{user}}': userProfileName});
+
+    // 비주얼 노벨 연출 지침은 사용자가 커스텀 템플릿을 쓰더라도 항상 붙는다(모드 자체의 요구사항이라서).
+    final vnBlock = extraSystemBlock.trim();
+    return vnBlock.isEmpty ? resolved : '$resolved\n\n$vnBlock';
   }
 
   static List<Map<String, String>> buildHistoryMessages({

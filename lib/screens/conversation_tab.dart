@@ -7,6 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
 import 'chat_screen.dart';
 import 'talk_chat_screen.dart';
+import 'vn_player_screen.dart';
 import '../data/theme/color_palette.dart';
 import '../data/theme/palette_scope.dart';
 
@@ -137,7 +138,11 @@ class _ConversationTabState extends State<ConversationTab> {
                                 selected: _selectedIds.contains(s.session.id),
                                 onToggleSelected: () => _toggleSelected(s.session.id),
                                 onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => ChatScreen(sessionId: s.session.id)),
+                                  MaterialPageRoute(
+                                    builder: (_) => s.plotType == PlotType.visualNovel
+                                        ? VnPlayerScreen(sessionId: s.session.id)
+                                        : ChatScreen(sessionId: s.session.id),
+                                  ),
                                 ),
                               ))
                           .toList(),

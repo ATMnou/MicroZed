@@ -110,6 +110,56 @@ class $PlotsTable extends Plots with TableInfo<$PlotsTable, Plot> {
     defaultValue: currentDateAndTime,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<PlotType, int> plotType =
+      GeneratedColumn<int>(
+        'plot_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<PlotType>($PlotsTable.$converterplotType);
+  @override
+  late final GeneratedColumnWithTypeConverter<VnInputMode, int> vnInputMode =
+      GeneratedColumn<int>(
+        'vn_input_mode',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<VnInputMode>($PlotsTable.$convertervnInputMode);
+  static const VerificationMeta _vnAiInputAssistMeta = const VerificationMeta(
+    'vnAiInputAssist',
+  );
+  @override
+  late final GeneratedColumn<bool> vnAiInputAssist = GeneratedColumn<bool>(
+    'vn_ai_input_assist',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("vn_ai_input_assist" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _vnDiceEnabledMeta = const VerificationMeta(
+    'vnDiceEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> vnDiceEnabled = GeneratedColumn<bool>(
+    'vn_dice_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("vn_dice_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     title,
@@ -120,6 +170,10 @@ class $PlotsTable extends Plots with TableInfo<$PlotsTable, Plot> {
     visibility,
     createdAt,
     updatedAt,
+    plotType,
+    vnInputMode,
+    vnAiInputAssist,
+    vnDiceEnabled,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -188,6 +242,24 @@ class $PlotsTable extends Plots with TableInfo<$PlotsTable, Plot> {
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
+    if (data.containsKey('vn_ai_input_assist')) {
+      context.handle(
+        _vnAiInputAssistMeta,
+        vnAiInputAssist.isAcceptableOrUnknown(
+          data['vn_ai_input_assist']!,
+          _vnAiInputAssistMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vn_dice_enabled')) {
+      context.handle(
+        _vnDiceEnabledMeta,
+        vnDiceEnabled.isAcceptableOrUnknown(
+          data['vn_dice_enabled']!,
+          _vnDiceEnabledMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -235,6 +307,26 @@ class $PlotsTable extends Plots with TableInfo<$PlotsTable, Plot> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      plotType: $PlotsTable.$converterplotType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}plot_type'],
+        )!,
+      ),
+      vnInputMode: $PlotsTable.$convertervnInputMode.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}vn_input_mode'],
+        )!,
+      ),
+      vnAiInputAssist: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}vn_ai_input_assist'],
+      )!,
+      vnDiceEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}vn_dice_enabled'],
+      )!,
     );
   }
 
@@ -245,6 +337,10 @@ class $PlotsTable extends Plots with TableInfo<$PlotsTable, Plot> {
 
   static JsonTypeConverter2<PlotVisibility, int, int> $convertervisibility =
       const EnumIndexConverter<PlotVisibility>(PlotVisibility.values);
+  static JsonTypeConverter2<PlotType, int, int> $converterplotType =
+      const EnumIndexConverter<PlotType>(PlotType.values);
+  static JsonTypeConverter2<VnInputMode, int, int> $convertervnInputMode =
+      const EnumIndexConverter<VnInputMode>(VnInputMode.values);
 }
 
 class Plot extends DataClass implements Insertable<Plot> {
@@ -257,6 +353,14 @@ class Plot extends DataClass implements Insertable<Plot> {
   final PlotVisibility visibility;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// storyChat(기본) 또는 visualNovel. 제작 탭 플롯 생성 시 고르고, 이후에는 바꾸지 않는다.
+  final PlotType plotType;
+
+  /// 아래 3개는 plotType이 visualNovel일 때만 의미가 있다(플레이 설정 탭).
+  final VnInputMode vnInputMode;
+  final bool vnAiInputAssist;
+  final bool vnDiceEnabled;
   const Plot({
     required this.id,
     required this.title,
@@ -267,6 +371,10 @@ class Plot extends DataClass implements Insertable<Plot> {
     required this.visibility,
     required this.createdAt,
     required this.updatedAt,
+    required this.plotType,
+    required this.vnInputMode,
+    required this.vnAiInputAssist,
+    required this.vnDiceEnabled,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -288,6 +396,18 @@ class Plot extends DataClass implements Insertable<Plot> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    {
+      map['plot_type'] = Variable<int>(
+        $PlotsTable.$converterplotType.toSql(plotType),
+      );
+    }
+    {
+      map['vn_input_mode'] = Variable<int>(
+        $PlotsTable.$convertervnInputMode.toSql(vnInputMode),
+      );
+    }
+    map['vn_ai_input_assist'] = Variable<bool>(vnAiInputAssist);
+    map['vn_dice_enabled'] = Variable<bool>(vnDiceEnabled);
     return map;
   }
 
@@ -306,6 +426,10 @@ class Plot extends DataClass implements Insertable<Plot> {
       visibility: Value(visibility),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      plotType: Value(plotType),
+      vnInputMode: Value(vnInputMode),
+      vnAiInputAssist: Value(vnAiInputAssist),
+      vnDiceEnabled: Value(vnDiceEnabled),
     );
   }
 
@@ -326,6 +450,14 @@ class Plot extends DataClass implements Insertable<Plot> {
       ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      plotType: $PlotsTable.$converterplotType.fromJson(
+        serializer.fromJson<int>(json['plotType']),
+      ),
+      vnInputMode: $PlotsTable.$convertervnInputMode.fromJson(
+        serializer.fromJson<int>(json['vnInputMode']),
+      ),
+      vnAiInputAssist: serializer.fromJson<bool>(json['vnAiInputAssist']),
+      vnDiceEnabled: serializer.fromJson<bool>(json['vnDiceEnabled']),
     );
   }
   @override
@@ -343,6 +475,14 @@ class Plot extends DataClass implements Insertable<Plot> {
       ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'plotType': serializer.toJson<int>(
+        $PlotsTable.$converterplotType.toJson(plotType),
+      ),
+      'vnInputMode': serializer.toJson<int>(
+        $PlotsTable.$convertervnInputMode.toJson(vnInputMode),
+      ),
+      'vnAiInputAssist': serializer.toJson<bool>(vnAiInputAssist),
+      'vnDiceEnabled': serializer.toJson<bool>(vnDiceEnabled),
     };
   }
 
@@ -356,6 +496,10 @@ class Plot extends DataClass implements Insertable<Plot> {
     PlotVisibility? visibility,
     DateTime? createdAt,
     DateTime? updatedAt,
+    PlotType? plotType,
+    VnInputMode? vnInputMode,
+    bool? vnAiInputAssist,
+    bool? vnDiceEnabled,
   }) => Plot(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -368,6 +512,10 @@ class Plot extends DataClass implements Insertable<Plot> {
     visibility: visibility ?? this.visibility,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    plotType: plotType ?? this.plotType,
+    vnInputMode: vnInputMode ?? this.vnInputMode,
+    vnAiInputAssist: vnAiInputAssist ?? this.vnAiInputAssist,
+    vnDiceEnabled: vnDiceEnabled ?? this.vnDiceEnabled,
   );
   Plot copyWithCompanion(PlotsCompanion data) {
     return Plot(
@@ -388,6 +536,16 @@ class Plot extends DataClass implements Insertable<Plot> {
           : this.visibility,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      plotType: data.plotType.present ? data.plotType.value : this.plotType,
+      vnInputMode: data.vnInputMode.present
+          ? data.vnInputMode.value
+          : this.vnInputMode,
+      vnAiInputAssist: data.vnAiInputAssist.present
+          ? data.vnAiInputAssist.value
+          : this.vnAiInputAssist,
+      vnDiceEnabled: data.vnDiceEnabled.present
+          ? data.vnDiceEnabled.value
+          : this.vnDiceEnabled,
     );
   }
 
@@ -402,7 +560,11 @@ class Plot extends DataClass implements Insertable<Plot> {
           ..write('hashtags: $hashtags, ')
           ..write('visibility: $visibility, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('plotType: $plotType, ')
+          ..write('vnInputMode: $vnInputMode, ')
+          ..write('vnAiInputAssist: $vnAiInputAssist, ')
+          ..write('vnDiceEnabled: $vnDiceEnabled')
           ..write(')'))
         .toString();
   }
@@ -418,6 +580,10 @@ class Plot extends DataClass implements Insertable<Plot> {
     visibility,
     createdAt,
     updatedAt,
+    plotType,
+    vnInputMode,
+    vnAiInputAssist,
+    vnDiceEnabled,
   );
   @override
   bool operator ==(Object other) =>
@@ -431,7 +597,11 @@ class Plot extends DataClass implements Insertable<Plot> {
           other.hashtags == this.hashtags &&
           other.visibility == this.visibility &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.plotType == this.plotType &&
+          other.vnInputMode == this.vnInputMode &&
+          other.vnAiInputAssist == this.vnAiInputAssist &&
+          other.vnDiceEnabled == this.vnDiceEnabled);
 }
 
 class PlotsCompanion extends UpdateCompanion<Plot> {
@@ -444,6 +614,10 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
   final Value<PlotVisibility> visibility;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<PlotType> plotType;
+  final Value<VnInputMode> vnInputMode;
+  final Value<bool> vnAiInputAssist;
+  final Value<bool> vnDiceEnabled;
   const PlotsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -454,6 +628,10 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
     this.visibility = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.plotType = const Value.absent(),
+    this.vnInputMode = const Value.absent(),
+    this.vnAiInputAssist = const Value.absent(),
+    this.vnDiceEnabled = const Value.absent(),
   });
   PlotsCompanion.insert({
     this.id = const Value.absent(),
@@ -465,6 +643,10 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
     this.visibility = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.plotType = const Value.absent(),
+    this.vnInputMode = const Value.absent(),
+    this.vnAiInputAssist = const Value.absent(),
+    this.vnDiceEnabled = const Value.absent(),
   }) : title = Value(title),
        description = Value(description);
   static Insertable<Plot> custom({
@@ -477,6 +659,10 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
     Expression<int>? visibility,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<int>? plotType,
+    Expression<int>? vnInputMode,
+    Expression<bool>? vnAiInputAssist,
+    Expression<bool>? vnDiceEnabled,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -488,6 +674,10 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
       if (visibility != null) 'visibility': visibility,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (plotType != null) 'plot_type': plotType,
+      if (vnInputMode != null) 'vn_input_mode': vnInputMode,
+      if (vnAiInputAssist != null) 'vn_ai_input_assist': vnAiInputAssist,
+      if (vnDiceEnabled != null) 'vn_dice_enabled': vnDiceEnabled,
     });
   }
 
@@ -501,6 +691,10 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
     Value<PlotVisibility>? visibility,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<PlotType>? plotType,
+    Value<VnInputMode>? vnInputMode,
+    Value<bool>? vnAiInputAssist,
+    Value<bool>? vnDiceEnabled,
   }) {
     return PlotsCompanion(
       id: id ?? this.id,
@@ -512,6 +706,10 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
       visibility: visibility ?? this.visibility,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      plotType: plotType ?? this.plotType,
+      vnInputMode: vnInputMode ?? this.vnInputMode,
+      vnAiInputAssist: vnAiInputAssist ?? this.vnAiInputAssist,
+      vnDiceEnabled: vnDiceEnabled ?? this.vnDiceEnabled,
     );
   }
 
@@ -547,6 +745,22 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (plotType.present) {
+      map['plot_type'] = Variable<int>(
+        $PlotsTable.$converterplotType.toSql(plotType.value),
+      );
+    }
+    if (vnInputMode.present) {
+      map['vn_input_mode'] = Variable<int>(
+        $PlotsTable.$convertervnInputMode.toSql(vnInputMode.value),
+      );
+    }
+    if (vnAiInputAssist.present) {
+      map['vn_ai_input_assist'] = Variable<bool>(vnAiInputAssist.value);
+    }
+    if (vnDiceEnabled.present) {
+      map['vn_dice_enabled'] = Variable<bool>(vnDiceEnabled.value);
+    }
     return map;
   }
 
@@ -561,7 +775,11 @@ class PlotsCompanion extends UpdateCompanion<Plot> {
           ..write('hashtags: $hashtags, ')
           ..write('visibility: $visibility, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('plotType: $plotType, ')
+          ..write('vnInputMode: $vnInputMode, ')
+          ..write('vnAiInputAssist: $vnAiInputAssist, ')
+          ..write('vnDiceEnabled: $vnDiceEnabled')
           ..write(')'))
         .toString();
   }
@@ -669,6 +887,21 @@ class $CharactersTable extends Characters
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _isPlayableMeta = const VerificationMeta(
+    'isPlayable',
+  );
+  @override
+  late final GeneratedColumn<bool> isPlayable = GeneratedColumn<bool>(
+    'is_playable',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_playable" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -679,6 +912,7 @@ class $CharactersTable extends Characters
     isRepresentative,
     sortOrder,
     aboutText,
+    isPlayable,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -747,6 +981,12 @@ class $CharactersTable extends Characters
         aboutText.isAcceptableOrUnknown(data['about_text']!, _aboutTextMeta),
       );
     }
+    if (data.containsKey('is_playable')) {
+      context.handle(
+        _isPlayableMeta,
+        isPlayable.isAcceptableOrUnknown(data['is_playable']!, _isPlayableMeta),
+      );
+    }
     return context;
   }
 
@@ -788,6 +1028,10 @@ class $CharactersTable extends Characters
         DriftSqlType.string,
         data['${effectivePrefix}about_text'],
       )!,
+      isPlayable: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_playable'],
+      )!,
     );
   }
 
@@ -809,6 +1053,10 @@ class Character extends DataClass implements Insertable<Character> {
   /// 플롯 편집 > 소개 탭에서 캐릭터별로 작성하는 상세 페이지용 소개 마크다운.
   /// AI에게는 전달되지 않고 상세 페이지 표시 전용이다(AI용 페르소나는 [description]).
   final String aboutText;
+
+  /// 비주얼 노벨 플롯에서만 의미가 있다. true면 '플레이어블 캐릭터'(플레이어가 빙의해서
+  /// 진행하는 주인공 후보)로 취급된다.
+  final bool isPlayable;
   const Character({
     required this.id,
     required this.plotId,
@@ -818,6 +1066,7 @@ class Character extends DataClass implements Insertable<Character> {
     required this.isRepresentative,
     required this.sortOrder,
     required this.aboutText,
+    required this.isPlayable,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -832,6 +1081,7 @@ class Character extends DataClass implements Insertable<Character> {
     map['is_representative'] = Variable<bool>(isRepresentative);
     map['sort_order'] = Variable<int>(sortOrder);
     map['about_text'] = Variable<String>(aboutText);
+    map['is_playable'] = Variable<bool>(isPlayable);
     return map;
   }
 
@@ -847,6 +1097,7 @@ class Character extends DataClass implements Insertable<Character> {
       isRepresentative: Value(isRepresentative),
       sortOrder: Value(sortOrder),
       aboutText: Value(aboutText),
+      isPlayable: Value(isPlayable),
     );
   }
 
@@ -864,6 +1115,7 @@ class Character extends DataClass implements Insertable<Character> {
       isRepresentative: serializer.fromJson<bool>(json['isRepresentative']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       aboutText: serializer.fromJson<String>(json['aboutText']),
+      isPlayable: serializer.fromJson<bool>(json['isPlayable']),
     );
   }
   @override
@@ -878,6 +1130,7 @@ class Character extends DataClass implements Insertable<Character> {
       'isRepresentative': serializer.toJson<bool>(isRepresentative),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'aboutText': serializer.toJson<String>(aboutText),
+      'isPlayable': serializer.toJson<bool>(isPlayable),
     };
   }
 
@@ -890,6 +1143,7 @@ class Character extends DataClass implements Insertable<Character> {
     bool? isRepresentative,
     int? sortOrder,
     String? aboutText,
+    bool? isPlayable,
   }) => Character(
     id: id ?? this.id,
     plotId: plotId ?? this.plotId,
@@ -899,6 +1153,7 @@ class Character extends DataClass implements Insertable<Character> {
     isRepresentative: isRepresentative ?? this.isRepresentative,
     sortOrder: sortOrder ?? this.sortOrder,
     aboutText: aboutText ?? this.aboutText,
+    isPlayable: isPlayable ?? this.isPlayable,
   );
   Character copyWithCompanion(CharactersCompanion data) {
     return Character(
@@ -914,6 +1169,9 @@ class Character extends DataClass implements Insertable<Character> {
           : this.isRepresentative,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       aboutText: data.aboutText.present ? data.aboutText.value : this.aboutText,
+      isPlayable: data.isPlayable.present
+          ? data.isPlayable.value
+          : this.isPlayable,
     );
   }
 
@@ -927,7 +1185,8 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('imagePath: $imagePath, ')
           ..write('isRepresentative: $isRepresentative, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('aboutText: $aboutText')
+          ..write('aboutText: $aboutText, ')
+          ..write('isPlayable: $isPlayable')
           ..write(')'))
         .toString();
   }
@@ -942,6 +1201,7 @@ class Character extends DataClass implements Insertable<Character> {
     isRepresentative,
     sortOrder,
     aboutText,
+    isPlayable,
   );
   @override
   bool operator ==(Object other) =>
@@ -954,7 +1214,8 @@ class Character extends DataClass implements Insertable<Character> {
           other.imagePath == this.imagePath &&
           other.isRepresentative == this.isRepresentative &&
           other.sortOrder == this.sortOrder &&
-          other.aboutText == this.aboutText);
+          other.aboutText == this.aboutText &&
+          other.isPlayable == this.isPlayable);
 }
 
 class CharactersCompanion extends UpdateCompanion<Character> {
@@ -966,6 +1227,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<bool> isRepresentative;
   final Value<int> sortOrder;
   final Value<String> aboutText;
+  final Value<bool> isPlayable;
   const CharactersCompanion({
     this.id = const Value.absent(),
     this.plotId = const Value.absent(),
@@ -975,6 +1237,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.isRepresentative = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.aboutText = const Value.absent(),
+    this.isPlayable = const Value.absent(),
   });
   CharactersCompanion.insert({
     this.id = const Value.absent(),
@@ -985,6 +1248,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.isRepresentative = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.aboutText = const Value.absent(),
+    this.isPlayable = const Value.absent(),
   }) : plotId = Value(plotId),
        name = Value(name);
   static Insertable<Character> custom({
@@ -996,6 +1260,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<bool>? isRepresentative,
     Expression<int>? sortOrder,
     Expression<String>? aboutText,
+    Expression<bool>? isPlayable,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1006,6 +1271,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (isRepresentative != null) 'is_representative': isRepresentative,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (aboutText != null) 'about_text': aboutText,
+      if (isPlayable != null) 'is_playable': isPlayable,
     });
   }
 
@@ -1018,6 +1284,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<bool>? isRepresentative,
     Value<int>? sortOrder,
     Value<String>? aboutText,
+    Value<bool>? isPlayable,
   }) {
     return CharactersCompanion(
       id: id ?? this.id,
@@ -1028,6 +1295,7 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       isRepresentative: isRepresentative ?? this.isRepresentative,
       sortOrder: sortOrder ?? this.sortOrder,
       aboutText: aboutText ?? this.aboutText,
+      isPlayable: isPlayable ?? this.isPlayable,
     );
   }
 
@@ -1058,6 +1326,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (aboutText.present) {
       map['about_text'] = Variable<String>(aboutText.value);
     }
+    if (isPlayable.present) {
+      map['is_playable'] = Variable<bool>(isPlayable.value);
+    }
     return map;
   }
 
@@ -1071,7 +1342,8 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('imagePath: $imagePath, ')
           ..write('isRepresentative: $isRepresentative, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('aboutText: $aboutText')
+          ..write('aboutText: $aboutText, ')
+          ..write('isPlayable: $isPlayable')
           ..write(')'))
         .toString();
   }
@@ -1374,6 +1646,355 @@ class IntroVersionsCompanion extends UpdateCompanion<IntroVersion> {
   }
 }
 
+class $VnBackgroundsTable extends VnBackgrounds
+    with TableInfo<$VnBackgroundsTable, VnBackground> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VnBackgroundsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _plotIdMeta = const VerificationMeta('plotId');
+  @override
+  late final GeneratedColumn<int> plotId = GeneratedColumn<int>(
+    'plot_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES plots (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _imagePathMeta = const VerificationMeta(
+    'imagePath',
+  );
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+    'image_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    plotId,
+    title,
+    imagePath,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vn_backgrounds';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VnBackground> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('plot_id')) {
+      context.handle(
+        _plotIdMeta,
+        plotId.isAcceptableOrUnknown(data['plot_id']!, _plotIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_plotIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('image_path')) {
+      context.handle(
+        _imagePathMeta,
+        imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_imagePathMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VnBackground map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VnBackground(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      plotId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}plot_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      imagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_path'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $VnBackgroundsTable createAlias(String alias) {
+    return $VnBackgroundsTable(attachedDatabase, alias);
+  }
+}
+
+class VnBackground extends DataClass implements Insertable<VnBackground> {
+  final int id;
+  final int plotId;
+  final String title;
+  final String imagePath;
+  final int sortOrder;
+  const VnBackground({
+    required this.id,
+    required this.plotId,
+    required this.title,
+    required this.imagePath,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['plot_id'] = Variable<int>(plotId);
+    map['title'] = Variable<String>(title);
+    map['image_path'] = Variable<String>(imagePath);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  VnBackgroundsCompanion toCompanion(bool nullToAbsent) {
+    return VnBackgroundsCompanion(
+      id: Value(id),
+      plotId: Value(plotId),
+      title: Value(title),
+      imagePath: Value(imagePath),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory VnBackground.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VnBackground(
+      id: serializer.fromJson<int>(json['id']),
+      plotId: serializer.fromJson<int>(json['plotId']),
+      title: serializer.fromJson<String>(json['title']),
+      imagePath: serializer.fromJson<String>(json['imagePath']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'plotId': serializer.toJson<int>(plotId),
+      'title': serializer.toJson<String>(title),
+      'imagePath': serializer.toJson<String>(imagePath),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  VnBackground copyWith({
+    int? id,
+    int? plotId,
+    String? title,
+    String? imagePath,
+    int? sortOrder,
+  }) => VnBackground(
+    id: id ?? this.id,
+    plotId: plotId ?? this.plotId,
+    title: title ?? this.title,
+    imagePath: imagePath ?? this.imagePath,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  VnBackground copyWithCompanion(VnBackgroundsCompanion data) {
+    return VnBackground(
+      id: data.id.present ? data.id.value : this.id,
+      plotId: data.plotId.present ? data.plotId.value : this.plotId,
+      title: data.title.present ? data.title.value : this.title,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VnBackground(')
+          ..write('id: $id, ')
+          ..write('plotId: $plotId, ')
+          ..write('title: $title, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, plotId, title, imagePath, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VnBackground &&
+          other.id == this.id &&
+          other.plotId == this.plotId &&
+          other.title == this.title &&
+          other.imagePath == this.imagePath &&
+          other.sortOrder == this.sortOrder);
+}
+
+class VnBackgroundsCompanion extends UpdateCompanion<VnBackground> {
+  final Value<int> id;
+  final Value<int> plotId;
+  final Value<String> title;
+  final Value<String> imagePath;
+  final Value<int> sortOrder;
+  const VnBackgroundsCompanion({
+    this.id = const Value.absent(),
+    this.plotId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.imagePath = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  });
+  VnBackgroundsCompanion.insert({
+    this.id = const Value.absent(),
+    required int plotId,
+    required String title,
+    required String imagePath,
+    this.sortOrder = const Value.absent(),
+  }) : plotId = Value(plotId),
+       title = Value(title),
+       imagePath = Value(imagePath);
+  static Insertable<VnBackground> custom({
+    Expression<int>? id,
+    Expression<int>? plotId,
+    Expression<String>? title,
+    Expression<String>? imagePath,
+    Expression<int>? sortOrder,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (plotId != null) 'plot_id': plotId,
+      if (title != null) 'title': title,
+      if (imagePath != null) 'image_path': imagePath,
+      if (sortOrder != null) 'sort_order': sortOrder,
+    });
+  }
+
+  VnBackgroundsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? plotId,
+    Value<String>? title,
+    Value<String>? imagePath,
+    Value<int>? sortOrder,
+  }) {
+    return VnBackgroundsCompanion(
+      id: id ?? this.id,
+      plotId: plotId ?? this.plotId,
+      title: title ?? this.title,
+      imagePath: imagePath ?? this.imagePath,
+      sortOrder: sortOrder ?? this.sortOrder,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (plotId.present) {
+      map['plot_id'] = Variable<int>(plotId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VnBackgroundsCompanion(')
+          ..write('id: $id, ')
+          ..write('plotId: $plotId, ')
+          ..write('title: $title, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $IntroEntriesTable extends IntroEntries
     with TableInfo<$IntroEntriesTable, IntroEntry> {
   @override
@@ -1465,6 +2086,39 @@ class $IntroEntriesTable extends IntroEntries
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _vnBackgroundIdMeta = const VerificationMeta(
+    'vnBackgroundId',
+  );
+  @override
+  late final GeneratedColumn<int> vnBackgroundId = GeneratedColumn<int>(
+    'vn_background_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES vn_backgrounds (id) ON DELETE SET NULL',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<VnEmotion?, int> vnExpression =
+      GeneratedColumn<int>(
+        'vn_expression',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<VnEmotion?>($IntroEntriesTable.$convertervnExpressionn);
+  @override
+  late final GeneratedColumnWithTypeConverter<VnSceneType, int> vnSceneType =
+      GeneratedColumn<int>(
+        'vn_scene_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<VnSceneType>($IntroEntriesTable.$convertervnSceneType);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1474,6 +2128,9 @@ class $IntroEntriesTable extends IntroEntries
     type,
     content,
     sortOrder,
+    vnBackgroundId,
+    vnExpression,
+    vnSceneType,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1530,6 +2187,15 @@ class $IntroEntriesTable extends IntroEntries
         sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
       );
     }
+    if (data.containsKey('vn_background_id')) {
+      context.handle(
+        _vnBackgroundIdMeta,
+        vnBackgroundId.isAcceptableOrUnknown(
+          data['vn_background_id']!,
+          _vnBackgroundIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1569,6 +2235,22 @@ class $IntroEntriesTable extends IntroEntries
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
       )!,
+      vnBackgroundId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}vn_background_id'],
+      ),
+      vnExpression: $IntroEntriesTable.$convertervnExpressionn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}vn_expression'],
+        ),
+      ),
+      vnSceneType: $IntroEntriesTable.$convertervnSceneType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}vn_scene_type'],
+        )!,
+      ),
     );
   }
 
@@ -1579,6 +2261,12 @@ class $IntroEntriesTable extends IntroEntries
 
   static JsonTypeConverter2<IntroEntryType, int, int> $convertertype =
       const EnumIndexConverter<IntroEntryType>(IntroEntryType.values);
+  static JsonTypeConverter2<VnEmotion, int, int> $convertervnExpression =
+      const EnumIndexConverter<VnEmotion>(VnEmotion.values);
+  static JsonTypeConverter2<VnEmotion?, int?, int?> $convertervnExpressionn =
+      JsonTypeConverter2.asNullable($convertervnExpression);
+  static JsonTypeConverter2<VnSceneType, int, int> $convertervnSceneType =
+      const EnumIndexConverter<VnSceneType>(VnSceneType.values);
 }
 
 class IntroEntry extends DataClass implements Insertable<IntroEntry> {
@@ -1589,6 +2277,11 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
   final IntroEntryType type;
   final String content;
   final int sortOrder;
+
+  /// 아래 3개는 plotType이 visualNovel인 플롯의 인트로 줄에서만 쓰인다.
+  final int? vnBackgroundId;
+  final VnEmotion? vnExpression;
+  final VnSceneType vnSceneType;
   const IntroEntry({
     required this.id,
     required this.plotId,
@@ -1597,6 +2290,9 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
     required this.type,
     required this.content,
     required this.sortOrder,
+    this.vnBackgroundId,
+    this.vnExpression,
+    required this.vnSceneType,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1616,6 +2312,19 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
     }
     map['content'] = Variable<String>(content);
     map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || vnBackgroundId != null) {
+      map['vn_background_id'] = Variable<int>(vnBackgroundId);
+    }
+    if (!nullToAbsent || vnExpression != null) {
+      map['vn_expression'] = Variable<int>(
+        $IntroEntriesTable.$convertervnExpressionn.toSql(vnExpression),
+      );
+    }
+    {
+      map['vn_scene_type'] = Variable<int>(
+        $IntroEntriesTable.$convertervnSceneType.toSql(vnSceneType),
+      );
+    }
     return map;
   }
 
@@ -1632,6 +2341,13 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
       type: Value(type),
       content: Value(content),
       sortOrder: Value(sortOrder),
+      vnBackgroundId: vnBackgroundId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vnBackgroundId),
+      vnExpression: vnExpression == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vnExpression),
+      vnSceneType: Value(vnSceneType),
     );
   }
 
@@ -1650,6 +2366,13 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
       ),
       content: serializer.fromJson<String>(json['content']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      vnBackgroundId: serializer.fromJson<int?>(json['vnBackgroundId']),
+      vnExpression: $IntroEntriesTable.$convertervnExpressionn.fromJson(
+        serializer.fromJson<int?>(json['vnExpression']),
+      ),
+      vnSceneType: $IntroEntriesTable.$convertervnSceneType.fromJson(
+        serializer.fromJson<int>(json['vnSceneType']),
+      ),
     );
   }
   @override
@@ -1665,6 +2388,13 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
       ),
       'content': serializer.toJson<String>(content),
       'sortOrder': serializer.toJson<int>(sortOrder),
+      'vnBackgroundId': serializer.toJson<int?>(vnBackgroundId),
+      'vnExpression': serializer.toJson<int?>(
+        $IntroEntriesTable.$convertervnExpressionn.toJson(vnExpression),
+      ),
+      'vnSceneType': serializer.toJson<int>(
+        $IntroEntriesTable.$convertervnSceneType.toJson(vnSceneType),
+      ),
     };
   }
 
@@ -1676,6 +2406,9 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
     IntroEntryType? type,
     String? content,
     int? sortOrder,
+    Value<int?> vnBackgroundId = const Value.absent(),
+    Value<VnEmotion?> vnExpression = const Value.absent(),
+    VnSceneType? vnSceneType,
   }) => IntroEntry(
     id: id ?? this.id,
     plotId: plotId ?? this.plotId,
@@ -1686,6 +2419,11 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
     type: type ?? this.type,
     content: content ?? this.content,
     sortOrder: sortOrder ?? this.sortOrder,
+    vnBackgroundId: vnBackgroundId.present
+        ? vnBackgroundId.value
+        : this.vnBackgroundId,
+    vnExpression: vnExpression.present ? vnExpression.value : this.vnExpression,
+    vnSceneType: vnSceneType ?? this.vnSceneType,
   );
   IntroEntry copyWithCompanion(IntroEntriesCompanion data) {
     return IntroEntry(
@@ -1700,6 +2438,15 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
       type: data.type.present ? data.type.value : this.type,
       content: data.content.present ? data.content.value : this.content,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      vnBackgroundId: data.vnBackgroundId.present
+          ? data.vnBackgroundId.value
+          : this.vnBackgroundId,
+      vnExpression: data.vnExpression.present
+          ? data.vnExpression.value
+          : this.vnExpression,
+      vnSceneType: data.vnSceneType.present
+          ? data.vnSceneType.value
+          : this.vnSceneType,
     );
   }
 
@@ -1712,7 +2459,10 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
           ..write('characterId: $characterId, ')
           ..write('type: $type, ')
           ..write('content: $content, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('vnBackgroundId: $vnBackgroundId, ')
+          ..write('vnExpression: $vnExpression, ')
+          ..write('vnSceneType: $vnSceneType')
           ..write(')'))
         .toString();
   }
@@ -1726,6 +2476,9 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
     type,
     content,
     sortOrder,
+    vnBackgroundId,
+    vnExpression,
+    vnSceneType,
   );
   @override
   bool operator ==(Object other) =>
@@ -1737,7 +2490,10 @@ class IntroEntry extends DataClass implements Insertable<IntroEntry> {
           other.characterId == this.characterId &&
           other.type == this.type &&
           other.content == this.content &&
-          other.sortOrder == this.sortOrder);
+          other.sortOrder == this.sortOrder &&
+          other.vnBackgroundId == this.vnBackgroundId &&
+          other.vnExpression == this.vnExpression &&
+          other.vnSceneType == this.vnSceneType);
 }
 
 class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
@@ -1748,6 +2504,9 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
   final Value<IntroEntryType> type;
   final Value<String> content;
   final Value<int> sortOrder;
+  final Value<int?> vnBackgroundId;
+  final Value<VnEmotion?> vnExpression;
+  final Value<VnSceneType> vnSceneType;
   const IntroEntriesCompanion({
     this.id = const Value.absent(),
     this.plotId = const Value.absent(),
@@ -1756,6 +2515,9 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
     this.type = const Value.absent(),
     this.content = const Value.absent(),
     this.sortOrder = const Value.absent(),
+    this.vnBackgroundId = const Value.absent(),
+    this.vnExpression = const Value.absent(),
+    this.vnSceneType = const Value.absent(),
   });
   IntroEntriesCompanion.insert({
     this.id = const Value.absent(),
@@ -1765,6 +2527,9 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
     required IntroEntryType type,
     required String content,
     this.sortOrder = const Value.absent(),
+    this.vnBackgroundId = const Value.absent(),
+    this.vnExpression = const Value.absent(),
+    this.vnSceneType = const Value.absent(),
   }) : plotId = Value(plotId),
        type = Value(type),
        content = Value(content);
@@ -1776,6 +2541,9 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
     Expression<int>? type,
     Expression<String>? content,
     Expression<int>? sortOrder,
+    Expression<int>? vnBackgroundId,
+    Expression<int>? vnExpression,
+    Expression<int>? vnSceneType,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1785,6 +2553,9 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
       if (type != null) 'type': type,
       if (content != null) 'content': content,
       if (sortOrder != null) 'sort_order': sortOrder,
+      if (vnBackgroundId != null) 'vn_background_id': vnBackgroundId,
+      if (vnExpression != null) 'vn_expression': vnExpression,
+      if (vnSceneType != null) 'vn_scene_type': vnSceneType,
     });
   }
 
@@ -1796,6 +2567,9 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
     Value<IntroEntryType>? type,
     Value<String>? content,
     Value<int>? sortOrder,
+    Value<int?>? vnBackgroundId,
+    Value<VnEmotion?>? vnExpression,
+    Value<VnSceneType>? vnSceneType,
   }) {
     return IntroEntriesCompanion(
       id: id ?? this.id,
@@ -1805,6 +2579,9 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
       type: type ?? this.type,
       content: content ?? this.content,
       sortOrder: sortOrder ?? this.sortOrder,
+      vnBackgroundId: vnBackgroundId ?? this.vnBackgroundId,
+      vnExpression: vnExpression ?? this.vnExpression,
+      vnSceneType: vnSceneType ?? this.vnSceneType,
     );
   }
 
@@ -1834,6 +2611,19 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
+    if (vnBackgroundId.present) {
+      map['vn_background_id'] = Variable<int>(vnBackgroundId.value);
+    }
+    if (vnExpression.present) {
+      map['vn_expression'] = Variable<int>(
+        $IntroEntriesTable.$convertervnExpressionn.toSql(vnExpression.value),
+      );
+    }
+    if (vnSceneType.present) {
+      map['vn_scene_type'] = Variable<int>(
+        $IntroEntriesTable.$convertervnSceneType.toSql(vnSceneType.value),
+      );
+    }
     return map;
   }
 
@@ -1846,7 +2636,10 @@ class IntroEntriesCompanion extends UpdateCompanion<IntroEntry> {
           ..write('characterId: $characterId, ')
           ..write('type: $type, ')
           ..write('content: $content, ')
-          ..write('sortOrder: $sortOrder')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('vnBackgroundId: $vnBackgroundId, ')
+          ..write('vnExpression: $vnExpression, ')
+          ..write('vnSceneType: $vnSceneType')
           ..write(')'))
         .toString();
   }
@@ -4241,6 +5034,19 @@ class $ChatSessionsTable extends ChatSessions
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _vnPlayableCharacterIdMeta =
+      const VerificationMeta('vnPlayableCharacterId');
+  @override
+  late final GeneratedColumn<int> vnPlayableCharacterId = GeneratedColumn<int>(
+    'vn_playable_character_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id) ON DELETE SET NULL',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4253,6 +5059,7 @@ class $ChatSessionsTable extends ChatSessions
     createdAt,
     updatedAt,
     archivedAt,
+    vnPlayableCharacterId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4331,6 +5138,15 @@ class $ChatSessionsTable extends ChatSessions
         archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
       );
     }
+    if (data.containsKey('vn_playable_character_id')) {
+      context.handle(
+        _vnPlayableCharacterIdMeta,
+        vnPlayableCharacterId.isAcceptableOrUnknown(
+          data['vn_playable_character_id']!,
+          _vnPlayableCharacterIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4380,6 +5196,10 @@ class $ChatSessionsTable extends ChatSessions
         DriftSqlType.dateTime,
         data['${effectivePrefix}archived_at'],
       ),
+      vnPlayableCharacterId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}vn_playable_character_id'],
+      ),
     );
   }
 
@@ -4405,6 +5225,10 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
   /// null이면 현재 진행 중인 활성 대화. 값이 있으면 '새로하기'로 저장되어 '이어하기'
   /// 목록에만 노출되는 보관된 대화이며, 값은 저장된 시각이다.
   final DateTime? archivedAt;
+
+  /// 비주얼 노벨 플롯에서만 쓰인다. 플레이어가 시작할 때 고른 플레이어블 캐릭터
+  /// (Characters.isPlayable = true인 행). null이면 아직 안 골랐거나 스토리챗 플롯이다.
+  final int? vnPlayableCharacterId;
   const ChatSession({
     required this.id,
     required this.plotId,
@@ -4416,6 +5240,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     required this.createdAt,
     required this.updatedAt,
     this.archivedAt,
+    this.vnPlayableCharacterId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4439,6 +5264,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || archivedAt != null) {
       map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    if (!nullToAbsent || vnPlayableCharacterId != null) {
+      map['vn_playable_character_id'] = Variable<int>(vnPlayableCharacterId);
     }
     return map;
   }
@@ -4464,6 +5292,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
       archivedAt: archivedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(archivedAt),
+      vnPlayableCharacterId: vnPlayableCharacterId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vnPlayableCharacterId),
     );
   }
 
@@ -4487,6 +5318,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+      vnPlayableCharacterId: serializer.fromJson<int?>(
+        json['vnPlayableCharacterId'],
+      ),
     );
   }
   @override
@@ -4505,6 +5339,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+      'vnPlayableCharacterId': serializer.toJson<int?>(vnPlayableCharacterId),
     };
   }
 
@@ -4519,6 +5354,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> archivedAt = const Value.absent(),
+    Value<int?> vnPlayableCharacterId = const Value.absent(),
   }) => ChatSession(
     id: id ?? this.id,
     plotId: plotId ?? this.plotId,
@@ -4534,6 +5370,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    vnPlayableCharacterId: vnPlayableCharacterId.present
+        ? vnPlayableCharacterId.value
+        : this.vnPlayableCharacterId,
   );
   ChatSession copyWithCompanion(ChatSessionsCompanion data) {
     return ChatSession(
@@ -4553,6 +5392,9 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
       archivedAt: data.archivedAt.present
           ? data.archivedAt.value
           : this.archivedAt,
+      vnPlayableCharacterId: data.vnPlayableCharacterId.present
+          ? data.vnPlayableCharacterId.value
+          : this.vnPlayableCharacterId,
     );
   }
 
@@ -4568,7 +5410,8 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
           ..write('locked: $locked, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('archivedAt: $archivedAt')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('vnPlayableCharacterId: $vnPlayableCharacterId')
           ..write(')'))
         .toString();
   }
@@ -4585,6 +5428,7 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
     createdAt,
     updatedAt,
     archivedAt,
+    vnPlayableCharacterId,
   );
   @override
   bool operator ==(Object other) =>
@@ -4599,7 +5443,8 @@ class ChatSession extends DataClass implements Insertable<ChatSession> {
           other.locked == this.locked &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
-          other.archivedAt == this.archivedAt);
+          other.archivedAt == this.archivedAt &&
+          other.vnPlayableCharacterId == this.vnPlayableCharacterId);
 }
 
 class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
@@ -4613,6 +5458,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> archivedAt;
+  final Value<int?> vnPlayableCharacterId;
   const ChatSessionsCompanion({
     this.id = const Value.absent(),
     this.plotId = const Value.absent(),
@@ -4624,6 +5470,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.archivedAt = const Value.absent(),
+    this.vnPlayableCharacterId = const Value.absent(),
   });
   ChatSessionsCompanion.insert({
     this.id = const Value.absent(),
@@ -4636,6 +5483,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.archivedAt = const Value.absent(),
+    this.vnPlayableCharacterId = const Value.absent(),
   }) : plotId = Value(plotId);
   static Insertable<ChatSession> custom({
     Expression<int>? id,
@@ -4648,6 +5496,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? archivedAt,
+    Expression<int>? vnPlayableCharacterId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -4662,6 +5511,8 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (archivedAt != null) 'archived_at': archivedAt,
+      if (vnPlayableCharacterId != null)
+        'vn_playable_character_id': vnPlayableCharacterId,
     });
   }
 
@@ -4676,6 +5527,7 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? archivedAt,
+    Value<int?>? vnPlayableCharacterId,
   }) {
     return ChatSessionsCompanion(
       id: id ?? this.id,
@@ -4690,6 +5542,8 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       archivedAt: archivedAt ?? this.archivedAt,
+      vnPlayableCharacterId:
+          vnPlayableCharacterId ?? this.vnPlayableCharacterId,
     );
   }
 
@@ -4730,6 +5584,11 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
     if (archivedAt.present) {
       map['archived_at'] = Variable<DateTime>(archivedAt.value);
     }
+    if (vnPlayableCharacterId.present) {
+      map['vn_playable_character_id'] = Variable<int>(
+        vnPlayableCharacterId.value,
+      );
+    }
     return map;
   }
 
@@ -4745,7 +5604,8 @@ class ChatSessionsCompanion extends UpdateCompanion<ChatSession> {
           ..write('locked: $locked, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
-          ..write('archivedAt: $archivedAt')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('vnPlayableCharacterId: $vnPlayableCharacterId')
           ..write(')'))
         .toString();
   }
@@ -5188,6 +6048,29 @@ class $ChatMessagesTable extends ChatMessages
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _vnBackgroundIdMeta = const VerificationMeta(
+    'vnBackgroundId',
+  );
+  @override
+  late final GeneratedColumn<int> vnBackgroundId = GeneratedColumn<int>(
+    'vn_background_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES vn_backgrounds (id) ON DELETE SET NULL',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<VnEmotion?, int> vnExpression =
+      GeneratedColumn<int>(
+        'vn_expression',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<VnEmotion?>($ChatMessagesTable.$convertervnExpressionn);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5200,6 +6083,8 @@ class $ChatMessagesTable extends ChatMessages
     turnId,
     versionIndex,
     turnSortOrder,
+    vnBackgroundId,
+    vnExpression,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5280,6 +6165,15 @@ class $ChatMessagesTable extends ChatMessages
         ),
       );
     }
+    if (data.containsKey('vn_background_id')) {
+      context.handle(
+        _vnBackgroundIdMeta,
+        vnBackgroundId.isAcceptableOrUnknown(
+          data['vn_background_id']!,
+          _vnBackgroundIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5331,6 +6225,16 @@ class $ChatMessagesTable extends ChatMessages
         DriftSqlType.int,
         data['${effectivePrefix}turn_sort_order'],
       )!,
+      vnBackgroundId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}vn_background_id'],
+      ),
+      vnExpression: $ChatMessagesTable.$convertervnExpressionn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}vn_expression'],
+        ),
+      ),
     );
   }
 
@@ -5341,6 +6245,10 @@ class $ChatMessagesTable extends ChatMessages
 
   static JsonTypeConverter2<MessageSender, int, int> $convertersenderType =
       const EnumIndexConverter<MessageSender>(MessageSender.values);
+  static JsonTypeConverter2<VnEmotion, int, int> $convertervnExpression =
+      const EnumIndexConverter<VnEmotion>(VnEmotion.values);
+  static JsonTypeConverter2<VnEmotion?, int?, int?> $convertervnExpressionn =
+      JsonTypeConverter2.asNullable($convertervnExpression);
 }
 
 class ChatMessage extends DataClass implements Insertable<ChatMessage> {
@@ -5361,6 +6269,11 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
   final int? turnId;
   final int versionIndex;
   final int turnSortOrder;
+
+  /// 아래 2개는 plotType이 visualNovel인 플롯의 메시지에서만 쓰인다. AI 응답의 씬 태그
+  /// ([SCENE bg=... expr=...])를 파싱해서 채워 넣는다 - 화면에 어떤 배경/표정을 보여줄지 결정한다.
+  final int? vnBackgroundId;
+  final VnEmotion? vnExpression;
   const ChatMessage({
     required this.id,
     required this.sessionId,
@@ -5372,6 +6285,8 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     this.turnId,
     required this.versionIndex,
     required this.turnSortOrder,
+    this.vnBackgroundId,
+    this.vnExpression,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5396,6 +6311,14 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     }
     map['version_index'] = Variable<int>(versionIndex);
     map['turn_sort_order'] = Variable<int>(turnSortOrder);
+    if (!nullToAbsent || vnBackgroundId != null) {
+      map['vn_background_id'] = Variable<int>(vnBackgroundId);
+    }
+    if (!nullToAbsent || vnExpression != null) {
+      map['vn_expression'] = Variable<int>(
+        $ChatMessagesTable.$convertervnExpressionn.toSql(vnExpression),
+      );
+    }
     return map;
   }
 
@@ -5417,6 +6340,12 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
           : Value(turnId),
       versionIndex: Value(versionIndex),
       turnSortOrder: Value(turnSortOrder),
+      vnBackgroundId: vnBackgroundId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vnBackgroundId),
+      vnExpression: vnExpression == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vnExpression),
     );
   }
 
@@ -5440,6 +6369,10 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       turnId: serializer.fromJson<int?>(json['turnId']),
       versionIndex: serializer.fromJson<int>(json['versionIndex']),
       turnSortOrder: serializer.fromJson<int>(json['turnSortOrder']),
+      vnBackgroundId: serializer.fromJson<int?>(json['vnBackgroundId']),
+      vnExpression: $ChatMessagesTable.$convertervnExpressionn.fromJson(
+        serializer.fromJson<int?>(json['vnExpression']),
+      ),
     );
   }
   @override
@@ -5458,6 +6391,10 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       'turnId': serializer.toJson<int?>(turnId),
       'versionIndex': serializer.toJson<int>(versionIndex),
       'turnSortOrder': serializer.toJson<int>(turnSortOrder),
+      'vnBackgroundId': serializer.toJson<int?>(vnBackgroundId),
+      'vnExpression': serializer.toJson<int?>(
+        $ChatMessagesTable.$convertervnExpressionn.toJson(vnExpression),
+      ),
     };
   }
 
@@ -5472,6 +6409,8 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     Value<int?> turnId = const Value.absent(),
     int? versionIndex,
     int? turnSortOrder,
+    Value<int?> vnBackgroundId = const Value.absent(),
+    Value<VnEmotion?> vnExpression = const Value.absent(),
   }) => ChatMessage(
     id: id ?? this.id,
     sessionId: sessionId ?? this.sessionId,
@@ -5485,6 +6424,10 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     turnId: turnId.present ? turnId.value : this.turnId,
     versionIndex: versionIndex ?? this.versionIndex,
     turnSortOrder: turnSortOrder ?? this.turnSortOrder,
+    vnBackgroundId: vnBackgroundId.present
+        ? vnBackgroundId.value
+        : this.vnBackgroundId,
+    vnExpression: vnExpression.present ? vnExpression.value : this.vnExpression,
   );
   ChatMessage copyWithCompanion(ChatMessagesCompanion data) {
     return ChatMessage(
@@ -5508,6 +6451,12 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
       turnSortOrder: data.turnSortOrder.present
           ? data.turnSortOrder.value
           : this.turnSortOrder,
+      vnBackgroundId: data.vnBackgroundId.present
+          ? data.vnBackgroundId.value
+          : this.vnBackgroundId,
+      vnExpression: data.vnExpression.present
+          ? data.vnExpression.value
+          : this.vnExpression,
     );
   }
 
@@ -5523,7 +6472,9 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
           ..write('speakerNameOverride: $speakerNameOverride, ')
           ..write('turnId: $turnId, ')
           ..write('versionIndex: $versionIndex, ')
-          ..write('turnSortOrder: $turnSortOrder')
+          ..write('turnSortOrder: $turnSortOrder, ')
+          ..write('vnBackgroundId: $vnBackgroundId, ')
+          ..write('vnExpression: $vnExpression')
           ..write(')'))
         .toString();
   }
@@ -5540,6 +6491,8 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
     turnId,
     versionIndex,
     turnSortOrder,
+    vnBackgroundId,
+    vnExpression,
   );
   @override
   bool operator ==(Object other) =>
@@ -5554,7 +6507,9 @@ class ChatMessage extends DataClass implements Insertable<ChatMessage> {
           other.speakerNameOverride == this.speakerNameOverride &&
           other.turnId == this.turnId &&
           other.versionIndex == this.versionIndex &&
-          other.turnSortOrder == this.turnSortOrder);
+          other.turnSortOrder == this.turnSortOrder &&
+          other.vnBackgroundId == this.vnBackgroundId &&
+          other.vnExpression == this.vnExpression);
 }
 
 class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
@@ -5568,6 +6523,8 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
   final Value<int?> turnId;
   final Value<int> versionIndex;
   final Value<int> turnSortOrder;
+  final Value<int?> vnBackgroundId;
+  final Value<VnEmotion?> vnExpression;
   const ChatMessagesCompanion({
     this.id = const Value.absent(),
     this.sessionId = const Value.absent(),
@@ -5579,6 +6536,8 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     this.turnId = const Value.absent(),
     this.versionIndex = const Value.absent(),
     this.turnSortOrder = const Value.absent(),
+    this.vnBackgroundId = const Value.absent(),
+    this.vnExpression = const Value.absent(),
   });
   ChatMessagesCompanion.insert({
     this.id = const Value.absent(),
@@ -5591,6 +6550,8 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     this.turnId = const Value.absent(),
     this.versionIndex = const Value.absent(),
     this.turnSortOrder = const Value.absent(),
+    this.vnBackgroundId = const Value.absent(),
+    this.vnExpression = const Value.absent(),
   }) : sessionId = Value(sessionId),
        senderType = Value(senderType),
        content = Value(content);
@@ -5605,6 +6566,8 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     Expression<int>? turnId,
     Expression<int>? versionIndex,
     Expression<int>? turnSortOrder,
+    Expression<int>? vnBackgroundId,
+    Expression<int>? vnExpression,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -5618,6 +6581,8 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
       if (turnId != null) 'turn_id': turnId,
       if (versionIndex != null) 'version_index': versionIndex,
       if (turnSortOrder != null) 'turn_sort_order': turnSortOrder,
+      if (vnBackgroundId != null) 'vn_background_id': vnBackgroundId,
+      if (vnExpression != null) 'vn_expression': vnExpression,
     });
   }
 
@@ -5632,6 +6597,8 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     Value<int?>? turnId,
     Value<int>? versionIndex,
     Value<int>? turnSortOrder,
+    Value<int?>? vnBackgroundId,
+    Value<VnEmotion?>? vnExpression,
   }) {
     return ChatMessagesCompanion(
       id: id ?? this.id,
@@ -5644,6 +6611,8 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
       turnId: turnId ?? this.turnId,
       versionIndex: versionIndex ?? this.versionIndex,
       turnSortOrder: turnSortOrder ?? this.turnSortOrder,
+      vnBackgroundId: vnBackgroundId ?? this.vnBackgroundId,
+      vnExpression: vnExpression ?? this.vnExpression,
     );
   }
 
@@ -5684,6 +6653,14 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
     if (turnSortOrder.present) {
       map['turn_sort_order'] = Variable<int>(turnSortOrder.value);
     }
+    if (vnBackgroundId.present) {
+      map['vn_background_id'] = Variable<int>(vnBackgroundId.value);
+    }
+    if (vnExpression.present) {
+      map['vn_expression'] = Variable<int>(
+        $ChatMessagesTable.$convertervnExpressionn.toSql(vnExpression.value),
+      );
+    }
     return map;
   }
 
@@ -5699,7 +6676,9 @@ class ChatMessagesCompanion extends UpdateCompanion<ChatMessage> {
           ..write('speakerNameOverride: $speakerNameOverride, ')
           ..write('turnId: $turnId, ')
           ..write('versionIndex: $versionIndex, ')
-          ..write('turnSortOrder: $turnSortOrder')
+          ..write('turnSortOrder: $turnSortOrder, ')
+          ..write('vnBackgroundId: $vnBackgroundId, ')
+          ..write('vnExpression: $vnExpression')
           ..write(')'))
         .toString();
   }
@@ -8725,12 +9704,749 @@ class LorebookPlotLinksCompanion extends UpdateCompanion<LorebookPlotLink> {
   }
 }
 
+class $VnCharacterExpressionsTable extends VnCharacterExpressions
+    with TableInfo<$VnCharacterExpressionsTable, VnCharacterExpression> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VnCharacterExpressionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _characterIdMeta = const VerificationMeta(
+    'characterId',
+  );
+  @override
+  late final GeneratedColumn<int> characterId = GeneratedColumn<int>(
+    'character_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id) ON DELETE CASCADE',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<VnEmotion, int> emotion =
+      GeneratedColumn<int>(
+        'emotion',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<VnEmotion>(
+        $VnCharacterExpressionsTable.$converteremotion,
+      );
+  static const VerificationMeta _imagePathMeta = const VerificationMeta(
+    'imagePath',
+  );
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+    'image_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, characterId, emotion, imagePath];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vn_character_expressions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VnCharacterExpression> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('character_id')) {
+      context.handle(
+        _characterIdMeta,
+        characterId.isAcceptableOrUnknown(
+          data['character_id']!,
+          _characterIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_characterIdMeta);
+    }
+    if (data.containsKey('image_path')) {
+      context.handle(
+        _imagePathMeta,
+        imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_imagePathMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VnCharacterExpression map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VnCharacterExpression(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      characterId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}character_id'],
+      )!,
+      emotion: $VnCharacterExpressionsTable.$converteremotion.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}emotion'],
+        )!,
+      ),
+      imagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_path'],
+      )!,
+    );
+  }
+
+  @override
+  $VnCharacterExpressionsTable createAlias(String alias) {
+    return $VnCharacterExpressionsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<VnEmotion, int, int> $converteremotion =
+      const EnumIndexConverter<VnEmotion>(VnEmotion.values);
+}
+
+class VnCharacterExpression extends DataClass
+    implements Insertable<VnCharacterExpression> {
+  final int id;
+  final int characterId;
+  final VnEmotion emotion;
+  final String imagePath;
+  const VnCharacterExpression({
+    required this.id,
+    required this.characterId,
+    required this.emotion,
+    required this.imagePath,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['character_id'] = Variable<int>(characterId);
+    {
+      map['emotion'] = Variable<int>(
+        $VnCharacterExpressionsTable.$converteremotion.toSql(emotion),
+      );
+    }
+    map['image_path'] = Variable<String>(imagePath);
+    return map;
+  }
+
+  VnCharacterExpressionsCompanion toCompanion(bool nullToAbsent) {
+    return VnCharacterExpressionsCompanion(
+      id: Value(id),
+      characterId: Value(characterId),
+      emotion: Value(emotion),
+      imagePath: Value(imagePath),
+    );
+  }
+
+  factory VnCharacterExpression.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VnCharacterExpression(
+      id: serializer.fromJson<int>(json['id']),
+      characterId: serializer.fromJson<int>(json['characterId']),
+      emotion: $VnCharacterExpressionsTable.$converteremotion.fromJson(
+        serializer.fromJson<int>(json['emotion']),
+      ),
+      imagePath: serializer.fromJson<String>(json['imagePath']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'characterId': serializer.toJson<int>(characterId),
+      'emotion': serializer.toJson<int>(
+        $VnCharacterExpressionsTable.$converteremotion.toJson(emotion),
+      ),
+      'imagePath': serializer.toJson<String>(imagePath),
+    };
+  }
+
+  VnCharacterExpression copyWith({
+    int? id,
+    int? characterId,
+    VnEmotion? emotion,
+    String? imagePath,
+  }) => VnCharacterExpression(
+    id: id ?? this.id,
+    characterId: characterId ?? this.characterId,
+    emotion: emotion ?? this.emotion,
+    imagePath: imagePath ?? this.imagePath,
+  );
+  VnCharacterExpression copyWithCompanion(
+    VnCharacterExpressionsCompanion data,
+  ) {
+    return VnCharacterExpression(
+      id: data.id.present ? data.id.value : this.id,
+      characterId: data.characterId.present
+          ? data.characterId.value
+          : this.characterId,
+      emotion: data.emotion.present ? data.emotion.value : this.emotion,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VnCharacterExpression(')
+          ..write('id: $id, ')
+          ..write('characterId: $characterId, ')
+          ..write('emotion: $emotion, ')
+          ..write('imagePath: $imagePath')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, characterId, emotion, imagePath);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VnCharacterExpression &&
+          other.id == this.id &&
+          other.characterId == this.characterId &&
+          other.emotion == this.emotion &&
+          other.imagePath == this.imagePath);
+}
+
+class VnCharacterExpressionsCompanion
+    extends UpdateCompanion<VnCharacterExpression> {
+  final Value<int> id;
+  final Value<int> characterId;
+  final Value<VnEmotion> emotion;
+  final Value<String> imagePath;
+  const VnCharacterExpressionsCompanion({
+    this.id = const Value.absent(),
+    this.characterId = const Value.absent(),
+    this.emotion = const Value.absent(),
+    this.imagePath = const Value.absent(),
+  });
+  VnCharacterExpressionsCompanion.insert({
+    this.id = const Value.absent(),
+    required int characterId,
+    required VnEmotion emotion,
+    required String imagePath,
+  }) : characterId = Value(characterId),
+       emotion = Value(emotion),
+       imagePath = Value(imagePath);
+  static Insertable<VnCharacterExpression> custom({
+    Expression<int>? id,
+    Expression<int>? characterId,
+    Expression<int>? emotion,
+    Expression<String>? imagePath,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (characterId != null) 'character_id': characterId,
+      if (emotion != null) 'emotion': emotion,
+      if (imagePath != null) 'image_path': imagePath,
+    });
+  }
+
+  VnCharacterExpressionsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? characterId,
+    Value<VnEmotion>? emotion,
+    Value<String>? imagePath,
+  }) {
+    return VnCharacterExpressionsCompanion(
+      id: id ?? this.id,
+      characterId: characterId ?? this.characterId,
+      emotion: emotion ?? this.emotion,
+      imagePath: imagePath ?? this.imagePath,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (characterId.present) {
+      map['character_id'] = Variable<int>(characterId.value);
+    }
+    if (emotion.present) {
+      map['emotion'] = Variable<int>(
+        $VnCharacterExpressionsTable.$converteremotion.toSql(emotion.value),
+      );
+    }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VnCharacterExpressionsCompanion(')
+          ..write('id: $id, ')
+          ..write('characterId: $characterId, ')
+          ..write('emotion: $emotion, ')
+          ..write('imagePath: $imagePath')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $VnChoicesTable extends VnChoices
+    with TableInfo<$VnChoicesTable, VnChoice> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VnChoicesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _introVersionIdMeta = const VerificationMeta(
+    'introVersionId',
+  );
+  @override
+  late final GeneratedColumn<int> introVersionId = GeneratedColumn<int>(
+    'intro_version_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES intro_versions (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _useDiceMeta = const VerificationMeta(
+    'useDice',
+  );
+  @override
+  late final GeneratedColumn<bool> useDice = GeneratedColumn<bool>(
+    'use_dice',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("use_dice" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<VnDiceDifficulty?, int>
+  difficulty = GeneratedColumn<int>(
+    'difficulty',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  ).withConverter<VnDiceDifficulty?>($VnChoicesTable.$converterdifficultyn);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    introVersionId,
+    content,
+    sortOrder,
+    useDice,
+    difficulty,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vn_choices';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VnChoice> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('intro_version_id')) {
+      context.handle(
+        _introVersionIdMeta,
+        introVersionId.isAcceptableOrUnknown(
+          data['intro_version_id']!,
+          _introVersionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_introVersionIdMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('use_dice')) {
+      context.handle(
+        _useDiceMeta,
+        useDice.isAcceptableOrUnknown(data['use_dice']!, _useDiceMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VnChoice map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VnChoice(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      introVersionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}intro_version_id'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      useDice: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}use_dice'],
+      )!,
+      difficulty: $VnChoicesTable.$converterdifficultyn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}difficulty'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $VnChoicesTable createAlias(String alias) {
+    return $VnChoicesTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<VnDiceDifficulty, int, int> $converterdifficulty =
+      const EnumIndexConverter<VnDiceDifficulty>(VnDiceDifficulty.values);
+  static JsonTypeConverter2<VnDiceDifficulty?, int?, int?>
+  $converterdifficultyn = JsonTypeConverter2.asNullable($converterdifficulty);
+}
+
+class VnChoice extends DataClass implements Insertable<VnChoice> {
+  final int id;
+  final int introVersionId;
+  final String content;
+  final int sortOrder;
+  final bool useDice;
+  final VnDiceDifficulty? difficulty;
+  const VnChoice({
+    required this.id,
+    required this.introVersionId,
+    required this.content,
+    required this.sortOrder,
+    required this.useDice,
+    this.difficulty,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['intro_version_id'] = Variable<int>(introVersionId);
+    map['content'] = Variable<String>(content);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['use_dice'] = Variable<bool>(useDice);
+    if (!nullToAbsent || difficulty != null) {
+      map['difficulty'] = Variable<int>(
+        $VnChoicesTable.$converterdifficultyn.toSql(difficulty),
+      );
+    }
+    return map;
+  }
+
+  VnChoicesCompanion toCompanion(bool nullToAbsent) {
+    return VnChoicesCompanion(
+      id: Value(id),
+      introVersionId: Value(introVersionId),
+      content: Value(content),
+      sortOrder: Value(sortOrder),
+      useDice: Value(useDice),
+      difficulty: difficulty == null && nullToAbsent
+          ? const Value.absent()
+          : Value(difficulty),
+    );
+  }
+
+  factory VnChoice.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VnChoice(
+      id: serializer.fromJson<int>(json['id']),
+      introVersionId: serializer.fromJson<int>(json['introVersionId']),
+      content: serializer.fromJson<String>(json['content']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      useDice: serializer.fromJson<bool>(json['useDice']),
+      difficulty: $VnChoicesTable.$converterdifficultyn.fromJson(
+        serializer.fromJson<int?>(json['difficulty']),
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'introVersionId': serializer.toJson<int>(introVersionId),
+      'content': serializer.toJson<String>(content),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'useDice': serializer.toJson<bool>(useDice),
+      'difficulty': serializer.toJson<int?>(
+        $VnChoicesTable.$converterdifficultyn.toJson(difficulty),
+      ),
+    };
+  }
+
+  VnChoice copyWith({
+    int? id,
+    int? introVersionId,
+    String? content,
+    int? sortOrder,
+    bool? useDice,
+    Value<VnDiceDifficulty?> difficulty = const Value.absent(),
+  }) => VnChoice(
+    id: id ?? this.id,
+    introVersionId: introVersionId ?? this.introVersionId,
+    content: content ?? this.content,
+    sortOrder: sortOrder ?? this.sortOrder,
+    useDice: useDice ?? this.useDice,
+    difficulty: difficulty.present ? difficulty.value : this.difficulty,
+  );
+  VnChoice copyWithCompanion(VnChoicesCompanion data) {
+    return VnChoice(
+      id: data.id.present ? data.id.value : this.id,
+      introVersionId: data.introVersionId.present
+          ? data.introVersionId.value
+          : this.introVersionId,
+      content: data.content.present ? data.content.value : this.content,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      useDice: data.useDice.present ? data.useDice.value : this.useDice,
+      difficulty: data.difficulty.present
+          ? data.difficulty.value
+          : this.difficulty,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VnChoice(')
+          ..write('id: $id, ')
+          ..write('introVersionId: $introVersionId, ')
+          ..write('content: $content, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('useDice: $useDice, ')
+          ..write('difficulty: $difficulty')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, introVersionId, content, sortOrder, useDice, difficulty);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VnChoice &&
+          other.id == this.id &&
+          other.introVersionId == this.introVersionId &&
+          other.content == this.content &&
+          other.sortOrder == this.sortOrder &&
+          other.useDice == this.useDice &&
+          other.difficulty == this.difficulty);
+}
+
+class VnChoicesCompanion extends UpdateCompanion<VnChoice> {
+  final Value<int> id;
+  final Value<int> introVersionId;
+  final Value<String> content;
+  final Value<int> sortOrder;
+  final Value<bool> useDice;
+  final Value<VnDiceDifficulty?> difficulty;
+  const VnChoicesCompanion({
+    this.id = const Value.absent(),
+    this.introVersionId = const Value.absent(),
+    this.content = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.useDice = const Value.absent(),
+    this.difficulty = const Value.absent(),
+  });
+  VnChoicesCompanion.insert({
+    this.id = const Value.absent(),
+    required int introVersionId,
+    required String content,
+    this.sortOrder = const Value.absent(),
+    this.useDice = const Value.absent(),
+    this.difficulty = const Value.absent(),
+  }) : introVersionId = Value(introVersionId),
+       content = Value(content);
+  static Insertable<VnChoice> custom({
+    Expression<int>? id,
+    Expression<int>? introVersionId,
+    Expression<String>? content,
+    Expression<int>? sortOrder,
+    Expression<bool>? useDice,
+    Expression<int>? difficulty,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (introVersionId != null) 'intro_version_id': introVersionId,
+      if (content != null) 'content': content,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (useDice != null) 'use_dice': useDice,
+      if (difficulty != null) 'difficulty': difficulty,
+    });
+  }
+
+  VnChoicesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? introVersionId,
+    Value<String>? content,
+    Value<int>? sortOrder,
+    Value<bool>? useDice,
+    Value<VnDiceDifficulty?>? difficulty,
+  }) {
+    return VnChoicesCompanion(
+      id: id ?? this.id,
+      introVersionId: introVersionId ?? this.introVersionId,
+      content: content ?? this.content,
+      sortOrder: sortOrder ?? this.sortOrder,
+      useDice: useDice ?? this.useDice,
+      difficulty: difficulty ?? this.difficulty,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (introVersionId.present) {
+      map['intro_version_id'] = Variable<int>(introVersionId.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (useDice.present) {
+      map['use_dice'] = Variable<bool>(useDice.value);
+    }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<int>(
+        $VnChoicesTable.$converterdifficultyn.toSql(difficulty.value),
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VnChoicesCompanion(')
+          ..write('id: $id, ')
+          ..write('introVersionId: $introVersionId, ')
+          ..write('content: $content, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('useDice: $useDice, ')
+          ..write('difficulty: $difficulty')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $PlotsTable plots = $PlotsTable(this);
   late final $CharactersTable characters = $CharactersTable(this);
   late final $IntroVersionsTable introVersions = $IntroVersionsTable(this);
+  late final $VnBackgroundsTable vnBackgrounds = $VnBackgroundsTable(this);
   late final $IntroEntriesTable introEntries = $IntroEntriesTable(this);
   late final $ConversationProfilesTable conversationProfiles =
       $ConversationProfilesTable(this);
@@ -8751,6 +10467,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $LorebookPlotLinksTable lorebookPlotLinks =
       $LorebookPlotLinksTable(this);
+  late final $VnCharacterExpressionsTable vnCharacterExpressions =
+      $VnCharacterExpressionsTable(this);
+  late final $VnChoicesTable vnChoices = $VnChoicesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8759,6 +10478,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     plots,
     characters,
     introVersions,
+    vnBackgrounds,
     introEntries,
     conversationProfiles,
     plotConversationProfiles,
@@ -8773,6 +10493,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     lorebooks,
     lorebookEntries,
     lorebookPlotLinks,
+    vnCharacterExpressions,
+    vnChoices,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -8795,6 +10517,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         'plots',
         limitUpdateKind: UpdateKind.delete,
       ),
+      result: [TableUpdate('vn_backgrounds', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'plots',
+        limitUpdateKind: UpdateKind.delete,
+      ),
       result: [TableUpdate('intro_entries', kind: UpdateKind.delete)],
     ),
     WritePropagation(
@@ -8810,6 +10539,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('intro_entries', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'vn_backgrounds',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('intro_entries', kind: UpdateKind.update)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -8850,6 +10586,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'characters',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('chat_sessions', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'chat_sessions',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -8875,6 +10618,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('chat_messages', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'vn_backgrounds',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('chat_messages', kind: UpdateKind.update)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -8946,6 +10696,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       ),
       result: [TableUpdate('lorebook_plot_links', kind: UpdateKind.delete)],
     ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'characters',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('vn_character_expressions', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'intro_versions',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('vn_choices', kind: UpdateKind.delete)],
+    ),
   ]);
 }
 
@@ -8960,6 +10726,10 @@ typedef $$PlotsTableCreateCompanionBuilder =
       Value<PlotVisibility> visibility,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<PlotType> plotType,
+      Value<VnInputMode> vnInputMode,
+      Value<bool> vnAiInputAssist,
+      Value<bool> vnDiceEnabled,
     });
 typedef $$PlotsTableUpdateCompanionBuilder =
     PlotsCompanion Function({
@@ -8972,6 +10742,10 @@ typedef $$PlotsTableUpdateCompanionBuilder =
       Value<PlotVisibility> visibility,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<PlotType> plotType,
+      Value<VnInputMode> vnInputMode,
+      Value<bool> vnAiInputAssist,
+      Value<bool> vnDiceEnabled,
     });
 
 final class $$PlotsTableReferences
@@ -9009,6 +10783,24 @@ final class $$PlotsTableReferences
     ).filter((f) => f.plotId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_introVersionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$VnBackgroundsTable, List<VnBackground>>
+  _vnBackgroundsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.vnBackgrounds,
+    aliasName: 'plots__id__vn_backgrounds__plot_id',
+  );
+
+  $$VnBackgroundsTableProcessedTableManager get vnBackgroundsRefs {
+    final manager = $$VnBackgroundsTableTableManager(
+      $_db,
+      $_db.vnBackgrounds,
+    ).filter((f) => f.plotId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_vnBackgroundsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -9169,6 +10961,28 @@ class $$PlotsTableFilterComposer extends Composer<_$AppDatabase, $PlotsTable> {
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnWithTypeConverterFilters<PlotType, PlotType, int> get plotType =>
+      $composableBuilder(
+        column: $table.plotType,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<VnInputMode, VnInputMode, int>
+  get vnInputMode => $composableBuilder(
+    column: $table.vnInputMode,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<bool> get vnAiInputAssist => $composableBuilder(
+    column: $table.vnAiInputAssist,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get vnDiceEnabled => $composableBuilder(
+    column: $table.vnDiceEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> charactersRefs(
     Expression<bool> Function($$CharactersTableFilterComposer f) f,
   ) {
@@ -9210,6 +11024,31 @@ class $$PlotsTableFilterComposer extends Composer<_$AppDatabase, $PlotsTable> {
           }) => $$IntroVersionsTableFilterComposer(
             $db: $db,
             $table: $db.introVersions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> vnBackgroundsRefs(
+    Expression<bool> Function($$VnBackgroundsTableFilterComposer f) f,
+  ) {
+    final $$VnBackgroundsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vnBackgrounds,
+      getReferencedColumn: (t) => t.plotId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnBackgroundsTableFilterComposer(
+            $db: $db,
+            $table: $db.vnBackgrounds,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -9400,6 +11239,26 @@ class $$PlotsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get plotType => $composableBuilder(
+    column: $table.plotType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get vnInputMode => $composableBuilder(
+    column: $table.vnInputMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get vnAiInputAssist => $composableBuilder(
+    column: $table.vnAiInputAssist,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get vnDiceEnabled => $composableBuilder(
+    column: $table.vnDiceEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PlotsTableAnnotationComposer
@@ -9447,6 +11306,25 @@ class $$PlotsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
+  GeneratedColumnWithTypeConverter<PlotType, int> get plotType =>
+      $composableBuilder(column: $table.plotType, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<VnInputMode, int> get vnInputMode =>
+      $composableBuilder(
+        column: $table.vnInputMode,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<bool> get vnAiInputAssist => $composableBuilder(
+    column: $table.vnAiInputAssist,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get vnDiceEnabled => $composableBuilder(
+    column: $table.vnDiceEnabled,
+    builder: (column) => column,
+  );
+
   Expression<T> charactersRefs<T extends Object>(
     Expression<T> Function($$CharactersTableAnnotationComposer a) f,
   ) {
@@ -9488,6 +11366,31 @@ class $$PlotsTableAnnotationComposer
           }) => $$IntroVersionsTableAnnotationComposer(
             $db: $db,
             $table: $db.introVersions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> vnBackgroundsRefs<T extends Object>(
+    Expression<T> Function($$VnBackgroundsTableAnnotationComposer a) f,
+  ) {
+    final $$VnBackgroundsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vnBackgrounds,
+      getReferencedColumn: (t) => t.plotId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnBackgroundsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vnBackgrounds,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -9642,6 +11545,7 @@ class $$PlotsTableTableManager
           PrefetchHooks Function({
             bool charactersRefs,
             bool introVersionsRefs,
+            bool vnBackgroundsRefs,
             bool introEntriesRefs,
             bool plotConversationProfilesRefs,
             bool chatSessionsRefs,
@@ -9671,6 +11575,10 @@ class $$PlotsTableTableManager
                 Value<PlotVisibility> visibility = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<PlotType> plotType = const Value.absent(),
+                Value<VnInputMode> vnInputMode = const Value.absent(),
+                Value<bool> vnAiInputAssist = const Value.absent(),
+                Value<bool> vnDiceEnabled = const Value.absent(),
               }) => PlotsCompanion(
                 id: id,
                 title: title,
@@ -9681,6 +11589,10 @@ class $$PlotsTableTableManager
                 visibility: visibility,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                plotType: plotType,
+                vnInputMode: vnInputMode,
+                vnAiInputAssist: vnAiInputAssist,
+                vnDiceEnabled: vnDiceEnabled,
               ),
           createCompanionCallback:
               ({
@@ -9693,6 +11605,10 @@ class $$PlotsTableTableManager
                 Value<PlotVisibility> visibility = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<PlotType> plotType = const Value.absent(),
+                Value<VnInputMode> vnInputMode = const Value.absent(),
+                Value<bool> vnAiInputAssist = const Value.absent(),
+                Value<bool> vnDiceEnabled = const Value.absent(),
               }) => PlotsCompanion.insert(
                 id: id,
                 title: title,
@@ -9703,6 +11619,10 @@ class $$PlotsTableTableManager
                 visibility: visibility,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                plotType: plotType,
+                vnInputMode: vnInputMode,
+                vnAiInputAssist: vnAiInputAssist,
+                vnDiceEnabled: vnDiceEnabled,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -9714,6 +11634,7 @@ class $$PlotsTableTableManager
               ({
                 charactersRefs = false,
                 introVersionsRefs = false,
+                vnBackgroundsRefs = false,
                 introEntriesRefs = false,
                 plotConversationProfilesRefs = false,
                 chatSessionsRefs = false,
@@ -9725,6 +11646,7 @@ class $$PlotsTableTableManager
                   explicitlyWatchedTables: [
                     if (charactersRefs) db.characters,
                     if (introVersionsRefs) db.introVersions,
+                    if (vnBackgroundsRefs) db.vnBackgrounds,
                     if (introEntriesRefs) db.introEntries,
                     if (plotConversationProfilesRefs)
                       db.plotConversationProfiles,
@@ -9767,6 +11689,27 @@ class $$PlotsTableTableManager
                                 table,
                                 p0,
                               ).introVersionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.plotId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (vnBackgroundsRefs)
+                        await $_getPrefetchedData<
+                          Plot,
+                          $PlotsTable,
+                          VnBackground
+                        >(
+                          currentTable: table,
+                          referencedTable: $$PlotsTableReferences
+                              ._vnBackgroundsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$PlotsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).vnBackgroundsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.plotId == item.id,
@@ -9901,6 +11844,7 @@ typedef $$PlotsTableProcessedTableManager =
       PrefetchHooks Function({
         bool charactersRefs,
         bool introVersionsRefs,
+        bool vnBackgroundsRefs,
         bool introEntriesRefs,
         bool plotConversationProfilesRefs,
         bool chatSessionsRefs,
@@ -9918,6 +11862,7 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<bool> isRepresentative,
       Value<int> sortOrder,
       Value<String> aboutText,
+      Value<bool> isPlayable,
     });
 typedef $$CharactersTableUpdateCompanionBuilder =
     CharactersCompanion Function({
@@ -9929,6 +11874,7 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<bool> isRepresentative,
       Value<int> sortOrder,
       Value<String> aboutText,
+      Value<bool> isPlayable,
     });
 
 final class $$CharactersTableReferences
@@ -9970,6 +11916,24 @@ final class $$CharactersTableReferences
     );
   }
 
+  static MultiTypedResultKey<$ChatSessionsTable, List<ChatSession>>
+  _chatSessionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.chatSessions,
+    aliasName: 'characters__id__chat_sessions__vn_playable_character_id',
+  );
+
+  $$ChatSessionsTableProcessedTableManager get chatSessionsRefs {
+    final manager = $$ChatSessionsTableTableManager($_db, $_db.chatSessions)
+        .filter(
+          (f) => f.vnPlayableCharacterId.id.sqlEquals($_itemColumn<int>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_chatSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$ChatMessagesTable, List<ChatMessage>>
   _chatMessagesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.chatMessages,
@@ -10001,6 +11965,31 @@ final class $$CharactersTableReferences
     ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_talkSessionsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $VnCharacterExpressionsTable,
+    List<VnCharacterExpression>
+  >
+  _vnCharacterExpressionsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.vnCharacterExpressions,
+        aliasName: 'characters__id__vn_character_expressions__character_id',
+      );
+
+  $$VnCharacterExpressionsTableProcessedTableManager
+  get vnCharacterExpressionsRefs {
+    final manager = $$VnCharacterExpressionsTableTableManager(
+      $_db,
+      $_db.vnCharacterExpressions,
+    ).filter((f) => f.characterId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _vnCharacterExpressionsRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -10051,6 +12040,11 @@ class $$CharactersTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get isPlayable => $composableBuilder(
+    column: $table.isPlayable,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$PlotsTableFilterComposer get plotId {
     final $$PlotsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -10090,6 +12084,31 @@ class $$CharactersTableFilterComposer
           }) => $$IntroEntriesTableFilterComposer(
             $db: $db,
             $table: $db.introEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> chatSessionsRefs(
+    Expression<bool> Function($$ChatSessionsTableFilterComposer f) f,
+  ) {
+    final $$ChatSessionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chatSessions,
+      getReferencedColumn: (t) => t.vnPlayableCharacterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatSessionsTableFilterComposer(
+            $db: $db,
+            $table: $db.chatSessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -10148,6 +12167,32 @@ class $$CharactersTableFilterComposer
     );
     return f(composer);
   }
+
+  Expression<bool> vnCharacterExpressionsRefs(
+    Expression<bool> Function($$VnCharacterExpressionsTableFilterComposer f) f,
+  ) {
+    final $$VnCharacterExpressionsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.vnCharacterExpressions,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$VnCharacterExpressionsTableFilterComposer(
+                $db: $db,
+                $table: $db.vnCharacterExpressions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$CharactersTableOrderingComposer
@@ -10191,6 +12236,11 @@ class $$CharactersTableOrderingComposer
 
   ColumnOrderings<String> get aboutText => $composableBuilder(
     column: $table.aboutText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPlayable => $composableBuilder(
+    column: $table.isPlayable,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -10252,6 +12302,11 @@ class $$CharactersTableAnnotationComposer
   GeneratedColumn<String> get aboutText =>
       $composableBuilder(column: $table.aboutText, builder: (column) => column);
 
+  GeneratedColumn<bool> get isPlayable => $composableBuilder(
+    column: $table.isPlayable,
+    builder: (column) => column,
+  );
+
   $$PlotsTableAnnotationComposer get plotId {
     final $$PlotsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -10291,6 +12346,31 @@ class $$CharactersTableAnnotationComposer
           }) => $$IntroEntriesTableAnnotationComposer(
             $db: $db,
             $table: $db.introEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> chatSessionsRefs<T extends Object>(
+    Expression<T> Function($$ChatSessionsTableAnnotationComposer a) f,
+  ) {
+    final $$ChatSessionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chatSessions,
+      getReferencedColumn: (t) => t.vnPlayableCharacterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatSessionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.chatSessions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -10349,6 +12429,32 @@ class $$CharactersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> vnCharacterExpressionsRefs<T extends Object>(
+    Expression<T> Function($$VnCharacterExpressionsTableAnnotationComposer a) f,
+  ) {
+    final $$VnCharacterExpressionsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.vnCharacterExpressions,
+          getReferencedColumn: (t) => t.characterId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$VnCharacterExpressionsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.vnCharacterExpressions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$CharactersTableTableManager
@@ -10367,8 +12473,10 @@ class $$CharactersTableTableManager
           PrefetchHooks Function({
             bool plotId,
             bool introEntriesRefs,
+            bool chatSessionsRefs,
             bool chatMessagesRefs,
             bool talkSessionsRefs,
+            bool vnCharacterExpressionsRefs,
           })
         > {
   $$CharactersTableTableManager(_$AppDatabase db, $CharactersTable table)
@@ -10392,6 +12500,7 @@ class $$CharactersTableTableManager
                 Value<bool> isRepresentative = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String> aboutText = const Value.absent(),
+                Value<bool> isPlayable = const Value.absent(),
               }) => CharactersCompanion(
                 id: id,
                 plotId: plotId,
@@ -10401,6 +12510,7 @@ class $$CharactersTableTableManager
                 isRepresentative: isRepresentative,
                 sortOrder: sortOrder,
                 aboutText: aboutText,
+                isPlayable: isPlayable,
               ),
           createCompanionCallback:
               ({
@@ -10412,6 +12522,7 @@ class $$CharactersTableTableManager
                 Value<bool> isRepresentative = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<String> aboutText = const Value.absent(),
+                Value<bool> isPlayable = const Value.absent(),
               }) => CharactersCompanion.insert(
                 id: id,
                 plotId: plotId,
@@ -10421,6 +12532,7 @@ class $$CharactersTableTableManager
                 isRepresentative: isRepresentative,
                 sortOrder: sortOrder,
                 aboutText: aboutText,
+                isPlayable: isPlayable,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -10434,15 +12546,19 @@ class $$CharactersTableTableManager
               ({
                 plotId = false,
                 introEntriesRefs = false,
+                chatSessionsRefs = false,
                 chatMessagesRefs = false,
                 talkSessionsRefs = false,
+                vnCharacterExpressionsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (introEntriesRefs) db.introEntries,
+                    if (chatSessionsRefs) db.chatSessions,
                     if (chatMessagesRefs) db.chatMessages,
                     if (talkSessionsRefs) db.talkSessions,
+                    if (vnCharacterExpressionsRefs) db.vnCharacterExpressions,
                   ],
                   addJoins:
                       <
@@ -10500,6 +12616,27 @@ class $$CharactersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (chatSessionsRefs)
+                        await $_getPrefetchedData<
+                          Character,
+                          $CharactersTable,
+                          ChatSession
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CharactersTableReferences
+                              ._chatSessionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).chatSessionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.vnPlayableCharacterId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (chatMessagesRefs)
                         await $_getPrefetchedData<
                           Character,
@@ -10542,6 +12679,27 @@ class $$CharactersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (vnCharacterExpressionsRefs)
+                        await $_getPrefetchedData<
+                          Character,
+                          $CharactersTable,
+                          VnCharacterExpression
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CharactersTableReferences
+                              ._vnCharacterExpressionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).vnCharacterExpressionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.characterId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -10565,8 +12723,10 @@ typedef $$CharactersTableProcessedTableManager =
       PrefetchHooks Function({
         bool plotId,
         bool introEntriesRefs,
+        bool chatSessionsRefs,
         bool chatMessagesRefs,
         bool talkSessionsRefs,
+        bool vnCharacterExpressionsRefs,
       })
     >;
 typedef $$IntroVersionsTableCreateCompanionBuilder =
@@ -10622,6 +12782,24 @@ final class $$IntroVersionsTableReferences
     ).filter((f) => f.introVersionId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_introEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$VnChoicesTable, List<VnChoice>>
+  _vnChoicesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.vnChoices,
+    aliasName: 'intro_versions__id__vn_choices__intro_version_id',
+  );
+
+  $$VnChoicesTableProcessedTableManager get vnChoicesRefs {
+    final manager = $$VnChoicesTableTableManager(
+      $_db,
+      $_db.vnChoices,
+    ).filter((f) => f.introVersionId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_vnChoicesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -10691,6 +12869,31 @@ class $$IntroVersionsTableFilterComposer
           }) => $$IntroEntriesTableFilterComposer(
             $db: $db,
             $table: $db.introEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> vnChoicesRefs(
+    Expression<bool> Function($$VnChoicesTableFilterComposer f) f,
+  ) {
+    final $$VnChoicesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vnChoices,
+      getReferencedColumn: (t) => t.introVersionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnChoicesTableFilterComposer(
+            $db: $db,
+            $table: $db.vnChoices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -10814,6 +13017,31 @@ class $$IntroVersionsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> vnChoicesRefs<T extends Object>(
+    Expression<T> Function($$VnChoicesTableAnnotationComposer a) f,
+  ) {
+    final $$VnChoicesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vnChoices,
+      getReferencedColumn: (t) => t.introVersionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnChoicesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vnChoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$IntroVersionsTableTableManager
@@ -10829,7 +13057,11 @@ class $$IntroVersionsTableTableManager
           $$IntroVersionsTableUpdateCompanionBuilder,
           (IntroVersion, $$IntroVersionsTableReferences),
           IntroVersion,
-          PrefetchHooks Function({bool plotId, bool introEntriesRefs})
+          PrefetchHooks Function({
+            bool plotId,
+            bool introEntriesRefs,
+            bool vnChoicesRefs,
+          })
         > {
   $$IntroVersionsTableTableManager(_$AppDatabase db, $IntroVersionsTable table)
     : super(
@@ -10874,69 +13106,100 @@ class $$IntroVersionsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({plotId = false, introEntriesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (introEntriesRefs) db.introEntries],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (plotId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.plotId,
-                                referencedTable: $$IntroVersionsTableReferences
-                                    ._plotIdTable(db),
-                                referencedColumn: $$IntroVersionsTableReferences
-                                    ._plotIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
+          prefetchHooksCallback:
+              ({
+                plotId = false,
+                introEntriesRefs = false,
+                vnChoicesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (introEntriesRefs) db.introEntries,
+                    if (vnChoicesRefs) db.vnChoices,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (plotId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.plotId,
+                                    referencedTable:
+                                        $$IntroVersionsTableReferences
+                                            ._plotIdTable(db),
+                                    referencedColumn:
+                                        $$IntroVersionsTableReferences
+                                            ._plotIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (introEntriesRefs)
+                        await $_getPrefetchedData<
+                          IntroVersion,
+                          $IntroVersionsTable,
+                          IntroEntry
+                        >(
+                          currentTable: table,
+                          referencedTable: $$IntroVersionsTableReferences
+                              ._introEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$IntroVersionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).introEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.introVersionId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (vnChoicesRefs)
+                        await $_getPrefetchedData<
+                          IntroVersion,
+                          $IntroVersionsTable,
+                          VnChoice
+                        >(
+                          currentTable: table,
+                          referencedTable: $$IntroVersionsTableReferences
+                              ._vnChoicesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$IntroVersionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).vnChoicesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.introVersionId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (introEntriesRefs)
-                    await $_getPrefetchedData<
-                      IntroVersion,
-                      $IntroVersionsTable,
-                      IntroEntry
-                    >(
-                      currentTable: table,
-                      referencedTable: $$IntroVersionsTableReferences
-                          ._introEntriesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$IntroVersionsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).introEntriesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.introVersionId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -10953,7 +13216,523 @@ typedef $$IntroVersionsTableProcessedTableManager =
       $$IntroVersionsTableUpdateCompanionBuilder,
       (IntroVersion, $$IntroVersionsTableReferences),
       IntroVersion,
-      PrefetchHooks Function({bool plotId, bool introEntriesRefs})
+      PrefetchHooks Function({
+        bool plotId,
+        bool introEntriesRefs,
+        bool vnChoicesRefs,
+      })
+    >;
+typedef $$VnBackgroundsTableCreateCompanionBuilder =
+    VnBackgroundsCompanion Function({
+      Value<int> id,
+      required int plotId,
+      required String title,
+      required String imagePath,
+      Value<int> sortOrder,
+    });
+typedef $$VnBackgroundsTableUpdateCompanionBuilder =
+    VnBackgroundsCompanion Function({
+      Value<int> id,
+      Value<int> plotId,
+      Value<String> title,
+      Value<String> imagePath,
+      Value<int> sortOrder,
+    });
+
+final class $$VnBackgroundsTableReferences
+    extends BaseReferences<_$AppDatabase, $VnBackgroundsTable, VnBackground> {
+  $$VnBackgroundsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PlotsTable _plotIdTable(_$AppDatabase db) =>
+      db.plots.createAlias('vn_backgrounds__plot_id__plots__id');
+
+  $$PlotsTableProcessedTableManager get plotId {
+    final $_column = $_itemColumn<int>('plot_id')!;
+
+    final manager = $$PlotsTableTableManager(
+      $_db,
+      $_db.plots,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_plotIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$IntroEntriesTable, List<IntroEntry>>
+  _introEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.introEntries,
+    aliasName: 'vn_backgrounds__id__intro_entries__vn_background_id',
+  );
+
+  $$IntroEntriesTableProcessedTableManager get introEntriesRefs {
+    final manager = $$IntroEntriesTableTableManager(
+      $_db,
+      $_db.introEntries,
+    ).filter((f) => f.vnBackgroundId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_introEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ChatMessagesTable, List<ChatMessage>>
+  _chatMessagesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.chatMessages,
+    aliasName: 'vn_backgrounds__id__chat_messages__vn_background_id',
+  );
+
+  $$ChatMessagesTableProcessedTableManager get chatMessagesRefs {
+    final manager = $$ChatMessagesTableTableManager(
+      $_db,
+      $_db.chatMessages,
+    ).filter((f) => f.vnBackgroundId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_chatMessagesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$VnBackgroundsTableFilterComposer
+    extends Composer<_$AppDatabase, $VnBackgroundsTable> {
+  $$VnBackgroundsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imagePath => $composableBuilder(
+    column: $table.imagePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PlotsTableFilterComposer get plotId {
+    final $$PlotsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableFilterComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> introEntriesRefs(
+    Expression<bool> Function($$IntroEntriesTableFilterComposer f) f,
+  ) {
+    final $$IntroEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.introEntries,
+      getReferencedColumn: (t) => t.vnBackgroundId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IntroEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.introEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> chatMessagesRefs(
+    Expression<bool> Function($$ChatMessagesTableFilterComposer f) f,
+  ) {
+    final $$ChatMessagesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chatMessages,
+      getReferencedColumn: (t) => t.vnBackgroundId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatMessagesTableFilterComposer(
+            $db: $db,
+            $table: $db.chatMessages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$VnBackgroundsTableOrderingComposer
+    extends Composer<_$AppDatabase, $VnBackgroundsTable> {
+  $$VnBackgroundsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imagePath => $composableBuilder(
+    column: $table.imagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PlotsTableOrderingComposer get plotId {
+    final $$PlotsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableOrderingComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VnBackgroundsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VnBackgroundsTable> {
+  $$VnBackgroundsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get imagePath =>
+      $composableBuilder(column: $table.imagePath, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$PlotsTableAnnotationComposer get plotId {
+    final $$PlotsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.plotId,
+      referencedTable: $db.plots,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PlotsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.plots,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> introEntriesRefs<T extends Object>(
+    Expression<T> Function($$IntroEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$IntroEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.introEntries,
+      getReferencedColumn: (t) => t.vnBackgroundId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IntroEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.introEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> chatMessagesRefs<T extends Object>(
+    Expression<T> Function($$ChatMessagesTableAnnotationComposer a) f,
+  ) {
+    final $$ChatMessagesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.chatMessages,
+      getReferencedColumn: (t) => t.vnBackgroundId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ChatMessagesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.chatMessages,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$VnBackgroundsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VnBackgroundsTable,
+          VnBackground,
+          $$VnBackgroundsTableFilterComposer,
+          $$VnBackgroundsTableOrderingComposer,
+          $$VnBackgroundsTableAnnotationComposer,
+          $$VnBackgroundsTableCreateCompanionBuilder,
+          $$VnBackgroundsTableUpdateCompanionBuilder,
+          (VnBackground, $$VnBackgroundsTableReferences),
+          VnBackground,
+          PrefetchHooks Function({
+            bool plotId,
+            bool introEntriesRefs,
+            bool chatMessagesRefs,
+          })
+        > {
+  $$VnBackgroundsTableTableManager(_$AppDatabase db, $VnBackgroundsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VnBackgroundsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VnBackgroundsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VnBackgroundsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> plotId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> imagePath = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+              }) => VnBackgroundsCompanion(
+                id: id,
+                plotId: plotId,
+                title: title,
+                imagePath: imagePath,
+                sortOrder: sortOrder,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int plotId,
+                required String title,
+                required String imagePath,
+                Value<int> sortOrder = const Value.absent(),
+              }) => VnBackgroundsCompanion.insert(
+                id: id,
+                plotId: plotId,
+                title: title,
+                imagePath: imagePath,
+                sortOrder: sortOrder,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$VnBackgroundsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                plotId = false,
+                introEntriesRefs = false,
+                chatMessagesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (introEntriesRefs) db.introEntries,
+                    if (chatMessagesRefs) db.chatMessages,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (plotId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.plotId,
+                                    referencedTable:
+                                        $$VnBackgroundsTableReferences
+                                            ._plotIdTable(db),
+                                    referencedColumn:
+                                        $$VnBackgroundsTableReferences
+                                            ._plotIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (introEntriesRefs)
+                        await $_getPrefetchedData<
+                          VnBackground,
+                          $VnBackgroundsTable,
+                          IntroEntry
+                        >(
+                          currentTable: table,
+                          referencedTable: $$VnBackgroundsTableReferences
+                              ._introEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$VnBackgroundsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).introEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.vnBackgroundId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (chatMessagesRefs)
+                        await $_getPrefetchedData<
+                          VnBackground,
+                          $VnBackgroundsTable,
+                          ChatMessage
+                        >(
+                          currentTable: table,
+                          referencedTable: $$VnBackgroundsTableReferences
+                              ._chatMessagesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$VnBackgroundsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).chatMessagesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.vnBackgroundId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$VnBackgroundsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VnBackgroundsTable,
+      VnBackground,
+      $$VnBackgroundsTableFilterComposer,
+      $$VnBackgroundsTableOrderingComposer,
+      $$VnBackgroundsTableAnnotationComposer,
+      $$VnBackgroundsTableCreateCompanionBuilder,
+      $$VnBackgroundsTableUpdateCompanionBuilder,
+      (VnBackground, $$VnBackgroundsTableReferences),
+      VnBackground,
+      PrefetchHooks Function({
+        bool plotId,
+        bool introEntriesRefs,
+        bool chatMessagesRefs,
+      })
     >;
 typedef $$IntroEntriesTableCreateCompanionBuilder =
     IntroEntriesCompanion Function({
@@ -10964,6 +13743,9 @@ typedef $$IntroEntriesTableCreateCompanionBuilder =
       required IntroEntryType type,
       required String content,
       Value<int> sortOrder,
+      Value<int?> vnBackgroundId,
+      Value<VnEmotion?> vnExpression,
+      Value<VnSceneType> vnSceneType,
     });
 typedef $$IntroEntriesTableUpdateCompanionBuilder =
     IntroEntriesCompanion Function({
@@ -10974,6 +13756,9 @@ typedef $$IntroEntriesTableUpdateCompanionBuilder =
       Value<IntroEntryType> type,
       Value<String> content,
       Value<int> sortOrder,
+      Value<int?> vnBackgroundId,
+      Value<VnEmotion?> vnExpression,
+      Value<VnSceneType> vnSceneType,
     });
 
 final class $$IntroEntriesTableReferences
@@ -11031,6 +13816,24 @@ final class $$IntroEntriesTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static $VnBackgroundsTable _vnBackgroundIdTable(_$AppDatabase db) => db
+      .vnBackgrounds
+      .createAlias('intro_entries__vn_background_id__vn_backgrounds__id');
+
+  $$VnBackgroundsTableProcessedTableManager? get vnBackgroundId {
+    final $_column = $_itemColumn<int>('vn_background_id');
+    if ($_column == null) return null;
+    final manager = $$VnBackgroundsTableTableManager(
+      $_db,
+      $_db.vnBackgrounds,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_vnBackgroundIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 }
 
 class $$IntroEntriesTableFilterComposer
@@ -11061,6 +13864,18 @@ class $$IntroEntriesTableFilterComposer
   ColumnFilters<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<VnEmotion?, VnEmotion, int> get vnExpression =>
+      $composableBuilder(
+        column: $table.vnExpression,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<VnSceneType, VnSceneType, int>
+  get vnSceneType => $composableBuilder(
+    column: $table.vnSceneType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   $$PlotsTableFilterComposer get plotId {
@@ -11131,6 +13946,29 @@ class $$IntroEntriesTableFilterComposer
     );
     return composer;
   }
+
+  $$VnBackgroundsTableFilterComposer get vnBackgroundId {
+    final $$VnBackgroundsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnBackgroundId,
+      referencedTable: $db.vnBackgrounds,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnBackgroundsTableFilterComposer(
+            $db: $db,
+            $table: $db.vnBackgrounds,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$IntroEntriesTableOrderingComposer
@@ -11159,6 +13997,16 @@ class $$IntroEntriesTableOrderingComposer
 
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get vnExpression => $composableBuilder(
+    column: $table.vnExpression,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get vnSceneType => $composableBuilder(
+    column: $table.vnSceneType,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -11230,6 +14078,29 @@ class $$IntroEntriesTableOrderingComposer
     );
     return composer;
   }
+
+  $$VnBackgroundsTableOrderingComposer get vnBackgroundId {
+    final $$VnBackgroundsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnBackgroundId,
+      referencedTable: $db.vnBackgrounds,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnBackgroundsTableOrderingComposer(
+            $db: $db,
+            $table: $db.vnBackgrounds,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$IntroEntriesTableAnnotationComposer
@@ -11252,6 +14123,18 @@ class $$IntroEntriesTableAnnotationComposer
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<VnEmotion?, int> get vnExpression =>
+      $composableBuilder(
+        column: $table.vnExpression,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<VnSceneType, int> get vnSceneType =>
+      $composableBuilder(
+        column: $table.vnSceneType,
+        builder: (column) => column,
+      );
 
   $$PlotsTableAnnotationComposer get plotId {
     final $$PlotsTableAnnotationComposer composer = $composerBuilder(
@@ -11321,6 +14204,29 @@ class $$IntroEntriesTableAnnotationComposer
     );
     return composer;
   }
+
+  $$VnBackgroundsTableAnnotationComposer get vnBackgroundId {
+    final $$VnBackgroundsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnBackgroundId,
+      referencedTable: $db.vnBackgrounds,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnBackgroundsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vnBackgrounds,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$IntroEntriesTableTableManager
@@ -11340,6 +14246,7 @@ class $$IntroEntriesTableTableManager
             bool plotId,
             bool introVersionId,
             bool characterId,
+            bool vnBackgroundId,
           })
         > {
   $$IntroEntriesTableTableManager(_$AppDatabase db, $IntroEntriesTable table)
@@ -11362,6 +14269,9 @@ class $$IntroEntriesTableTableManager
                 Value<IntroEntryType> type = const Value.absent(),
                 Value<String> content = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
+                Value<int?> vnBackgroundId = const Value.absent(),
+                Value<VnEmotion?> vnExpression = const Value.absent(),
+                Value<VnSceneType> vnSceneType = const Value.absent(),
               }) => IntroEntriesCompanion(
                 id: id,
                 plotId: plotId,
@@ -11370,6 +14280,9 @@ class $$IntroEntriesTableTableManager
                 type: type,
                 content: content,
                 sortOrder: sortOrder,
+                vnBackgroundId: vnBackgroundId,
+                vnExpression: vnExpression,
+                vnSceneType: vnSceneType,
               ),
           createCompanionCallback:
               ({
@@ -11380,6 +14293,9 @@ class $$IntroEntriesTableTableManager
                 required IntroEntryType type,
                 required String content,
                 Value<int> sortOrder = const Value.absent(),
+                Value<int?> vnBackgroundId = const Value.absent(),
+                Value<VnEmotion?> vnExpression = const Value.absent(),
+                Value<VnSceneType> vnSceneType = const Value.absent(),
               }) => IntroEntriesCompanion.insert(
                 id: id,
                 plotId: plotId,
@@ -11388,6 +14304,9 @@ class $$IntroEntriesTableTableManager
                 type: type,
                 content: content,
                 sortOrder: sortOrder,
+                vnBackgroundId: vnBackgroundId,
+                vnExpression: vnExpression,
+                vnSceneType: vnSceneType,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -11398,7 +14317,12 @@ class $$IntroEntriesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({plotId = false, introVersionId = false, characterId = false}) {
+              ({
+                plotId = false,
+                introVersionId = false,
+                characterId = false,
+                vnBackgroundId = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [],
@@ -11463,6 +14387,21 @@ class $$IntroEntriesTableTableManager
                                   )
                                   as T;
                         }
+                        if (vnBackgroundId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.vnBackgroundId,
+                                    referencedTable:
+                                        $$IntroEntriesTableReferences
+                                            ._vnBackgroundIdTable(db),
+                                    referencedColumn:
+                                        $$IntroEntriesTableReferences
+                                            ._vnBackgroundIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
                         return state;
                       },
@@ -11491,6 +14430,7 @@ typedef $$IntroEntriesTableProcessedTableManager =
         bool plotId,
         bool introVersionId,
         bool characterId,
+        bool vnBackgroundId,
       })
     >;
 typedef $$ConversationProfilesTableCreateCompanionBuilder =
@@ -13284,6 +16224,7 @@ typedef $$ChatSessionsTableCreateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> archivedAt,
+      Value<int?> vnPlayableCharacterId,
     });
 typedef $$ChatSessionsTableUpdateCompanionBuilder =
     ChatSessionsCompanion Function({
@@ -13297,6 +16238,7 @@ typedef $$ChatSessionsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> archivedAt,
+      Value<int?> vnPlayableCharacterId,
     });
 
 final class $$ChatSessionsTableReferences
@@ -13376,6 +16318,26 @@ final class $$ChatSessionsTableReferences
       $_db.aiPresets,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_presetIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CharactersTable _vnPlayableCharacterIdTable(_$AppDatabase db) => db
+      .characters
+      .createAlias('chat_sessions__vn_playable_character_id__characters__id');
+
+  $$CharactersTableProcessedTableManager? get vnPlayableCharacterId {
+    final $_column = $_itemColumn<int>('vn_playable_character_id');
+    if ($_column == null) return null;
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _vnPlayableCharacterIdTable($_db),
+    );
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -13563,6 +16525,29 @@ class $$ChatSessionsTableFilterComposer
           }) => $$AiPresetsTableFilterComposer(
             $db: $db,
             $table: $db.aiPresets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CharactersTableFilterComposer get vnPlayableCharacterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnPlayableCharacterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -13781,6 +16766,29 @@ class $$ChatSessionsTableOrderingComposer
     );
     return composer;
   }
+
+  $$CharactersTableOrderingComposer get vnPlayableCharacterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnPlayableCharacterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$ChatSessionsTableAnnotationComposer
@@ -13907,6 +16915,29 @@ class $$ChatSessionsTableAnnotationComposer
     return composer;
   }
 
+  $$CharactersTableAnnotationComposer get vnPlayableCharacterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnPlayableCharacterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> chatTurnsRefs<T extends Object>(
     Expression<T> Function($$ChatTurnsTableAnnotationComposer a) f,
   ) {
@@ -14002,6 +17033,7 @@ class $$ChatSessionsTableTableManager
             bool conversationProfileId,
             bool plotConversationProfileId,
             bool presetId,
+            bool vnPlayableCharacterId,
             bool chatTurnsRefs,
             bool chatMessagesRefs,
             bool chatMemorySummariesRefs,
@@ -14030,6 +17062,7 @@ class $$ChatSessionsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int?> vnPlayableCharacterId = const Value.absent(),
               }) => ChatSessionsCompanion(
                 id: id,
                 plotId: plotId,
@@ -14041,6 +17074,7 @@ class $$ChatSessionsTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 archivedAt: archivedAt,
+                vnPlayableCharacterId: vnPlayableCharacterId,
               ),
           createCompanionCallback:
               ({
@@ -14054,6 +17088,7 @@ class $$ChatSessionsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int?> vnPlayableCharacterId = const Value.absent(),
               }) => ChatSessionsCompanion.insert(
                 id: id,
                 plotId: plotId,
@@ -14065,6 +17100,7 @@ class $$ChatSessionsTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 archivedAt: archivedAt,
+                vnPlayableCharacterId: vnPlayableCharacterId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -14080,6 +17116,7 @@ class $$ChatSessionsTableTableManager
                 conversationProfileId = false,
                 plotConversationProfileId = false,
                 presetId = false,
+                vnPlayableCharacterId = false,
                 chatTurnsRefs = false,
                 chatMessagesRefs = false,
                 chatMemorySummariesRefs = false,
@@ -14166,6 +17203,21 @@ class $$ChatSessionsTableTableManager
                                     referencedColumn:
                                         $$ChatSessionsTableReferences
                                             ._presetIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (vnPlayableCharacterId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.vnPlayableCharacterId,
+                                    referencedTable:
+                                        $$ChatSessionsTableReferences
+                                            ._vnPlayableCharacterIdTable(db),
+                                    referencedColumn:
+                                        $$ChatSessionsTableReferences
+                                            ._vnPlayableCharacterIdTable(db)
                                             .id,
                                   )
                                   as T;
@@ -14263,6 +17315,7 @@ typedef $$ChatSessionsTableProcessedTableManager =
         bool conversationProfileId,
         bool plotConversationProfileId,
         bool presetId,
+        bool vnPlayableCharacterId,
         bool chatTurnsRefs,
         bool chatMessagesRefs,
         bool chatMemorySummariesRefs,
@@ -14667,6 +17720,8 @@ typedef $$ChatMessagesTableCreateCompanionBuilder =
       Value<int?> turnId,
       Value<int> versionIndex,
       Value<int> turnSortOrder,
+      Value<int?> vnBackgroundId,
+      Value<VnEmotion?> vnExpression,
     });
 typedef $$ChatMessagesTableUpdateCompanionBuilder =
     ChatMessagesCompanion Function({
@@ -14680,6 +17735,8 @@ typedef $$ChatMessagesTableUpdateCompanionBuilder =
       Value<int?> turnId,
       Value<int> versionIndex,
       Value<int> turnSortOrder,
+      Value<int?> vnBackgroundId,
+      Value<VnEmotion?> vnExpression,
     });
 
 final class $$ChatMessagesTableReferences
@@ -14736,6 +17793,24 @@ final class $$ChatMessagesTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static $VnBackgroundsTable _vnBackgroundIdTable(_$AppDatabase db) => db
+      .vnBackgrounds
+      .createAlias('chat_messages__vn_background_id__vn_backgrounds__id');
+
+  $$VnBackgroundsTableProcessedTableManager? get vnBackgroundId {
+    final $_column = $_itemColumn<int>('vn_background_id');
+    if ($_column == null) return null;
+    final manager = $$VnBackgroundsTableTableManager(
+      $_db,
+      $_db.vnBackgrounds,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_vnBackgroundIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 }
 
 class $$ChatMessagesTableFilterComposer
@@ -14782,6 +17857,12 @@ class $$ChatMessagesTableFilterComposer
     column: $table.turnSortOrder,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<VnEmotion?, VnEmotion, int> get vnExpression =>
+      $composableBuilder(
+        column: $table.vnExpression,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   $$ChatSessionsTableFilterComposer get sessionId {
     final $$ChatSessionsTableFilterComposer composer = $composerBuilder(
@@ -14851,6 +17932,29 @@ class $$ChatMessagesTableFilterComposer
     );
     return composer;
   }
+
+  $$VnBackgroundsTableFilterComposer get vnBackgroundId {
+    final $$VnBackgroundsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnBackgroundId,
+      referencedTable: $db.vnBackgrounds,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnBackgroundsTableFilterComposer(
+            $db: $db,
+            $table: $db.vnBackgrounds,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$ChatMessagesTableOrderingComposer
@@ -14894,6 +17998,11 @@ class $$ChatMessagesTableOrderingComposer
 
   ColumnOrderings<int> get turnSortOrder => $composableBuilder(
     column: $table.turnSortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get vnExpression => $composableBuilder(
+    column: $table.vnExpression,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -14965,6 +18074,29 @@ class $$ChatMessagesTableOrderingComposer
     );
     return composer;
   }
+
+  $$VnBackgroundsTableOrderingComposer get vnBackgroundId {
+    final $$VnBackgroundsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnBackgroundId,
+      referencedTable: $db.vnBackgrounds,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnBackgroundsTableOrderingComposer(
+            $db: $db,
+            $table: $db.vnBackgrounds,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$ChatMessagesTableAnnotationComposer
@@ -15005,6 +18137,12 @@ class $$ChatMessagesTableAnnotationComposer
     column: $table.turnSortOrder,
     builder: (column) => column,
   );
+
+  GeneratedColumnWithTypeConverter<VnEmotion?, int> get vnExpression =>
+      $composableBuilder(
+        column: $table.vnExpression,
+        builder: (column) => column,
+      );
 
   $$ChatSessionsTableAnnotationComposer get sessionId {
     final $$ChatSessionsTableAnnotationComposer composer = $composerBuilder(
@@ -15074,6 +18212,29 @@ class $$ChatMessagesTableAnnotationComposer
     );
     return composer;
   }
+
+  $$VnBackgroundsTableAnnotationComposer get vnBackgroundId {
+    final $$VnBackgroundsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vnBackgroundId,
+      referencedTable: $db.vnBackgrounds,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VnBackgroundsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vnBackgrounds,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$ChatMessagesTableTableManager
@@ -15093,6 +18254,7 @@ class $$ChatMessagesTableTableManager
             bool sessionId,
             bool characterId,
             bool turnId,
+            bool vnBackgroundId,
           })
         > {
   $$ChatMessagesTableTableManager(_$AppDatabase db, $ChatMessagesTable table)
@@ -15118,6 +18280,8 @@ class $$ChatMessagesTableTableManager
                 Value<int?> turnId = const Value.absent(),
                 Value<int> versionIndex = const Value.absent(),
                 Value<int> turnSortOrder = const Value.absent(),
+                Value<int?> vnBackgroundId = const Value.absent(),
+                Value<VnEmotion?> vnExpression = const Value.absent(),
               }) => ChatMessagesCompanion(
                 id: id,
                 sessionId: sessionId,
@@ -15129,6 +18293,8 @@ class $$ChatMessagesTableTableManager
                 turnId: turnId,
                 versionIndex: versionIndex,
                 turnSortOrder: turnSortOrder,
+                vnBackgroundId: vnBackgroundId,
+                vnExpression: vnExpression,
               ),
           createCompanionCallback:
               ({
@@ -15142,6 +18308,8 @@ class $$ChatMessagesTableTableManager
                 Value<int?> turnId = const Value.absent(),
                 Value<int> versionIndex = const Value.absent(),
                 Value<int> turnSortOrder = const Value.absent(),
+                Value<int?> vnBackgroundId = const Value.absent(),
+                Value<VnEmotion?> vnExpression = const Value.absent(),
               }) => ChatMessagesCompanion.insert(
                 id: id,
                 sessionId: sessionId,
@@ -15153,6 +18321,8 @@ class $$ChatMessagesTableTableManager
                 turnId: turnId,
                 versionIndex: versionIndex,
                 turnSortOrder: turnSortOrder,
+                vnBackgroundId: vnBackgroundId,
+                vnExpression: vnExpression,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -15163,7 +18333,12 @@ class $$ChatMessagesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({sessionId = false, characterId = false, turnId = false}) {
+              ({
+                sessionId = false,
+                characterId = false,
+                turnId = false,
+                vnBackgroundId = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [],
@@ -15228,6 +18403,21 @@ class $$ChatMessagesTableTableManager
                                   )
                                   as T;
                         }
+                        if (vnBackgroundId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.vnBackgroundId,
+                                    referencedTable:
+                                        $$ChatMessagesTableReferences
+                                            ._vnBackgroundIdTable(db),
+                                    referencedColumn:
+                                        $$ChatMessagesTableReferences
+                                            ._vnBackgroundIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
                         return state;
                       },
@@ -15252,7 +18442,12 @@ typedef $$ChatMessagesTableProcessedTableManager =
       $$ChatMessagesTableUpdateCompanionBuilder,
       (ChatMessage, $$ChatMessagesTableReferences),
       ChatMessage,
-      PrefetchHooks Function({bool sessionId, bool characterId, bool turnId})
+      PrefetchHooks Function({
+        bool sessionId,
+        bool characterId,
+        bool turnId,
+        bool vnBackgroundId,
+      })
     >;
 typedef $$ChatMemorySummariesTableCreateCompanionBuilder =
     ChatMemorySummariesCompanion Function({
@@ -18220,6 +21415,656 @@ typedef $$LorebookPlotLinksTableProcessedTableManager =
       LorebookPlotLink,
       PrefetchHooks Function({bool lorebookId, bool plotId})
     >;
+typedef $$VnCharacterExpressionsTableCreateCompanionBuilder =
+    VnCharacterExpressionsCompanion Function({
+      Value<int> id,
+      required int characterId,
+      required VnEmotion emotion,
+      required String imagePath,
+    });
+typedef $$VnCharacterExpressionsTableUpdateCompanionBuilder =
+    VnCharacterExpressionsCompanion Function({
+      Value<int> id,
+      Value<int> characterId,
+      Value<VnEmotion> emotion,
+      Value<String> imagePath,
+    });
+
+final class $$VnCharacterExpressionsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $VnCharacterExpressionsTable,
+          VnCharacterExpression
+        > {
+  $$VnCharacterExpressionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CharactersTable _characterIdTable(_$AppDatabase db) => db.characters
+      .createAlias('vn_character_expressions__character_id__characters__id');
+
+  $$CharactersTableProcessedTableManager get characterId {
+    final $_column = $_itemColumn<int>('character_id')!;
+
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_characterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$VnCharacterExpressionsTableFilterComposer
+    extends Composer<_$AppDatabase, $VnCharacterExpressionsTable> {
+  $$VnCharacterExpressionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<VnEmotion, VnEmotion, int> get emotion =>
+      $composableBuilder(
+        column: $table.emotion,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<String> get imagePath => $composableBuilder(
+    column: $table.imagePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get characterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VnCharacterExpressionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $VnCharacterExpressionsTable> {
+  $$VnCharacterExpressionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get emotion => $composableBuilder(
+    column: $table.emotion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imagePath => $composableBuilder(
+    column: $table.imagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get characterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VnCharacterExpressionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VnCharacterExpressionsTable> {
+  $$VnCharacterExpressionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<VnEmotion, int> get emotion =>
+      $composableBuilder(column: $table.emotion, builder: (column) => column);
+
+  GeneratedColumn<String> get imagePath =>
+      $composableBuilder(column: $table.imagePath, builder: (column) => column);
+
+  $$CharactersTableAnnotationComposer get characterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.characterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VnCharacterExpressionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VnCharacterExpressionsTable,
+          VnCharacterExpression,
+          $$VnCharacterExpressionsTableFilterComposer,
+          $$VnCharacterExpressionsTableOrderingComposer,
+          $$VnCharacterExpressionsTableAnnotationComposer,
+          $$VnCharacterExpressionsTableCreateCompanionBuilder,
+          $$VnCharacterExpressionsTableUpdateCompanionBuilder,
+          (VnCharacterExpression, $$VnCharacterExpressionsTableReferences),
+          VnCharacterExpression,
+          PrefetchHooks Function({bool characterId})
+        > {
+  $$VnCharacterExpressionsTableTableManager(
+    _$AppDatabase db,
+    $VnCharacterExpressionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VnCharacterExpressionsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$VnCharacterExpressionsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$VnCharacterExpressionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> characterId = const Value.absent(),
+                Value<VnEmotion> emotion = const Value.absent(),
+                Value<String> imagePath = const Value.absent(),
+              }) => VnCharacterExpressionsCompanion(
+                id: id,
+                characterId: characterId,
+                emotion: emotion,
+                imagePath: imagePath,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int characterId,
+                required VnEmotion emotion,
+                required String imagePath,
+              }) => VnCharacterExpressionsCompanion.insert(
+                id: id,
+                characterId: characterId,
+                emotion: emotion,
+                imagePath: imagePath,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$VnCharacterExpressionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({characterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (characterId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.characterId,
+                                referencedTable:
+                                    $$VnCharacterExpressionsTableReferences
+                                        ._characterIdTable(db),
+                                referencedColumn:
+                                    $$VnCharacterExpressionsTableReferences
+                                        ._characterIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$VnCharacterExpressionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VnCharacterExpressionsTable,
+      VnCharacterExpression,
+      $$VnCharacterExpressionsTableFilterComposer,
+      $$VnCharacterExpressionsTableOrderingComposer,
+      $$VnCharacterExpressionsTableAnnotationComposer,
+      $$VnCharacterExpressionsTableCreateCompanionBuilder,
+      $$VnCharacterExpressionsTableUpdateCompanionBuilder,
+      (VnCharacterExpression, $$VnCharacterExpressionsTableReferences),
+      VnCharacterExpression,
+      PrefetchHooks Function({bool characterId})
+    >;
+typedef $$VnChoicesTableCreateCompanionBuilder =
+    VnChoicesCompanion Function({
+      Value<int> id,
+      required int introVersionId,
+      required String content,
+      Value<int> sortOrder,
+      Value<bool> useDice,
+      Value<VnDiceDifficulty?> difficulty,
+    });
+typedef $$VnChoicesTableUpdateCompanionBuilder =
+    VnChoicesCompanion Function({
+      Value<int> id,
+      Value<int> introVersionId,
+      Value<String> content,
+      Value<int> sortOrder,
+      Value<bool> useDice,
+      Value<VnDiceDifficulty?> difficulty,
+    });
+
+final class $$VnChoicesTableReferences
+    extends BaseReferences<_$AppDatabase, $VnChoicesTable, VnChoice> {
+  $$VnChoicesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $IntroVersionsTable _introVersionIdTable(_$AppDatabase db) => db
+      .introVersions
+      .createAlias('vn_choices__intro_version_id__intro_versions__id');
+
+  $$IntroVersionsTableProcessedTableManager get introVersionId {
+    final $_column = $_itemColumn<int>('intro_version_id')!;
+
+    final manager = $$IntroVersionsTableTableManager(
+      $_db,
+      $_db.introVersions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_introVersionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$VnChoicesTableFilterComposer
+    extends Composer<_$AppDatabase, $VnChoicesTable> {
+  $$VnChoicesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get useDice => $composableBuilder(
+    column: $table.useDice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<VnDiceDifficulty?, VnDiceDifficulty, int>
+  get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  $$IntroVersionsTableFilterComposer get introVersionId {
+    final $$IntroVersionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.introVersionId,
+      referencedTable: $db.introVersions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IntroVersionsTableFilterComposer(
+            $db: $db,
+            $table: $db.introVersions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VnChoicesTableOrderingComposer
+    extends Composer<_$AppDatabase, $VnChoicesTable> {
+  $$VnChoicesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get useDice => $composableBuilder(
+    column: $table.useDice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$IntroVersionsTableOrderingComposer get introVersionId {
+    final $$IntroVersionsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.introVersionId,
+      referencedTable: $db.introVersions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IntroVersionsTableOrderingComposer(
+            $db: $db,
+            $table: $db.introVersions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VnChoicesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VnChoicesTable> {
+  $$VnChoicesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get useDice =>
+      $composableBuilder(column: $table.useDice, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<VnDiceDifficulty?, int> get difficulty =>
+      $composableBuilder(
+        column: $table.difficulty,
+        builder: (column) => column,
+      );
+
+  $$IntroVersionsTableAnnotationComposer get introVersionId {
+    final $$IntroVersionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.introVersionId,
+      referencedTable: $db.introVersions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$IntroVersionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.introVersions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VnChoicesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VnChoicesTable,
+          VnChoice,
+          $$VnChoicesTableFilterComposer,
+          $$VnChoicesTableOrderingComposer,
+          $$VnChoicesTableAnnotationComposer,
+          $$VnChoicesTableCreateCompanionBuilder,
+          $$VnChoicesTableUpdateCompanionBuilder,
+          (VnChoice, $$VnChoicesTableReferences),
+          VnChoice,
+          PrefetchHooks Function({bool introVersionId})
+        > {
+  $$VnChoicesTableTableManager(_$AppDatabase db, $VnChoicesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VnChoicesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VnChoicesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VnChoicesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> introVersionId = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> useDice = const Value.absent(),
+                Value<VnDiceDifficulty?> difficulty = const Value.absent(),
+              }) => VnChoicesCompanion(
+                id: id,
+                introVersionId: introVersionId,
+                content: content,
+                sortOrder: sortOrder,
+                useDice: useDice,
+                difficulty: difficulty,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int introVersionId,
+                required String content,
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> useDice = const Value.absent(),
+                Value<VnDiceDifficulty?> difficulty = const Value.absent(),
+              }) => VnChoicesCompanion.insert(
+                id: id,
+                introVersionId: introVersionId,
+                content: content,
+                sortOrder: sortOrder,
+                useDice: useDice,
+                difficulty: difficulty,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$VnChoicesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({introVersionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (introVersionId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.introVersionId,
+                                referencedTable: $$VnChoicesTableReferences
+                                    ._introVersionIdTable(db),
+                                referencedColumn: $$VnChoicesTableReferences
+                                    ._introVersionIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$VnChoicesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VnChoicesTable,
+      VnChoice,
+      $$VnChoicesTableFilterComposer,
+      $$VnChoicesTableOrderingComposer,
+      $$VnChoicesTableAnnotationComposer,
+      $$VnChoicesTableCreateCompanionBuilder,
+      $$VnChoicesTableUpdateCompanionBuilder,
+      (VnChoice, $$VnChoicesTableReferences),
+      VnChoice,
+      PrefetchHooks Function({bool introVersionId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -18230,6 +22075,8 @@ class $AppDatabaseManager {
       $$CharactersTableTableManager(_db, _db.characters);
   $$IntroVersionsTableTableManager get introVersions =>
       $$IntroVersionsTableTableManager(_db, _db.introVersions);
+  $$VnBackgroundsTableTableManager get vnBackgrounds =>
+      $$VnBackgroundsTableTableManager(_db, _db.vnBackgrounds);
   $$IntroEntriesTableTableManager get introEntries =>
       $$IntroEntriesTableTableManager(_db, _db.introEntries);
   $$ConversationProfilesTableTableManager get conversationProfiles =>
@@ -18261,4 +22108,11 @@ class $AppDatabaseManager {
       $$LorebookEntriesTableTableManager(_db, _db.lorebookEntries);
   $$LorebookPlotLinksTableTableManager get lorebookPlotLinks =>
       $$LorebookPlotLinksTableTableManager(_db, _db.lorebookPlotLinks);
+  $$VnCharacterExpressionsTableTableManager get vnCharacterExpressions =>
+      $$VnCharacterExpressionsTableTableManager(
+        _db,
+        _db.vnCharacterExpressions,
+      );
+  $$VnChoicesTableTableManager get vnChoices =>
+      $$VnChoicesTableTableManager(_db, _db.vnChoices);
 }

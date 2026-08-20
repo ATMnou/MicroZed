@@ -491,6 +491,30 @@ class AppLocalizationsJa extends AppLocalizations {
   String get createTabCreateButton => '作成する';
 
   @override
+  String get createTabPlotTypeFilterAll => '全体';
+
+  @override
+  String get createTabPlotTypeFilterStoryChat => 'ストーリーチャット';
+
+  @override
+  String get createTabPlotTypeFilterVisualNovel => 'ビジュアルノベル';
+
+  @override
+  String get createTabPlotTypeChooserTitle => 'プロット';
+
+  @override
+  String get createTabPlotTypeStoryChatTitle => 'ストーリーチャット';
+
+  @override
+  String get createTabPlotTypeStoryChatSubtitle => '吹き出し形式で進めるロールプレイ';
+
+  @override
+  String get createTabPlotTypeVisualNovelTitle => 'ビジュアルノベル';
+
+  @override
+  String get createTabPlotTypeVisualNovelSubtitle => '背景とキャラクターイラストで進める物語';
+
+  @override
   String get createTabEditPlotMenuItem => 'プロットを編集';
 
   @override
@@ -1543,4 +1567,397 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get summarySettingsSavedMessage => '保存しました。';
+
+  @override
+  String get vnEditAppBarTitleCreate => 'ビジュアルノベル作成';
+
+  @override
+  String get vnEditAppBarTitleEdit => 'ビジュアルノベル編集';
+
+  @override
+  String get vnEditSaveButtonCreate => '制作';
+
+  @override
+  String get vnEditSaveButtonEdit => '修正';
+
+  @override
+  String get vnEditSavedMessage => '保存しました';
+
+  @override
+  String get vnEditTitleRequiredMessage => 'タイトルを入力してください';
+
+  @override
+  String get vnEditTabContents => 'コンテンツ';
+
+  @override
+  String get vnEditTabInfo => '紹介';
+
+  @override
+  String get vnEditTabPlaySettings => 'プレイ設定';
+
+  @override
+  String get vnEditTitleFieldLabel => 'タイトル';
+
+  @override
+  String get vnEditTitleFieldHint => 'プロットのタイトルを入力してください';
+
+  @override
+  String vnEditCharCountLabel(int count) {
+    return '$count文字';
+  }
+
+  @override
+  String get vnEditWorldviewLabel => '世界観';
+
+  @override
+  String get vnEditWorldviewHint => 'あなただけの独創的な世界観を書いてください';
+
+  @override
+  String get vnEditHashtagsLabel => 'ハッシュタグ';
+
+  @override
+  String vnEditHashtagAddButton(int count) {
+    return '追加 $count/10';
+  }
+
+  @override
+  String get vnEditAddHashtagDialogTitle => 'ハッシュタグ追加';
+
+  @override
+  String get vnEditHashtagHint => '#なしで入力してください';
+
+  @override
+  String get vnEditCharactersSectionTitle => '登場人物';
+
+  @override
+  String get vnEditCharactersEmptyMessage => 'プロットを共に導く人物を追加してください';
+
+  @override
+  String get vnEditAddCharacterButton => '新しい人物を追加';
+
+  @override
+  String get vnEditPlayableSectionTitle => 'プレイアブルキャラクター';
+
+  @override
+  String get vnEditPlayableEmptyMessage => 'プレイヤーが選べる主人公を作成してください';
+
+  @override
+  String get vnEditSelectExistingCharacterButton => '登場人物から選択';
+
+  @override
+  String get vnEditSelectExistingCharacterDialogTitle => '登場人物から選択';
+
+  @override
+  String get vnEditSelectExistingCharacterEmptyMessage => '選択できる登場人物がいません';
+
+  @override
+  String get vnEditBackgroundsSectionTitle => '背景';
+
+  @override
+  String get vnEditBackgroundsEmptyMessage => 'プロットの没入感を高める背景を作成してください';
+
+  @override
+  String get vnEditAddBackgroundButton => '新しい背景を追加';
+
+  @override
+  String get vnEditAddBackgroundDialogTitle => '新しい背景を追加';
+
+  @override
+  String get vnEditEditBackgroundDialogTitle => '背景を編集';
+
+  @override
+  String get vnEditBackgroundImageLabel => '背景画像';
+
+  @override
+  String get vnEditBackgroundTitleLabel => 'タイトル';
+
+  @override
+  String get vnEditBackgroundTitleHint => '例）学校の教室_昼';
+
+  @override
+  String get vnEditSavePlotFirstMessage => 'タイトルと世界観を入力し、上の保存ボタンを押してください';
+
+  @override
+  String get vnEditDeleteCharacterConfirmMessage =>
+      'この人物を削除しますか？表情画像も一緒に削除されます。';
+
+  @override
+  String get vnEditDeleteBackgroundConfirmMessage => 'この背景を削除しますか？';
+
+  @override
+  String get vnEditCharacterFormTitleCreate => '新しい人物';
+
+  @override
+  String get vnEditCharacterFormTitleEdit => '人物を編集';
+
+  @override
+  String get vnEditCharacterNameLabel => '名前';
+
+  @override
+  String get vnEditCharacterNameHint => '名前を入力してください';
+
+  @override
+  String get vnEditCharacterShortDescLabel => '短い説明';
+
+  @override
+  String get vnEditCharacterShortDescHint => '人物の特徴を短く紹介してください';
+
+  @override
+  String get vnEditCharacterPersonaLabel => '人物説明';
+
+  @override
+  String get vnEditCharacterPersonaHint =>
+      '話し方、性格、癖などAIが人物を表現する際に参考にする特徴を書いてください';
+
+  @override
+  String get vnEditCharacterImageLabel => '人物イメージ';
+
+  @override
+  String get vnEditCharacterImagePlaceholder => '全身画像を追加';
+
+  @override
+  String get vnEditExpressionSectionTitle => '表情画像（任意）';
+
+  @override
+  String get vnEditExpressionSavePlotFirstMessage => '先に人物を保存すると表情を追加できます';
+
+  @override
+  String get vnEditExpressionAddTile => '画像追加';
+
+  @override
+  String get vnEditExpressionJoy => '喜び';
+
+  @override
+  String get vnEditExpressionSad => '悲しみ';
+
+  @override
+  String get vnEditExpressionAngry => '怒り';
+
+  @override
+  String get vnEditExpressionWorried => '心配';
+
+  @override
+  String get vnEditExpressionSurprised => '驚き';
+
+  @override
+  String get vnEditExpressionConfused => '疑問';
+
+  @override
+  String get vnEditIntroEmptyMessage => 'まだターンがありません。下のボタンで最初のターンを追加してみましょう。';
+
+  @override
+  String get vnEditAddTurnButton => 'ターン追加';
+
+  @override
+  String get vnEditSceneTypeDialogue => '対話型';
+
+  @override
+  String get vnEditSceneTypeDirection => '演出型';
+
+  @override
+  String get vnEditSpeakerNarratorLabel => 'ナレーター';
+
+  @override
+  String get vnEditNoChangeLabel => '変化なし';
+
+  @override
+  String get vnEditIntroContentHint => '内容を入力してください';
+
+  @override
+  String get vnEditDirectionCaptionHint => '短い演出文を入力してください';
+
+  @override
+  String vnEditChoicesSectionTitle(int count) {
+    return '選択肢 $count/4';
+  }
+
+  @override
+  String get vnEditAddChoiceButton => '選択肢を追加';
+
+  @override
+  String get vnEditChoiceContentHint => '選択肢の内容を入力してください';
+
+  @override
+  String get vnEditUseDiceLabel => 'サイコロを使用';
+
+  @override
+  String get vnEditDifficultyEasy => '簡単';
+
+  @override
+  String get vnEditDifficultyMedium => '普通';
+
+  @override
+  String get vnEditDifficultyHard => '難しい';
+
+  @override
+  String get vnEditCoverTitle => 'カバー';
+
+  @override
+  String get vnEditCoverImagePlaceholder => 'カバー画像';
+
+  @override
+  String get vnEditShortIntroLabel => '短い紹介';
+
+  @override
+  String get vnEditShortIntroHint => 'タイトルと一緒に表示される短い紹介を入力してください';
+
+  @override
+  String get vnEditPlaySettingsSectionTitle => 'プレイ方式';
+
+  @override
+  String get vnEditInputModeLabel => '基本入力方式';
+
+  @override
+  String get vnEditInputModeChoice => '選択肢';
+
+  @override
+  String get vnEditInputModeFreeText => '直接入力';
+
+  @override
+  String get vnEditInputModeChoiceDescription => '用意された選択肢の中から選んで答えます';
+
+  @override
+  String get vnEditInputModeFreeTextDescription => 'プレイヤーが直接回答を入力します';
+
+  @override
+  String get vnEditAiAssistLabel => 'AI入力アシスト';
+
+  @override
+  String get vnEditAiAssistDescription =>
+      'AIがプレイヤーの入力を整え、プレイアブルキャラクターの画像も一緒に表示します。';
+
+  @override
+  String get vnEditDiceEventLabel => 'サイコロイベント';
+
+  @override
+  String get vnEditDiceEventDescription =>
+      '重要な瞬間にプレイヤーが直接サイコロを振ります。\n結果によって成功可否が決まります。';
+
+  @override
+  String get vnPlayAiAssistTooltip => 'AI入力サポートを受ける';
+
+  @override
+  String get vnPlayBackToChoicesButton => '選択肢に戻る';
+
+  @override
+  String get vnPlayBackTooltip => '戻る';
+
+  @override
+  String get vnPlayCancelGenerationTooltip => '生成を中止';
+
+  @override
+  String get vnPlayCharacterPickerTitle => 'プレイするキャラクターを選択してください';
+
+  @override
+  String get vnPlayDefaultCharacterName => 'キャラクター';
+
+  @override
+  String get vnPlayDiceBonusLabel => 'ボーナス';
+
+  @override
+  String get vnPlayDiceConfirmButton => '確認';
+
+  @override
+  String get vnPlayDiceGoalLabel => '目標';
+
+  @override
+  String vnPlayDiceResultDetail(int roll, int bonus, int total, int target) {
+    return '$roll + $bonus = $total / 目標 $target';
+  }
+
+  @override
+  String get vnPlayDiceResultFailure => '失敗…';
+
+  @override
+  String get vnPlayDiceResultSuccess => '成功!';
+
+  @override
+  String get vnPlayDiceRollButton => '運命のサイコロを振る';
+
+  @override
+  String get vnPlayDiceSheetTitle => '運命のサイコロ';
+
+  @override
+  String get vnPlayDiceTargetLabel => '成功基準';
+
+  @override
+  String get vnPlayEmptyStateMessage => 'まだ物語が始まっていません';
+
+  @override
+  String get vnPlayFreeInputHint => '行動やセリフを入力してください...';
+
+  @override
+  String vnPlayGenerateFailureMessage(Object error) {
+    return '物語の生成に失敗しました: $error';
+  }
+
+  @override
+  String get vnPlayGeneratingIndicator => '物語を生成中...';
+
+  @override
+  String get vnPlayHistoryEmptyMessage => 'まだ記録がありません';
+
+  @override
+  String get vnPlayHistoryMenuItem => '履歴を見る';
+
+  @override
+  String get vnPlayHistoryNarratorLabel => 'ナレーション';
+
+  @override
+  String get vnPlayHistorySheetTitle => 'ストーリー記録';
+
+  @override
+  String get vnPlayHistoryTooltip => '履歴';
+
+  @override
+  String get vnPlayManualInputToggle => '直接入力';
+
+  @override
+  String get vnPlayPresetManageLink => 'プリセット設定';
+
+  @override
+  String get vnPlayPresetSheetDescription =>
+      '選択したプリセットの設定でストーリーが進行します。プリセットはマイページで管理できます。';
+
+  @override
+  String get vnPlayPresetSheetEmpty => 'まだ作成したプリセットがありません';
+
+  @override
+  String get vnPlayPresetSheetTitle => 'AIプリセット';
+
+  @override
+  String get vnPlayRegenerateSuggestionsTooltip => 'もう一度提案を受ける';
+
+  @override
+  String get vnPlaySelectCharacterButton => '選択';
+
+  @override
+  String get vnPlaySelectPresetMessage => '先にAIプリセットを選択してください';
+
+  @override
+  String get vnPlaySessionLoadFailedMessage => 'セッションを読み込めませんでした';
+
+  @override
+  String get vnPlaySettingsSheetTitle => '設定';
+
+  @override
+  String get vnPlaySettingsTooltip => '設定';
+
+  @override
+  String get vnPlayStepBackTooltip => '前へ';
+
+  @override
+  String get vnPlayStepForwardTooltip => '次へ';
+
+  @override
+  String get vnPlaySuggestionEditTooltip => '編集';
+
+  @override
+  String get vnPlaySuggestionsEmptyMessage => '提案できる選択肢がありません';
+
+  @override
+  String get vnPlaySuggestionsLoadingLabel => '次の行動を考え中...';
+
+  @override
+  String get vnPlayUntitledPlotTitle => '無題';
 }

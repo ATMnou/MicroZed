@@ -9,6 +9,7 @@ import 'character_detail_screen.dart';
 import 'conversation_tab.dart';
 import 'create_tab.dart';
 import 'my_page_tab.dart';
+import 'vn_player_screen.dart';
 import '../data/theme/color_palette.dart';
 import '../data/theme/palette_scope.dart';
 
@@ -155,10 +156,12 @@ class _HomeTabState extends State<_HomeTab> {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => CharacterDetailScreen(
-                            plotId: summary.plot.id,
-                            heroColor: _colorFor(summary.plot.id),
-                          ),
+                          builder: (_) => summary.plot.plotType == PlotType.visualNovel
+                              ? VnPlayerScreen(plotId: summary.plot.id)
+                              : CharacterDetailScreen(
+                                  plotId: summary.plot.id,
+                                  heroColor: _colorFor(summary.plot.id),
+                                ),
                         ),
                       );
                     },

@@ -101,8 +101,10 @@ class PromptBuilder {
     required List<Character> characters,
     int? contextLength,
   }) {
-    // 이미지 첨부는 관리용일 뿐이라 AI에게는 절대 전달하지 않는다.
-    final withoutImages = history.where((m) => m.senderType != MessageSender.image).toList();
+    // 이미지 첨부와 캐릭터 선택 마커는 관리/연출용일 뿐이라 AI에게는 절대 전달하지 않는다.
+    final withoutImages = history
+        .where((m) => m.senderType != MessageSender.image && m.senderType != MessageSender.characterPick)
+        .toList();
     final trimmed = (contextLength != null && contextLength > 0 && withoutImages.length > contextLength)
         ? withoutImages.sublist(withoutImages.length - contextLength)
         : withoutImages;
@@ -116,7 +118,8 @@ class PromptBuilder {
         case MessageSender.narrator:
           return {'role': 'assistant', 'content': '@: ${m.content}'};
         case MessageSender.image:
-          throw StateError('image messages are filtered out above');
+        case MessageSender.characterPick:
+          throw StateError('image/characterPick messages are filtered out above');
       }
     }).toList();
   }
@@ -129,7 +132,7 @@ class PromptBuilder {
     required List<Character> characters,
   }) {
     return messages
-        .where((m) => m.senderType != MessageSender.image)
+        .where((m) => m.senderType != MessageSender.image && m.senderType != MessageSender.characterPick)
         .map((m) {
           switch (m.senderType) {
             case MessageSender.narrator:
@@ -139,7 +142,8 @@ class PromptBuilder {
             case MessageSender.user:
               return m.content;
             case MessageSender.image:
-              throw StateError('image messages are filtered out above');
+            case MessageSender.characterPick:
+              throw StateError('image/characterPick messages are filtered out above');
           }
         })
         .join('\n\n');

@@ -411,6 +411,13 @@ Future<bool> _confirmDelete(BuildContext context, String message) async {
   return result ?? false;
 }
 
+/// 캐릭터의 spriteOffsetX/Y(화면 폭/높이 대비 비율, 기본 위치는 하단 중앙)를 실제 렌더링에
+/// 쓰는 [Alignment]로 변환한다. 인물 배치 편집기의 미리보기와 플레이 화면의 [_SpriteLayer]가
+/// 정확히 같은 계산식을 써야 편집한 대로 보이므로 여기 하나로 공유한다.
+Alignment vnSpriteAlignment(double offsetX, double offsetY) {
+  return Alignment(offsetX * 2, 1 - offsetY * 2);
+}
+
 String _emotionLabel(AppLocalizations l10n, VnEmotion emotion) {
   switch (emotion) {
     case VnEmotion.joy:
@@ -425,6 +432,8 @@ String _emotionLabel(AppLocalizations l10n, VnEmotion emotion) {
       return l10n.vnEditExpressionSurprised;
     case VnEmotion.confused:
       return l10n.vnEditExpressionConfused;
+    case VnEmotion.defaultEmotion:
+      return l10n.vnEditExpressionDefault;
   }
 }
 
@@ -524,7 +533,7 @@ class _VnContentsTabState extends State<_VnContentsTab> {
     if (plotId == null) return;
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => _VnCharacterFormScreen(
+        builder: (_) => VnCharacterFormScreen(
           plotId: plotId,
           isPlayable: isPlayable,
           sortOrder: sortOrder,
@@ -536,7 +545,7 @@ class _VnContentsTabState extends State<_VnContentsTab> {
   void _editCharacter(Character character) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => _VnCharacterFormScreen(
+        builder: (_) => VnCharacterFormScreen(
           plotId: character.plotId,
           characterId: character.id,
           isPlayable: character.isPlayable,
@@ -1124,8 +1133,9 @@ class _VnBackgroundFormDialogState extends State<_VnBackgroundFormDialog> {
 // 등장인물/플레이어블 캐릭터 생성·수정 화면 (전신 이미지 + 표정 세트)
 // ────────────────────────────────────────────────────────────────────────
 
-class _VnCharacterFormScreen extends StatefulWidget {
-  const _VnCharacterFormScreen({
+class VnCharacterFormScreen extends StatefulWidget {
+  const VnCharacterFormScreen({
+    super.key,
     required this.plotId,
     this.characterId,
     required this.isPlayable,
@@ -1138,10 +1148,10 @@ class _VnCharacterFormScreen extends StatefulWidget {
   final int sortOrder;
 
   @override
-  State<_VnCharacterFormScreen> createState() => _VnCharacterFormScreenState();
+  State<VnCharacterFormScreen> createState() => _VnCharacterFormScreenState();
 }
 
-class _VnCharacterFormScreenState extends State<_VnCharacterFormScreen> {
+class _VnCharacterFormScreenState extends State<VnCharacterFormScreen> {
   late final CharacterRepository _characterRepository;
   final _imageStore = LocalImageStore();
 
@@ -1149,6 +1159,9 @@ class _VnCharacterFormScreenState extends State<_VnCharacterFormScreen> {
   final _shortDescController = TextEditingController();
   final _personaController = TextEditingController();
   String? _imagePath;
+  double _spriteScale = 1.0;
+  double _spriteOffsetX = 0.0;
+  double _spriteOffsetY = 0.0;
 
   /// 신규 생성 도중(아직 characterId가 없을 때)에는 [_characterId]가 null이다.
   /// 표정 세트는 캐릭터 row가 존재해야 저장할 수 있어서, 최초 저장 전까지는
@@ -1174,6 +1187,9 @@ class _VnCharacterFormScreenState extends State<_VnCharacterFormScreen> {
       _shortDescController.text = character?.aboutText ?? '';
       _personaController.text = character?.description ?? '';
       _imagePath = character?.imagePath;
+      _spriteScale = character?.spriteScale ?? 1.0;
+      _spriteOffsetX = character?.spriteOffsetX ?? 0.0;
+      _spriteOffsetY = character?.spriteOffsetY ?? 0.0;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -1204,6 +1220,9 @@ class _VnCharacterFormScreenState extends State<_VnCharacterFormScreen> {
         sortOrder: widget.sortOrder,
         aboutText: _shortDescController.text.trim(),
         isPlayable: widget.isPlayable,
+        spriteScale: _spriteScale,
+        spriteOffsetX: _spriteOffsetX,
+        spriteOffsetY: _spriteOffsetY,
       );
       if (!mounted) return;
       setState(() {
@@ -1217,6 +1236,9 @@ class _VnCharacterFormScreenState extends State<_VnCharacterFormScreen> {
         description: _personaController.text.trim(),
         imagePath: _imagePath,
         aboutText: _shortDescController.text.trim(),
+        spriteScale: _spriteScale,
+        spriteOffsetX: _spriteOffsetX,
+        spriteOffsetY: _spriteOffsetY,
       );
       if (mounted) Navigator.of(context).pop();
     }
@@ -1303,6 +1325,20 @@ class _VnCharacterFormScreenState extends State<_VnCharacterFormScreen> {
                     placeholderText: l10n.vnEditCharacterImagePlaceholder,
                   ),
                   const SizedBox(height: 24),
+                  _VnSectionHeader(title: l10n.vnEditSpritePlacementSectionTitle),
+                  const SizedBox(height: 8),
+                  _VnSpritePlacementEditor(
+                    imagePath: _imagePath,
+                    scale: _spriteScale,
+                    offsetX: _spriteOffsetX,
+                    offsetY: _spriteOffsetY,
+                    onChanged: (scale, offsetX, offsetY) => setState(() {
+                      _spriteScale = scale;
+                      _spriteOffsetX = offsetX;
+                      _spriteOffsetY = offsetY;
+                    }),
+                  ),
+                  const SizedBox(height: 24),
                   _VnSectionHeader(title: l10n.vnEditExpressionSectionTitle),
                   const SizedBox(height: 8),
                   if (_characterId == null)
@@ -1316,6 +1352,123 @@ class _VnCharacterFormScreenState extends State<_VnCharacterFormScreen> {
                 ],
               ),
             ),
+    );
+  }
+}
+
+/// 캐릭터의 전신 스프라이트 크기 배율 + X/Y 위치를 슬라이더로 조정하고, 작은 무대 미리보기로
+/// 즉시 확인할 수 있게 하는 위젯. 값은 캐릭터 저장 시 함께 저장되어 플레이 화면
+/// ([_SpriteLayer])의 모든 장면에 그대로 적용된다.
+class _VnSpritePlacementEditor extends StatelessWidget {
+  const _VnSpritePlacementEditor({
+    required this.imagePath,
+    required this.scale,
+    required this.offsetX,
+    required this.offsetY,
+    required this.onChanged,
+  });
+
+  final String? imagePath;
+  final double scale;
+  final double offsetX;
+  final double offsetY;
+  final void Function(double scale, double offsetX, double offsetY) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final palette = PaletteScope.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            width: double.infinity,
+            height: 160,
+            color: Colors.black,
+            child: imagePath == null
+                ? Center(
+                    child: Text(
+                      l10n.vnEditSpritePlacementPreviewEmptyMessage,
+                      style: TextStyle(color: palette.textFaint, fontSize: 12),
+                    ),
+                  )
+                : Align(
+                    alignment: vnSpriteAlignment(offsetX, offsetY),
+                    child: Transform.scale(
+                      scale: scale,
+                      alignment: Alignment.bottomCenter,
+                      child: FractionallySizedBox(
+                        heightFactor: 0.85,
+                        alignment: Alignment.bottomCenter,
+                        child: Image.file(File(imagePath!), fit: BoxFit.contain),
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _VnSpriteSlider(
+          label: l10n.vnEditSpriteScaleLabel(scale.toStringAsFixed(2)),
+          value: scale,
+          min: 0.5,
+          max: 1.5,
+          onChanged: (v) => onChanged(v, offsetX, offsetY),
+        ),
+        _VnSpriteSlider(
+          label: l10n.vnEditSpriteOffsetXLabel,
+          value: offsetX,
+          min: -0.4,
+          max: 0.4,
+          onChanged: (v) => onChanged(scale, v, offsetY),
+        ),
+        _VnSpriteSlider(
+          label: l10n.vnEditSpriteOffsetYLabel,
+          value: offsetY,
+          min: -0.3,
+          max: 0.3,
+          onChanged: (v) => onChanged(scale, offsetX, v),
+        ),
+      ],
+    );
+  }
+}
+
+class _VnSpriteSlider extends StatelessWidget {
+  const _VnSpriteSlider({
+    required this.label,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.onChanged,
+  });
+
+  final String label;
+  final double value;
+  final double min;
+  final double max;
+  final ValueChanged<double> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = PaletteScope.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(color: palette.textSecondary, fontSize: 13)),
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(trackHeight: 3),
+          child: Slider(
+            value: value,
+            min: min,
+            max: max,
+            activeColor: palette.primary,
+            inactiveColor: palette.border,
+            onChanged: onChanged,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -1474,6 +1627,7 @@ class _VnIntroTabState extends State<_VnIntroTab> {
   late final VnBackgroundRepository _backgroundRepository;
   Future<int>? _ensureVersionFuture;
   int _selectedVersionIndex = 0;
+  final Set<int> _pickEntryEnsuredForVersion = {};
 
   @override
   void initState() {
@@ -1532,6 +1686,9 @@ class _VnIntroTabState extends State<_VnIntroTab> {
                     }
                     final currentIndex = _selectedVersionIndex.clamp(0, versions.length - 1);
                     final currentVersion = versions[currentIndex];
+                    if (_pickEntryEnsuredForVersion.add(currentVersion.id)) {
+                      _repository.ensurePlayableCharacterPickEntry(plotId, currentVersion.id);
+                    }
                     return Column(
                       children: [
                         _buildVersionSwitcher(context, versions, currentIndex),
@@ -1826,6 +1983,39 @@ class _VnIntroEntryCardState extends State<_VnIntroEntryCard> {
     final l10n = AppLocalizations.of(context)!;
     final palette = PaletteScope.of(context);
     final entry = widget.entry;
+
+    if (entry.type == IntroEntryType.characterPick) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: palette.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: palette.border),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.person_search, color: palette.primary, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.vnEditCharacterPickEntryLabel,
+                    style: TextStyle(color: palette.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.vnEditCharacterPickEntryHint,
+                    style: TextStyle(color: palette.textFaint, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     final isDialogue = entry.vnSceneType == VnSceneType.dialogue;
 
     return Container(
@@ -1888,6 +2078,7 @@ class _VnIntroEntryCardState extends State<_VnIntroEntryCard> {
                       items: [
                         DropdownMenuItem(value: null, child: Text(l10n.vnEditNoChangeLabel)),
                         for (final e in const [
+                          VnEmotion.defaultEmotion,
                           VnEmotion.joy,
                           VnEmotion.sad,
                           VnEmotion.angry,

@@ -824,6 +824,12 @@ abstract class AppLocalizations {
   /// **'대화량 {count}'**
   String conversationCountLabel(Object count);
 
+  /// No description provided for @homeTabFilterRecommended.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천'**
+  String get homeTabFilterRecommended;
+
   /// No description provided for @homeNoPlotsYet.
   ///
   /// In ko, this message translates to:
@@ -2138,6 +2144,12 @@ abstract class AppLocalizations {
   /// **'설명(선택)'**
   String get profileEditDescriptionLabel;
 
+  /// No description provided for @profileEditScopeSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'적용 범위'**
+  String get profileEditScopeSectionTitle;
+
   /// No description provided for @profileEditDefaultSectionTitle.
   ///
   /// In ko, this message translates to:
@@ -3224,6 +3236,36 @@ abstract class AppLocalizations {
   /// **'전신 이미지 추가'**
   String get vnEditCharacterImagePlaceholder;
 
+  /// No description provided for @vnEditSpritePlacementSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'인물 배치'**
+  String get vnEditSpritePlacementSectionTitle;
+
+  /// No description provided for @vnEditSpritePlacementPreviewEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'인물 이미지를 추가하면 미리볼 수 있어요'**
+  String get vnEditSpritePlacementPreviewEmptyMessage;
+
+  /// No description provided for @vnEditSpriteScaleLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'크기 배율 {scale}x'**
+  String vnEditSpriteScaleLabel(String scale);
+
+  /// No description provided for @vnEditSpriteOffsetXLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'가로 위치'**
+  String get vnEditSpriteOffsetXLabel;
+
+  /// No description provided for @vnEditSpriteOffsetYLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'세로 위치'**
+  String get vnEditSpriteOffsetYLabel;
+
   /// No description provided for @vnEditExpressionSectionTitle.
   ///
   /// In ko, this message translates to:
@@ -3277,6 +3319,24 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'의문'**
   String get vnEditExpressionConfused;
+
+  /// No description provided for @vnEditExpressionDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 이미지'**
+  String get vnEditExpressionDefault;
+
+  /// No description provided for @vnEditCharacterPickEntryLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어블 캐릭터 선택'**
+  String get vnEditCharacterPickEntryLabel;
+
+  /// No description provided for @vnEditCharacterPickEntryHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'인트로 재생 중 이 위치에서 플레이어가 캐릭터를 고릅니다. 드래그로 순서만 바꿀 수 있어요.'**
+  String get vnEditCharacterPickEntryHint;
 
   /// No description provided for @vnEditIntroEmptyMessage.
   ///
@@ -3452,6 +3512,12 @@ abstract class AppLocalizations {
   /// **'중요한 순간에 플레이어가 직접 주사위를 굴려요.\n결과에 따라 성공 여부가 결정돼요.'**
   String get vnEditDiceEventDescription;
 
+  /// No description provided for @vnPlayAddPlayableCharacterCardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 플레이어블\n캐릭터'**
+  String get vnPlayAddPlayableCharacterCardTitle;
+
   /// No description provided for @vnPlayAiAssistTooltip.
   ///
   /// In ko, this message translates to:
@@ -3487,6 +3553,18 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'캐릭터'**
   String get vnPlayDefaultCharacterName;
+
+  /// No description provided for @vnPlayDeleteSessionConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 대화를 삭제할까요? 되돌릴 수 없어요.'**
+  String get vnPlayDeleteSessionConfirmMessage;
+
+  /// No description provided for @vnPlayDeleteSessionMenuItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get vnPlayDeleteSessionMenuItem;
 
   /// No description provided for @vnPlayDiceBonusLabel.
   ///
@@ -3542,6 +3620,12 @@ abstract class AppLocalizations {
   /// **'성공 기준'**
   String get vnPlayDiceTargetLabel;
 
+  /// No description provided for @vnPlayEditCharacterTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'캐릭터 수정'**
+  String get vnPlayEditCharacterTooltip;
+
   /// No description provided for @vnPlayEmptyStateMessage.
   ///
   /// In ko, this message translates to:
@@ -3578,11 +3662,35 @@ abstract class AppLocalizations {
   /// **'히스토리 보기'**
   String get vnPlayHistoryMenuItem;
 
+  /// No description provided for @vnPlayProfileMenuItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화 프로필'**
+  String get vnPlayProfileMenuItem;
+
+  /// No description provided for @vnPlayProfileSheetTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화 프로필 선택'**
+  String get vnPlayProfileSheetTitle;
+
+  /// No description provided for @vnPlayProfileSheetEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'비주얼 노벨에서 쓸 수 있는 프로필이 없어요'**
+  String get vnPlayProfileSheetEmpty;
+
   /// No description provided for @vnPlayHistoryNarratorLabel.
   ///
   /// In ko, this message translates to:
   /// **'내레이션'**
   String get vnPlayHistoryNarratorLabel;
+
+  /// No description provided for @vnPlayHistoryCharacterPickLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'캐릭터 선택'**
+  String get vnPlayHistoryCharacterPickLabel;
 
   /// No description provided for @vnPlayHistorySheetTitle.
   ///
@@ -3596,11 +3704,23 @@ abstract class AppLocalizations {
   /// **'히스토리'**
   String get vnPlayHistoryTooltip;
 
+  /// No description provided for @vnPlayJumpToPlotDetailMenuItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯 상세페이지 바로가기'**
+  String get vnPlayJumpToPlotDetailMenuItem;
+
   /// No description provided for @vnPlayManualInputToggle.
   ///
   /// In ko, this message translates to:
   /// **'직접 입력'**
   String get vnPlayManualInputToggle;
+
+  /// No description provided for @vnPlayPresetDropdownPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋 선택'**
+  String get vnPlayPresetDropdownPlaceholder;
 
   /// No description provided for @vnPlayPresetManageLink.
   ///
@@ -3661,6 +3781,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'설정'**
   String get vnPlaySettingsTooltip;
+
+  /// No description provided for @vnPlayStartFreshMenuItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로하기'**
+  String get vnPlayStartFreshMenuItem;
 
   /// No description provided for @vnPlayStepBackTooltip.
   ///

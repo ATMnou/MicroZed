@@ -502,6 +502,9 @@ class _DetailBody extends StatelessWidget {
             ),
           ),
         );
+      case IntroEntryType.characterPick:
+        // 비주얼 노벨 전용 마커라 스토리챗 플롯의 인트로 미리보기에는 나타나지 않는다.
+        return const SizedBox.shrink();
     }
   }
 

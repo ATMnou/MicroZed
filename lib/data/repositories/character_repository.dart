@@ -50,6 +50,9 @@ class CharacterRepository {
     int sortOrder = 0,
     String aboutText = '',
     bool isPlayable = false,
+    double spriteScale = 1.0,
+    double spriteOffsetX = 0.0,
+    double spriteOffsetY = 0.0,
   }) {
     return _db.into(_db.characters).insert(
           CharactersCompanion.insert(
@@ -61,6 +64,9 @@ class CharacterRepository {
             sortOrder: Value(sortOrder),
             aboutText: Value(aboutText),
             isPlayable: Value(isPlayable),
+            spriteScale: Value(spriteScale),
+            spriteOffsetX: Value(spriteOffsetX),
+            spriteOffsetY: Value(spriteOffsetY),
           ),
         );
   }
@@ -72,6 +78,9 @@ class CharacterRepository {
     String? imagePath,
     int? sortOrder,
     String? aboutText,
+    double? spriteScale,
+    double? spriteOffsetX,
+    double? spriteOffsetY,
   }) {
     return (_db.update(_db.characters)..where((c) => c.id.equals(id))).write(
       CharactersCompanion(
@@ -80,6 +89,9 @@ class CharacterRepository {
         imagePath: Value(imagePath),
         sortOrder: sortOrder != null ? Value(sortOrder) : const Value.absent(),
         aboutText: aboutText != null ? Value(aboutText) : const Value.absent(),
+        spriteScale: spriteScale != null ? Value(spriteScale) : const Value.absent(),
+        spriteOffsetX: spriteOffsetX != null ? Value(spriteOffsetX) : const Value.absent(),
+        spriteOffsetY: spriteOffsetY != null ? Value(spriteOffsetY) : const Value.absent(),
       ),
     );
   }

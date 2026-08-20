@@ -21,6 +21,7 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
   Color get _background => _p.background;
   Color get _textPrimary => _p.textPrimary;
   late final ConversationProfileRepository _repository;
+  PlotType? _scopeFilter;
 
 
   @override
@@ -57,18 +58,21 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
       body: SafeArea(
         top: false,
         child: StreamBuilder<List<ConversationProfile>>(
-          stream: _repository.watchAll(),
+          stream: _repository.watchAll(scope: _scopeFilter),
           builder: (context, snapshot) {
             final profiles = snapshot.data ?? const [];
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                _buildScopeFilterRow(context),
+                const SizedBox(height: 12),
                 _AddProfileTile(
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const ConversationProfileEditScreen(
+                        builder: (_) => ConversationProfileEditScreen(
                           profileId: null,
+                          initialScope: _scopeFilter,
                         ),
                       ),
                     );
@@ -97,6 +101,41 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildScopeFilterRow(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final p = _p;
+    final options = <(String, PlotType?)>[
+      (l10n.createTabPlotTypeFilterAll, null),
+      (l10n.createTabPlotTypeFilterStoryChat, PlotType.storyChat),
+      (l10n.createTabPlotTypeFilterVisualNovel, PlotType.visualNovel),
+    ];
+    return Row(
+      children: [
+        for (final option in options) ...[
+          GestureDetector(
+            onTap: () => setState(() => _scopeFilter = option.$2),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _scopeFilter == option.$2 ? p.primary : p.surfaceAlt,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                option.$1,
+                style: TextStyle(
+                  color: _scopeFilter == option.$2 ? p.onPrimary : p.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ],
     );
   }
 }

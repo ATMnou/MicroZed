@@ -11,10 +11,14 @@ import '../data/theme/palette_scope.dart';
 /// 프로필 목록에서 대화 프로필을 누르면 나오는 상세 편집 화면.
 /// 설명(선택) 항목은 글자 수 제한(카운터)을 두지 않는다.
 class ConversationProfileEditScreen extends StatefulWidget {
-  const ConversationProfileEditScreen({super.key, required this.profileId});
+  const ConversationProfileEditScreen({super.key, required this.profileId, this.initialScope});
 
   /// null이면 신규 추가, 값이 있으면 기존 프로필 수정.
   final int? profileId;
+
+  /// 신규 추가일 때만 쓰는 기본 적용 범위(목록 화면에서 필터링된 탭에서 추가하면 그 탭의
+  /// 범위로 미리 선택해준다). 기존 프로필 수정 시에는 저장된 값을 그대로 불러온다.
+  final PlotType? initialScope;
 
   @override
   State<ConversationProfileEditScreen> createState() =>
@@ -36,6 +40,7 @@ class _ConversationProfileEditScreenState
   final _descController = TextEditingController();
   bool _applyAsDefault = true;
   String? _imagePath;
+  PlotType? _scope;
   bool _loading = true;
   bool _saving = false;
 
@@ -46,6 +51,7 @@ class _ConversationProfileEditScreenState
   void initState() {
     super.initState();
     _repository = ConversationProfileRepository(AppDatabase.instance);
+    _scope = widget.initialScope;
     _load();
   }
 
@@ -56,6 +62,7 @@ class _ConversationProfileEditScreenState
       _descController.text = profile?.description ?? '';
       _applyAsDefault = profile?.isDefault ?? false;
       _imagePath = profile?.imagePath;
+      _scope = profile?.scope;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -74,6 +81,7 @@ class _ConversationProfileEditScreenState
       description: _descController.text.trim(),
       applyAsDefault: _applyAsDefault,
       imagePath: _imagePath,
+      scope: _scope,
     );
     if (mounted) Navigator.of(context).pop();
   }
@@ -226,6 +234,44 @@ class _ConversationProfileEditScreenState
                       borderSide: BorderSide(color: _purple),
                     ),
                   ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.profileEditScopeSectionTitle,
+                  style: TextStyle(color: _textPrimary, fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    for (final option in <(String, PlotType?)>[
+                      (l10n.createTabPlotTypeFilterAll, null),
+                      (l10n.createTabPlotTypeFilterStoryChat, PlotType.storyChat),
+                      (l10n.createTabPlotTypeFilterVisualNovel, PlotType.visualNovel),
+                    ]) ...[
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _scope = option.$2),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: _scope == option.$2 ? _purple : _cardBg,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              option.$1,
+                              style: TextStyle(
+                                color: _scope == option.$2 ? _textPrimary : _textFaint,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 24),
                 Text(

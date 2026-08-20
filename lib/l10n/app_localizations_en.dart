@@ -409,6 +409,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get homeTabFilterRecommended => 'Recommended';
+
+  @override
   String get homeNoPlotsYet => 'You haven\'t created any plots yet';
 
   @override
@@ -1154,6 +1157,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileEditDescriptionLabel => 'Description (optional)';
 
   @override
+  String get profileEditScopeSectionTitle => 'Applies to';
+
+  @override
   String get profileEditDefaultSectionTitle => 'Default chat profile';
 
   @override
@@ -1772,6 +1778,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vnEditCharacterImagePlaceholder => 'Add full-body image';
 
   @override
+  String get vnEditSpritePlacementSectionTitle => 'Character placement';
+
+  @override
+  String get vnEditSpritePlacementPreviewEmptyMessage =>
+      'Add a character image to preview';
+
+  @override
+  String vnEditSpriteScaleLabel(String scale) {
+    return 'Scale ${scale}x';
+  }
+
+  @override
+  String get vnEditSpriteOffsetXLabel => 'Horizontal position';
+
+  @override
+  String get vnEditSpriteOffsetYLabel => 'Vertical position';
+
+  @override
   String get vnEditExpressionSectionTitle => 'Expression images (optional)';
 
   @override
@@ -1798,6 +1822,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vnEditExpressionConfused => 'Confused';
+
+  @override
+  String get vnEditExpressionDefault => 'Default image';
+
+  @override
+  String get vnEditCharacterPickEntryLabel => 'Select playable character';
+
+  @override
+  String get vnEditCharacterPickEntryHint =>
+      'During intro playback, the player picks a character here. You can only reorder this step by dragging.';
 
   @override
   String get vnEditIntroEmptyMessage =>
@@ -1895,6 +1929,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'At key moments, the player rolls the dice themselves.\nThe outcome decides success or failure.';
 
   @override
+  String get vnPlayAddPlayableCharacterCardTitle => 'New playable\ncharacter';
+
+  @override
   String get vnPlayAiAssistTooltip => 'Get AI input help';
 
   @override
@@ -1911,6 +1948,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vnPlayDefaultCharacterName => 'Character';
+
+  @override
+  String get vnPlayDeleteSessionConfirmMessage =>
+      'Delete this session? This can\'t be undone.';
+
+  @override
+  String get vnPlayDeleteSessionMenuItem => 'Delete';
 
   @override
   String get vnPlayDiceBonusLabel => 'Bonus';
@@ -1942,6 +1986,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vnPlayDiceTargetLabel => 'Target number';
 
   @override
+  String get vnPlayEditCharacterTooltip => 'Edit character';
+
+  @override
   String get vnPlayEmptyStateMessage => 'The story hasn\'t started yet';
 
   @override
@@ -1962,7 +2009,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vnPlayHistoryMenuItem => 'View history';
 
   @override
+  String get vnPlayProfileMenuItem => 'Chat profile';
+
+  @override
+  String get vnPlayProfileSheetTitle => 'Select chat profile';
+
+  @override
+  String get vnPlayProfileSheetEmpty =>
+      'No profiles available for visual novels';
+
+  @override
   String get vnPlayHistoryNarratorLabel => 'Narration';
+
+  @override
+  String get vnPlayHistoryCharacterPickLabel => 'Character selection';
 
   @override
   String get vnPlayHistorySheetTitle => 'Story log';
@@ -1971,7 +2031,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vnPlayHistoryTooltip => 'History';
 
   @override
+  String get vnPlayJumpToPlotDetailMenuItem => 'Go to plot details';
+
+  @override
   String get vnPlayManualInputToggle => 'Type manually';
+
+  @override
+  String get vnPlayPresetDropdownPlaceholder => 'Select preset';
 
   @override
   String get vnPlayPresetManageLink => 'Manage presets';
@@ -2003,6 +2069,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vnPlaySettingsTooltip => 'Settings';
+
+  @override
+  String get vnPlayStartFreshMenuItem => 'Start fresh';
 
   @override
   String get vnPlayStepBackTooltip => 'Previous';

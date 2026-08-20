@@ -902,6 +902,42 @@ class $CharactersTable extends Characters
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _spriteScaleMeta = const VerificationMeta(
+    'spriteScale',
+  );
+  @override
+  late final GeneratedColumn<double> spriteScale = GeneratedColumn<double>(
+    'sprite_scale',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1.0),
+  );
+  static const VerificationMeta _spriteOffsetXMeta = const VerificationMeta(
+    'spriteOffsetX',
+  );
+  @override
+  late final GeneratedColumn<double> spriteOffsetX = GeneratedColumn<double>(
+    'sprite_offset_x',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _spriteOffsetYMeta = const VerificationMeta(
+    'spriteOffsetY',
+  );
+  @override
+  late final GeneratedColumn<double> spriteOffsetY = GeneratedColumn<double>(
+    'sprite_offset_y',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -913,6 +949,9 @@ class $CharactersTable extends Characters
     sortOrder,
     aboutText,
     isPlayable,
+    spriteScale,
+    spriteOffsetX,
+    spriteOffsetY,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -987,6 +1026,33 @@ class $CharactersTable extends Characters
         isPlayable.isAcceptableOrUnknown(data['is_playable']!, _isPlayableMeta),
       );
     }
+    if (data.containsKey('sprite_scale')) {
+      context.handle(
+        _spriteScaleMeta,
+        spriteScale.isAcceptableOrUnknown(
+          data['sprite_scale']!,
+          _spriteScaleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sprite_offset_x')) {
+      context.handle(
+        _spriteOffsetXMeta,
+        spriteOffsetX.isAcceptableOrUnknown(
+          data['sprite_offset_x']!,
+          _spriteOffsetXMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sprite_offset_y')) {
+      context.handle(
+        _spriteOffsetYMeta,
+        spriteOffsetY.isAcceptableOrUnknown(
+          data['sprite_offset_y']!,
+          _spriteOffsetYMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1032,6 +1098,18 @@ class $CharactersTable extends Characters
         DriftSqlType.bool,
         data['${effectivePrefix}is_playable'],
       )!,
+      spriteScale: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sprite_scale'],
+      )!,
+      spriteOffsetX: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sprite_offset_x'],
+      )!,
+      spriteOffsetY: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}sprite_offset_y'],
+      )!,
     );
   }
 
@@ -1057,6 +1135,14 @@ class Character extends DataClass implements Insertable<Character> {
   /// 비주얼 노벨 플롯에서만 의미가 있다. true면 '플레이어블 캐릭터'(플레이어가 빙의해서
   /// 진행하는 주인공 후보)로 취급된다.
   final bool isPlayable;
+
+  /// 아래 3개는 비주얼 노벨 플레이 화면에서 이 캐릭터의 전신 스프라이트를 표시할 때
+  /// 적용하는 배치 설정이다(감정/장면과 무관하게 캐릭터 단위로 고정). spriteScale은
+  /// 기본 크기 대비 배율(1.0=기본), offsetX/offsetY는 화면 폭/높이 대비 비율로 저장되는
+  /// 기본 위치(하단 중앙)로부터의 이동량이다.
+  final double spriteScale;
+  final double spriteOffsetX;
+  final double spriteOffsetY;
   const Character({
     required this.id,
     required this.plotId,
@@ -1067,6 +1153,9 @@ class Character extends DataClass implements Insertable<Character> {
     required this.sortOrder,
     required this.aboutText,
     required this.isPlayable,
+    required this.spriteScale,
+    required this.spriteOffsetX,
+    required this.spriteOffsetY,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1082,6 +1171,9 @@ class Character extends DataClass implements Insertable<Character> {
     map['sort_order'] = Variable<int>(sortOrder);
     map['about_text'] = Variable<String>(aboutText);
     map['is_playable'] = Variable<bool>(isPlayable);
+    map['sprite_scale'] = Variable<double>(spriteScale);
+    map['sprite_offset_x'] = Variable<double>(spriteOffsetX);
+    map['sprite_offset_y'] = Variable<double>(spriteOffsetY);
     return map;
   }
 
@@ -1098,6 +1190,9 @@ class Character extends DataClass implements Insertable<Character> {
       sortOrder: Value(sortOrder),
       aboutText: Value(aboutText),
       isPlayable: Value(isPlayable),
+      spriteScale: Value(spriteScale),
+      spriteOffsetX: Value(spriteOffsetX),
+      spriteOffsetY: Value(spriteOffsetY),
     );
   }
 
@@ -1116,6 +1211,9 @@ class Character extends DataClass implements Insertable<Character> {
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       aboutText: serializer.fromJson<String>(json['aboutText']),
       isPlayable: serializer.fromJson<bool>(json['isPlayable']),
+      spriteScale: serializer.fromJson<double>(json['spriteScale']),
+      spriteOffsetX: serializer.fromJson<double>(json['spriteOffsetX']),
+      spriteOffsetY: serializer.fromJson<double>(json['spriteOffsetY']),
     );
   }
   @override
@@ -1131,6 +1229,9 @@ class Character extends DataClass implements Insertable<Character> {
       'sortOrder': serializer.toJson<int>(sortOrder),
       'aboutText': serializer.toJson<String>(aboutText),
       'isPlayable': serializer.toJson<bool>(isPlayable),
+      'spriteScale': serializer.toJson<double>(spriteScale),
+      'spriteOffsetX': serializer.toJson<double>(spriteOffsetX),
+      'spriteOffsetY': serializer.toJson<double>(spriteOffsetY),
     };
   }
 
@@ -1144,6 +1245,9 @@ class Character extends DataClass implements Insertable<Character> {
     int? sortOrder,
     String? aboutText,
     bool? isPlayable,
+    double? spriteScale,
+    double? spriteOffsetX,
+    double? spriteOffsetY,
   }) => Character(
     id: id ?? this.id,
     plotId: plotId ?? this.plotId,
@@ -1154,6 +1258,9 @@ class Character extends DataClass implements Insertable<Character> {
     sortOrder: sortOrder ?? this.sortOrder,
     aboutText: aboutText ?? this.aboutText,
     isPlayable: isPlayable ?? this.isPlayable,
+    spriteScale: spriteScale ?? this.spriteScale,
+    spriteOffsetX: spriteOffsetX ?? this.spriteOffsetX,
+    spriteOffsetY: spriteOffsetY ?? this.spriteOffsetY,
   );
   Character copyWithCompanion(CharactersCompanion data) {
     return Character(
@@ -1172,6 +1279,15 @@ class Character extends DataClass implements Insertable<Character> {
       isPlayable: data.isPlayable.present
           ? data.isPlayable.value
           : this.isPlayable,
+      spriteScale: data.spriteScale.present
+          ? data.spriteScale.value
+          : this.spriteScale,
+      spriteOffsetX: data.spriteOffsetX.present
+          ? data.spriteOffsetX.value
+          : this.spriteOffsetX,
+      spriteOffsetY: data.spriteOffsetY.present
+          ? data.spriteOffsetY.value
+          : this.spriteOffsetY,
     );
   }
 
@@ -1186,7 +1302,10 @@ class Character extends DataClass implements Insertable<Character> {
           ..write('isRepresentative: $isRepresentative, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('aboutText: $aboutText, ')
-          ..write('isPlayable: $isPlayable')
+          ..write('isPlayable: $isPlayable, ')
+          ..write('spriteScale: $spriteScale, ')
+          ..write('spriteOffsetX: $spriteOffsetX, ')
+          ..write('spriteOffsetY: $spriteOffsetY')
           ..write(')'))
         .toString();
   }
@@ -1202,6 +1321,9 @@ class Character extends DataClass implements Insertable<Character> {
     sortOrder,
     aboutText,
     isPlayable,
+    spriteScale,
+    spriteOffsetX,
+    spriteOffsetY,
   );
   @override
   bool operator ==(Object other) =>
@@ -1215,7 +1337,10 @@ class Character extends DataClass implements Insertable<Character> {
           other.isRepresentative == this.isRepresentative &&
           other.sortOrder == this.sortOrder &&
           other.aboutText == this.aboutText &&
-          other.isPlayable == this.isPlayable);
+          other.isPlayable == this.isPlayable &&
+          other.spriteScale == this.spriteScale &&
+          other.spriteOffsetX == this.spriteOffsetX &&
+          other.spriteOffsetY == this.spriteOffsetY);
 }
 
 class CharactersCompanion extends UpdateCompanion<Character> {
@@ -1228,6 +1353,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
   final Value<int> sortOrder;
   final Value<String> aboutText;
   final Value<bool> isPlayable;
+  final Value<double> spriteScale;
+  final Value<double> spriteOffsetX;
+  final Value<double> spriteOffsetY;
   const CharactersCompanion({
     this.id = const Value.absent(),
     this.plotId = const Value.absent(),
@@ -1238,6 +1366,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.sortOrder = const Value.absent(),
     this.aboutText = const Value.absent(),
     this.isPlayable = const Value.absent(),
+    this.spriteScale = const Value.absent(),
+    this.spriteOffsetX = const Value.absent(),
+    this.spriteOffsetY = const Value.absent(),
   });
   CharactersCompanion.insert({
     this.id = const Value.absent(),
@@ -1249,6 +1380,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     this.sortOrder = const Value.absent(),
     this.aboutText = const Value.absent(),
     this.isPlayable = const Value.absent(),
+    this.spriteScale = const Value.absent(),
+    this.spriteOffsetX = const Value.absent(),
+    this.spriteOffsetY = const Value.absent(),
   }) : plotId = Value(plotId),
        name = Value(name);
   static Insertable<Character> custom({
@@ -1261,6 +1395,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Expression<int>? sortOrder,
     Expression<String>? aboutText,
     Expression<bool>? isPlayable,
+    Expression<double>? spriteScale,
+    Expression<double>? spriteOffsetX,
+    Expression<double>? spriteOffsetY,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1272,6 +1409,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       if (sortOrder != null) 'sort_order': sortOrder,
       if (aboutText != null) 'about_text': aboutText,
       if (isPlayable != null) 'is_playable': isPlayable,
+      if (spriteScale != null) 'sprite_scale': spriteScale,
+      if (spriteOffsetX != null) 'sprite_offset_x': spriteOffsetX,
+      if (spriteOffsetY != null) 'sprite_offset_y': spriteOffsetY,
     });
   }
 
@@ -1285,6 +1425,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     Value<int>? sortOrder,
     Value<String>? aboutText,
     Value<bool>? isPlayable,
+    Value<double>? spriteScale,
+    Value<double>? spriteOffsetX,
+    Value<double>? spriteOffsetY,
   }) {
     return CharactersCompanion(
       id: id ?? this.id,
@@ -1296,6 +1439,9 @@ class CharactersCompanion extends UpdateCompanion<Character> {
       sortOrder: sortOrder ?? this.sortOrder,
       aboutText: aboutText ?? this.aboutText,
       isPlayable: isPlayable ?? this.isPlayable,
+      spriteScale: spriteScale ?? this.spriteScale,
+      spriteOffsetX: spriteOffsetX ?? this.spriteOffsetX,
+      spriteOffsetY: spriteOffsetY ?? this.spriteOffsetY,
     );
   }
 
@@ -1329,6 +1475,15 @@ class CharactersCompanion extends UpdateCompanion<Character> {
     if (isPlayable.present) {
       map['is_playable'] = Variable<bool>(isPlayable.value);
     }
+    if (spriteScale.present) {
+      map['sprite_scale'] = Variable<double>(spriteScale.value);
+    }
+    if (spriteOffsetX.present) {
+      map['sprite_offset_x'] = Variable<double>(spriteOffsetX.value);
+    }
+    if (spriteOffsetY.present) {
+      map['sprite_offset_y'] = Variable<double>(spriteOffsetY.value);
+    }
     return map;
   }
 
@@ -1343,7 +1498,10 @@ class CharactersCompanion extends UpdateCompanion<Character> {
           ..write('isRepresentative: $isRepresentative, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('aboutText: $aboutText, ')
-          ..write('isPlayable: $isPlayable')
+          ..write('isPlayable: $isPlayable, ')
+          ..write('spriteScale: $spriteScale, ')
+          ..write('spriteOffsetX: $spriteOffsetX, ')
+          ..write('spriteOffsetY: $spriteOffsetY')
           ..write(')'))
         .toString();
   }
@@ -2716,12 +2874,22 @@ class $ConversationProfilesTable extends ConversationProfiles
     defaultValue: const Constant(false),
   );
   @override
+  late final GeneratedColumnWithTypeConverter<PlotType?, int> scope =
+      GeneratedColumn<int>(
+        'scope',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<PlotType?>($ConversationProfilesTable.$converterscopen);
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     name,
     description,
     imagePath,
     isDefault,
+    scope,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2796,6 +2964,12 @@ class $ConversationProfilesTable extends ConversationProfiles
         DriftSqlType.bool,
         data['${effectivePrefix}is_default'],
       )!,
+      scope: $ConversationProfilesTable.$converterscopen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}scope'],
+        ),
+      ),
     );
   }
 
@@ -2803,6 +2977,11 @@ class $ConversationProfilesTable extends ConversationProfiles
   $ConversationProfilesTable createAlias(String alias) {
     return $ConversationProfilesTable(attachedDatabase, alias);
   }
+
+  static JsonTypeConverter2<PlotType, int, int> $converterscope =
+      const EnumIndexConverter<PlotType>(PlotType.values);
+  static JsonTypeConverter2<PlotType?, int?, int?> $converterscopen =
+      JsonTypeConverter2.asNullable($converterscope);
 }
 
 class ConversationProfile extends DataClass
@@ -2812,12 +2991,17 @@ class ConversationProfile extends DataClass
   final String description;
   final String? imagePath;
   final bool isDefault;
+
+  /// null이면 스토리챗/비주얼 노벨 양쪽에서 다 쓸 수 있는 공용 프로필. 값이 있으면
+  /// 그 PlotType 전용으로만 선택 목록에 노출된다.
+  final PlotType? scope;
   const ConversationProfile({
     required this.id,
     required this.name,
     required this.description,
     this.imagePath,
     required this.isDefault,
+    this.scope,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2829,6 +3013,11 @@ class ConversationProfile extends DataClass
       map['image_path'] = Variable<String>(imagePath);
     }
     map['is_default'] = Variable<bool>(isDefault);
+    if (!nullToAbsent || scope != null) {
+      map['scope'] = Variable<int>(
+        $ConversationProfilesTable.$converterscopen.toSql(scope),
+      );
+    }
     return map;
   }
 
@@ -2841,6 +3030,9 @@ class ConversationProfile extends DataClass
           ? const Value.absent()
           : Value(imagePath),
       isDefault: Value(isDefault),
+      scope: scope == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scope),
     );
   }
 
@@ -2855,6 +3047,9 @@ class ConversationProfile extends DataClass
       description: serializer.fromJson<String>(json['description']),
       imagePath: serializer.fromJson<String?>(json['imagePath']),
       isDefault: serializer.fromJson<bool>(json['isDefault']),
+      scope: $ConversationProfilesTable.$converterscopen.fromJson(
+        serializer.fromJson<int?>(json['scope']),
+      ),
     );
   }
   @override
@@ -2866,6 +3061,9 @@ class ConversationProfile extends DataClass
       'description': serializer.toJson<String>(description),
       'imagePath': serializer.toJson<String?>(imagePath),
       'isDefault': serializer.toJson<bool>(isDefault),
+      'scope': serializer.toJson<int?>(
+        $ConversationProfilesTable.$converterscopen.toJson(scope),
+      ),
     };
   }
 
@@ -2875,12 +3073,14 @@ class ConversationProfile extends DataClass
     String? description,
     Value<String?> imagePath = const Value.absent(),
     bool? isDefault,
+    Value<PlotType?> scope = const Value.absent(),
   }) => ConversationProfile(
     id: id ?? this.id,
     name: name ?? this.name,
     description: description ?? this.description,
     imagePath: imagePath.present ? imagePath.value : this.imagePath,
     isDefault: isDefault ?? this.isDefault,
+    scope: scope.present ? scope.value : this.scope,
   );
   ConversationProfile copyWithCompanion(ConversationProfilesCompanion data) {
     return ConversationProfile(
@@ -2891,6 +3091,7 @@ class ConversationProfile extends DataClass
           : this.description,
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+      scope: data.scope.present ? data.scope.value : this.scope,
     );
   }
 
@@ -2901,13 +3102,15 @@ class ConversationProfile extends DataClass
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('imagePath: $imagePath, ')
-          ..write('isDefault: $isDefault')
+          ..write('isDefault: $isDefault, ')
+          ..write('scope: $scope')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, description, imagePath, isDefault);
+  int get hashCode =>
+      Object.hash(id, name, description, imagePath, isDefault, scope);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2916,7 +3119,8 @@ class ConversationProfile extends DataClass
           other.name == this.name &&
           other.description == this.description &&
           other.imagePath == this.imagePath &&
-          other.isDefault == this.isDefault);
+          other.isDefault == this.isDefault &&
+          other.scope == this.scope);
 }
 
 class ConversationProfilesCompanion
@@ -2926,12 +3130,14 @@ class ConversationProfilesCompanion
   final Value<String> description;
   final Value<String?> imagePath;
   final Value<bool> isDefault;
+  final Value<PlotType?> scope;
   const ConversationProfilesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.imagePath = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.scope = const Value.absent(),
   });
   ConversationProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -2939,6 +3145,7 @@ class ConversationProfilesCompanion
     this.description = const Value.absent(),
     this.imagePath = const Value.absent(),
     this.isDefault = const Value.absent(),
+    this.scope = const Value.absent(),
   }) : name = Value(name);
   static Insertable<ConversationProfile> custom({
     Expression<int>? id,
@@ -2946,6 +3153,7 @@ class ConversationProfilesCompanion
     Expression<String>? description,
     Expression<String>? imagePath,
     Expression<bool>? isDefault,
+    Expression<int>? scope,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2953,6 +3161,7 @@ class ConversationProfilesCompanion
       if (description != null) 'description': description,
       if (imagePath != null) 'image_path': imagePath,
       if (isDefault != null) 'is_default': isDefault,
+      if (scope != null) 'scope': scope,
     });
   }
 
@@ -2962,6 +3171,7 @@ class ConversationProfilesCompanion
     Value<String>? description,
     Value<String?>? imagePath,
     Value<bool>? isDefault,
+    Value<PlotType?>? scope,
   }) {
     return ConversationProfilesCompanion(
       id: id ?? this.id,
@@ -2969,6 +3179,7 @@ class ConversationProfilesCompanion
       description: description ?? this.description,
       imagePath: imagePath ?? this.imagePath,
       isDefault: isDefault ?? this.isDefault,
+      scope: scope ?? this.scope,
     );
   }
 
@@ -2990,6 +3201,11 @@ class ConversationProfilesCompanion
     if (isDefault.present) {
       map['is_default'] = Variable<bool>(isDefault.value);
     }
+    if (scope.present) {
+      map['scope'] = Variable<int>(
+        $ConversationProfilesTable.$converterscopen.toSql(scope.value),
+      );
+    }
     return map;
   }
 
@@ -3000,7 +3216,8 @@ class ConversationProfilesCompanion
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('imagePath: $imagePath, ')
-          ..write('isDefault: $isDefault')
+          ..write('isDefault: $isDefault, ')
+          ..write('scope: $scope')
           ..write(')'))
         .toString();
   }
@@ -11863,6 +12080,9 @@ typedef $$CharactersTableCreateCompanionBuilder =
       Value<int> sortOrder,
       Value<String> aboutText,
       Value<bool> isPlayable,
+      Value<double> spriteScale,
+      Value<double> spriteOffsetX,
+      Value<double> spriteOffsetY,
     });
 typedef $$CharactersTableUpdateCompanionBuilder =
     CharactersCompanion Function({
@@ -11875,6 +12095,9 @@ typedef $$CharactersTableUpdateCompanionBuilder =
       Value<int> sortOrder,
       Value<String> aboutText,
       Value<bool> isPlayable,
+      Value<double> spriteScale,
+      Value<double> spriteOffsetX,
+      Value<double> spriteOffsetY,
     });
 
 final class $$CharactersTableReferences
@@ -12042,6 +12265,21 @@ class $$CharactersTableFilterComposer
 
   ColumnFilters<bool> get isPlayable => $composableBuilder(
     column: $table.isPlayable,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get spriteScale => $composableBuilder(
+    column: $table.spriteScale,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get spriteOffsetX => $composableBuilder(
+    column: $table.spriteOffsetX,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get spriteOffsetY => $composableBuilder(
+    column: $table.spriteOffsetY,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12244,6 +12482,21 @@ class $$CharactersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get spriteScale => $composableBuilder(
+    column: $table.spriteScale,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get spriteOffsetX => $composableBuilder(
+    column: $table.spriteOffsetX,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get spriteOffsetY => $composableBuilder(
+    column: $table.spriteOffsetY,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PlotsTableOrderingComposer get plotId {
     final $$PlotsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -12304,6 +12557,21 @@ class $$CharactersTableAnnotationComposer
 
   GeneratedColumn<bool> get isPlayable => $composableBuilder(
     column: $table.isPlayable,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get spriteScale => $composableBuilder(
+    column: $table.spriteScale,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get spriteOffsetX => $composableBuilder(
+    column: $table.spriteOffsetX,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get spriteOffsetY => $composableBuilder(
+    column: $table.spriteOffsetY,
     builder: (column) => column,
   );
 
@@ -12501,6 +12769,9 @@ class $$CharactersTableTableManager
                 Value<int> sortOrder = const Value.absent(),
                 Value<String> aboutText = const Value.absent(),
                 Value<bool> isPlayable = const Value.absent(),
+                Value<double> spriteScale = const Value.absent(),
+                Value<double> spriteOffsetX = const Value.absent(),
+                Value<double> spriteOffsetY = const Value.absent(),
               }) => CharactersCompanion(
                 id: id,
                 plotId: plotId,
@@ -12511,6 +12782,9 @@ class $$CharactersTableTableManager
                 sortOrder: sortOrder,
                 aboutText: aboutText,
                 isPlayable: isPlayable,
+                spriteScale: spriteScale,
+                spriteOffsetX: spriteOffsetX,
+                spriteOffsetY: spriteOffsetY,
               ),
           createCompanionCallback:
               ({
@@ -12523,6 +12797,9 @@ class $$CharactersTableTableManager
                 Value<int> sortOrder = const Value.absent(),
                 Value<String> aboutText = const Value.absent(),
                 Value<bool> isPlayable = const Value.absent(),
+                Value<double> spriteScale = const Value.absent(),
+                Value<double> spriteOffsetX = const Value.absent(),
+                Value<double> spriteOffsetY = const Value.absent(),
               }) => CharactersCompanion.insert(
                 id: id,
                 plotId: plotId,
@@ -12533,6 +12810,9 @@ class $$CharactersTableTableManager
                 sortOrder: sortOrder,
                 aboutText: aboutText,
                 isPlayable: isPlayable,
+                spriteScale: spriteScale,
+                spriteOffsetX: spriteOffsetX,
+                spriteOffsetY: spriteOffsetY,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -14440,6 +14720,7 @@ typedef $$ConversationProfilesTableCreateCompanionBuilder =
       Value<String> description,
       Value<String?> imagePath,
       Value<bool> isDefault,
+      Value<PlotType?> scope,
     });
 typedef $$ConversationProfilesTableUpdateCompanionBuilder =
     ConversationProfilesCompanion Function({
@@ -14448,6 +14729,7 @@ typedef $$ConversationProfilesTableUpdateCompanionBuilder =
       Value<String> description,
       Value<String?> imagePath,
       Value<bool> isDefault,
+      Value<PlotType?> scope,
     });
 
 final class $$ConversationProfilesTableReferences
@@ -14536,6 +14818,12 @@ class $$ConversationProfilesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnWithTypeConverterFilters<PlotType?, PlotType, int> get scope =>
+      $composableBuilder(
+        column: $table.scope,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
   Expression<bool> chatSessionsRefs(
     Expression<bool> Function($$ChatSessionsTableFilterComposer f) f,
   ) {
@@ -14620,6 +14908,11 @@ class $$ConversationProfilesTableOrderingComposer
     column: $table.isDefault,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get scope => $composableBuilder(
+    column: $table.scope,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ConversationProfilesTableAnnotationComposer
@@ -14647,6 +14940,9 @@ class $$ConversationProfilesTableAnnotationComposer
 
   GeneratedColumn<bool> get isDefault =>
       $composableBuilder(column: $table.isDefault, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<PlotType?, int> get scope =>
+      $composableBuilder(column: $table.scope, builder: (column) => column);
 
   Expression<T> chatSessionsRefs<T extends Object>(
     Expression<T> Function($$ChatSessionsTableAnnotationComposer a) f,
@@ -14740,12 +15036,14 @@ class $$ConversationProfilesTableTableManager
                 Value<String> description = const Value.absent(),
                 Value<String?> imagePath = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
+                Value<PlotType?> scope = const Value.absent(),
               }) => ConversationProfilesCompanion(
                 id: id,
                 name: name,
                 description: description,
                 imagePath: imagePath,
                 isDefault: isDefault,
+                scope: scope,
               ),
           createCompanionCallback:
               ({
@@ -14754,12 +15052,14 @@ class $$ConversationProfilesTableTableManager
                 Value<String> description = const Value.absent(),
                 Value<String?> imagePath = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
+                Value<PlotType?> scope = const Value.absent(),
               }) => ConversationProfilesCompanion.insert(
                 id: id,
                 name: name,
                 description: description,
                 imagePath: imagePath,
                 isDefault: isDefault,
+                scope: scope,
               ),
           withReferenceMapper: (p0) => p0
               .map(

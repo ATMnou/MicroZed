@@ -92,6 +92,10 @@ class _ChatScreenState extends State<ChatScreen> {
   /// 재시도 중인 턴 id. 새 버전이 완성될 때까지 이 턴의 기존 말풍선은 화면에서 미리 감춘다.
   int? _retryingTurnId;
 
+  /// 화면을 열었을 때 맨 마지막 메시지로 한 번만 점프하기 위한 컨트롤러/플래그.
+  final ScrollController _timelineScrollController = ScrollController();
+  bool _scrolledToLatestOnce = false;
+
 
   @override
   void initState() {
@@ -600,6 +604,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     _inputController.dispose();
+    _timelineScrollController.dispose();
     super.dispose();
   }
 
@@ -644,7 +649,18 @@ class _ChatScreenState extends State<ChatScreen> {
                             _generating && _reasoningText.isNotEmpty;
                         final introTurnIds = _introTurnIds(allItems);
                         final lastTurnId = _lastTurnId(allItems);
+                        if (!_scrolledToLatestOnce && items.isNotEmpty) {
+                          _scrolledToLatestOnce = true;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_timelineScrollController.hasClients) {
+                              _timelineScrollController.jumpTo(
+                                _timelineScrollController.position.maxScrollExtent,
+                              );
+                            }
+                          });
+                        }
                         return ListView.builder(
+                          controller: _timelineScrollController,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 8,
@@ -776,6 +792,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 bubble = _IntroImageLine(
                                   imagePath: message.content,
                                 );
+                              case MessageSender.characterPick:
+                                // 스토리챗 플롯에서는 생기지 않는 비주얼 노벨 전용 마커.
+                                bubble = const SizedBox.shrink();
                             }
                             // 스냅샷 이미지처럼 턴에 속하지 않는 말풍선이 맨 뒤에 붙을 수 있어서,
                             // '진짜 마지막 항목'이 아니라 '마지막 턴의 마지막 말풍선'인지로 액션 줄을 판단한다.
@@ -1446,7 +1465,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 Flexible(
                   child: StreamBuilder<List<ConversationProfile>>(
-                    stream: _profileRepo.watchAll(),
+                    stream: _profileRepo.watchAll(scope: PlotType.storyChat),
                     builder: (context, snapshot) {
                       final profiles = snapshot.data ?? const [];
                       return ListView.separated(

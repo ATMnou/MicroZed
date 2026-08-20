@@ -117,6 +117,9 @@ class VnDirectiveParser {
       case '의문':
       case 'confused':
         return VnEmotion.confused;
+      case '기본':
+      case 'default':
+        return VnEmotion.defaultEmotion;
       default:
         return null;
     }
@@ -136,6 +139,8 @@ class VnDirectiveParser {
         return '놀람';
       case VnEmotion.confused:
         return '의문';
+      case VnEmotion.defaultEmotion:
+        return '기본';
     }
   }
 
@@ -148,7 +153,8 @@ class VnDirectiveParser {
           '이 플롯은 비주얼 노벨 형식입니다. 각 화자 줄("@이름:" 또는 "@:") 바로 앞에, 장면이 바뀔 때만 별도의 줄로 다음 형식의 태그를 붙이세요:')
       ..writeln('[SCENE bg=배경이름 expr=감정]')
       ..writeln('- bg는 다음 배경 목록 중 하나의 이름을 한 글자도 바꾸지 말고 정확히 그대로 씁니다: $bgList. 장소/시간대가 바뀔 때만 쓰고, 그대로 유지되면 생략하세요.')
-      ..writeln('- expr는 그 줄에서 말하는 캐릭터의 표정입니다. 다음 중 하나만 쓰세요: 기쁨, 슬픔, 분노, 걱정, 놀람, 의문. 표정이 그대로면 생략하세요.')
+      ..writeln(
+          '- expr는 그 줄에서 말하는 캐릭터의 표정입니다. 다음 중 하나만 쓰세요: 기쁨, 슬픔, 분노, 걱정, 놀람, 의문, 기본. "기본"은 특별한 표정 없이 평범한 기본 이미지로 되돌리라는 뜻입니다. 표정이 그대로면(직전과 같으면) 생략하세요.')
       ..writeln('- bg/expr 둘 중 하나만 바뀌어도 됩니다(예: [SCENE expr=놀람]). 아무것도 안 바뀌면 태그 자체를 생략하세요.');
     if (diceEnabled) {
       buffer

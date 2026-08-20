@@ -19,7 +19,10 @@ class IntroEntryRepository {
           ..orderBy([(v) => OrderingTerm.asc(v.sortOrder)])
           ..limit(1))
         .getSingleOrNull();
-    if (existing != null) return existing.id;
+    if (existing != null) {
+      await ensurePlayableCharacterPickEntry(plotId, existing.id);
+      return existing.id;
+    }
 
     final versionId = await _db.into(_db.introVersions).insert(
           IntroVersionsCompanion.insert(plotId: plotId),
@@ -27,6 +30,7 @@ class IntroEntryRepository {
     await (_db.update(_db.introEntries)
           ..where((e) => e.plotId.equals(plotId) & e.introVersionId.isNull()))
         .write(IntroEntriesCompanion(introVersionId: Value(versionId)));
+    await ensurePlayableCharacterPickEntry(plotId, versionId);
     return versionId;
   }
 
@@ -52,9 +56,11 @@ class IntroEntryRepository {
       ..where(_db.introVersions.plotId.equals(plotId));
     final row = await query.getSingle();
     final nextOrder = (row.read(maxOrderExp) ?? -1) + 1;
-    return _db.into(_db.introVersions).insert(
+    final versionId = await _db.into(_db.introVersions).insert(
           IntroVersionsCompanion.insert(plotId: plotId, sortOrder: Value(nextOrder)),
         );
+    await ensurePlayableCharacterPickEntry(plotId, versionId);
+    return versionId;
   }
 
   Future<void> deleteVersion(int id) => (_db.delete(_db.introVersions)..where((v) => v.id.equals(id))).go();
@@ -189,6 +195,37 @@ class IntroEntryRepository {
       ..where(_db.introEntries.introVersionId.equals(introVersionId));
     final row = await query.getSingle();
     return (row.read(maxOrderExp) ?? -1) + 1;
+  }
+
+  /// 플롯에 플레이어블 캐릭터가 1개 이상 있는데 이 인트로 버전에 아직 '플레이어블 캐릭터
+  /// 선택' 마커 엔트리(characterPick)가 없으면 맨 앞에 하나 추가한다. 이미 있으면 아무 것도
+  /// 하지 않는다(위치는 작가가 드래그로 옮긴 그대로 유지) - 인트로 탭 진입 시마다 호출해도
+  /// 안전한 idempotent 동작이다.
+  Future<void> ensurePlayableCharacterPickEntry(int plotId, int introVersionId) async {
+    final hasPlayable = await (_db.select(_db.characters)
+          ..where((c) => c.plotId.equals(plotId) & c.isPlayable.equals(true))
+          ..limit(1))
+        .getSingleOrNull();
+    if (hasPlayable == null) return;
+
+    final existingPick = await (_db.select(_db.introEntries)
+          ..where((e) =>
+              e.introVersionId.equals(introVersionId) & e.type.equalsValue(IntroEntryType.characterPick))
+          ..limit(1))
+        .getSingleOrNull();
+    if (existingPick != null) return;
+
+    final currentEntries = await getByVersion(introVersionId);
+    final pickId = await _db.into(_db.introEntries).insert(
+          IntroEntriesCompanion.insert(
+            plotId: plotId,
+            introVersionId: Value(introVersionId),
+            type: IntroEntryType.characterPick,
+            content: '',
+            sortOrder: Value(currentEntries.length),
+          ),
+        );
+    await reorder([pickId, ...currentEntries.map((e) => e.id)]);
   }
 
   Future<void> updateContent(int id, String content) {

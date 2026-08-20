@@ -145,6 +145,7 @@ class ChatSessionRepository {
 
     final turnId = await _db.into(_db.chatTurns).insert(ChatTurnsCompanion.insert(sessionId: sessionId));
     for (var v = 0; v < versions.length; v++) {
+      await IntroEntryRepository(_db).ensurePlayableCharacterPickEntry(plotId, versions[v].id);
       final entries = await (_db.select(_db.introEntries)
             ..where((e) => e.introVersionId.equals(versions[v].id))
             ..orderBy([(e) => OrderingTerm.asc(e.sortOrder)]))
@@ -178,6 +179,13 @@ class ChatSessionRepository {
     return existing?.id;
   }
 
+  /// 인트로 재생 중 '플레이어블 캐릭터 선택' 지점에서 고른 캐릭터를 세션에 확정한다.
+  Future<void> setPlayableCharacter(int sessionId, int characterId) {
+    return (_db.update(_db.chatSessions)..where((s) => s.id.equals(sessionId))).write(
+      ChatSessionsCompanion(vnPlayableCharacterId: Value(characterId), updatedAt: Value(DateTime.now())),
+    );
+  }
+
   Future<void> setPreset(int sessionId, int presetId) {
     return (_db.update(_db.chatSessions)..where((s) => s.id.equals(sessionId))).write(
       ChatSessionsCompanion(presetId: Value(presetId), updatedAt: Value(DateTime.now())),
@@ -207,6 +215,14 @@ class ChatSessionRepository {
     );
   }
 
+  /// 세션을 보관 처리한다. 활성 목록·플롯의 활성 세션 조회에서는 제외되고 '이어하기' 목록에만
+  /// 남는다.
+  Future<void> archive(int sessionId) {
+    return (_db.update(_db.chatSessions)..where((s) => s.id.equals(sessionId))).write(
+      ChatSessionsCompanion(archivedAt: Value(DateTime.now())),
+    );
+  }
+
   /// 채팅 화면 드로어의 '새로하기'. saveCurrent가 true면 현재 세션을 보관 처리해 '이어하기'에
   /// 남기고, false면 완전히 삭제한다. 어느 쪽이든 같은 플롯의 새 활성 세션을 만들어 id를 반환한다.
   Future<int> startFresh({
@@ -216,9 +232,7 @@ class ChatSessionRepository {
   }) async {
     final current = await getById(currentSessionId);
     if (saveCurrent) {
-      await (_db.update(_db.chatSessions)..where((s) => s.id.equals(currentSessionId))).write(
-        ChatSessionsCompanion(archivedAt: Value(DateTime.now())),
-      );
+      await archive(currentSessionId);
     } else {
       await (_db.delete(_db.chatSessions)..where((s) => s.id.equals(currentSessionId))).go();
     }

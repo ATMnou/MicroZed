@@ -403,6 +403,9 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get homeTabFilterRecommended => '추천';
+
+  @override
   String get homeNoPlotsYet => '아직 만든 플롯이 없어요';
 
   @override
@@ -1121,6 +1124,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get profileEditDescriptionLabel => '설명(선택)';
 
   @override
+  String get profileEditScopeSectionTitle => '적용 범위';
+
+  @override
   String get profileEditDefaultSectionTitle => '기본 대화 프로필';
 
   @override
@@ -1719,6 +1725,24 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vnEditCharacterImagePlaceholder => '전신 이미지 추가';
 
   @override
+  String get vnEditSpritePlacementSectionTitle => '인물 배치';
+
+  @override
+  String get vnEditSpritePlacementPreviewEmptyMessage =>
+      '인물 이미지를 추가하면 미리볼 수 있어요';
+
+  @override
+  String vnEditSpriteScaleLabel(String scale) {
+    return '크기 배율 ${scale}x';
+  }
+
+  @override
+  String get vnEditSpriteOffsetXLabel => '가로 위치';
+
+  @override
+  String get vnEditSpriteOffsetYLabel => '세로 위치';
+
+  @override
   String get vnEditExpressionSectionTitle => '표정 이미지 (선택)';
 
   @override
@@ -1745,6 +1769,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get vnEditExpressionConfused => '의문';
+
+  @override
+  String get vnEditExpressionDefault => '기본 이미지';
+
+  @override
+  String get vnEditCharacterPickEntryLabel => '플레이어블 캐릭터 선택';
+
+  @override
+  String get vnEditCharacterPickEntryHint =>
+      '인트로 재생 중 이 위치에서 플레이어가 캐릭터를 고릅니다. 드래그로 순서만 바꿀 수 있어요.';
 
   @override
   String get vnEditIntroEmptyMessage => '아직 작성된 턴이 없어요. 아래 버튼으로 첫 턴을 추가해보세요.';
@@ -1838,6 +1872,9 @@ class AppLocalizationsKo extends AppLocalizations {
       '중요한 순간에 플레이어가 직접 주사위를 굴려요.\n결과에 따라 성공 여부가 결정돼요.';
 
   @override
+  String get vnPlayAddPlayableCharacterCardTitle => '새 플레이어블\n캐릭터';
+
+  @override
   String get vnPlayAiAssistTooltip => 'AI 입력 도움받기';
 
   @override
@@ -1854,6 +1891,12 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get vnPlayDefaultCharacterName => '캐릭터';
+
+  @override
+  String get vnPlayDeleteSessionConfirmMessage => '이 대화를 삭제할까요? 되돌릴 수 없어요.';
+
+  @override
+  String get vnPlayDeleteSessionMenuItem => '삭제';
 
   @override
   String get vnPlayDiceBonusLabel => '보너스';
@@ -1885,6 +1928,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vnPlayDiceTargetLabel => '성공 기준';
 
   @override
+  String get vnPlayEditCharacterTooltip => '캐릭터 수정';
+
+  @override
   String get vnPlayEmptyStateMessage => '아직 이야기가 시작되지 않았어요';
 
   @override
@@ -1905,7 +1951,19 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vnPlayHistoryMenuItem => '히스토리 보기';
 
   @override
+  String get vnPlayProfileMenuItem => '대화 프로필';
+
+  @override
+  String get vnPlayProfileSheetTitle => '대화 프로필 선택';
+
+  @override
+  String get vnPlayProfileSheetEmpty => '비주얼 노벨에서 쓸 수 있는 프로필이 없어요';
+
+  @override
   String get vnPlayHistoryNarratorLabel => '내레이션';
+
+  @override
+  String get vnPlayHistoryCharacterPickLabel => '캐릭터 선택';
 
   @override
   String get vnPlayHistorySheetTitle => '대화 기록';
@@ -1914,7 +1972,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vnPlayHistoryTooltip => '히스토리';
 
   @override
+  String get vnPlayJumpToPlotDetailMenuItem => '플롯 상세페이지 바로가기';
+
+  @override
   String get vnPlayManualInputToggle => '직접 입력';
+
+  @override
+  String get vnPlayPresetDropdownPlaceholder => '프리셋 선택';
 
   @override
   String get vnPlayPresetManageLink => '프리셋 설정';
@@ -1946,6 +2010,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get vnPlaySettingsTooltip => '설정';
+
+  @override
+  String get vnPlayStartFreshMenuItem => '새로하기';
 
   @override
   String get vnPlayStepBackTooltip => '이전';

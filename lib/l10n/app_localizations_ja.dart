@@ -403,6 +403,9 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get homeTabFilterRecommended => 'おすすめ';
+
+  @override
   String get homeNoPlotsYet => 'まだ作成したプロットがありません';
 
   @override
@@ -1121,6 +1124,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get profileEditDescriptionLabel => '説明(任意)';
 
   @override
+  String get profileEditScopeSectionTitle => '適用範囲';
+
+  @override
   String get profileEditDefaultSectionTitle => 'デフォルト会話プロフィール';
 
   @override
@@ -1716,6 +1722,23 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vnEditCharacterImagePlaceholder => '全身画像を追加';
 
   @override
+  String get vnEditSpritePlacementSectionTitle => '人物配置';
+
+  @override
+  String get vnEditSpritePlacementPreviewEmptyMessage => '人物画像を追加するとプレビューできます';
+
+  @override
+  String vnEditSpriteScaleLabel(String scale) {
+    return 'サイズ倍率 ${scale}x';
+  }
+
+  @override
+  String get vnEditSpriteOffsetXLabel => '横位置';
+
+  @override
+  String get vnEditSpriteOffsetYLabel => '縦位置';
+
+  @override
   String get vnEditExpressionSectionTitle => '表情画像（任意）';
 
   @override
@@ -1741,6 +1764,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get vnEditExpressionConfused => '疑問';
+
+  @override
+  String get vnEditExpressionDefault => '基本イメージ';
+
+  @override
+  String get vnEditCharacterPickEntryLabel => 'プレイアブルキャラクター選択';
+
+  @override
+  String get vnEditCharacterPickEntryHint =>
+      'イントロ再生中、この位置でプレイヤーがキャラクターを選びます。ドラッグで順序のみ変更できます。';
 
   @override
   String get vnEditIntroEmptyMessage => 'まだターンがありません。下のボタンで最初のターンを追加してみましょう。';
@@ -1834,6 +1867,9 @@ class AppLocalizationsJa extends AppLocalizations {
       '重要な瞬間にプレイヤーが直接サイコロを振ります。\n結果によって成功可否が決まります。';
 
   @override
+  String get vnPlayAddPlayableCharacterCardTitle => '新しいプレイアブル\nキャラクター';
+
+  @override
   String get vnPlayAiAssistTooltip => 'AI入力サポートを受ける';
 
   @override
@@ -1850,6 +1886,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get vnPlayDefaultCharacterName => 'キャラクター';
+
+  @override
+  String get vnPlayDeleteSessionConfirmMessage => 'この会話を削除しますか?元に戻せません。';
+
+  @override
+  String get vnPlayDeleteSessionMenuItem => '削除';
 
   @override
   String get vnPlayDiceBonusLabel => 'ボーナス';
@@ -1881,6 +1923,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vnPlayDiceTargetLabel => '成功基準';
 
   @override
+  String get vnPlayEditCharacterTooltip => 'キャラクターを編集';
+
+  @override
   String get vnPlayEmptyStateMessage => 'まだ物語が始まっていません';
 
   @override
@@ -1901,7 +1946,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vnPlayHistoryMenuItem => '履歴を見る';
 
   @override
+  String get vnPlayProfileMenuItem => '会話プロフィール';
+
+  @override
+  String get vnPlayProfileSheetTitle => '会話プロフィールを選択';
+
+  @override
+  String get vnPlayProfileSheetEmpty => 'ビジュアルノベルで使えるプロフィールがありません';
+
+  @override
   String get vnPlayHistoryNarratorLabel => 'ナレーション';
+
+  @override
+  String get vnPlayHistoryCharacterPickLabel => 'キャラクター選択';
 
   @override
   String get vnPlayHistorySheetTitle => 'ストーリー記録';
@@ -1910,7 +1967,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vnPlayHistoryTooltip => '履歴';
 
   @override
+  String get vnPlayJumpToPlotDetailMenuItem => 'プロット詳細ページへ';
+
+  @override
   String get vnPlayManualInputToggle => '直接入力';
+
+  @override
+  String get vnPlayPresetDropdownPlaceholder => 'プリセットを選択';
 
   @override
   String get vnPlayPresetManageLink => 'プリセット設定';
@@ -1942,6 +2005,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get vnPlaySettingsTooltip => '設定';
+
+  @override
+  String get vnPlayStartFreshMenuItem => '最初からやり直す';
 
   @override
   String get vnPlayStepBackTooltip => '前へ';

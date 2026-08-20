@@ -406,7 +406,9 @@ class AiChatService {
     final summarySettings = await _summarySettingsStore.read();
     if (!summarySettings.enabled) return null;
 
-    final withoutImages = history.where((m) => m.senderType != MessageSender.image).toList();
+    final withoutImages = history
+        .where((m) => m.senderType != MessageSender.image && m.senderType != MessageSender.characterPick)
+        .toList();
     if (withoutImages.length <= contextLength) return null;
 
     final droppedCount = withoutImages.length - contextLength;

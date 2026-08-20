@@ -19,7 +19,10 @@ import '../data/repositories/vn_background_repository.dart';
 import '../data/theme/color_palette.dart';
 import '../data/theme/palette_scope.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/dashed_box.dart';
+import '../widgets/start_fresh_dialog.dart';
 import 'ai_preset_screen.dart';
+import 'vn_plot_edit_screen.dart';
 
 /// 비주얼 노벨 플레이(리딩) 화면. 채팅 화면([lib/screens/chat_screen.dart])과 데이터 흐름
 /// 패턴(세션→플롯→캐릭터→프리셋→프로필 로드, `_withPreset` 가드, `watchTimeline` 스트림)은
@@ -57,9 +60,10 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
 
   bool _loading = true;
   bool _sessionLoadFailed = false;
-  bool _needsCharacterPick = false;
   List<Character> _playableCharacters = const [];
   int _pickerIndex = 0;
+  int? _playableCharacterId;
+  bool _isNewlyCreatedSession = false;
 
   int? _sessionId;
   Plot? _plot;
@@ -67,6 +71,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
   List<VnBackground> _backgrounds = const [];
   Map<int, List<VnCharacterExpression>> _expressionsByCharacter = const {};
   AiPreset? _selectedPreset;
+  int? _profileId;
   String _profileName = '유저';
   String _profileDescription = '';
 
@@ -122,38 +127,80 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
       await _loadSession(existing);
       return;
     }
-    final playable = await _characterRepo.watchPlayableByPlot(plotId).first;
-    if (playable.isNotEmpty) {
-      final plot = await _plotRepo.getById(plotId);
-      if (!mounted) return;
-      setState(() {
-        _plot = plot;
-        _playableCharacters = playable;
-        _needsCharacterPick = true;
-        _loading = false;
-      });
-      return;
-    }
-    await _createAndLoadSession(plotId, null);
+    await _enterFreshPlotFlow(plotId);
+  }
+
+  /// 이 플롯에 진행 중인 세션이 없을 때(최초 진입 또는 '새로하기' 직후) 곧바로 새 세션을 연다.
+  /// 플레이어블 캐릭터 선택은 더 이상 세션 생성 전 게이트가 아니라, 인트로 타임라인 안의
+  /// characterPick 마커에 커서가 도달했을 때 인라인으로 뜬다([_isAtUnresolvedCharacterPick]).
+  Future<void> _enterFreshPlotFlow(int plotId) async {
+    await _createAndLoadSession(plotId);
   }
 
   Future<void> _onCharacterPicked(Character character) async {
-    final plotId = widget.plotId;
-    if (plotId == null) return;
+    final sessionId = _sessionId;
+    if (sessionId == null) return;
+    await _sessionRepo.setPlayableCharacter(sessionId, character.id);
+    if (!mounted) return;
     setState(() {
-      _needsCharacterPick = false;
-      _loading = true;
+      _playableCharacterId = character.id;
+      if (_cursor < _timeline.length - 1) _cursor++;
     });
-    await _createAndLoadSession(plotId, character.id);
   }
 
-  Future<void> _createAndLoadSession(int plotId, int? characterId) async {
+  /// 캐릭터 선택 화면의 '+ 새 플레이어블 캐릭터' 카드. 만들고 나면 목록을 새로고침해서
+  /// 방금 만든 캐릭터로 캐러셀을 옮겨준다.
+  Future<void> _addPlayableCharacter() async {
+    final plotId = _plot?.id ?? widget.plotId;
+    if (plotId == null) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => VnCharacterFormScreen(
+          plotId: plotId,
+          isPlayable: true,
+          sortOrder: _playableCharacters.length,
+        ),
+      ),
+    );
+    final previousCount = _playableCharacters.length;
+    await _reloadPlayableCharacters();
+    if (!mounted || _playableCharacters.length <= previousCount) return;
+    final newIndex = _playableCharacters.length - 1;
+    setState(() => _pickerIndex = newIndex);
+    if (_pickerController.hasClients) {
+      _pickerController.animateToPage(newIndex, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+    }
+  }
+
+  Future<void> _editPlayableCharacter(Character character) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => VnCharacterFormScreen(
+          plotId: character.plotId,
+          characterId: character.id,
+          isPlayable: true,
+          sortOrder: character.sortOrder,
+        ),
+      ),
+    );
+    await _reloadPlayableCharacters();
+  }
+
+  Future<void> _reloadPlayableCharacters() async {
+    final plotId = _plot?.id ?? widget.plotId;
+    if (plotId == null) return;
+    final playable = await _characterRepo.watchPlayableByPlot(plotId).first;
+    if (!mounted) return;
+    setState(() => _playableCharacters = playable);
+  }
+
+  Future<void> _createAndLoadSession(int plotId) async {
     final defaultProfile = await _profileRepo.getDefault();
     final sessionId = await _sessionRepo.createSession(
       plotId: plotId,
-      vnPlayableCharacterId: characterId,
       conversationProfileId: defaultProfile?.id,
     );
+    _isNewlyCreatedSession = true;
     await _loadSession(sessionId);
   }
 
@@ -171,13 +218,33 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
     final plot = await _plotRepo.getById(session.plotId);
     final characters = await _characterRepo.getByPlot(session.plotId);
     final backgrounds = await _bgRepo.getByPlot(session.plotId);
+    final playable = await _characterRepo.watchPlayableByPlot(session.plotId).first;
     AiPreset? preset;
     if (session.presetId != null) {
       preset = await _presetRepo.getById(session.presetId!);
     }
-    // 플롯 전용 프로필 선택 화면은 v1 범위에서 생략하고, 채팅 화면의 예전 세션
-    // 폴백 경로와 동일하게 마이페이지의 전역 기본 프로필을 조용히 쓴다.
-    final defaultProfile = await _profileRepo.getDefault();
+    // 플롯 전용 프로필 선택 화면은 v1 범위에서 생략한다. 세션에 전역 프로필이 이미
+    // 붙어있으면 그걸 쓰고, 없으면(예전 세션) 마이페이지 기본 프로필로 채우면서 세션에도
+    // 저장해 다음부터 바로 불러오게 한다 - 채팅 화면의 폴백 경로와 동일한 패턴.
+    int? profileId;
+    String? profileName;
+    String? profileDescription;
+    if (session.conversationProfileId != null) {
+      final profile = await _profileRepo.getById(session.conversationProfileId!);
+      if (profile != null) {
+        profileId = profile.id;
+        profileName = profile.name;
+        profileDescription = profile.description;
+      }
+    } else {
+      final defaultProfile = await _profileRepo.getDefault();
+      if (defaultProfile != null) {
+        profileId = defaultProfile.id;
+        profileName = defaultProfile.name;
+        profileDescription = defaultProfile.description;
+        await _sessionRepo.setConversationProfile(sessionId, defaultProfile.id);
+      }
+    }
     final expressionsByCharacter = <int, List<VnCharacterExpression>>{};
     for (final c in characters) {
       expressionsByCharacter[c.id] = await _characterRepo.getExpressions(c.id);
@@ -188,13 +255,14 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
       _plot = plot;
       _characters = characters;
       _backgrounds = backgrounds;
+      _playableCharacters = playable;
+      _playableCharacterId = session.vnPlayableCharacterId;
+      _pickerIndex = 0;
       _selectedPreset = preset;
-      if (defaultProfile != null) {
-        _profileName = defaultProfile.name;
-        _profileDescription = defaultProfile.description;
-      }
+      _profileId = profileId;
+      if (profileName != null) _profileName = profileName;
+      if (profileDescription != null) _profileDescription = profileDescription;
       _expressionsByCharacter = expressionsByCharacter;
-      _needsCharacterPick = false;
       _loading = false;
     });
     _subscribeTimeline(sessionId);
@@ -202,19 +270,30 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
 
   // ── 타임라인 구독 + 커서 ────────────────────────────────────────────────
 
-  /// 처음 스트림이 도착하면(=화면을 처음 열었을 때) 커서를 맨 앞(0)에 두어, 아직 안 읽은
-  /// 인트로를 '▶▶'로 한 줄씩 넘겨보게 한다. 그 이후 갱신에서는, 유저가 이미 맨 끝까지
-  /// 따라와 있었을 때만(=방금 보낸 메시지의 응답을 기다리던 중) 새로 생긴 마지막 메시지로
-  /// 자동으로 따라가고, 과거를 되짚어보던 중이었다면 보던 위치를 그대로 유지한다.
+  /// 처음 스트림이 도착하면(=화면을 처음 열었을 때) 커서 위치를 정한다: 방금 만든 새
+  /// 세션이면 맨 앞(0)에 두어 아직 안 읽은 인트로를 '▶▶'로 한 줄씩 넘겨보게 하고, 기존
+  /// 세션을 다시 열었으면 마지막으로 진행했던 맨 끝 턴으로 곧바로 이동시킨다. 그 이후
+  /// 갱신에서는, 유저가 이미 맨 끝까지 따라와 있었을 때만(=방금 보낸 메시지의 응답을
+  /// 기다리던 중) 새로 생긴 마지막 메시지로 자동으로 따라가고, 과거를 되짚어보던
+  /// 중이었다면 보던 위치를 그대로 유지한다.
   void _subscribeTimeline(int sessionId) {
     _timelineSub?.cancel();
     _timelineInitialized = false;
+    final isNewSession = _isNewlyCreatedSession;
+    _isNewlyCreatedSession = false;
     _timelineSub = _turnRepo.watchTimeline(sessionId).listen((items) {
       if (!mounted) return;
       setState(() {
         if (!_timelineInitialized) {
           _timeline = items;
-          _cursor = items.isEmpty ? -1 : 0;
+          var initialCursor = items.isEmpty ? -1 : (isNewSession ? 0 : items.length - 1);
+          // 아직 안 고른 플레이어블 캐릭터 선택 마커가 있으면, 그 지점을 건너뛰고 마지막으로
+          // 이동해버리지 않도록 그 마커 위치로 되돌린다(재진입 시에도 선택을 강제하기 위함).
+          if (_playableCharacterId == null) {
+            final pickIndex = items.indexWhere((i) => i.message.senderType == MessageSender.characterPick);
+            if (pickIndex != -1 && pickIndex < initialCursor) initialCursor = pickIndex;
+          }
+          _cursor = initialCursor;
           _timelineInitialized = true;
           return;
         }
@@ -374,6 +453,9 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
       case MessageSender.image:
         text = '';
         break;
+      case MessageSender.characterPick:
+        text = '';
+        break;
     }
     return _DisplayState(
       speakerName: pillName,
@@ -433,7 +515,9 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
       case MessageSender.narrator:
         text = _resolveJosa(_substituteUser(last.content));
         break;
-      default:
+      case MessageSender.user:
+      case MessageSender.image:
+      case MessageSender.characterPick:
         text = last.content;
     }
 
@@ -570,6 +654,9 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
         return (label: _profileName, text: message.content);
       case MessageSender.image:
         return (label: '', text: message.content);
+      case MessageSender.characterPick:
+        final picked = _playableCharacterId != null ? _findCharacter(_playableCharacterId) : null;
+        return (label: l10n.vnPlayHistoryCharacterPickLabel, text: picked?.name ?? '-');
     }
   }
 
@@ -655,7 +742,118 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
     );
   }
 
+  /// 톱니바퀴(설정) 메뉴. 프리셋 선택은 상단 바의 별도 드롭다운([_showPresetPickerSheet])으로
+  /// 분리되어 있고, 여기는 히스토리/플롯 편집/세션 관리만 다룬다.
   void _showSettingsSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final p = _p;
+    final plotId = _plot?.id ?? widget.plotId;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: p.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(color: p.textGhost, borderRadius: BorderRadius.circular(2)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.vnPlaySettingsSheetTitle,
+                  style: TextStyle(color: p.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                _settingsMenuItem(
+                  icon: Icons.history,
+                  label: l10n.vnPlayHistoryMenuItem,
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _showHistorySheet(context);
+                  },
+                ),
+                _settingsMenuItem(
+                  icon: Icons.person_outline,
+                  label: l10n.vnPlayProfileMenuItem,
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _showProfilePickerSheet(context);
+                  },
+                ),
+                if (plotId != null)
+                  _settingsMenuItem(
+                    icon: Icons.article_outlined,
+                    label: l10n.vnPlayJumpToPlotDetailMenuItem,
+                    onTap: () {
+                      Navigator.of(sheetContext).pop();
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => VnPlotEditScreen(plotId: plotId)));
+                    },
+                  ),
+                _settingsMenuItem(
+                  icon: Icons.refresh,
+                  label: l10n.vnPlayStartFreshMenuItem,
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _startFreshFlow();
+                  },
+                ),
+                _settingsMenuItem(
+                  icon: Icons.delete_outline,
+                  label: l10n.vnPlayDeleteSessionMenuItem,
+                  color: p.danger,
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _deleteSession();
+                  },
+                  isLast: true,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _settingsMenuItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? color,
+    bool isLast = false,
+  }) {
+    final p = _p;
+    final tint = color ?? p.textSecondary;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        margin: EdgeInsets.only(bottom: isLast ? 0 : 10),
+        decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          children: [
+            Icon(icon, color: tint, size: 18),
+            const SizedBox(width: 12),
+            Text(label, style: TextStyle(color: color ?? p.textPrimary, fontSize: 14)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 상단 바의 프리셋 드롭다운. 톱니바퀴 메뉴와 분리된, 프리셋 선택 전용 시트다.
+  void _showPresetPickerSheet(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final p = _p;
     showModalBottomSheet(
@@ -682,32 +880,8 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    l10n.vnPlaySettingsSheetTitle,
-                    style: TextStyle(color: p.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      Navigator.of(sheetContext).pop();
-                      _showHistorySheet(context);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(color: p.surfaceAlt, borderRadius: BorderRadius.circular(12)),
-                      child: Row(
-                        children: [
-                          Icon(Icons.history, color: p.textSecondary, size: 18),
-                          const SizedBox(width: 12),
-                          Text(l10n.vnPlayHistoryMenuItem, style: TextStyle(color: p.textPrimary, fontSize: 14)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Text(
                     l10n.vnPlayPresetSheetTitle,
-                    style: TextStyle(color: p.textPrimary, fontSize: 15, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: p.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 6),
                   Text(l10n.vnPlayPresetSheetDescription, style: TextStyle(color: p.textFaint, fontSize: 12)),
@@ -793,6 +967,165 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
     );
   }
 
+  /// 설정 메뉴의 '대화 프로필'. 비주얼 노벨 전용(또는 공용) 프로필만 골라서 고를 수 있다.
+  void _showProfilePickerSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final p = _p;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: p.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.8),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(color: p.textGhost, borderRadius: BorderRadius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.vnPlayProfileSheetTitle,
+                    style: TextStyle(color: p.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: StreamBuilder<List<ConversationProfile>>(
+                        stream: _profileRepo.watchAll(scope: PlotType.visualNovel),
+                        builder: (context, snapshot) {
+                          final profiles = snapshot.data ?? const [];
+                          if (profiles.isEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Text(l10n.vnPlayProfileSheetEmpty, style: TextStyle(color: p.textFaint, fontSize: 13)),
+                            );
+                          }
+                          return Column(
+                            children: profiles.map((profile) {
+                              final selected = profile.id == _profileId;
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    final sessionId = _sessionId;
+                                    if (sessionId != null) {
+                                      await _sessionRepo.setConversationProfile(sessionId, profile.id);
+                                    }
+                                    setState(() {
+                                      _profileId = profile.id;
+                                      _profileName = profile.name;
+                                      _profileDescription = profile.description;
+                                    });
+                                    if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(14),
+                                    decoration: BoxDecoration(
+                                      color: p.surfaceAlt,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: selected ? p.primary : Colors.transparent, width: 1.5),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                profile.name,
+                                                style: TextStyle(color: p.textPrimary, fontSize: 15, fontWeight: FontWeight.bold),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(profile.description, style: TextStyle(color: p.textMuted, fontSize: 12)),
+                                            ],
+                                          ),
+                                        ),
+                                        if (selected) Icon(Icons.check, color: p.textPrimary, size: 20),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// 설정 메뉴의 '새로하기'. 현재 세션을 보관(또는 삭제)한 뒤, 이 화면을 플롯 진입 흐름으로
+  /// 되돌려서(플레이어블 캐릭터가 있으면 다시 고르게 한다) 새 세션을 시작한다.
+  Future<void> _startFreshFlow() async {
+    final plotId = _plot?.id ?? widget.plotId;
+    final sessionId = _sessionId;
+    if (plotId == null || sessionId == null) return;
+    final saveCurrent = await StartFreshDialog.show(context);
+    if (saveCurrent == null || !mounted) return;
+    if (saveCurrent) {
+      await _sessionRepo.archive(sessionId);
+    } else {
+      await _sessionRepo.delete(sessionId);
+    }
+    if (!mounted) return;
+    _timelineSub?.cancel();
+    setState(() {
+      _loading = true;
+      _sessionId = null;
+      _timelineInitialized = false;
+      _timeline = const [];
+      _cursor = -1;
+      _selectedPreset = null;
+    });
+    await _enterFreshPlotFlow(plotId);
+  }
+
+  /// 설정 메뉴의 '삭제'. 확인 후 세션을 완전히 지우고 화면을 닫는다.
+  Future<void> _deleteSession() async {
+    final l10n = AppLocalizations.of(context)!;
+    final p = _p;
+    final sessionId = _sessionId;
+    if (sessionId == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: p.surface,
+        content: Text(l10n.vnPlayDeleteSessionConfirmMessage, style: TextStyle(color: p.textPrimary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.commonCancel, style: TextStyle(color: p.textMuted)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.commonDelete, style: TextStyle(color: p.danger)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await _sessionRepo.delete(sessionId);
+    if (mounted) Navigator.of(context).maybePop();
+  }
+
   // ── build ──────────────────────────────────────────────────────────
 
   @override
@@ -821,10 +1154,18 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
         ),
       );
     }
-    if (_needsCharacterPick) {
+    if (_isAtUnresolvedCharacterPick) {
       return _buildCharacterPicker(context);
     }
     return _buildGameplay(context);
+  }
+
+  /// 현재 커서가 아직 안 고른 '플레이어블 캐릭터 선택' 마커 위(또는 그 이전)에 있는지.
+  /// 참이면 대사창 대신 캐릭터 선택 화면을 띄운다.
+  bool get _isAtUnresolvedCharacterPick {
+    if (_playableCharacterId != null) return false;
+    if (_cursor < 0 || _cursor >= _timeline.length) return false;
+    return _timeline[_cursor].message.senderType == MessageSender.characterPick;
   }
 
   // ── 플레이어블 캐릭터 선택 ──────────────────────────────────────────
@@ -857,36 +1198,39 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
                 ],
               ),
             ),
-            if (_playableCharacters.length > 1)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_playableCharacters.length, (i) {
-                    final active = i == _pickerIndex;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: active ? 18 : 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: active ? p.primary : Colors.white24,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                    );
-                  }),
-                ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(_playableCharacters.length + 1, (i) {
+                  final active = i == _pickerIndex;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: active ? 18 : 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: active ? p.primary : Colors.white24,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  );
+                }),
               ),
+            ),
             Expanded(
               child: PageView.builder(
                 controller: _pickerController,
-                itemCount: _playableCharacters.length,
+                itemCount: _playableCharacters.length + 1,
                 onPageChanged: (i) => setState(() => _pickerIndex = i),
                 itemBuilder: (context, index) {
+                  if (index == _playableCharacters.length) {
+                    return _AddCharacterCard(onTap: _addPlayableCharacter);
+                  }
                   final character = _playableCharacters[index];
                   return _CharacterPickerCard(
                     character: character,
                     onSelect: () => _onCharacterPicked(character),
+                    onEdit: () => _editPlayableCharacter(character),
                   );
                 },
               ),
@@ -909,7 +1253,10 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
         fit: StackFit.expand,
         children: [
           _BackgroundLayer(imagePath: _resolvedBackgroundPath(display.backgroundId)),
-          _SpriteLayer(imagePath: _spriteImagePath(display.speakingCharacter, display.expression)),
+          _SpriteLayer(
+            imagePath: _spriteImagePath(display.speakingCharacter, display.expression),
+            character: display.speakingCharacter,
+          ),
           if (canBrowse)
             Positioned.fill(
               child: Row(
@@ -969,6 +1316,10 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
             ),
+          ),
+          _PresetSelectorButton(
+            label: _selectedPreset?.name ?? l10n.vnPlayPresetDropdownPlaceholder,
+            onTap: () => _showPresetPickerSheet(context),
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 22),
@@ -1273,9 +1624,13 @@ class _BackgroundLayer extends StatelessWidget {
 }
 
 class _SpriteLayer extends StatelessWidget {
-  const _SpriteLayer({required this.imagePath});
+  const _SpriteLayer({required this.imagePath, this.character});
 
   final String? imagePath;
+
+  /// 크기 배율/X·Y 위치([Character.spriteScale]/[spriteOffsetX]/[spriteOffsetY])를
+  /// 읽어와 배치에 반영한다. null이면 기본(배율 1.0, 하단 중앙)으로 그린다.
+  final Character? character;
 
   @override
   Widget build(BuildContext context) {
@@ -1283,15 +1638,63 @@ class _SpriteLayer extends StatelessWidget {
     if (path == null || path.isEmpty || !File(path).existsSync()) {
       return const SizedBox.shrink();
     }
+    final scale = character?.spriteScale ?? 1.0;
+    final offsetX = character?.spriteOffsetX ?? 0.0;
+    final offsetY = character?.spriteOffsetY ?? 0.0;
     return Align(
-      alignment: Alignment.bottomCenter,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
-        child: FractionallySizedBox(
-          key: ValueKey(path),
-          heightFactor: 0.85,
-          child: Image.file(File(path), fit: BoxFit.contain),
+      alignment: vnSpriteAlignment(offsetX, offsetY),
+      child: Transform.scale(
+        scale: scale,
+        alignment: Alignment.bottomCenter,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+          child: FractionallySizedBox(
+            key: ValueKey(path),
+            heightFactor: 0.85,
+            child: Image.file(File(path), fit: BoxFit.contain),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 상단 바의 프리셋 드롭다운 버튼. 톱니바퀴(설정) 아이콘과는 별개로, 지금 선택된 AI
+/// 프리셋 이름을 보여주고 눌러서 바꿀 수 있게 한다.
+class _PresetSelectorButton extends StatelessWidget {
+  const _PresetSelectorButton({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 108),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.45),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(width: 2),
+            const Icon(Icons.keyboard_arrow_down, color: Colors.white70, size: 16),
+          ],
         ),
       ),
     );
@@ -1457,10 +1860,11 @@ class _ChoiceButton extends StatelessWidget {
 // ── 플레이어블 캐릭터 선택 카드 ────────────────────────────────────────
 
 class _CharacterPickerCard extends StatelessWidget {
-  const _CharacterPickerCard({required this.character, required this.onSelect});
+  const _CharacterPickerCard({required this.character, required this.onSelect, required this.onEdit});
 
   final Character character;
   final VoidCallback onSelect;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -1517,24 +1921,69 @@ class _CharacterPickerCard extends StatelessWidget {
               left: 20,
               right: 20,
               bottom: 20,
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onSelect,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: p.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Row(
+                children: [
+                  _RoundIconButton(
+                    icon: Icons.edit_outlined,
+                    onTap: onEdit,
+                    tooltip: l10n.vnPlayEditCharacterTooltip,
+                    filled: true,
                   ),
-                  child: Text(
-                    l10n.vnPlaySelectCharacterButton,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: onSelect,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: p.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text(
+                        l10n.vnPlaySelectCharacterButton,
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 캐릭터 선택 캐러셀 맨 끝에 붙는 '+ 새 플레이어블 캐릭터' 카드.
+class _AddCharacterCard extends StatelessWidget {
+  const _AddCharacterCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final p = PaletteScope.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 20),
+      child: GestureDetector(
+        onTap: onTap,
+        child: DashedBox(
+          borderRadius: 20,
+          color: p.textFaint,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add_circle_outline, color: p.textFaint, size: 40),
+              const SizedBox(height: 10),
+              Text(
+                l10n.vnPlayAddPlayableCharacterCardTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: p.textFaint, fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
         ),
       ),
     );

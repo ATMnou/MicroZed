@@ -4,11 +4,14 @@ import 'package:drift/drift.dart';
 enum PlotVisibility { public, private, unlisted }
 
 /// 인트로(첫 상황) 한 줄이 누구의 발화인지 구분한다. image는 AI에게는 전달되지 않고
-/// 화면에만 보여주는 첨부 이미지 한 장이다.
-enum IntroEntryType { character, narrator, user, image }
+/// 화면에만 보여주는 첨부 이미지 한 장이다. characterPick은 비주얼 노벨 전용으로, 인트로
+/// 재생 중 이 위치에서 플레이어블 캐릭터 선택 UI를 띄우라는 마커다(화자/본문 없음).
+/// MessageSender와 인덱스가 그대로 대응되므로 반드시 같은 순서를 유지해야 한다.
+enum IntroEntryType { character, narrator, user, image, characterPick }
 
 /// 실제 채팅 메시지의 발화자 종류. image는 AI에게는 전달되지 않고 화면에만 보여준다.
-enum MessageSender { character, narrator, user, image }
+/// characterPick은 [IntroEntryType.characterPick]이 세션 생성 시 그대로 심어진 마커 메시지다.
+enum MessageSender { character, narrator, user, image, characterPick }
 
 /// AI 프리셋이 어떤 요청/응답 형식을 쓰는 엔드포인트인지. openAiCompatible이 기본값이고,
 /// anthropic은 Anthropic Messages API(`/v1/messages`, system 필드 분리, `x-api-key` 헤더) 전용
@@ -21,9 +24,11 @@ enum AiEndpointFormat { openAiCompatible, anthropic }
 /// 아래 Vn* 테이블에 별도로 붙는다.
 enum PlotType { storyChat, visualNovel }
 
-/// 비주얼 노벨 캐릭터 표정 세트의 고정 6종. 기본 전신 이미지가 없는 감정은 캐릭터의
-/// 기본 imagePath로 대체 표시한다.
-enum VnEmotion { joy, sad, angry, worried, surprised, confused }
+/// 비주얼 노벨 캐릭터 표정 세트의 고정 6종 + 기본(defaultEmotion). 기본 전신 이미지가
+/// 없는 감정은 캐릭터의 기본 imagePath로 대체 표시한다. defaultEmotion은 "표정 없음"이
+/// 아니라 "명시적으로 기본 이미지로 되돌리기"를 뜻하는 별개의 값이다(null=변화 없음/이전
+/// 표정 유지와 구분하기 위해 필요) - 반드시 끝에 추가해 기존 데이터의 인덱스를 보존한다.
+enum VnEmotion { joy, sad, angry, worried, surprised, confused, defaultEmotion }
 
 /// 비주얼 노벨 인트로 한 턴이 '대화형'(배경+캐릭터+대사)인지 '연출형'(나레이션+선택 이미지)인지.
 enum VnSceneType { dialogue, direction }
@@ -115,6 +120,14 @@ class Characters extends Table {
   /// 비주얼 노벨 플롯에서만 의미가 있다. true면 '플레이어블 캐릭터'(플레이어가 빙의해서
   /// 진행하는 주인공 후보)로 취급된다.
   BoolColumn get isPlayable => boolean().withDefault(const Constant(false))();
+
+  /// 아래 3개는 비주얼 노벨 플레이 화면에서 이 캐릭터의 전신 스프라이트를 표시할 때
+  /// 적용하는 배치 설정이다(감정/장면과 무관하게 캐릭터 단위로 고정). spriteScale은
+  /// 기본 크기 대비 배율(1.0=기본), offsetX/offsetY는 화면 폭/높이 대비 비율로 저장되는
+  /// 기본 위치(하단 중앙)로부터의 이동량이다.
+  RealColumn get spriteScale => real().withDefault(const Constant(1.0))();
+  RealColumn get spriteOffsetX => real().withDefault(const Constant(0.0))();
+  RealColumn get spriteOffsetY => real().withDefault(const Constant(0.0))();
 }
 
 /// 플롯 하나에 여러 개 만들 수 있는 인트로(첫 상황) 버전. 채팅 시작 시 어떤 버전으로
@@ -172,6 +185,10 @@ class ConversationProfiles extends Table {
   TextColumn get description => text().withDefault(const Constant(''))();
   TextColumn get imagePath => text().nullable()();
   BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
+
+  /// null이면 스토리챗/비주얼 노벨 양쪽에서 다 쓸 수 있는 공용 프로필. 값이 있으면
+  /// 그 PlotType 전용으로만 선택 목록에 노출된다.
+  IntColumn get scope => intEnum<PlotType>().nullable()();
 }
 
 /// 플롯 편집 > 프롬프트 탭에서 그 플롯 전용으로 만드는 대화 프로필. 마이페이지의 전역

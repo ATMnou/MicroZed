@@ -6,15 +6,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:microzed/data/db/database.dart';
 import 'package:path/path.dart' as p;
 
-/// v9(로컬 LLM까지만 있던, 실제 배포된 1.1.1 스키마) -> v18(reasoningEffort +
+/// v9(로컬 LLM까지만 있던, 실제 배포된 1.1.1 스키마) -> 최신 버전(reasoningEffort +
 /// PlotConversationProfiles + ChatSessions.plotConversationProfileId +
 /// TokenUsageLogs.provider + AiPresets의 OpenRouter 전용 라우팅 옵션 3종 + endpointFormat +
 /// ChatMemorySummaries 테이블 + AiPresets.supportsVision + TalkSessions/TalkMessages 테이블 +
 /// TalkSessions.characterId/conversationProfileId/plotConversationProfileId +
-/// 비주얼 노벨 관련 컬럼/테이블 일체 추가)
+/// 비주얼 노벨 관련 컬럼/테이블 일체 + v19의 Characters 스프라이트 배치 컬럼/
+/// ConversationProfiles.scope 추가)
 /// 마이그레이션이 실제 파일 기반 sqlite에서 데이터 손실 없이 동작하는지 검증한다.
 void main() {
-  test('upgrades from schema v9 to v18 without losing existing data', () async {
+  test('upgrades from schema v9 to the latest schema without losing existing data', () async {
     final tempPath = p.join(
       Directory.systemTemp.path,
       'microzed_migration_test_${DateTime.now().microsecondsSinceEpoch}.sqlite',
@@ -75,6 +76,10 @@ void main() {
     await raw.runCustom('ALTER TABLE chat_messages DROP COLUMN vn_background_id');
     await raw.runCustom('ALTER TABLE chat_messages DROP COLUMN vn_expression');
     await raw.runCustom('ALTER TABLE chat_sessions DROP COLUMN vn_playable_character_id');
+    await raw.runCustom('ALTER TABLE characters DROP COLUMN sprite_scale');
+    await raw.runCustom('ALTER TABLE characters DROP COLUMN sprite_offset_x');
+    await raw.runCustom('ALTER TABLE characters DROP COLUMN sprite_offset_y');
+    await raw.runCustom('ALTER TABLE conversation_profiles DROP COLUMN scope');
     await raw.runCustom('PRAGMA user_version = 9');
     await raw.close();
 
@@ -235,6 +240,21 @@ void main() {
     final choice = await (db.select(db.vnChoices)..where((c) => c.id.equals(choiceId))).getSingle();
     expect(choice.useDice, true);
     expect(choice.difficulty, VnDiceDifficulty.medium);
+
+    // v19: 인물 배치(스프라이트 크기 배율/X·Y 좌표) + 대화 프로필 적용 범위 컬럼도 마이그레이션
+    // 후 기본값으로 채워지고 정상적으로 읽고 쓸 수 있어야 한다.
+    final characterAfterMigration =
+        await (db.select(db.characters)..where((c) => c.id.equals(characterId))).getSingle();
+    expect(characterAfterMigration.spriteScale, 1.0);
+    expect(characterAfterMigration.spriteOffsetX, 0.0);
+    expect(characterAfterMigration.spriteOffsetY, 0.0);
+
+    final vnProfileId = await db.into(db.conversationProfiles).insert(
+          ConversationProfilesCompanion.insert(name: 'VN Profile', scope: const Value(PlotType.visualNovel)),
+        );
+    final vnProfile =
+        await (db.select(db.conversationProfiles)..where((p) => p.id.equals(vnProfileId))).getSingle();
+    expect(vnProfile.scope, PlotType.visualNovel);
 
     await db.close();
   });

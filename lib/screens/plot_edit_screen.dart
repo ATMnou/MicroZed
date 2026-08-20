@@ -1829,6 +1829,9 @@ class _IntroTabState extends State<_IntroTab> {
         return _buildUserLine(entry);
       case IntroEntryType.image:
         return _buildImageLine(entry);
+      case IntroEntryType.characterPick:
+        // 비주얼 노벨 전용 마커라 스토리챗 플롯의 인트로 탭에는 나타나지 않는다.
+        return const SizedBox.shrink();
     }
   }
 

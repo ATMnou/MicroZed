@@ -86,6 +86,7 @@ class _HomeTabState extends State<_HomeTab> {
   final _searchController = TextEditingController();
   bool _searching = false;
   String _query = '';
+  PlotType? _plotTypeFilter;
 
   List<Color> get _cardColors => [
     const Color(0xFF3B5A7A),
@@ -126,9 +127,10 @@ class _HomeTabState extends State<_HomeTab> {
     return Column(
       children: [
         _buildTopBar(context),
+        _buildPlotTypeFilterRow(context),
         Expanded(
           child: StreamBuilder<List<PlotSummary>>(
-            stream: _plotRepository.watchAll(),
+            stream: _plotRepository.watchAll(plotType: _plotTypeFilter),
             builder: (context, snapshot) {
               final plots = _filter(snapshot.data ?? const []);
               if (plots.isEmpty) {
@@ -229,6 +231,43 @@ class _HomeTabState extends State<_HomeTab> {
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildPlotTypeFilterRow(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final options = <(String, PlotType?)>[
+      (l10n.homeTabFilterRecommended, null),
+      (l10n.createTabPlotTypeFilterStoryChat, PlotType.storyChat),
+      (l10n.createTabPlotTypeFilterVisualNovel, PlotType.visualNovel),
+    ];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Row(
+        children: [
+          for (final option in options) ...[
+            GestureDetector(
+              onTap: () => setState(() => _plotTypeFilter = option.$2),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _plotTypeFilter == option.$2 ? _p.primary : _p.surfaceAlt,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  option.$1,
+                  style: TextStyle(
+                    color: _plotTypeFilter == option.$2 ? _p.onPrimary : _textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ],
+      ),
     );
   }
 }

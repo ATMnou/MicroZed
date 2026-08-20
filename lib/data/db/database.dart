@@ -55,7 +55,7 @@ class AppDatabase extends _$AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -149,6 +149,12 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(chatMessages, chatMessages.vnBackgroundId);
             await m.addColumn(chatMessages, chatMessages.vnExpression);
             await m.addColumn(chatSessions, chatSessions.vnPlayableCharacterId);
+          }
+          if (from < 19) {
+            await m.addColumn(characters, characters.spriteScale);
+            await m.addColumn(characters, characters.spriteOffsetX);
+            await m.addColumn(characters, characters.spriteOffsetY);
+            await m.addColumn(conversationProfiles, conversationProfiles.scope);
           }
         },
       );

@@ -40,7 +40,7 @@ class BackupRestoreSummary {
 /// zip 안에는 다음이 들어간다:
 /// - manifest.json: 포맷/스키마 버전, 내보낸 시각, 내보낼 당시의 로컬 이미지 폴더 경로
 /// - data.json: 모든 테이블의 모든 행
-/// - images/*: 캐릭터/커버/대화 프로필 이미지 원본 파일
+/// - images/*: 캐릭터/커버/대화 프로필/비주얼 노벨 배경·캐릭터 표정 이미지 원본 파일
 /// - secure/*: BYOK API 키가 암호화되어 있는 로컬 보안 저장소 파일(같은 Windows 계정의
 ///   같은 기기에서 복원할 때만 그대로 복호화된다. 다른 기기/계정이면 키는 무시되고 새로
 ///   등록하면 된다 - 앱이 알아서 무시하고 크래시하지 않는다)
@@ -49,7 +49,8 @@ class BackupService {
 
   final AppDatabase _db;
 
-  static const _formatVersion = 1;
+  // v2: 비주얼 노벨 전용 테이블(vnBackgrounds/vnCharacterExpressions/vnChoices)을 포함하도록 확장.
+  static const _formatVersion = 2;
 
   Future<Uint8List> exportAll() async {
     final tables = <String, List<Map<String, dynamic>>>{
@@ -71,6 +72,10 @@ class BackupService {
       'lorebooks': (await _db.select(_db.lorebooks).get()).map((r) => r.toJson()).toList(),
       'lorebookEntries': (await _db.select(_db.lorebookEntries).get()).map((r) => r.toJson()).toList(),
       'lorebookPlotLinks': (await _db.select(_db.lorebookPlotLinks).get()).map((r) => r.toJson()).toList(),
+      'vnBackgrounds': (await _db.select(_db.vnBackgrounds).get()).map((r) => r.toJson()).toList(),
+      'vnCharacterExpressions':
+          (await _db.select(_db.vnCharacterExpressions).get()).map((r) => r.toJson()).toList(),
+      'vnChoices': (await _db.select(_db.vnChoices).get()).map((r) => r.toJson()).toList(),
     };
 
     final appSupportDir = await getApplicationSupportDirectory();
@@ -156,6 +161,9 @@ class BackupService {
     final lorebooksJson = rowsFor('lorebooks');
     final lorebookEntriesJson = rowsFor('lorebookEntries');
     final lorebookPlotLinksJson = rowsFor('lorebookPlotLinks');
+    final vnBackgroundsJson = rowsFor('vnBackgrounds');
+    final vnCharacterExpressionsJson = rowsFor('vnCharacterExpressions');
+    final vnChoicesJson = rowsFor('vnChoices');
 
     final oldImagesDir = manifest['imagesDir'] as String? ?? '';
     final appSupportDir = await getApplicationSupportDirectory();
@@ -194,13 +202,16 @@ class BackupService {
       await _db.delete(_db.chatSessions).go();
       await _db.delete(_db.talkMessages).go();
       await _db.delete(_db.talkSessions).go();
+      await _db.delete(_db.vnChoices).go();
       await _db.delete(_db.introEntries).go();
       await _db.delete(_db.introVersions).go();
       await _db.delete(_db.lorebookPlotLinks).go();
       await _db.delete(_db.lorebookEntries).go();
       await _db.delete(_db.lorebooks).go();
+      await _db.delete(_db.vnCharacterExpressions).go();
       await _db.delete(_db.characters).go();
       await _db.delete(_db.plotConversationProfiles).go();
+      await _db.delete(_db.vnBackgrounds).go();
       await _db.delete(_db.plots).go();
       await _db.delete(_db.conversationProfiles).go();
       await _db.delete(_db.aiPresets).go();
@@ -211,10 +222,20 @@ class BackupService {
         final remapped = row.copyWith(coverImagePath: Value(remapPath(row.coverImagePath)));
         await _db.into(_db.plots).insert(remapped, mode: InsertMode.insertOrReplace);
       }
+      for (final json in vnBackgroundsJson) {
+        final row = VnBackground.fromJson(json);
+        final remapped = row.copyWith(imagePath: remapPath(row.imagePath) ?? row.imagePath);
+        await _db.into(_db.vnBackgrounds).insert(remapped, mode: InsertMode.insertOrReplace);
+      }
       for (final json in charactersJson) {
         final row = Character.fromJson(json);
         final remapped = row.copyWith(imagePath: Value(remapPath(row.imagePath)));
         await _db.into(_db.characters).insert(remapped, mode: InsertMode.insertOrReplace);
+      }
+      for (final json in vnCharacterExpressionsJson) {
+        final row = VnCharacterExpression.fromJson(json);
+        final remapped = row.copyWith(imagePath: remapPath(row.imagePath) ?? row.imagePath);
+        await _db.into(_db.vnCharacterExpressions).insert(remapped, mode: InsertMode.insertOrReplace);
       }
       for (final json in plotConversationProfilesJson) {
         final row = PlotConversationProfile.fromJson(json);
@@ -224,6 +245,10 @@ class BackupService {
       for (final json in introVersionsJson) {
         final row = IntroVersion.fromJson(json);
         await _db.into(_db.introVersions).insert(row, mode: InsertMode.insertOrReplace);
+      }
+      for (final json in vnChoicesJson) {
+        final row = VnChoice.fromJson(json);
+        await _db.into(_db.vnChoices).insert(row, mode: InsertMode.insertOrReplace);
       }
       for (final json in introEntriesJson) {
         final row = IntroEntry.fromJson(json);
@@ -307,13 +332,16 @@ class BackupService {
       await _db.delete(_db.chatTurns).go();
       await _db.delete(_db.tokenUsageLogs).go();
       await _db.delete(_db.chatSessions).go();
+      await _db.delete(_db.vnChoices).go();
       await _db.delete(_db.introEntries).go();
       await _db.delete(_db.introVersions).go();
       await _db.delete(_db.lorebookPlotLinks).go();
       await _db.delete(_db.lorebookEntries).go();
       await _db.delete(_db.lorebooks).go();
+      await _db.delete(_db.vnCharacterExpressions).go();
       await _db.delete(_db.characters).go();
       await _db.delete(_db.plotConversationProfiles).go();
+      await _db.delete(_db.vnBackgrounds).go();
       await _db.delete(_db.plots).go();
       await _db.delete(_db.conversationProfiles).go();
       await _db.delete(_db.aiPresets).go();

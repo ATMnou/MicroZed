@@ -11,6 +11,7 @@ import '../repositories/intro_entry_repository.dart';
 import '../repositories/lorebook_repository.dart';
 import '../repositories/plot_conversation_profile_repository.dart';
 import '../repositories/plot_repository.dart';
+import '../repositories/vn_background_repository.dart';
 
 class PlotDataExportException implements Exception {
   PlotDataExportException(this.message);
@@ -30,23 +31,27 @@ class PlotDataExportException implements Exception {
 /// zip 구조는 [BackupService]와 비슷하다:
 /// - manifest.json: {app, kind: "plot", formatVersion, schemaVersion, exportedAt, plotTitle}
 /// - data.json: plot/characters/introVersions/introEntries/plotConversationProfiles/
-///   lorebooks/lorebookEntries
-/// - images/*: 이 플롯이 실제로 참조하는 이미지 파일만(원본 파일명 그대로)
+///   lorebooks/lorebookEntries/vnBackgrounds/vnCharacterExpressions/vnChoices
+/// - images/*: 이 플롯이 실제로 참조하는 이미지 파일만(원본 파일명 그대로, VN 배경/캐릭터
+///   표정 이미지 포함)
 class PlotDataExporter {
   PlotDataExporter(AppDatabase db)
       : _plotRepository = PlotRepository(db),
         _characterRepository = CharacterRepository(db),
         _introRepository = IntroEntryRepository(db),
         _profileRepository = PlotConversationProfileRepository(db),
-        _lorebookRepository = LorebookRepository(db);
+        _lorebookRepository = LorebookRepository(db),
+        _vnBackgroundRepository = VnBackgroundRepository(db);
 
   final PlotRepository _plotRepository;
   final CharacterRepository _characterRepository;
   final IntroEntryRepository _introRepository;
   final PlotConversationProfileRepository _profileRepository;
   final LorebookRepository _lorebookRepository;
+  final VnBackgroundRepository _vnBackgroundRepository;
 
-  static const _formatVersion = 1;
+  // v2: 비주얼 노벨 전용 데이터(배경/캐릭터 표정/선택지)를 data.json에 포함하도록 확장.
+  static const _formatVersion = 2;
 
   Future<Uint8List> exportPlot(int plotId) async {
     final plot = await _plotRepository.getById(plotId);
@@ -61,6 +66,17 @@ class PlotDataExporter {
       introEntries.addAll(await _introRepository.getByVersion(version.id));
     }
     final profiles = await _profileRepository.getByPlot(plotId);
+
+    // 비주얼 노벨 전용 데이터. plotType이 storyChat이면 셋 다 비어있다.
+    final vnBackgrounds = await _vnBackgroundRepository.getByPlot(plotId);
+    final vnCharacterExpressions = <VnCharacterExpression>[];
+    for (final character in characters) {
+      vnCharacterExpressions.addAll(await _characterRepository.getExpressions(character.id));
+    }
+    final vnChoices = <VnChoice>[];
+    for (final version in introVersions) {
+      vnChoices.addAll(await _introRepository.getChoices(version.id));
+    }
 
     final lorebookIds = await _lorebookRepository.linkedLorebookIds(plotId);
     final lorebooks = <Lorebook>[];
@@ -80,6 +96,9 @@ class PlotDataExporter {
       'plotConversationProfiles': profiles.map((p) => p.toJson()).toList(),
       'lorebooks': lorebooks.map((l) => l.toJson()).toList(),
       'lorebookEntries': lorebookEntries.map((e) => e.toJson()).toList(),
+      'vnBackgrounds': vnBackgrounds.map((b) => b.toJson()).toList(),
+      'vnCharacterExpressions': vnCharacterExpressions.map((e) => e.toJson()).toList(),
+      'vnChoices': vnChoices.map((c) => c.toJson()).toList(),
     };
 
     final manifest = {
@@ -104,6 +123,8 @@ class PlotDataExporter {
         if (p.imagePath != null) p.imagePath!,
       for (final e in introEntries)
         if (e.type == IntroEntryType.image) e.content,
+      for (final b in vnBackgrounds) b.imagePath,
+      for (final e in vnCharacterExpressions) e.imagePath,
     };
     for (final path in imagePaths) {
       final file = File(path);

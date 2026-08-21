@@ -11,6 +11,7 @@ import '../repositories/intro_entry_repository.dart';
 import '../repositories/lorebook_repository.dart';
 import '../repositories/plot_conversation_profile_repository.dart';
 import '../repositories/plot_repository.dart';
+import '../repositories/vn_background_repository.dart';
 
 class PlotDataImportException implements Exception {
   PlotDataImportException(this.message);
@@ -47,6 +48,7 @@ class PlotDataImporter {
         _introRepository = IntroEntryRepository(db),
         _profileRepository = PlotConversationProfileRepository(db),
         _lorebookRepository = LorebookRepository(db),
+        _vnBackgroundRepository = VnBackgroundRepository(db),
         _imageStore = LocalImageStore();
 
   final PlotRepository _plotRepository;
@@ -54,6 +56,7 @@ class PlotDataImporter {
   final IntroEntryRepository _introRepository;
   final PlotConversationProfileRepository _profileRepository;
   final LorebookRepository _lorebookRepository;
+  final VnBackgroundRepository _vnBackgroundRepository;
   final LocalImageStore _imageStore;
 
   Future<PlotDataImportResult> importFromBytes(
@@ -132,6 +135,9 @@ class PlotDataImporter {
         .map((t) => t.trim())
         .where((t) => t.isNotEmpty)
         .toList();
+    final plotTypeIndex = (plotJson['plotType'] as num?)?.toInt() ?? 0;
+    final plotType =
+        plotTypeIndex >= 0 && plotTypeIndex < PlotType.values.length ? PlotType.values[plotTypeIndex] : PlotType.storyChat;
 
     final plotId = targetPlotId ??
         await _plotRepository.upsertPlot(
@@ -140,7 +146,22 @@ class PlotDataImporter {
           shortIntro: plotJson['shortIntro'] as String? ?? '',
           hashtags: hashtags,
           coverImagePath: remapImage(plotJson['coverImagePath'] as String?),
+          plotType: plotType,
         );
+
+    // 새 플롯을 만드는 경우에만 원본의 VN 플레이 설정을 적용한다(기존 플롯에 병합할 때는
+    // 병합 대상 플롯이 이미 가진 설정을 그대로 둔다).
+    if (targetPlotId == null && plotType == PlotType.visualNovel) {
+      final vnInputModeIndex = (plotJson['vnInputMode'] as num?)?.toInt() ?? 0;
+      await _plotRepository.updateVnPlaySettings(
+        plotId: plotId,
+        vnInputMode: vnInputModeIndex >= 0 && vnInputModeIndex < VnInputMode.values.length
+            ? VnInputMode.values[vnInputModeIndex]
+            : VnInputMode.choice,
+        vnAiInputAssist: plotJson['vnAiInputAssist'] as bool? ?? false,
+        vnDiceEnabled: plotJson['vnDiceEnabled'] as bool? ?? true,
+      );
+    }
 
     // 기존 플롯에 병합할 때는 대표 캐릭터를 새로 지정하지 않고(이미 있으니), 정렬 순서도
     // 기존 캐릭터들 뒤로 이어 붙인다.
@@ -156,8 +177,28 @@ class PlotDataImporter {
         isRepresentative: targetPlotId == null ? (json['isRepresentative'] as bool? ?? false) : false,
         sortOrder: existingCharacterCount + ((json['sortOrder'] as num?)?.toInt() ?? 0),
         aboutText: json['aboutText'] as String? ?? '',
+        isPlayable: json['isPlayable'] as bool? ?? false,
+        spriteScale: (json['spriteScale'] as num?)?.toDouble() ?? 1.0,
+        spriteOffsetX: (json['spriteOffsetX'] as num?)?.toDouble() ?? 0.0,
+        spriteOffsetY: (json['spriteOffsetY'] as num?)?.toDouble() ?? 0.0,
       );
       characterIdMap[(json['id'] as num).toInt()] = newId;
+    }
+
+    // 비주얼 노벨: 캐릭터별 감정 표정 세트. characterIdMap이 준비된 뒤에 처리한다.
+    for (final json in rowsFor('vnCharacterExpressions')) {
+      final oldCharacterId = (json['characterId'] as num?)?.toInt();
+      final newCharacterId = oldCharacterId == null ? null : characterIdMap[oldCharacterId];
+      if (newCharacterId == null) continue;
+      final emotionIndex = (json['emotion'] as num?)?.toInt();
+      if (emotionIndex == null || emotionIndex < 0 || emotionIndex >= VnEmotion.values.length) continue;
+      final imagePath = remapImage(json['imagePath'] as String?);
+      if (imagePath == null) continue;
+      await _characterRepository.setExpressionImage(
+        characterId: newCharacterId,
+        emotion: VnEmotion.values[emotionIndex],
+        imagePath: imagePath,
+      );
     }
 
     // 원본 버전 순서(sortOrder asc)대로 새 버전을 만들면서 id를 매핑한다. addVersion은
@@ -170,6 +211,31 @@ class PlotDataImporter {
       final newId = await _introRepository.addVersion(plotId);
       introVersionIdMap[(json['id'] as num).toInt()] = newId;
     }
+    // addVersion()은 플레이어블 캐릭터가 있으면 자동으로 characterPick 마커를 하나 심어준다.
+    // 이제 막 만든 버전이라 아직 채워지지 않았으니, 아래에서 원본 introEntries를 그대로
+    // 재생할 때 중복되지 않도록 자동 생성분을 먼저 지운다(원본 데이터에 characterPick이
+    // 있었다면 아래 루프가 원래 위치 그대로 다시 만들어준다).
+    for (final newVersionId in introVersionIdMap.values) {
+      for (final autoEntry in await _introRepository.getByVersion(newVersionId)) {
+        await _introRepository.delete(autoEntry.id);
+      }
+    }
+
+    // 비주얼 노벨: 배경 이미지 라이브러리. introEntries가 vnBackgroundId로 참조하므로
+    // 그 전에 새 id를 매핑해둔다. 원본 순서(sortOrder asc)대로 추가해서 상대 순서를 유지한다.
+    final vnBackgroundsJson = rowsFor('vnBackgrounds')
+      ..sort((a, b) => ((a['sortOrder'] as num?) ?? 0).compareTo((b['sortOrder'] as num?) ?? 0));
+    final vnBackgroundIdMap = <int, int>{};
+    for (final json in vnBackgroundsJson) {
+      final imagePath = remapImage(json['imagePath'] as String?);
+      if (imagePath == null) continue;
+      final newId = await _vnBackgroundRepository.add(
+        plotId: plotId,
+        title: json['title'] as String? ?? '',
+        imagePath: imagePath,
+      );
+      vnBackgroundIdMap[(json['id'] as num).toInt()] = newId;
+    }
 
     for (final json in rowsFor('introEntries')) {
       final oldVersionId = (json['introVersionId'] as num?)?.toInt();
@@ -178,12 +244,38 @@ class PlotDataImporter {
       final oldCharacterId = (json['characterId'] as num?)?.toInt();
       final type = IntroEntryType.values[(json['type'] as num).toInt()];
       final rawContent = json['content'] as String? ?? '';
+      final oldBackgroundId = (json['vnBackgroundId'] as num?)?.toInt();
+      final vnExpressionIndex = (json['vnExpression'] as num?)?.toInt();
+      final vnSceneTypeIndex = (json['vnSceneType'] as num?)?.toInt() ?? 0;
       await _introRepository.add(
         plotId: plotId,
         introVersionId: newVersionId,
         characterId: oldCharacterId == null ? null : characterIdMap[oldCharacterId],
         type: type,
         content: type == IntroEntryType.image ? (remapImage(rawContent) ?? rawContent) : rawContent,
+        vnBackgroundId: oldBackgroundId == null ? null : vnBackgroundIdMap[oldBackgroundId],
+        vnExpression: vnExpressionIndex == null || vnExpressionIndex < 0 || vnExpressionIndex >= VnEmotion.values.length
+            ? null
+            : VnEmotion.values[vnExpressionIndex],
+        vnSceneType: vnSceneTypeIndex >= 0 && vnSceneTypeIndex < VnSceneType.values.length
+            ? VnSceneType.values[vnSceneTypeIndex]
+            : VnSceneType.dialogue,
+      );
+    }
+
+    // 비주얼 노벨: 인트로 버전에 붙는 선택지.
+    for (final json in rowsFor('vnChoices')) {
+      final oldVersionId = (json['introVersionId'] as num?)?.toInt();
+      final newVersionId = oldVersionId == null ? null : introVersionIdMap[oldVersionId];
+      if (newVersionId == null) continue;
+      final difficultyIndex = (json['difficulty'] as num?)?.toInt();
+      await _introRepository.addChoice(
+        introVersionId: newVersionId,
+        content: json['content'] as String? ?? '',
+        useDice: json['useDice'] as bool? ?? false,
+        difficulty: difficultyIndex == null || difficultyIndex < 0 || difficultyIndex >= VnDiceDifficulty.values.length
+            ? null
+            : VnDiceDifficulty.values[difficultyIndex],
       );
     }
 

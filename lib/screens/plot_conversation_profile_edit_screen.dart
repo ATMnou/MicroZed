@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
@@ -47,6 +49,7 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
   bool _useGlobalName = false;
   String? _globalDefaultName;
   String? _imagePath;
+  String? _vnStandingImagePath;
   bool _loading = true;
   bool _saving = false;
 
@@ -71,6 +74,7 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
       _descController.text = profile?.description ?? '';
       _useGlobalName = profile?.useGlobalName ?? false;
       _imagePath = profile?.imagePath;
+      _vnStandingImagePath = profile?.vnStandingImagePath;
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -78,6 +82,11 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
   Future<void> _pickImage() async {
     final path = await _imageStore.pickAndSave('plot_profile');
     if (path != null && mounted) setState(() => _imagePath = path);
+  }
+
+  Future<void> _pickVnStandingImage() async {
+    final path = await _imageStore.pickAndSave('plot_profile_vn_standing');
+    if (path != null && mounted) setState(() => _vnStandingImagePath = path);
   }
 
   Future<void> _save() async {
@@ -92,6 +101,7 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
       shortIntro: _shortIntroController.text.trim(),
       description: _descController.text.trim(),
       imagePath: _imagePath,
+      vnStandingImagePath: _vnStandingImagePath,
     );
     if (mounted) Navigator.of(context).pop();
   }
@@ -265,6 +275,58 @@ class _PlotConversationProfileEditScreenState extends State<PlotConversationProf
                       borderSide: BorderSide(color: _purple),
                     ),
                   ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.profileEditVnStandingImageLabel,
+                  style: TextStyle(color: _textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.profileEditVnStandingImageDescription,
+                  style: TextStyle(color: _textFaint, fontSize: 12),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        color: _cardBg,
+                        child: (_vnStandingImagePath != null && _vnStandingImagePath!.isNotEmpty)
+                            ? Image.file(File(_vnStandingImagePath!), fit: BoxFit.cover)
+                            : Icon(Icons.accessibility_new, color: _textFaint, size: 24),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          OutlinedButton(
+                            onPressed: _pickVnStandingImage,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: _textPrimary,
+                              side: BorderSide(color: _borderGrey),
+                            ),
+                            child: Text(l10n.profileEditVnStandingImageSelectButton),
+                          ),
+                          if (_vnStandingImagePath != null && _vnStandingImagePath!.isNotEmpty)
+                            OutlinedButton(
+                              onPressed: () => setState(() => _vnStandingImagePath = null),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: _textFaint,
+                                side: BorderSide(color: _borderGrey),
+                              ),
+                              child: Text(l10n.profileEditVnStandingImageClearButton),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

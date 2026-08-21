@@ -1,6 +1,8 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../data/db/database.dart';
+import '../data/import/conversation_profile_importer.dart';
 import '../data/repositories/conversation_profile_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/local_avatar.dart';
@@ -22,12 +24,31 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
   Color get _textPrimary => _p.textPrimary;
   late final ConversationProfileRepository _repository;
   PlotType? _scopeFilter;
-
+  bool _importing = false;
 
   @override
   void initState() {
     super.initState();
     _repository = ConversationProfileRepository(AppDatabase.instance);
+  }
+
+  Future<void> _import() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (_importing) return;
+    final result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: const ['mzprofile']);
+    if (result == null || result.files.isEmpty) return; // 취소됨
+    setState(() => _importing = true);
+    try {
+      final bytes = await result.files.single.readAsBytes();
+      await ConversationProfileImporter(AppDatabase.instance).importFromBytes(bytes);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.profileImportSuccessMessage)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.profileImportFailureMessage(e))));
+    } finally {
+      if (mounted) setState(() => _importing = false);
+    }
   }
 
   @override
@@ -54,6 +75,15 @@ class _ProfileListScreenState extends State<ProfileListScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: _importing
+                ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: _textPrimary))
+                : Icon(Icons.file_download_outlined, color: _textPrimary, size: 22),
+            tooltip: AppLocalizations.of(context)!.profileImportButton,
+            onPressed: _importing ? null : _import,
+          ),
+        ],
       ),
       body: SafeArea(
         top: false,

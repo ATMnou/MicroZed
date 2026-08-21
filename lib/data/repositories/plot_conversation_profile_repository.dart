@@ -31,6 +31,7 @@ class PlotConversationProfileRepository {
     required String shortIntro,
     String description = '',
     String? imagePath,
+    String? vnStandingImagePath,
   }) async {
     if (id == null) {
       final existing = await getByPlot(plotId);
@@ -45,6 +46,7 @@ class PlotConversationProfileRepository {
               description: Value(description),
               imagePath: Value(imagePath),
               sortOrder: Value(nextSortOrder),
+              vnStandingImagePath: Value(vnStandingImagePath),
             ),
           );
     }
@@ -55,6 +57,7 @@ class PlotConversationProfileRepository {
         shortIntro: Value(shortIntro),
         description: Value(description),
         imagePath: Value(imagePath),
+        vnStandingImagePath: Value(vnStandingImagePath),
       ),
     );
     return id;

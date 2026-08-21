@@ -46,6 +46,15 @@ enum TalkMessageSender { user, character }
 /// 실제로 AI에게 전달되고, 나머지는 화면에만 보여준다.
 enum TalkAttachmentType { image, video, document }
 
+/// 홈 > 게임에서 제공하는 미니게임 종류.
+enum GameType { chess, omok, uno, liarsBar }
+
+/// 체스/오목에서만 쓰는 난이도(우노/라이어스바는 난이도 설정이 없다).
+enum GameDifficulty { easy, medium, hard }
+
+/// 게임 한 판의 결과.
+enum GameOutcome { win, loss, draw }
+
 /// 플롯(캐릭터 세트 + 프롬프트 + 소개). 제작 탭의 플롯 목록, 캐릭터 상세 화면, 플롯 편집 화면이 다루는 핵심 엔티티.
 class Plots extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -189,6 +198,10 @@ class ConversationProfiles extends Table {
   /// null이면 스토리챗/비주얼 노벨 양쪽에서 다 쓸 수 있는 공용 프로필. 값이 있으면
   /// 그 PlotType 전용으로만 선택 목록에 노출된다.
   IntColumn get scope => intEnum<PlotType>().nullable()();
+
+  /// 비주얼 노벨 플레이 화면에서 유저가 말할 때 보여줄 전신 스탠딩 이미지. [imagePath](원형
+  /// 아바타)와는 별개로 관리되고, VN 플롯 중 플레이어블 캐릭터를 안 쓰는 경우에만 쓰인다.
+  TextColumn get vnStandingImagePath => text().nullable()();
 }
 
 /// 플롯 편집 > 프롬프트 탭에서 그 플롯 전용으로 만드는 대화 프로필. 마이페이지의 전역
@@ -211,6 +224,10 @@ class PlotConversationProfiles extends Table {
   TextColumn get imagePath => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  /// [ConversationProfiles.vnStandingImagePath]와 같은 용도(VN 유저 발화 시 전신 스탠딩
+  /// 이미지)로, 이 플롯 전용 프로필에서만 적용된다.
+  TextColumn get vnStandingImagePath => text().nullable()();
 }
 
 /// BYOK AI 프리셋. 실제 API 키는 저장하지 않고 secure storage 참조 키(apiKeyRef)만 둔다.
@@ -426,4 +443,20 @@ class LorebookPlotLinks extends Table {
       integer().references(Lorebooks, #id, onDelete: KeyAction.cascade)();
   IntColumn get plotId =>
       integer().references(Plots, #id, onDelete: KeyAction.cascade)();
+}
+
+/// 홈 > 게임에서 플레이한 판의 결과 기록. 중간 진행 상태는 저장하지 않고(화면을 나가면
+/// 진행 중이던 판은 초기화된다) 승/패/무 결과만 남겨서 게임 홈 화면의 최근 전적에 쓴다.
+class GameResults extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get gameType => intEnum<GameType>()();
+
+  /// 상대로 골랐던 캐릭터. 캐릭터가 나중에 삭제돼도 기록 자체는 남아야 하므로 setNull.
+  IntColumn get opponentCharacterId =>
+      integer().nullable().references(Characters, #id, onDelete: KeyAction.setNull)();
+
+  /// 체스/오목에서만 값이 있다(우노/라이어스바는 난이도 설정이 없다).
+  IntColumn get difficulty => intEnum<GameDifficulty>().nullable()();
+  IntColumn get outcome => intEnum<GameOutcome>()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

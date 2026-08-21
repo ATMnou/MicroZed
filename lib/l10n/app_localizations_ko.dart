@@ -403,7 +403,10 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get homeTabFilterRecommended => '추천';
+  String get homeTabFilterRecommended => '전체';
+
+  @override
+  String get homeTabFilterGames => '게임';
 
   @override
   String get homeNoPlotsYet => '아직 만든 플롯이 없어요';
@@ -1122,6 +1125,41 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get profileEditDescriptionLabel => '설명(선택)';
+
+  @override
+  String get profileEditVnStandingImageLabel => '비주얼 노벨 스탠딩 이미지';
+
+  @override
+  String get profileEditVnStandingImageDescription =>
+      '플레이어블 캐릭터 없이 진행하는 비주얼 노벨에서, 내가 말할 때 화면에 표시할 전신 이미지예요';
+
+  @override
+  String get profileEditVnStandingImageSelectButton => '이미지 선택';
+
+  @override
+  String get profileEditVnStandingImageClearButton => '지우기';
+
+  @override
+  String get profileExportButton => '전용 형식으로 내보내기';
+
+  @override
+  String get profileExportSuccessMessage => '대화 프로필을 내보냈어요.';
+
+  @override
+  String profileExportFailureMessage(Object error) {
+    return '내보내기에 실패했어요: $error';
+  }
+
+  @override
+  String get profileImportButton => '전용 형식으로 가져오기';
+
+  @override
+  String get profileImportSuccessMessage => '대화 프로필을 가져왔어요.';
+
+  @override
+  String profileImportFailureMessage(Object error) {
+    return '가져오기에 실패했어요: $error';
+  }
 
   @override
   String get profileEditScopeSectionTitle => '적용 범위';
@@ -2031,4 +2069,164 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get vnPlayUntitledPlotTitle => '제목 없음';
+
+  @override
+  String get gamesHomeTitle => '게임';
+
+  @override
+  String get gamesHomeChessTitle => '체스';
+
+  @override
+  String get gamesHomeChessSubtitle => '캐릭터와 겨루는 체스 한 판';
+
+  @override
+  String get gamesHomeOmokTitle => '오목';
+
+  @override
+  String get gamesHomeOmokSubtitle => '5개를 먼저 이으면 승리';
+
+  @override
+  String get gamesHomeUnoTitle => '우노';
+
+  @override
+  String get gamesHomeUnoSubtitle => '손패를 먼저 비우면 승리';
+
+  @override
+  String get gamesHomeLiarsBarTitle => '라이어스 바';
+
+  @override
+  String get gamesHomeLiarsBarSubtitle => '블러핑으로 상대의 생명을 뺏는 카드 게임';
+
+  @override
+  String gamesHomeRecordSummary(Object wins, Object losses, Object draws) {
+    return '$wins승 $losses패 $draws무';
+  }
+
+  @override
+  String get gamesHomeNoRecord => '아직 플레이 기록이 없어요';
+
+  @override
+  String get gameOpponentPickerTitle => '상대 캐릭터 선택';
+
+  @override
+  String get gameOpponentPickerDifficultyLabel => '난이도';
+
+  @override
+  String get gameOpponentPickerEmptyMessage =>
+      '선택할 수 있는 캐릭터가 없어요.\n먼저 플롯에서 캐릭터를 만들어주세요';
+
+  @override
+  String get gameOpponentPickerUseLlmLabel => 'LLM으로 상대 판단';
+
+  @override
+  String get gameOpponentPickerUseLlmDescription =>
+      '켜면 CPU 알고리즘 대신 AI 프리셋(마이페이지 기본 프리셋)이 상대의 수를 판단해요. 실패하면 자동으로 기존 방식으로 진행돼요.';
+
+  @override
+  String get gameOpponentPickerSpeakEveryMoveLabel => '매 수마다 대사';
+
+  @override
+  String get gameOpponentPickerSpeakEveryMoveDescription =>
+      '켜면 상대가 수를 둘 때마다 캐릭터 성격에 맞는 짧은 대사를 말해요.';
+
+  @override
+  String get gameYouLabel => '나';
+
+  @override
+  String get gameYourTurnLabel => '내 차례';
+
+  @override
+  String get gameOpponentTurnLabel => '상대 차례';
+
+  @override
+  String get gameResignButton => '기권';
+
+  @override
+  String get gameResignConfirmMessage => '정말 기권할까요?';
+
+  @override
+  String get gamePlayAgainButton => '다시하기';
+
+  @override
+  String get gameBackToListButton => '게임 목록으로';
+
+  @override
+  String get gameYouWinTitle => '승리!';
+
+  @override
+  String get gameYouLoseTitle => '패배';
+
+  @override
+  String get gameDrawTitle => '무승부';
+
+  @override
+  String get chessCheckLabel => '체크';
+
+  @override
+  String get chessCheckmateMessage => '체크메이트예요';
+
+  @override
+  String get chessStalemateMessage => '스테일메이트, 무승부예요';
+
+  @override
+  String get chessPromotionTitle => '승진시킬 기물을 고르세요';
+
+  @override
+  String get chessCapturedByYouLabel => '내가 잡은 기물';
+
+  @override
+  String get chessCapturedByOpponentLabel => '상대가 잡은 기물';
+
+  @override
+  String get omokWinMessage => '5개를 이었어요!';
+
+  @override
+  String get unoYourHandLabel => '내 손패';
+
+  @override
+  String get unoOpponentHandLabel => '상대 손패';
+
+  @override
+  String get unoDrawPileTooltip => '카드 뽑기';
+
+  @override
+  String get unoChooseColorTitle => '낼 색상을 고르세요';
+
+  @override
+  String get unoUnoCalloutLabel => 'UNO!';
+
+  @override
+  String get unoCannotPlayMessage => '낼 수 있는 카드가 없어서 한 장 뽑았어요';
+
+  @override
+  String get liarsBarTargetCardLabel => '이번 라운드 목표 카드';
+
+  @override
+  String get liarsBarYourHandLabel => '내 손패';
+
+  @override
+  String get liarsBarSelectHint => '낼 카드를 1~3장 골라주세요';
+
+  @override
+  String get liarsBarPlayButton => '제출';
+
+  @override
+  String get liarsBarBelieveButton => '믿는다';
+
+  @override
+  String get liarsBarChallengeButton => '의심한다';
+
+  @override
+  String get liarsBarRevealTrueMessage => '진짜였어요';
+
+  @override
+  String get liarsBarRevealBluffMessage => '블러핑이었어요';
+
+  @override
+  String get liarsBarLifeLabel => '생명';
+
+  @override
+  String liarsBarOpponentClaimLabel(Object count) {
+    return '상대가 $count장을 냈어요';
+  }
 }

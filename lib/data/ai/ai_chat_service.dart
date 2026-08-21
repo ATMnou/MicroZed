@@ -75,6 +75,7 @@ class AiChatService {
     List<VnBackground> vnBackgrounds = const [],
     bool vnDiceEnabled = true,
     void Function(VnDiceRequest request)? onVnDiceRequest,
+    Character? playableCharacter,
   }) async {
     final turnId = await _turnRepo.createTurn(sessionId);
     await _generateVersion(
@@ -92,6 +93,7 @@ class AiChatService {
       vnBackgrounds: vnBackgrounds,
       vnDiceEnabled: vnDiceEnabled,
       onVnDiceRequest: onVnDiceRequest,
+      playableCharacter: playableCharacter,
     );
   }
 
@@ -196,6 +198,7 @@ class AiChatService {
     required int plotId,
     required AiPreset preset,
     required String userProfileName,
+    Character? playableCharacter,
   }) async {
     final buffer = StringBuffer();
     await for (final delta in _streamAuxCompletion(
@@ -203,6 +206,7 @@ class AiChatService {
       plotId: plotId,
       preset: preset,
       userProfileName: userProfileName,
+      playableCharacter: playableCharacter,
       instruction: '지금까지의 대화를 참고해서, $userProfileName(플레이어)가 다음에 보낼 법한 메시지 후보를 서로 다른 방향으로 3개 제안해줘. '
           '각 후보는 채팅 입력창에 그대로 넣을 수 있는 짧은 대사/행동 묘사(1~2문장)로 써. '
           '다른 설명 없이 다음 형식의 JSON 배열만 출력해: ["후보1", "후보2", "후보3"]',
@@ -268,10 +272,17 @@ class AiChatService {
     required int plotId,
     required AiPreset preset,
     required String userProfileName,
+    String userProfileDescription = '',
+    Character? playableCharacter,
     required String instruction,
   }) async* {
     final plot = await _plotRepo.getById(plotId);
     final characters = await _characterRepo.getByPlot(plotId);
+    final rosterCharacters = characters.where((c) => !c.isPlayable).toList();
+    final effectiveUserName = playableCharacter?.name ?? userProfileName;
+    final effectiveUserDescription = [userProfileDescription, playableCharacter?.description ?? '']
+        .where((s) => s.trim().isNotEmpty)
+        .join('\n\n');
     final history = (await _turnRepo.timelineOnce(sessionId)).map((i) => i.message).toList();
     final conversationText = history.map((m) => m.content).join('\n');
     final loreContext = await _lorebookRepo.buildLoreContext(plotId, conversationText);
@@ -279,8 +290,9 @@ class AiChatService {
 
     final systemPrompt = PromptBuilder.buildSystemPrompt(
       plot: plot,
-      characters: characters,
-      userProfileName: userProfileName,
+      characters: rosterCharacters,
+      userProfileName: effectiveUserName,
+      userProfileDescription: effectiveUserDescription,
       additionalSystemPrompt: preset.additionalSystemPrompt,
       loreContext: loreContext,
       customTemplate: customTemplate,
@@ -461,9 +473,18 @@ class AiChatService {
     List<VnBackground> vnBackgrounds = const [],
     bool vnDiceEnabled = true,
     void Function(VnDiceRequest request)? onVnDiceRequest,
+    Character? playableCharacter,
   }) async {
     final plot = await _plotRepo.getById(plotId);
     final characters = await _characterRepo.getByPlot(plotId);
+    // 플레이어블 캐릭터는 AI가 통제하는 NPC 로스터가 아니라 플레이어 본인이다 - 선택되지
+    // 않은 다른 플레이어블 캐릭터가 이야기에 등장하지 않도록 로스터에서 전부 제외하고,
+    // 선택된 캐릭터의 이름/설명은 [플레이어] 페르소나 쪽으로 병합한다.
+    final rosterCharacters = characters.where((c) => !c.isPlayable).toList();
+    final effectiveUserName = playableCharacter?.name ?? userProfileName;
+    final effectiveUserDescription = [userProfileDescription, playableCharacter?.description ?? '']
+        .where((s) => s.trim().isNotEmpty)
+        .join('\n\n');
     final history = await _turnRepo.historyBeforeTurn(sessionId, turnId);
     final conversationText = history.map((m) => m.content).join('\n');
     final loreContext = await _lorebookRepo.buildLoreContext(plotId, conversationText);
@@ -477,9 +498,9 @@ class AiChatService {
 
     final systemPrompt = PromptBuilder.buildSystemPrompt(
       plot: plot,
-      characters: characters,
-      userProfileName: userProfileName,
-      userProfileDescription: userProfileDescription,
+      characters: rosterCharacters,
+      userProfileName: effectiveUserName,
+      userProfileDescription: effectiveUserDescription,
       additionalSystemPrompt: preset.additionalSystemPrompt,
       loreContext: loreContext,
       customTemplate: customTemplate,
@@ -539,7 +560,7 @@ class AiChatService {
       turnId: turnId,
       versionIndex: versionIndex,
       segments: segments,
-      resolveCharacterId: (name) => _matchCharacter(characters, name)?.id,
+      resolveCharacterId: (name) => _matchCharacter(rosterCharacters, name)?.id,
     );
   }
 

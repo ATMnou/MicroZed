@@ -33,6 +33,7 @@ class ConversationProfileRepository {
     bool applyAsDefault = false,
     String? imagePath,
     PlotType? scope,
+    String? vnStandingImagePath,
   }) {
     return _db.transaction(() async {
       if (applyAsDefault) {
@@ -48,6 +49,7 @@ class ConversationProfileRepository {
                 isDefault: Value(applyAsDefault),
                 imagePath: Value(imagePath),
                 scope: Value(scope),
+                vnStandingImagePath: Value(vnStandingImagePath),
               ),
             );
       }
@@ -58,6 +60,7 @@ class ConversationProfileRepository {
           isDefault: Value(applyAsDefault),
           imagePath: Value(imagePath),
           scope: Value(scope),
+          vnStandingImagePath: Value(vnStandingImagePath),
         ),
       );
       return id;

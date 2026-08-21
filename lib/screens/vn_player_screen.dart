@@ -74,6 +74,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
   int? _profileId;
   String _profileName = '유저';
   String _profileDescription = '';
+  String? _profileVnStandingImagePath;
 
   StreamSubscription<List<ChatTimelineItem>>? _timelineSub;
   bool _timelineInitialized = false;
@@ -229,12 +230,14 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
     int? profileId;
     String? profileName;
     String? profileDescription;
+    String? profileVnStandingImagePath;
     if (session.conversationProfileId != null) {
       final profile = await _profileRepo.getById(session.conversationProfileId!);
       if (profile != null) {
         profileId = profile.id;
         profileName = profile.name;
         profileDescription = profile.description;
+        profileVnStandingImagePath = profile.vnStandingImagePath;
       }
     } else {
       final defaultProfile = await _profileRepo.getDefault();
@@ -242,6 +245,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
         profileId = defaultProfile.id;
         profileName = defaultProfile.name;
         profileDescription = defaultProfile.description;
+        profileVnStandingImagePath = defaultProfile.vnStandingImagePath;
         await _sessionRepo.setConversationProfile(sessionId, defaultProfile.id);
       }
     }
@@ -262,6 +266,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
       _profileId = profileId;
       if (profileName != null) _profileName = profileName;
       if (profileDescription != null) _profileDescription = profileDescription;
+      _profileVnStandingImagePath = profileVnStandingImagePath;
       _expressionsByCharacter = expressionsByCharacter;
       _loading = false;
     });
@@ -348,6 +353,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
         plotId: plotId,
         preset: preset,
         userProfileName: _profileName,
+        playableCharacter: _selectedPlayableCharacter,
       );
       if (!mounted) return;
       setState(() {
@@ -385,7 +391,15 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
     return null;
   }
 
-  String _substituteUser(String content) => content.replaceAll('{{user}}', _profileName);
+  /// 지금 선택된 플레이어블 캐릭터(없으면 null). 골라놓은 캐릭터가 곧 '플레이어'가 되므로
+  /// {{user}} 표시/발화 이름/스프라이트 전부 이걸 우선한다.
+  Character? get _selectedPlayableCharacter => _findCharacter(_playableCharacterId);
+
+  /// 실제로 화면/AI에 노출할 플레이어 이름. 플레이어블 캐릭터가 있으면 그 이름을, 없으면
+  /// 마이페이지/플롯 전용 대화 프로필 이름(`_profileName`)을 그대로 쓴다.
+  String get _effectiveUserName => _selectedPlayableCharacter?.name ?? _profileName;
+
+  String _substituteUser(String content) => content.replaceAll('{{user}}', _effectiveUserName);
   String _substituteChar(String content, String name) => content.replaceAll('{{char}}', name);
   String _resolveJosa(String content) => KoreanJosaMacro.resolve(content);
 
@@ -436,6 +450,9 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
     final speakerInfo = _resolveSpeakerUpTo(_cursor);
     String? pillName;
     String text;
+    Character? spriteCharacter = speakerInfo.character;
+    VnEmotion? spriteExpression = speakerInfo.expression;
+    String? standingOverride;
     switch (message.senderType) {
       case MessageSender.character:
         final character = _findCharacter(message.characterId) ?? _findCharacterByName(message.speakerNameOverride);
@@ -447,8 +464,19 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
         text = _resolveJosa(_substituteUser(message.content));
         break;
       case MessageSender.user:
-        pillName = _profileName;
+        pillName = _effectiveUserName;
         text = message.content;
+        // 플레이어가 곧 그 캐릭터이므로, 유저 발화 차례에는 마지막 NPC 스프라이트 대신
+        // 선택한 플레이어블 캐릭터(없으면 프로필의 VN 스탠딩 이미지)를 보여준다.
+        final playable = _selectedPlayableCharacter;
+        if (playable != null) {
+          spriteCharacter = playable;
+          spriteExpression = null;
+        } else {
+          spriteCharacter = null;
+          spriteExpression = null;
+          standingOverride = _profileVnStandingImagePath;
+        }
         break;
       case MessageSender.image:
         text = '';
@@ -461,8 +489,9 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
       speakerName: pillName,
       text: text,
       backgroundId: bgId,
-      speakingCharacter: speakerInfo.character,
-      expression: speakerInfo.expression,
+      speakingCharacter: spriteCharacter,
+      expression: spriteExpression,
+      standingImageOverride: standingOverride,
     );
   }
 
@@ -589,6 +618,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
         vnBackgrounds: _backgrounds,
         vnDiceEnabled: _plot?.vnDiceEnabled ?? true,
         onVnDiceRequest: _handleDiceRequest,
+        playableCharacter: _selectedPlayableCharacter,
       ),
     );
     if (mounted && _pendingDice == null) {
@@ -651,7 +681,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
       case MessageSender.narrator:
         return (label: l10n.vnPlayHistoryNarratorLabel, text: _resolveJosa(_substituteUser(message.content)));
       case MessageSender.user:
-        return (label: _profileName, text: message.content);
+        return (label: _effectiveUserName, text: message.content);
       case MessageSender.image:
         return (label: '', text: message.content);
       case MessageSender.characterPick:
@@ -1026,6 +1056,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
                                       _profileId = profile.id;
                                       _profileName = profile.name;
                                       _profileDescription = profile.description;
+                                      _profileVnStandingImagePath = profile.vnStandingImagePath;
                                     });
                                     if (sheetContext.mounted) Navigator.of(sheetContext).pop();
                                   },
@@ -1254,7 +1285,7 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
         children: [
           _BackgroundLayer(imagePath: _resolvedBackgroundPath(display.backgroundId)),
           _SpriteLayer(
-            imagePath: _spriteImagePath(display.speakingCharacter, display.expression),
+            imagePath: display.standingImageOverride ?? _spriteImagePath(display.speakingCharacter, display.expression),
             character: display.speakingCharacter,
           ),
           if (canBrowse)
@@ -1590,13 +1621,25 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
 // ── 화면 상태 스냅샷 ──────────────────────────────────────────────────
 
 class _DisplayState {
-  const _DisplayState({this.speakerName, this.text = '', this.backgroundId, this.speakingCharacter, this.expression});
+  const _DisplayState({
+    this.speakerName,
+    this.text = '',
+    this.backgroundId,
+    this.speakingCharacter,
+    this.expression,
+    this.standingImageOverride,
+  });
 
   final String? speakerName;
   final String text;
   final int? backgroundId;
   final Character? speakingCharacter;
   final VnEmotion? expression;
+
+  /// 플레이어블 캐릭터 없이(마이페이지/플롯 프로필만으로) 진행 중인 VN에서 유저가 말할 때
+  /// 보여줄 프로필의 VN 전용 스탠딩 이미지 경로. [speakingCharacter]가 null이어도 이 값이
+  /// 있으면 그걸 스프라이트로 그린다.
+  final String? standingImageOverride;
 }
 
 // ── 배경/스프라이트 레이어 ────────────────────────────────────────────

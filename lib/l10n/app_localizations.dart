@@ -827,8 +827,14 @@ abstract class AppLocalizations {
   /// No description provided for @homeTabFilterRecommended.
   ///
   /// In ko, this message translates to:
-  /// **'추천'**
+  /// **'전체'**
   String get homeTabFilterRecommended;
+
+  /// No description provided for @homeTabFilterGames.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임'**
+  String get homeTabFilterGames;
 
   /// No description provided for @homeNoPlotsYet.
   ///
@@ -2143,6 +2149,66 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'설명(선택)'**
   String get profileEditDescriptionLabel;
+
+  /// No description provided for @profileEditVnStandingImageLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'비주얼 노벨 스탠딩 이미지'**
+  String get profileEditVnStandingImageLabel;
+
+  /// No description provided for @profileEditVnStandingImageDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'플레이어블 캐릭터 없이 진행하는 비주얼 노벨에서, 내가 말할 때 화면에 표시할 전신 이미지예요'**
+  String get profileEditVnStandingImageDescription;
+
+  /// No description provided for @profileEditVnStandingImageSelectButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 선택'**
+  String get profileEditVnStandingImageSelectButton;
+
+  /// No description provided for @profileEditVnStandingImageClearButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'지우기'**
+  String get profileEditVnStandingImageClearButton;
+
+  /// No description provided for @profileExportButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'전용 형식으로 내보내기'**
+  String get profileExportButton;
+
+  /// No description provided for @profileExportSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화 프로필을 내보냈어요.'**
+  String get profileExportSuccessMessage;
+
+  /// No description provided for @profileExportFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'내보내기에 실패했어요: {error}'**
+  String profileExportFailureMessage(Object error);
+
+  /// No description provided for @profileImportButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'전용 형식으로 가져오기'**
+  String get profileImportButton;
+
+  /// No description provided for @profileImportSuccessMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화 프로필을 가져왔어요.'**
+  String get profileImportSuccessMessage;
+
+  /// No description provided for @profileImportFailureMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'가져오기에 실패했어요: {error}'**
+  String profileImportFailureMessage(Object error);
 
   /// No description provided for @profileEditScopeSectionTitle.
   ///
@@ -3823,6 +3889,312 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'제목 없음'**
   String get vnPlayUntitledPlotTitle;
+
+  /// No description provided for @gamesHomeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임'**
+  String get gamesHomeTitle;
+
+  /// No description provided for @gamesHomeChessTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'체스'**
+  String get gamesHomeChessTitle;
+
+  /// No description provided for @gamesHomeChessSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'캐릭터와 겨루는 체스 한 판'**
+  String get gamesHomeChessSubtitle;
+
+  /// No description provided for @gamesHomeOmokTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'오목'**
+  String get gamesHomeOmokTitle;
+
+  /// No description provided for @gamesHomeOmokSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'5개를 먼저 이으면 승리'**
+  String get gamesHomeOmokSubtitle;
+
+  /// No description provided for @gamesHomeUnoTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'우노'**
+  String get gamesHomeUnoTitle;
+
+  /// No description provided for @gamesHomeUnoSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'손패를 먼저 비우면 승리'**
+  String get gamesHomeUnoSubtitle;
+
+  /// No description provided for @gamesHomeLiarsBarTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'라이어스 바'**
+  String get gamesHomeLiarsBarTitle;
+
+  /// No description provided for @gamesHomeLiarsBarSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'블러핑으로 상대의 생명을 뺏는 카드 게임'**
+  String get gamesHomeLiarsBarSubtitle;
+
+  /// No description provided for @gamesHomeRecordSummary.
+  ///
+  /// In ko, this message translates to:
+  /// **'{wins}승 {losses}패 {draws}무'**
+  String gamesHomeRecordSummary(Object wins, Object losses, Object draws);
+
+  /// No description provided for @gamesHomeNoRecord.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 플레이 기록이 없어요'**
+  String get gamesHomeNoRecord;
+
+  /// No description provided for @gameOpponentPickerTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'상대 캐릭터 선택'**
+  String get gameOpponentPickerTitle;
+
+  /// No description provided for @gameOpponentPickerDifficultyLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'난이도'**
+  String get gameOpponentPickerDifficultyLabel;
+
+  /// No description provided for @gameOpponentPickerEmptyMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택할 수 있는 캐릭터가 없어요.\n먼저 플롯에서 캐릭터를 만들어주세요'**
+  String get gameOpponentPickerEmptyMessage;
+
+  /// No description provided for @gameOpponentPickerUseLlmLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'LLM으로 상대 판단'**
+  String get gameOpponentPickerUseLlmLabel;
+
+  /// No description provided for @gameOpponentPickerUseLlmDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜면 CPU 알고리즘 대신 AI 프리셋(마이페이지 기본 프리셋)이 상대의 수를 판단해요. 실패하면 자동으로 기존 방식으로 진행돼요.'**
+  String get gameOpponentPickerUseLlmDescription;
+
+  /// No description provided for @gameOpponentPickerSpeakEveryMoveLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'매 수마다 대사'**
+  String get gameOpponentPickerSpeakEveryMoveLabel;
+
+  /// No description provided for @gameOpponentPickerSpeakEveryMoveDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'켜면 상대가 수를 둘 때마다 캐릭터 성격에 맞는 짧은 대사를 말해요.'**
+  String get gameOpponentPickerSpeakEveryMoveDescription;
+
+  /// No description provided for @gameYouLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'나'**
+  String get gameYouLabel;
+
+  /// No description provided for @gameYourTurnLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 차례'**
+  String get gameYourTurnLabel;
+
+  /// No description provided for @gameOpponentTurnLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'상대 차례'**
+  String get gameOpponentTurnLabel;
+
+  /// No description provided for @gameResignButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'기권'**
+  String get gameResignButton;
+
+  /// No description provided for @gameResignConfirmMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'정말 기권할까요?'**
+  String get gameResignConfirmMessage;
+
+  /// No description provided for @gamePlayAgainButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'다시하기'**
+  String get gamePlayAgainButton;
+
+  /// No description provided for @gameBackToListButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임 목록으로'**
+  String get gameBackToListButton;
+
+  /// No description provided for @gameYouWinTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'승리!'**
+  String get gameYouWinTitle;
+
+  /// No description provided for @gameYouLoseTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'패배'**
+  String get gameYouLoseTitle;
+
+  /// No description provided for @gameDrawTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'무승부'**
+  String get gameDrawTitle;
+
+  /// No description provided for @chessCheckLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'체크'**
+  String get chessCheckLabel;
+
+  /// No description provided for @chessCheckmateMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'체크메이트예요'**
+  String get chessCheckmateMessage;
+
+  /// No description provided for @chessStalemateMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'스테일메이트, 무승부예요'**
+  String get chessStalemateMessage;
+
+  /// No description provided for @chessPromotionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'승진시킬 기물을 고르세요'**
+  String get chessPromotionTitle;
+
+  /// No description provided for @chessCapturedByYouLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'내가 잡은 기물'**
+  String get chessCapturedByYouLabel;
+
+  /// No description provided for @chessCapturedByOpponentLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'상대가 잡은 기물'**
+  String get chessCapturedByOpponentLabel;
+
+  /// No description provided for @omokWinMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'5개를 이었어요!'**
+  String get omokWinMessage;
+
+  /// No description provided for @unoYourHandLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 손패'**
+  String get unoYourHandLabel;
+
+  /// No description provided for @unoOpponentHandLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'상대 손패'**
+  String get unoOpponentHandLabel;
+
+  /// No description provided for @unoDrawPileTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'카드 뽑기'**
+  String get unoDrawPileTooltip;
+
+  /// No description provided for @unoChooseColorTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'낼 색상을 고르세요'**
+  String get unoChooseColorTitle;
+
+  /// No description provided for @unoUnoCalloutLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'UNO!'**
+  String get unoUnoCalloutLabel;
+
+  /// No description provided for @unoCannotPlayMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'낼 수 있는 카드가 없어서 한 장 뽑았어요'**
+  String get unoCannotPlayMessage;
+
+  /// No description provided for @liarsBarTargetCardLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 라운드 목표 카드'**
+  String get liarsBarTargetCardLabel;
+
+  /// No description provided for @liarsBarYourHandLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 손패'**
+  String get liarsBarYourHandLabel;
+
+  /// No description provided for @liarsBarSelectHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'낼 카드를 1~3장 골라주세요'**
+  String get liarsBarSelectHint;
+
+  /// No description provided for @liarsBarPlayButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'제출'**
+  String get liarsBarPlayButton;
+
+  /// No description provided for @liarsBarBelieveButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'믿는다'**
+  String get liarsBarBelieveButton;
+
+  /// No description provided for @liarsBarChallengeButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'의심한다'**
+  String get liarsBarChallengeButton;
+
+  /// No description provided for @liarsBarRevealTrueMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'진짜였어요'**
+  String get liarsBarRevealTrueMessage;
+
+  /// No description provided for @liarsBarRevealBluffMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'블러핑이었어요'**
+  String get liarsBarRevealBluffMessage;
+
+  /// No description provided for @liarsBarLifeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'생명'**
+  String get liarsBarLifeLabel;
+
+  /// No description provided for @liarsBarOpponentClaimLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'상대가 {count}장을 냈어요'**
+  String liarsBarOpponentClaimLabel(Object count);
 }
 
 class _AppLocalizationsDelegate

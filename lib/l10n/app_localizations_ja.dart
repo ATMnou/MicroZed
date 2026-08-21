@@ -403,7 +403,10 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get homeTabFilterRecommended => 'おすすめ';
+  String get homeTabFilterRecommended => 'すべて';
+
+  @override
+  String get homeTabFilterGames => 'ゲーム';
 
   @override
   String get homeNoPlotsYet => 'まだ作成したプロットがありません';
@@ -1122,6 +1125,41 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get profileEditDescriptionLabel => '説明(任意)';
+
+  @override
+  String get profileEditVnStandingImageLabel => 'ビジュアルノベル用スタンディング画像';
+
+  @override
+  String get profileEditVnStandingImageDescription =>
+      'プレイアブルキャラクターを使わないビジュアルノベルで、自分が話すときに表示する全身画像です';
+
+  @override
+  String get profileEditVnStandingImageSelectButton => '画像を選択';
+
+  @override
+  String get profileEditVnStandingImageClearButton => '削除';
+
+  @override
+  String get profileExportButton => '専用形式でエクスポート';
+
+  @override
+  String get profileExportSuccessMessage => '対話プロフィールをエクスポートしました。';
+
+  @override
+  String profileExportFailureMessage(Object error) {
+    return 'エクスポートに失敗しました: $error';
+  }
+
+  @override
+  String get profileImportButton => '専用形式からインポート';
+
+  @override
+  String get profileImportSuccessMessage => '対話プロフィールをインポートしました。';
+
+  @override
+  String profileImportFailureMessage(Object error) {
+    return 'インポートに失敗しました: $error';
+  }
 
   @override
   String get profileEditScopeSectionTitle => '適用範囲';
@@ -2026,4 +2064,164 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get vnPlayUntitledPlotTitle => '無題';
+
+  @override
+  String get gamesHomeTitle => 'ゲーム';
+
+  @override
+  String get gamesHomeChessTitle => 'チェス';
+
+  @override
+  String get gamesHomeChessSubtitle => 'キャラクターと対戦するチェス';
+
+  @override
+  String get gamesHomeOmokTitle => '五目並べ';
+
+  @override
+  String get gamesHomeOmokSubtitle => '先に5つ並べたら勝ち';
+
+  @override
+  String get gamesHomeUnoTitle => 'UNO';
+
+  @override
+  String get gamesHomeUnoSubtitle => '先に手札をなくしたら勝ち';
+
+  @override
+  String get gamesHomeLiarsBarTitle => 'ライアーズバー';
+
+  @override
+  String get gamesHomeLiarsBarSubtitle => 'ブラフで相手のライフを奪うカードゲーム';
+
+  @override
+  String gamesHomeRecordSummary(Object wins, Object losses, Object draws) {
+    return '$wins勝$losses敗$draws分';
+  }
+
+  @override
+  String get gamesHomeNoRecord => 'まだプレイ記録がありません';
+
+  @override
+  String get gameOpponentPickerTitle => '対戦相手を選択';
+
+  @override
+  String get gameOpponentPickerDifficultyLabel => '難易度';
+
+  @override
+  String get gameOpponentPickerEmptyMessage =>
+      '選べるキャラクターがいません。\nまずプロットでキャラクターを作成してください';
+
+  @override
+  String get gameOpponentPickerUseLlmLabel => 'LLMで相手を判断';
+
+  @override
+  String get gameOpponentPickerUseLlmDescription =>
+      'オンにすると、CPUアルゴリズムの代わりにAIプリセット(マイページの既定プリセット)が相手の手を判断します。失敗した場合は自動的に既存の方式に戻ります。';
+
+  @override
+  String get gameOpponentPickerSpeakEveryMoveLabel => '毎手ごとにセリフ';
+
+  @override
+  String get gameOpponentPickerSpeakEveryMoveDescription =>
+      'オンにすると、相手が手を打つたびにキャラクターの性格に合った短いセリフを話します。';
+
+  @override
+  String get gameYouLabel => '自分';
+
+  @override
+  String get gameYourTurnLabel => 'あなたの番';
+
+  @override
+  String get gameOpponentTurnLabel => '相手の番';
+
+  @override
+  String get gameResignButton => '投了';
+
+  @override
+  String get gameResignConfirmMessage => '本当に投了しますか？';
+
+  @override
+  String get gamePlayAgainButton => 'もう一度プレイ';
+
+  @override
+  String get gameBackToListButton => 'ゲーム一覧へ';
+
+  @override
+  String get gameYouWinTitle => '勝利！';
+
+  @override
+  String get gameYouLoseTitle => '敗北';
+
+  @override
+  String get gameDrawTitle => '引き分け';
+
+  @override
+  String get chessCheckLabel => 'チェック';
+
+  @override
+  String get chessCheckmateMessage => 'チェックメイトです';
+
+  @override
+  String get chessStalemateMessage => 'ステイルメイト、引き分けです';
+
+  @override
+  String get chessPromotionTitle => '昇格させる駒を選んでください';
+
+  @override
+  String get chessCapturedByYouLabel => '自分が取った駒';
+
+  @override
+  String get chessCapturedByOpponentLabel => '相手が取った駒';
+
+  @override
+  String get omokWinMessage => '5つ並びました！';
+
+  @override
+  String get unoYourHandLabel => '自分の手札';
+
+  @override
+  String get unoOpponentHandLabel => '相手の手札';
+
+  @override
+  String get unoDrawPileTooltip => 'カードを引く';
+
+  @override
+  String get unoChooseColorTitle => '色を選んでください';
+
+  @override
+  String get unoUnoCalloutLabel => 'UNO!';
+
+  @override
+  String get unoCannotPlayMessage => '出せるカードがなく、1枚引きました';
+
+  @override
+  String get liarsBarTargetCardLabel => '今ラウンドの目標カード';
+
+  @override
+  String get liarsBarYourHandLabel => '自分の手札';
+
+  @override
+  String get liarsBarSelectHint => '出すカードを1〜3枚選んでください';
+
+  @override
+  String get liarsBarPlayButton => '提出';
+
+  @override
+  String get liarsBarBelieveButton => '信じる';
+
+  @override
+  String get liarsBarChallengeButton => '疑う';
+
+  @override
+  String get liarsBarRevealTrueMessage => '本当でした';
+
+  @override
+  String get liarsBarRevealBluffMessage => 'ブラフでした';
+
+  @override
+  String get liarsBarLifeLabel => 'ライフ';
+
+  @override
+  String liarsBarOpponentClaimLabel(Object count) {
+    return '相手が$count枚出しました';
+  }
 }

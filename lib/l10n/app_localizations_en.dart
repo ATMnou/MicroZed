@@ -409,7 +409,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homeTabFilterRecommended => 'Recommended';
+  String get homeTabFilterRecommended => 'All';
+
+  @override
+  String get homeTabFilterGames => 'Games';
 
   @override
   String get homeNoPlotsYet => 'You haven\'t created any plots yet';
@@ -1155,6 +1158,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileEditDescriptionLabel => 'Description (optional)';
+
+  @override
+  String get profileEditVnStandingImageLabel => 'Visual novel standing image';
+
+  @override
+  String get profileEditVnStandingImageDescription =>
+      'The full-body image shown when I speak in a visual novel that has no playable character';
+
+  @override
+  String get profileEditVnStandingImageSelectButton => 'Choose image';
+
+  @override
+  String get profileEditVnStandingImageClearButton => 'Clear';
+
+  @override
+  String get profileExportButton => 'Export as dedicated format';
+
+  @override
+  String get profileExportSuccessMessage =>
+      'Exported the conversation profile.';
+
+  @override
+  String profileExportFailureMessage(Object error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get profileImportButton => 'Import from dedicated format';
+
+  @override
+  String get profileImportSuccessMessage =>
+      'Imported the conversation profile.';
+
+  @override
+  String profileImportFailureMessage(Object error) {
+    return 'Import failed: $error';
+  }
 
   @override
   String get profileEditScopeSectionTitle => 'Applies to';
@@ -2091,4 +2131,166 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get vnPlayUntitledPlotTitle => 'Untitled';
+
+  @override
+  String get gamesHomeTitle => 'Games';
+
+  @override
+  String get gamesHomeChessTitle => 'Chess';
+
+  @override
+  String get gamesHomeChessSubtitle =>
+      'Play a game of chess against a character';
+
+  @override
+  String get gamesHomeOmokTitle => 'Omok';
+
+  @override
+  String get gamesHomeOmokSubtitle => 'Get five in a row to win';
+
+  @override
+  String get gamesHomeUnoTitle => 'Uno';
+
+  @override
+  String get gamesHomeUnoSubtitle => 'Empty your hand first to win';
+
+  @override
+  String get gamesHomeLiarsBarTitle => 'Liar\'s Bar';
+
+  @override
+  String get gamesHomeLiarsBarSubtitle =>
+      'A bluffing card game where you drain the opponent\'s life';
+
+  @override
+  String gamesHomeRecordSummary(Object wins, Object losses, Object draws) {
+    return '${wins}W ${losses}L ${draws}D';
+  }
+
+  @override
+  String get gamesHomeNoRecord => 'No games played yet';
+
+  @override
+  String get gameOpponentPickerTitle => 'Choose an opponent';
+
+  @override
+  String get gameOpponentPickerDifficultyLabel => 'Difficulty';
+
+  @override
+  String get gameOpponentPickerEmptyMessage =>
+      'No characters to choose from.\nCreate a character in a plot first';
+
+  @override
+  String get gameOpponentPickerUseLlmLabel => 'Let the LLM decide moves';
+
+  @override
+  String get gameOpponentPickerUseLlmDescription =>
+      'When on, the AI preset (your default preset) decides the opponent\'s moves instead of the built-in algorithm. Falls back automatically if it fails.';
+
+  @override
+  String get gameOpponentPickerSpeakEveryMoveLabel => 'Comment on every move';
+
+  @override
+  String get gameOpponentPickerSpeakEveryMoveDescription =>
+      'When on, the opponent says a short in-character line after every move.';
+
+  @override
+  String get gameYouLabel => 'You';
+
+  @override
+  String get gameYourTurnLabel => 'Your turn';
+
+  @override
+  String get gameOpponentTurnLabel => 'Opponent\'s turn';
+
+  @override
+  String get gameResignButton => 'Resign';
+
+  @override
+  String get gameResignConfirmMessage => 'Are you sure you want to resign?';
+
+  @override
+  String get gamePlayAgainButton => 'Play again';
+
+  @override
+  String get gameBackToListButton => 'Back to games';
+
+  @override
+  String get gameYouWinTitle => 'You win!';
+
+  @override
+  String get gameYouLoseTitle => 'You lose';
+
+  @override
+  String get gameDrawTitle => 'Draw';
+
+  @override
+  String get chessCheckLabel => 'Check';
+
+  @override
+  String get chessCheckmateMessage => 'Checkmate';
+
+  @override
+  String get chessStalemateMessage => 'Stalemate, it\'s a draw';
+
+  @override
+  String get chessPromotionTitle => 'Choose a piece to promote to';
+
+  @override
+  String get chessCapturedByYouLabel => 'Captured by you';
+
+  @override
+  String get chessCapturedByOpponentLabel => 'Captured by opponent';
+
+  @override
+  String get omokWinMessage => 'Five in a row!';
+
+  @override
+  String get unoYourHandLabel => 'Your hand';
+
+  @override
+  String get unoOpponentHandLabel => 'Opponent\'s hand';
+
+  @override
+  String get unoDrawPileTooltip => 'Draw a card';
+
+  @override
+  String get unoChooseColorTitle => 'Choose a color';
+
+  @override
+  String get unoUnoCalloutLabel => 'UNO!';
+
+  @override
+  String get unoCannotPlayMessage => 'No playable card, drew one instead';
+
+  @override
+  String get liarsBarTargetCardLabel => 'This round\'s target card';
+
+  @override
+  String get liarsBarYourHandLabel => 'Your hand';
+
+  @override
+  String get liarsBarSelectHint => 'Choose 1 to 3 cards to play';
+
+  @override
+  String get liarsBarPlayButton => 'Play';
+
+  @override
+  String get liarsBarBelieveButton => 'Believe';
+
+  @override
+  String get liarsBarChallengeButton => 'Challenge';
+
+  @override
+  String get liarsBarRevealTrueMessage => 'It was true';
+
+  @override
+  String get liarsBarRevealBluffMessage => 'It was a bluff';
+
+  @override
+  String get liarsBarLifeLabel => 'Life';
+
+  @override
+  String liarsBarOpponentClaimLabel(Object count) {
+    return 'Opponent played $count card(s)';
+  }
 }

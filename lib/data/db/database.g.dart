@@ -2882,6 +2882,17 @@ class $ConversationProfilesTable extends ConversationProfiles
         type: DriftSqlType.int,
         requiredDuringInsert: false,
       ).withConverter<PlotType?>($ConversationProfilesTable.$converterscopen);
+  static const VerificationMeta _vnStandingImagePathMeta =
+      const VerificationMeta('vnStandingImagePath');
+  @override
+  late final GeneratedColumn<String> vnStandingImagePath =
+      GeneratedColumn<String>(
+        'vn_standing_image_path',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2890,6 +2901,7 @@ class $ConversationProfilesTable extends ConversationProfiles
     imagePath,
     isDefault,
     scope,
+    vnStandingImagePath,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2935,6 +2947,15 @@ class $ConversationProfilesTable extends ConversationProfiles
         isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
       );
     }
+    if (data.containsKey('vn_standing_image_path')) {
+      context.handle(
+        _vnStandingImagePathMeta,
+        vnStandingImagePath.isAcceptableOrUnknown(
+          data['vn_standing_image_path']!,
+          _vnStandingImagePathMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2970,6 +2991,10 @@ class $ConversationProfilesTable extends ConversationProfiles
           data['${effectivePrefix}scope'],
         ),
       ),
+      vnStandingImagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vn_standing_image_path'],
+      ),
     );
   }
 
@@ -2995,6 +3020,10 @@ class ConversationProfile extends DataClass
   /// null이면 스토리챗/비주얼 노벨 양쪽에서 다 쓸 수 있는 공용 프로필. 값이 있으면
   /// 그 PlotType 전용으로만 선택 목록에 노출된다.
   final PlotType? scope;
+
+  /// 비주얼 노벨 플레이 화면에서 유저가 말할 때 보여줄 전신 스탠딩 이미지. [imagePath](원형
+  /// 아바타)와는 별개로 관리되고, VN 플롯 중 플레이어블 캐릭터를 안 쓰는 경우에만 쓰인다.
+  final String? vnStandingImagePath;
   const ConversationProfile({
     required this.id,
     required this.name,
@@ -3002,6 +3031,7 @@ class ConversationProfile extends DataClass
     this.imagePath,
     required this.isDefault,
     this.scope,
+    this.vnStandingImagePath,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3018,6 +3048,9 @@ class ConversationProfile extends DataClass
         $ConversationProfilesTable.$converterscopen.toSql(scope),
       );
     }
+    if (!nullToAbsent || vnStandingImagePath != null) {
+      map['vn_standing_image_path'] = Variable<String>(vnStandingImagePath);
+    }
     return map;
   }
 
@@ -3033,6 +3066,9 @@ class ConversationProfile extends DataClass
       scope: scope == null && nullToAbsent
           ? const Value.absent()
           : Value(scope),
+      vnStandingImagePath: vnStandingImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vnStandingImagePath),
     );
   }
 
@@ -3050,6 +3086,9 @@ class ConversationProfile extends DataClass
       scope: $ConversationProfilesTable.$converterscopen.fromJson(
         serializer.fromJson<int?>(json['scope']),
       ),
+      vnStandingImagePath: serializer.fromJson<String?>(
+        json['vnStandingImagePath'],
+      ),
     );
   }
   @override
@@ -3064,6 +3103,7 @@ class ConversationProfile extends DataClass
       'scope': serializer.toJson<int?>(
         $ConversationProfilesTable.$converterscopen.toJson(scope),
       ),
+      'vnStandingImagePath': serializer.toJson<String?>(vnStandingImagePath),
     };
   }
 
@@ -3074,6 +3114,7 @@ class ConversationProfile extends DataClass
     Value<String?> imagePath = const Value.absent(),
     bool? isDefault,
     Value<PlotType?> scope = const Value.absent(),
+    Value<String?> vnStandingImagePath = const Value.absent(),
   }) => ConversationProfile(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -3081,6 +3122,9 @@ class ConversationProfile extends DataClass
     imagePath: imagePath.present ? imagePath.value : this.imagePath,
     isDefault: isDefault ?? this.isDefault,
     scope: scope.present ? scope.value : this.scope,
+    vnStandingImagePath: vnStandingImagePath.present
+        ? vnStandingImagePath.value
+        : this.vnStandingImagePath,
   );
   ConversationProfile copyWithCompanion(ConversationProfilesCompanion data) {
     return ConversationProfile(
@@ -3092,6 +3136,9 @@ class ConversationProfile extends DataClass
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
       scope: data.scope.present ? data.scope.value : this.scope,
+      vnStandingImagePath: data.vnStandingImagePath.present
+          ? data.vnStandingImagePath.value
+          : this.vnStandingImagePath,
     );
   }
 
@@ -3103,14 +3150,22 @@ class ConversationProfile extends DataClass
           ..write('description: $description, ')
           ..write('imagePath: $imagePath, ')
           ..write('isDefault: $isDefault, ')
-          ..write('scope: $scope')
+          ..write('scope: $scope, ')
+          ..write('vnStandingImagePath: $vnStandingImagePath')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, description, imagePath, isDefault, scope);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    description,
+    imagePath,
+    isDefault,
+    scope,
+    vnStandingImagePath,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3120,7 +3175,8 @@ class ConversationProfile extends DataClass
           other.description == this.description &&
           other.imagePath == this.imagePath &&
           other.isDefault == this.isDefault &&
-          other.scope == this.scope);
+          other.scope == this.scope &&
+          other.vnStandingImagePath == this.vnStandingImagePath);
 }
 
 class ConversationProfilesCompanion
@@ -3131,6 +3187,7 @@ class ConversationProfilesCompanion
   final Value<String?> imagePath;
   final Value<bool> isDefault;
   final Value<PlotType?> scope;
+  final Value<String?> vnStandingImagePath;
   const ConversationProfilesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -3138,6 +3195,7 @@ class ConversationProfilesCompanion
     this.imagePath = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.scope = const Value.absent(),
+    this.vnStandingImagePath = const Value.absent(),
   });
   ConversationProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -3146,6 +3204,7 @@ class ConversationProfilesCompanion
     this.imagePath = const Value.absent(),
     this.isDefault = const Value.absent(),
     this.scope = const Value.absent(),
+    this.vnStandingImagePath = const Value.absent(),
   }) : name = Value(name);
   static Insertable<ConversationProfile> custom({
     Expression<int>? id,
@@ -3154,6 +3213,7 @@ class ConversationProfilesCompanion
     Expression<String>? imagePath,
     Expression<bool>? isDefault,
     Expression<int>? scope,
+    Expression<String>? vnStandingImagePath,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3162,6 +3222,8 @@ class ConversationProfilesCompanion
       if (imagePath != null) 'image_path': imagePath,
       if (isDefault != null) 'is_default': isDefault,
       if (scope != null) 'scope': scope,
+      if (vnStandingImagePath != null)
+        'vn_standing_image_path': vnStandingImagePath,
     });
   }
 
@@ -3172,6 +3234,7 @@ class ConversationProfilesCompanion
     Value<String?>? imagePath,
     Value<bool>? isDefault,
     Value<PlotType?>? scope,
+    Value<String?>? vnStandingImagePath,
   }) {
     return ConversationProfilesCompanion(
       id: id ?? this.id,
@@ -3180,6 +3243,7 @@ class ConversationProfilesCompanion
       imagePath: imagePath ?? this.imagePath,
       isDefault: isDefault ?? this.isDefault,
       scope: scope ?? this.scope,
+      vnStandingImagePath: vnStandingImagePath ?? this.vnStandingImagePath,
     );
   }
 
@@ -3206,6 +3270,11 @@ class ConversationProfilesCompanion
         $ConversationProfilesTable.$converterscopen.toSql(scope.value),
       );
     }
+    if (vnStandingImagePath.present) {
+      map['vn_standing_image_path'] = Variable<String>(
+        vnStandingImagePath.value,
+      );
+    }
     return map;
   }
 
@@ -3217,7 +3286,8 @@ class ConversationProfilesCompanion
           ..write('description: $description, ')
           ..write('imagePath: $imagePath, ')
           ..write('isDefault: $isDefault, ')
-          ..write('scope: $scope')
+          ..write('scope: $scope, ')
+          ..write('vnStandingImagePath: $vnStandingImagePath')
           ..write(')'))
         .toString();
   }
@@ -3344,6 +3414,17 @@ class $PlotConversationProfilesTable extends PlotConversationProfiles
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _vnStandingImagePathMeta =
+      const VerificationMeta('vnStandingImagePath');
+  @override
+  late final GeneratedColumn<String> vnStandingImagePath =
+      GeneratedColumn<String>(
+        'vn_standing_image_path',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3355,6 +3436,7 @@ class $PlotConversationProfilesTable extends PlotConversationProfiles
     imagePath,
     sortOrder,
     createdAt,
+    vnStandingImagePath,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3431,6 +3513,15 @@ class $PlotConversationProfilesTable extends PlotConversationProfiles
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('vn_standing_image_path')) {
+      context.handle(
+        _vnStandingImagePathMeta,
+        vnStandingImagePath.isAcceptableOrUnknown(
+          data['vn_standing_image_path']!,
+          _vnStandingImagePathMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3479,6 +3570,10 @@ class $PlotConversationProfilesTable extends PlotConversationProfiles
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      vnStandingImagePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vn_standing_image_path'],
+      ),
     );
   }
 
@@ -3506,6 +3601,10 @@ class PlotConversationProfile extends DataClass
   final String? imagePath;
   final int sortOrder;
   final DateTime createdAt;
+
+  /// [ConversationProfiles.vnStandingImagePath]와 같은 용도(VN 유저 발화 시 전신 스탠딩
+  /// 이미지)로, 이 플롯 전용 프로필에서만 적용된다.
+  final String? vnStandingImagePath;
   const PlotConversationProfile({
     required this.id,
     required this.plotId,
@@ -3516,6 +3615,7 @@ class PlotConversationProfile extends DataClass
     this.imagePath,
     required this.sortOrder,
     required this.createdAt,
+    this.vnStandingImagePath,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3531,6 +3631,9 @@ class PlotConversationProfile extends DataClass
     }
     map['sort_order'] = Variable<int>(sortOrder);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || vnStandingImagePath != null) {
+      map['vn_standing_image_path'] = Variable<String>(vnStandingImagePath);
+    }
     return map;
   }
 
@@ -3547,6 +3650,9 @@ class PlotConversationProfile extends DataClass
           : Value(imagePath),
       sortOrder: Value(sortOrder),
       createdAt: Value(createdAt),
+      vnStandingImagePath: vnStandingImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vnStandingImagePath),
     );
   }
 
@@ -3565,6 +3671,9 @@ class PlotConversationProfile extends DataClass
       imagePath: serializer.fromJson<String?>(json['imagePath']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      vnStandingImagePath: serializer.fromJson<String?>(
+        json['vnStandingImagePath'],
+      ),
     );
   }
   @override
@@ -3580,6 +3689,7 @@ class PlotConversationProfile extends DataClass
       'imagePath': serializer.toJson<String?>(imagePath),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'vnStandingImagePath': serializer.toJson<String?>(vnStandingImagePath),
     };
   }
 
@@ -3593,6 +3703,7 @@ class PlotConversationProfile extends DataClass
     Value<String?> imagePath = const Value.absent(),
     int? sortOrder,
     DateTime? createdAt,
+    Value<String?> vnStandingImagePath = const Value.absent(),
   }) => PlotConversationProfile(
     id: id ?? this.id,
     plotId: plotId ?? this.plotId,
@@ -3603,6 +3714,9 @@ class PlotConversationProfile extends DataClass
     imagePath: imagePath.present ? imagePath.value : this.imagePath,
     sortOrder: sortOrder ?? this.sortOrder,
     createdAt: createdAt ?? this.createdAt,
+    vnStandingImagePath: vnStandingImagePath.present
+        ? vnStandingImagePath.value
+        : this.vnStandingImagePath,
   );
   PlotConversationProfile copyWithCompanion(
     PlotConversationProfilesCompanion data,
@@ -3623,6 +3737,9 @@ class PlotConversationProfile extends DataClass
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      vnStandingImagePath: data.vnStandingImagePath.present
+          ? data.vnStandingImagePath.value
+          : this.vnStandingImagePath,
     );
   }
 
@@ -3637,7 +3754,8 @@ class PlotConversationProfile extends DataClass
           ..write('description: $description, ')
           ..write('imagePath: $imagePath, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('vnStandingImagePath: $vnStandingImagePath')
           ..write(')'))
         .toString();
   }
@@ -3653,6 +3771,7 @@ class PlotConversationProfile extends DataClass
     imagePath,
     sortOrder,
     createdAt,
+    vnStandingImagePath,
   );
   @override
   bool operator ==(Object other) =>
@@ -3666,7 +3785,8 @@ class PlotConversationProfile extends DataClass
           other.description == this.description &&
           other.imagePath == this.imagePath &&
           other.sortOrder == this.sortOrder &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.vnStandingImagePath == this.vnStandingImagePath);
 }
 
 class PlotConversationProfilesCompanion
@@ -3680,6 +3800,7 @@ class PlotConversationProfilesCompanion
   final Value<String?> imagePath;
   final Value<int> sortOrder;
   final Value<DateTime> createdAt;
+  final Value<String?> vnStandingImagePath;
   const PlotConversationProfilesCompanion({
     this.id = const Value.absent(),
     this.plotId = const Value.absent(),
@@ -3690,6 +3811,7 @@ class PlotConversationProfilesCompanion
     this.imagePath = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.vnStandingImagePath = const Value.absent(),
   });
   PlotConversationProfilesCompanion.insert({
     this.id = const Value.absent(),
@@ -3701,6 +3823,7 @@ class PlotConversationProfilesCompanion
     this.imagePath = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.vnStandingImagePath = const Value.absent(),
   }) : plotId = Value(plotId),
        name = Value(name),
        shortIntro = Value(shortIntro);
@@ -3714,6 +3837,7 @@ class PlotConversationProfilesCompanion
     Expression<String>? imagePath,
     Expression<int>? sortOrder,
     Expression<DateTime>? createdAt,
+    Expression<String>? vnStandingImagePath,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -3725,6 +3849,8 @@ class PlotConversationProfilesCompanion
       if (imagePath != null) 'image_path': imagePath,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (createdAt != null) 'created_at': createdAt,
+      if (vnStandingImagePath != null)
+        'vn_standing_image_path': vnStandingImagePath,
     });
   }
 
@@ -3738,6 +3864,7 @@ class PlotConversationProfilesCompanion
     Value<String?>? imagePath,
     Value<int>? sortOrder,
     Value<DateTime>? createdAt,
+    Value<String?>? vnStandingImagePath,
   }) {
     return PlotConversationProfilesCompanion(
       id: id ?? this.id,
@@ -3749,6 +3876,7 @@ class PlotConversationProfilesCompanion
       imagePath: imagePath ?? this.imagePath,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
+      vnStandingImagePath: vnStandingImagePath ?? this.vnStandingImagePath,
     );
   }
 
@@ -3782,6 +3910,11 @@ class PlotConversationProfilesCompanion
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (vnStandingImagePath.present) {
+      map['vn_standing_image_path'] = Variable<String>(
+        vnStandingImagePath.value,
+      );
+    }
     return map;
   }
 
@@ -3796,7 +3929,8 @@ class PlotConversationProfilesCompanion
           ..write('description: $description, ')
           ..write('imagePath: $imagePath, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('vnStandingImagePath: $vnStandingImagePath')
           ..write(')'))
         .toString();
   }
@@ -10657,6 +10791,445 @@ class VnChoicesCompanion extends UpdateCompanion<VnChoice> {
   }
 }
 
+class $GameResultsTable extends GameResults
+    with TableInfo<$GameResultsTable, GameResult> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GameResultsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<GameType, int> gameType =
+      GeneratedColumn<int>(
+        'game_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<GameType>($GameResultsTable.$convertergameType);
+  static const VerificationMeta _opponentCharacterIdMeta =
+      const VerificationMeta('opponentCharacterId');
+  @override
+  late final GeneratedColumn<int> opponentCharacterId = GeneratedColumn<int>(
+    'opponent_character_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES characters (id) ON DELETE SET NULL',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<GameDifficulty?, int> difficulty =
+      GeneratedColumn<int>(
+        'difficulty',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<GameDifficulty?>($GameResultsTable.$converterdifficultyn);
+  @override
+  late final GeneratedColumnWithTypeConverter<GameOutcome, int> outcome =
+      GeneratedColumn<int>(
+        'outcome',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<GameOutcome>($GameResultsTable.$converteroutcome);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    gameType,
+    opponentCharacterId,
+    difficulty,
+    outcome,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'game_results';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GameResult> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('opponent_character_id')) {
+      context.handle(
+        _opponentCharacterIdMeta,
+        opponentCharacterId.isAcceptableOrUnknown(
+          data['opponent_character_id']!,
+          _opponentCharacterIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GameResult map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GameResult(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      gameType: $GameResultsTable.$convertergameType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}game_type'],
+        )!,
+      ),
+      opponentCharacterId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}opponent_character_id'],
+      ),
+      difficulty: $GameResultsTable.$converterdifficultyn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}difficulty'],
+        ),
+      ),
+      outcome: $GameResultsTable.$converteroutcome.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}outcome'],
+        )!,
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $GameResultsTable createAlias(String alias) {
+    return $GameResultsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<GameType, int, int> $convertergameType =
+      const EnumIndexConverter<GameType>(GameType.values);
+  static JsonTypeConverter2<GameDifficulty, int, int> $converterdifficulty =
+      const EnumIndexConverter<GameDifficulty>(GameDifficulty.values);
+  static JsonTypeConverter2<GameDifficulty?, int?, int?> $converterdifficultyn =
+      JsonTypeConverter2.asNullable($converterdifficulty);
+  static JsonTypeConverter2<GameOutcome, int, int> $converteroutcome =
+      const EnumIndexConverter<GameOutcome>(GameOutcome.values);
+}
+
+class GameResult extends DataClass implements Insertable<GameResult> {
+  final int id;
+  final GameType gameType;
+
+  /// 상대로 골랐던 캐릭터. 캐릭터가 나중에 삭제돼도 기록 자체는 남아야 하므로 setNull.
+  final int? opponentCharacterId;
+
+  /// 체스/오목에서만 값이 있다(우노/라이어스바는 난이도 설정이 없다).
+  final GameDifficulty? difficulty;
+  final GameOutcome outcome;
+  final DateTime createdAt;
+  const GameResult({
+    required this.id,
+    required this.gameType,
+    this.opponentCharacterId,
+    this.difficulty,
+    required this.outcome,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    {
+      map['game_type'] = Variable<int>(
+        $GameResultsTable.$convertergameType.toSql(gameType),
+      );
+    }
+    if (!nullToAbsent || opponentCharacterId != null) {
+      map['opponent_character_id'] = Variable<int>(opponentCharacterId);
+    }
+    if (!nullToAbsent || difficulty != null) {
+      map['difficulty'] = Variable<int>(
+        $GameResultsTable.$converterdifficultyn.toSql(difficulty),
+      );
+    }
+    {
+      map['outcome'] = Variable<int>(
+        $GameResultsTable.$converteroutcome.toSql(outcome),
+      );
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  GameResultsCompanion toCompanion(bool nullToAbsent) {
+    return GameResultsCompanion(
+      id: Value(id),
+      gameType: Value(gameType),
+      opponentCharacterId: opponentCharacterId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(opponentCharacterId),
+      difficulty: difficulty == null && nullToAbsent
+          ? const Value.absent()
+          : Value(difficulty),
+      outcome: Value(outcome),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory GameResult.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GameResult(
+      id: serializer.fromJson<int>(json['id']),
+      gameType: $GameResultsTable.$convertergameType.fromJson(
+        serializer.fromJson<int>(json['gameType']),
+      ),
+      opponentCharacterId: serializer.fromJson<int?>(
+        json['opponentCharacterId'],
+      ),
+      difficulty: $GameResultsTable.$converterdifficultyn.fromJson(
+        serializer.fromJson<int?>(json['difficulty']),
+      ),
+      outcome: $GameResultsTable.$converteroutcome.fromJson(
+        serializer.fromJson<int>(json['outcome']),
+      ),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'gameType': serializer.toJson<int>(
+        $GameResultsTable.$convertergameType.toJson(gameType),
+      ),
+      'opponentCharacterId': serializer.toJson<int?>(opponentCharacterId),
+      'difficulty': serializer.toJson<int?>(
+        $GameResultsTable.$converterdifficultyn.toJson(difficulty),
+      ),
+      'outcome': serializer.toJson<int>(
+        $GameResultsTable.$converteroutcome.toJson(outcome),
+      ),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  GameResult copyWith({
+    int? id,
+    GameType? gameType,
+    Value<int?> opponentCharacterId = const Value.absent(),
+    Value<GameDifficulty?> difficulty = const Value.absent(),
+    GameOutcome? outcome,
+    DateTime? createdAt,
+  }) => GameResult(
+    id: id ?? this.id,
+    gameType: gameType ?? this.gameType,
+    opponentCharacterId: opponentCharacterId.present
+        ? opponentCharacterId.value
+        : this.opponentCharacterId,
+    difficulty: difficulty.present ? difficulty.value : this.difficulty,
+    outcome: outcome ?? this.outcome,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  GameResult copyWithCompanion(GameResultsCompanion data) {
+    return GameResult(
+      id: data.id.present ? data.id.value : this.id,
+      gameType: data.gameType.present ? data.gameType.value : this.gameType,
+      opponentCharacterId: data.opponentCharacterId.present
+          ? data.opponentCharacterId.value
+          : this.opponentCharacterId,
+      difficulty: data.difficulty.present
+          ? data.difficulty.value
+          : this.difficulty,
+      outcome: data.outcome.present ? data.outcome.value : this.outcome,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GameResult(')
+          ..write('id: $id, ')
+          ..write('gameType: $gameType, ')
+          ..write('opponentCharacterId: $opponentCharacterId, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('outcome: $outcome, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    gameType,
+    opponentCharacterId,
+    difficulty,
+    outcome,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GameResult &&
+          other.id == this.id &&
+          other.gameType == this.gameType &&
+          other.opponentCharacterId == this.opponentCharacterId &&
+          other.difficulty == this.difficulty &&
+          other.outcome == this.outcome &&
+          other.createdAt == this.createdAt);
+}
+
+class GameResultsCompanion extends UpdateCompanion<GameResult> {
+  final Value<int> id;
+  final Value<GameType> gameType;
+  final Value<int?> opponentCharacterId;
+  final Value<GameDifficulty?> difficulty;
+  final Value<GameOutcome> outcome;
+  final Value<DateTime> createdAt;
+  const GameResultsCompanion({
+    this.id = const Value.absent(),
+    this.gameType = const Value.absent(),
+    this.opponentCharacterId = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.outcome = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  GameResultsCompanion.insert({
+    this.id = const Value.absent(),
+    required GameType gameType,
+    this.opponentCharacterId = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    required GameOutcome outcome,
+    this.createdAt = const Value.absent(),
+  }) : gameType = Value(gameType),
+       outcome = Value(outcome);
+  static Insertable<GameResult> custom({
+    Expression<int>? id,
+    Expression<int>? gameType,
+    Expression<int>? opponentCharacterId,
+    Expression<int>? difficulty,
+    Expression<int>? outcome,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (gameType != null) 'game_type': gameType,
+      if (opponentCharacterId != null)
+        'opponent_character_id': opponentCharacterId,
+      if (difficulty != null) 'difficulty': difficulty,
+      if (outcome != null) 'outcome': outcome,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  GameResultsCompanion copyWith({
+    Value<int>? id,
+    Value<GameType>? gameType,
+    Value<int?>? opponentCharacterId,
+    Value<GameDifficulty?>? difficulty,
+    Value<GameOutcome>? outcome,
+    Value<DateTime>? createdAt,
+  }) {
+    return GameResultsCompanion(
+      id: id ?? this.id,
+      gameType: gameType ?? this.gameType,
+      opponentCharacterId: opponentCharacterId ?? this.opponentCharacterId,
+      difficulty: difficulty ?? this.difficulty,
+      outcome: outcome ?? this.outcome,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (gameType.present) {
+      map['game_type'] = Variable<int>(
+        $GameResultsTable.$convertergameType.toSql(gameType.value),
+      );
+    }
+    if (opponentCharacterId.present) {
+      map['opponent_character_id'] = Variable<int>(opponentCharacterId.value);
+    }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<int>(
+        $GameResultsTable.$converterdifficultyn.toSql(difficulty.value),
+      );
+    }
+    if (outcome.present) {
+      map['outcome'] = Variable<int>(
+        $GameResultsTable.$converteroutcome.toSql(outcome.value),
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GameResultsCompanion(')
+          ..write('id: $id, ')
+          ..write('gameType: $gameType, ')
+          ..write('opponentCharacterId: $opponentCharacterId, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('outcome: $outcome, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -10687,6 +11260,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $VnCharacterExpressionsTable vnCharacterExpressions =
       $VnCharacterExpressionsTable(this);
   late final $VnChoicesTable vnChoices = $VnChoicesTable(this);
+  late final $GameResultsTable gameResults = $GameResultsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10712,6 +11286,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     lorebookPlotLinks,
     vnCharacterExpressions,
     vnChoices,
+    gameResults,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -10928,6 +11503,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('vn_choices', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'characters',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('game_results', kind: UpdateKind.update)],
     ),
   ]);
 }
@@ -12217,6 +12799,24 @@ final class $$CharactersTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$GameResultsTable, List<GameResult>>
+  _gameResultsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.gameResults,
+    aliasName: 'characters__id__game_results__opponent_character_id',
+  );
+
+  $$GameResultsTableProcessedTableManager get gameResultsRefs {
+    final manager = $$GameResultsTableTableManager($_db, $_db.gameResults)
+        .filter(
+          (f) => f.opponentCharacterId.id.sqlEquals($_itemColumn<int>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_gameResultsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$CharactersTableFilterComposer
@@ -12429,6 +13029,31 @@ class $$CharactersTableFilterComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return f(composer);
+  }
+
+  Expression<bool> gameResultsRefs(
+    Expression<bool> Function($$GameResultsTableFilterComposer f) f,
+  ) {
+    final $$GameResultsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.gameResults,
+      getReferencedColumn: (t) => t.opponentCharacterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GameResultsTableFilterComposer(
+            $db: $db,
+            $table: $db.gameResults,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -12723,6 +13348,31 @@ class $$CharactersTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> gameResultsRefs<T extends Object>(
+    Expression<T> Function($$GameResultsTableAnnotationComposer a) f,
+  ) {
+    final $$GameResultsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.gameResults,
+      getReferencedColumn: (t) => t.opponentCharacterId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GameResultsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.gameResults,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$CharactersTableTableManager
@@ -12745,6 +13395,7 @@ class $$CharactersTableTableManager
             bool chatMessagesRefs,
             bool talkSessionsRefs,
             bool vnCharacterExpressionsRefs,
+            bool gameResultsRefs,
           })
         > {
   $$CharactersTableTableManager(_$AppDatabase db, $CharactersTable table)
@@ -12830,6 +13481,7 @@ class $$CharactersTableTableManager
                 chatMessagesRefs = false,
                 talkSessionsRefs = false,
                 vnCharacterExpressionsRefs = false,
+                gameResultsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -12839,6 +13491,7 @@ class $$CharactersTableTableManager
                     if (chatMessagesRefs) db.chatMessages,
                     if (talkSessionsRefs) db.talkSessions,
                     if (vnCharacterExpressionsRefs) db.vnCharacterExpressions,
+                    if (gameResultsRefs) db.gameResults,
                   ],
                   addJoins:
                       <
@@ -12980,6 +13633,27 @@ class $$CharactersTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (gameResultsRefs)
+                        await $_getPrefetchedData<
+                          Character,
+                          $CharactersTable,
+                          GameResult
+                        >(
+                          currentTable: table,
+                          referencedTable: $$CharactersTableReferences
+                              ._gameResultsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$CharactersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).gameResultsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.opponentCharacterId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -13007,6 +13681,7 @@ typedef $$CharactersTableProcessedTableManager =
         bool chatMessagesRefs,
         bool talkSessionsRefs,
         bool vnCharacterExpressionsRefs,
+        bool gameResultsRefs,
       })
     >;
 typedef $$IntroVersionsTableCreateCompanionBuilder =
@@ -14721,6 +15396,7 @@ typedef $$ConversationProfilesTableCreateCompanionBuilder =
       Value<String?> imagePath,
       Value<bool> isDefault,
       Value<PlotType?> scope,
+      Value<String?> vnStandingImagePath,
     });
 typedef $$ConversationProfilesTableUpdateCompanionBuilder =
     ConversationProfilesCompanion Function({
@@ -14730,6 +15406,7 @@ typedef $$ConversationProfilesTableUpdateCompanionBuilder =
       Value<String?> imagePath,
       Value<bool> isDefault,
       Value<PlotType?> scope,
+      Value<String?> vnStandingImagePath,
     });
 
 final class $$ConversationProfilesTableReferences
@@ -14824,6 +15501,11 @@ class $$ConversationProfilesTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
+  ColumnFilters<String> get vnStandingImagePath => $composableBuilder(
+    column: $table.vnStandingImagePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> chatSessionsRefs(
     Expression<bool> Function($$ChatSessionsTableFilterComposer f) f,
   ) {
@@ -14913,6 +15595,11 @@ class $$ConversationProfilesTableOrderingComposer
     column: $table.scope,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get vnStandingImagePath => $composableBuilder(
+    column: $table.vnStandingImagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ConversationProfilesTableAnnotationComposer
@@ -14943,6 +15630,11 @@ class $$ConversationProfilesTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<PlotType?, int> get scope =>
       $composableBuilder(column: $table.scope, builder: (column) => column);
+
+  GeneratedColumn<String> get vnStandingImagePath => $composableBuilder(
+    column: $table.vnStandingImagePath,
+    builder: (column) => column,
+  );
 
   Expression<T> chatSessionsRefs<T extends Object>(
     Expression<T> Function($$ChatSessionsTableAnnotationComposer a) f,
@@ -15037,6 +15729,7 @@ class $$ConversationProfilesTableTableManager
                 Value<String?> imagePath = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<PlotType?> scope = const Value.absent(),
+                Value<String?> vnStandingImagePath = const Value.absent(),
               }) => ConversationProfilesCompanion(
                 id: id,
                 name: name,
@@ -15044,6 +15737,7 @@ class $$ConversationProfilesTableTableManager
                 imagePath: imagePath,
                 isDefault: isDefault,
                 scope: scope,
+                vnStandingImagePath: vnStandingImagePath,
               ),
           createCompanionCallback:
               ({
@@ -15053,6 +15747,7 @@ class $$ConversationProfilesTableTableManager
                 Value<String?> imagePath = const Value.absent(),
                 Value<bool> isDefault = const Value.absent(),
                 Value<PlotType?> scope = const Value.absent(),
+                Value<String?> vnStandingImagePath = const Value.absent(),
               }) => ConversationProfilesCompanion.insert(
                 id: id,
                 name: name,
@@ -15060,6 +15755,7 @@ class $$ConversationProfilesTableTableManager
                 imagePath: imagePath,
                 isDefault: isDefault,
                 scope: scope,
+                vnStandingImagePath: vnStandingImagePath,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -15155,6 +15851,7 @@ typedef $$PlotConversationProfilesTableCreateCompanionBuilder =
       Value<String?> imagePath,
       Value<int> sortOrder,
       Value<DateTime> createdAt,
+      Value<String?> vnStandingImagePath,
     });
 typedef $$PlotConversationProfilesTableUpdateCompanionBuilder =
     PlotConversationProfilesCompanion Function({
@@ -15167,6 +15864,7 @@ typedef $$PlotConversationProfilesTableUpdateCompanionBuilder =
       Value<String?> imagePath,
       Value<int> sortOrder,
       Value<DateTime> createdAt,
+      Value<String?> vnStandingImagePath,
     });
 
 final class $$PlotConversationProfilesTableReferences
@@ -15288,6 +15986,11 @@ class $$PlotConversationProfilesTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vnStandingImagePath => $composableBuilder(
+    column: $table.vnStandingImagePath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15414,6 +16117,11 @@ class $$PlotConversationProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get vnStandingImagePath => $composableBuilder(
+    column: $table.vnStandingImagePath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$PlotsTableOrderingComposer get plotId {
     final $$PlotsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -15476,6 +16184,11 @@ class $$PlotConversationProfilesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get vnStandingImagePath => $composableBuilder(
+    column: $table.vnStandingImagePath,
+    builder: (column) => column,
+  );
 
   $$PlotsTableAnnotationComposer get plotId {
     final $$PlotsTableAnnotationComposer composer = $composerBuilder(
@@ -15603,6 +16316,7 @@ class $$PlotConversationProfilesTableTableManager
                 Value<String?> imagePath = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> vnStandingImagePath = const Value.absent(),
               }) => PlotConversationProfilesCompanion(
                 id: id,
                 plotId: plotId,
@@ -15613,6 +16327,7 @@ class $$PlotConversationProfilesTableTableManager
                 imagePath: imagePath,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
+                vnStandingImagePath: vnStandingImagePath,
               ),
           createCompanionCallback:
               ({
@@ -15625,6 +16340,7 @@ class $$PlotConversationProfilesTableTableManager
                 Value<String?> imagePath = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> vnStandingImagePath = const Value.absent(),
               }) => PlotConversationProfilesCompanion.insert(
                 id: id,
                 plotId: plotId,
@@ -15635,6 +16351,7 @@ class $$PlotConversationProfilesTableTableManager
                 imagePath: imagePath,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
+                vnStandingImagePath: vnStandingImagePath,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -22365,6 +23082,343 @@ typedef $$VnChoicesTableProcessedTableManager =
       VnChoice,
       PrefetchHooks Function({bool introVersionId})
     >;
+typedef $$GameResultsTableCreateCompanionBuilder =
+    GameResultsCompanion Function({
+      Value<int> id,
+      required GameType gameType,
+      Value<int?> opponentCharacterId,
+      Value<GameDifficulty?> difficulty,
+      required GameOutcome outcome,
+      Value<DateTime> createdAt,
+    });
+typedef $$GameResultsTableUpdateCompanionBuilder =
+    GameResultsCompanion Function({
+      Value<int> id,
+      Value<GameType> gameType,
+      Value<int?> opponentCharacterId,
+      Value<GameDifficulty?> difficulty,
+      Value<GameOutcome> outcome,
+      Value<DateTime> createdAt,
+    });
+
+final class $$GameResultsTableReferences
+    extends BaseReferences<_$AppDatabase, $GameResultsTable, GameResult> {
+  $$GameResultsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $CharactersTable _opponentCharacterIdTable(_$AppDatabase db) => db
+      .characters
+      .createAlias('game_results__opponent_character_id__characters__id');
+
+  $$CharactersTableProcessedTableManager? get opponentCharacterId {
+    final $_column = $_itemColumn<int>('opponent_character_id');
+    if ($_column == null) return null;
+    final manager = $$CharactersTableTableManager(
+      $_db,
+      $_db.characters,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_opponentCharacterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$GameResultsTableFilterComposer
+    extends Composer<_$AppDatabase, $GameResultsTable> {
+  $$GameResultsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<GameType, GameType, int> get gameType =>
+      $composableBuilder(
+        column: $table.gameType,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<GameDifficulty?, GameDifficulty, int>
+  get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<GameOutcome, GameOutcome, int> get outcome =>
+      $composableBuilder(
+        column: $table.outcome,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CharactersTableFilterComposer get opponentCharacterId {
+    final $$CharactersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.opponentCharacterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableFilterComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GameResultsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GameResultsTable> {
+  $$GameResultsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gameType => $composableBuilder(
+    column: $table.gameType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CharactersTableOrderingComposer get opponentCharacterId {
+    final $$CharactersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.opponentCharacterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableOrderingComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GameResultsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GameResultsTable> {
+  $$GameResultsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<GameType, int> get gameType =>
+      $composableBuilder(column: $table.gameType, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<GameDifficulty?, int> get difficulty =>
+      $composableBuilder(
+        column: $table.difficulty,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<GameOutcome, int> get outcome =>
+      $composableBuilder(column: $table.outcome, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$CharactersTableAnnotationComposer get opponentCharacterId {
+    final $$CharactersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.opponentCharacterId,
+      referencedTable: $db.characters,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CharactersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.characters,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GameResultsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GameResultsTable,
+          GameResult,
+          $$GameResultsTableFilterComposer,
+          $$GameResultsTableOrderingComposer,
+          $$GameResultsTableAnnotationComposer,
+          $$GameResultsTableCreateCompanionBuilder,
+          $$GameResultsTableUpdateCompanionBuilder,
+          (GameResult, $$GameResultsTableReferences),
+          GameResult,
+          PrefetchHooks Function({bool opponentCharacterId})
+        > {
+  $$GameResultsTableTableManager(_$AppDatabase db, $GameResultsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GameResultsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GameResultsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GameResultsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<GameType> gameType = const Value.absent(),
+                Value<int?> opponentCharacterId = const Value.absent(),
+                Value<GameDifficulty?> difficulty = const Value.absent(),
+                Value<GameOutcome> outcome = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => GameResultsCompanion(
+                id: id,
+                gameType: gameType,
+                opponentCharacterId: opponentCharacterId,
+                difficulty: difficulty,
+                outcome: outcome,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required GameType gameType,
+                Value<int?> opponentCharacterId = const Value.absent(),
+                Value<GameDifficulty?> difficulty = const Value.absent(),
+                required GameOutcome outcome,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => GameResultsCompanion.insert(
+                id: id,
+                gameType: gameType,
+                opponentCharacterId: opponentCharacterId,
+                difficulty: difficulty,
+                outcome: outcome,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$GameResultsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({opponentCharacterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (opponentCharacterId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.opponentCharacterId,
+                                referencedTable: $$GameResultsTableReferences
+                                    ._opponentCharacterIdTable(db),
+                                referencedColumn: $$GameResultsTableReferences
+                                    ._opponentCharacterIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$GameResultsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GameResultsTable,
+      GameResult,
+      $$GameResultsTableFilterComposer,
+      $$GameResultsTableOrderingComposer,
+      $$GameResultsTableAnnotationComposer,
+      $$GameResultsTableCreateCompanionBuilder,
+      $$GameResultsTableUpdateCompanionBuilder,
+      (GameResult, $$GameResultsTableReferences),
+      GameResult,
+      PrefetchHooks Function({bool opponentCharacterId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -22415,4 +23469,6 @@ class $AppDatabaseManager {
       );
   $$VnChoicesTableTableManager get vnChoices =>
       $$VnChoicesTableTableManager(_db, _db.vnChoices);
+  $$GameResultsTableTableManager get gameResults =>
+      $$GameResultsTableTableManager(_db, _db.gameResults);
 }

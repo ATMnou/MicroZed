@@ -25,6 +25,11 @@ class CharacterRepository {
         .get();
   }
 
+  /// 게임 상대 캐릭터 픽커처럼 플롯 범위를 가리지 않고 등록된 모든 캐릭터가 필요할 때 쓴다.
+  Future<List<Character>> getAll() {
+    return (_db.select(_db.characters)..orderBy([(c) => OrderingTerm.asc(c.name)])).get();
+  }
+
   /// 비주얼 노벨 편집 화면의 '등장인물' 목록(플레이어블 캐릭터 제외).
   Stream<List<Character>> watchNonPlayableByPlot(int plotId) {
     return (_db.select(_db.characters)

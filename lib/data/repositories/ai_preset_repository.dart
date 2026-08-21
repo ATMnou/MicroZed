@@ -17,6 +17,18 @@ class AiPresetRepository {
 
   Future<AiPreset?> getById(int id) => (_db.select(_db.aiPresets)..where((p) => p.id.equals(id))).getSingleOrNull();
 
+  /// 프리셋 선택 화면 없이 대사를 생성해야 하는 곳(게임 등)에서 쓴다. 기본으로 표시된
+  /// 프리셋이 있으면 그걸, 없으면 가장 먼저 만든 프리셋을 돌려주고, 하나도 없으면 null.
+  Future<AiPreset?> getDefault() async {
+    final marked =
+        await (_db.select(_db.aiPresets)..where((p) => p.isDefault.equals(true))..limit(1)).getSingleOrNull();
+    if (marked != null) return marked;
+    return (_db.select(_db.aiPresets)
+          ..orderBy([(p) => OrderingTerm.asc(p.createdAt)])
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
   /// 같은 로컬 모델 소스로 이미 만들어둔 프리셋이 있으면 재사용하기 위한 조회.
   Future<AiPreset?> getByLocalModelSource(String source) =>
       (_db.select(_db.aiPresets)..where((p) => p.isLocal.equals(true) & p.localModelSource.equals(source)))

@@ -16,7 +16,10 @@ export 'tables.dart'
         VnEmotion,
         VnSceneType,
         VnInputMode,
-        VnDiceDifficulty;
+        VnDiceDifficulty,
+        GameType,
+        GameDifficulty,
+        GameOutcome;
 
 part 'database.g.dart';
 
@@ -44,6 +47,7 @@ part 'database.g.dart';
   VnBackgrounds,
   VnCharacterExpressions,
   VnChoices,
+  GameResults,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase._() : super(_openConnection());
@@ -55,7 +59,7 @@ class AppDatabase extends _$AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -155,6 +159,19 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(characters, characters.spriteOffsetX);
             await m.addColumn(characters, characters.spriteOffsetY);
             await m.addColumn(conversationProfiles, conversationProfiles.scope);
+          }
+          if (from < 20) {
+            await m.addColumn(conversationProfiles, conversationProfiles.vnStandingImagePath);
+            // plot_conversation_profiles는 v11에서 createTable()로 처음 생겼는데, 그 createTable()이
+            // 이미 지금 Dart 스키마(vn_standing_image_path 포함) 그대로 테이블을 만들어준다. from < 11
+            // (v11 이전, 즉 이번에 createTable까지 함께 타는 사용자)은 여기서 또 addColumn하면 컬럼
+            // 중복 에러가 나므로, 이미 v11 이상이어서 테이블은 있었지만 이 컬럼만 없던 사용자만 추가한다.
+            if (from >= 11) {
+              await m.addColumn(plotConversationProfiles, plotConversationProfiles.vnStandingImagePath);
+            }
+          }
+          if (from < 21) {
+            await m.createTable(gameResults);
           }
         },
       );

@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import 'character_detail_screen.dart';
 import 'conversation_tab.dart';
 import 'create_tab.dart';
+import 'games/games_home_screen.dart';
 import 'my_page_tab.dart';
 import 'vn_player_screen.dart';
 import '../data/theme/color_palette.dart';
@@ -243,30 +244,57 @@ class _HomeTabState extends State<_HomeTab> {
     ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-      child: Row(
-        children: [
-          for (final option in options) ...[
-            GestureDetector(
-              onTap: () => setState(() => _plotTypeFilter = option.$2),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _plotTypeFilter == option.$2 ? _p.primary : _p.surfaceAlt,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  option.$1,
-                  style: TextStyle(
-                    color: _plotTypeFilter == option.$2 ? _p.onPrimary : _textSecondary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final option in options) ...[
+              GestureDetector(
+                onTap: () => setState(() => _plotTypeFilter = option.$2),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _plotTypeFilter == option.$2 ? _p.primary : _p.surfaceAlt,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    option.$1,
+                    style: TextStyle(
+                      color: _plotTypeFilter == option.$2 ? _p.onPrimary : _textSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
+            ],
+            // 필터가 아니라 게임 홈으로 이동하는 버튼이라, 다른 칩과 달리 선택 상태를 갖지
+            // 않고 이동 방향을 암시하는 화살표를 덧붙여 구분한다.
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const GamesHomeScreen()),
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _p.surfaceAlt,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.homeTabFilterGames,
+                      style: TextStyle(color: _textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                    Icon(Icons.chevron_right, color: _textSecondary, size: 14),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(width: 8),
           ],
-        ],
+        ),
       ),
     );
   }

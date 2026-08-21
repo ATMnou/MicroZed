@@ -12,7 +12,7 @@ import 'package:path/path.dart' as p;
 /// ChatMemorySummaries 테이블 + AiPresets.supportsVision + TalkSessions/TalkMessages 테이블 +
 /// TalkSessions.characterId/conversationProfileId/plotConversationProfileId +
 /// 비주얼 노벨 관련 컬럼/테이블 일체 + v19의 Characters 스프라이트 배치 컬럼/
-/// ConversationProfiles.scope 추가)
+/// ConversationProfiles.scope 추가 + v20의 VN 스탠딩 이미지 컬럼 2개 + v21의 GameResults 테이블)
 /// 마이그레이션이 실제 파일 기반 sqlite에서 데이터 손실 없이 동작하는지 검증한다.
 void main() {
   test('upgrades from schema v9 to the latest schema without losing existing data', () async {
@@ -80,6 +80,11 @@ void main() {
     await raw.runCustom('ALTER TABLE characters DROP COLUMN sprite_offset_x');
     await raw.runCustom('ALTER TABLE characters DROP COLUMN sprite_offset_y');
     await raw.runCustom('ALTER TABLE conversation_profiles DROP COLUMN scope');
+    await raw.runCustom('ALTER TABLE conversation_profiles DROP COLUMN vn_standing_image_path');
+    // plot_conversation_profiles는 아래에서 통째로 DROP되므로(v11 이전 상태 재현) 컬럼을 따로
+    // 지울 필요가 없다 - v11 이상이었던 사용자의 addColumn 경로는 database.dart의 `from >= 11`
+    // 가드로 별도 검증된다.
+    await raw.runCustom('DROP TABLE game_results');
     await raw.runCustom('PRAGMA user_version = 9');
     await raw.close();
 
@@ -255,6 +260,40 @@ void main() {
     final vnProfile =
         await (db.select(db.conversationProfiles)..where((p) => p.id.equals(vnProfileId))).getSingle();
     expect(vnProfile.scope, PlotType.visualNovel);
+
+    // v20: 대화 프로필(전역/플롯 전용) 둘 다 VN 스탠딩 이미지 컬럼을 마이그레이션 후 쓸 수 있어야 한다.
+    await (db.update(db.conversationProfiles)..where((p) => p.id.equals(vnProfileId))).write(
+      const ConversationProfilesCompanion(vnStandingImagePath: Value('/tmp/standing.png')),
+    );
+    final vnProfileWithStanding =
+        await (db.select(db.conversationProfiles)..where((p) => p.id.equals(vnProfileId))).getSingle();
+    expect(vnProfileWithStanding.vnStandingImagePath, '/tmp/standing.png');
+
+    final vnPlotProfileId = await db.into(db.plotConversationProfiles).insert(
+          PlotConversationProfilesCompanion.insert(
+            plotId: vnPlotId,
+            name: 'Plot VN Profile',
+            shortIntro: 'hi',
+            vnStandingImagePath: const Value('/tmp/plot_standing.png'),
+          ),
+        );
+    final vnPlotProfile =
+        await (db.select(db.plotConversationProfiles)..where((p) => p.id.equals(vnPlotProfileId))).getSingle();
+    expect(vnPlotProfile.vnStandingImagePath, '/tmp/plot_standing.png');
+
+    // v21: GameResults 테이블도 마이그레이션 후 정상적으로 쓰고 읽을 수 있어야 한다.
+    final gameResultId = await db.into(db.gameResults).insert(
+          GameResultsCompanion.insert(
+            gameType: GameType.chess,
+            opponentCharacterId: Value(characterId),
+            difficulty: const Value(GameDifficulty.hard),
+            outcome: GameOutcome.win,
+          ),
+        );
+    final gameResult = await (db.select(db.gameResults)..where((g) => g.id.equals(gameResultId))).getSingle();
+    expect(gameResult.gameType, GameType.chess);
+    expect(gameResult.difficulty, GameDifficulty.hard);
+    expect(gameResult.outcome, GameOutcome.win);
 
     await db.close();
   });

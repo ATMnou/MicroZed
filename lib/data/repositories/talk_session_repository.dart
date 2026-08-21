@@ -98,14 +98,21 @@ class TalkSessionRepository {
     return session?.id;
   }
 
-  Future<int> createSession({required int plotId, int? presetId, int? characterId}) {
+  Future<int> createSession({required int plotId, int? presetId, int? characterId}) async {
+    final resolvedPresetId = presetId ?? await _defaultAiPresetId();
     return _db.into(_db.talkSessions).insert(
           TalkSessionsCompanion.insert(
             plotId: plotId,
-            presetId: Value(presetId),
+            presetId: Value(resolvedPresetId),
             characterId: Value(characterId),
           ),
         );
+  }
+
+  Future<int?> _defaultAiPresetId() async {
+    final preset = await (_db.select(_db.aiPresets)..where((p) => p.isDefault.equals(true))..limit(1))
+        .getSingleOrNull();
+    return preset?.id;
   }
 
   Future<void> setPreset(int sessionId, int presetId) {

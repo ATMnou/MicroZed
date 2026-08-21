@@ -967,6 +967,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get aiPresetSaveButton => '保存する';
 
   @override
+  String get aiPresetDefaultSectionTitle => 'デフォルトプリセット';
+
+  @override
+  String get aiPresetApplyDefaultLabel => '新しい会話・ゲームでデフォルトとして使う';
+
+  @override
+  String get aiPresetApplyDefaultDescription =>
+      'プリセットを選んでいないすべての会話とゲームがこのプリセットを使います。会話中はいつでも別のプリセットに切り替えられます。';
+
+  @override
   String get aiPresetReasoningEffortLabel => '推論の深さ(Reasoning effort)';
 
   @override

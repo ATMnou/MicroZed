@@ -111,12 +111,13 @@ class ChatSessionRepository {
     if (resolvedGlobalProfileId == null && plotConversationProfileId == null) {
       resolvedGlobalProfileId = await _defaultConversationProfileId();
     }
+    final resolvedPresetId = presetId ?? await _defaultAiPresetId();
     final sessionId = await _db.into(_db.chatSessions).insert(
           ChatSessionsCompanion.insert(
             plotId: plotId,
             conversationProfileId: Value(resolvedGlobalProfileId),
             plotConversationProfileId: Value(plotConversationProfileId),
-            presetId: Value(presetId),
+            presetId: Value(resolvedPresetId),
             vnPlayableCharacterId: Value(vnPlayableCharacterId),
           ),
         );
@@ -130,6 +131,12 @@ class ChatSessionRepository {
           ..limit(1))
         .getSingleOrNull();
     return profile?.id;
+  }
+
+  Future<int?> _defaultAiPresetId() async {
+    final preset = await (_db.select(_db.aiPresets)..where((p) => p.isDefault.equals(true))..limit(1))
+        .getSingleOrNull();
+    return preset?.id;
   }
 
   /// 플롯에 인트로 버전이 여러 개면, 그 버전들을 전부 한 턴의 여러 '버전'으로 심어서

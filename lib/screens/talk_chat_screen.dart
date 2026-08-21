@@ -99,6 +99,12 @@ class _TalkChatScreenState extends State<TalkChatScreen> {
     AiPreset? preset;
     if (session.presetId != null) {
       preset = await _presetRepo.getById(session.presetId!);
+    } else {
+      final defaultPreset = await _presetRepo.getDefault();
+      if (defaultPreset != null) {
+        preset = defaultPreset;
+        await _sessionRepo.setPreset(widget.sessionId, defaultPreset.id);
+      }
     }
 
     int? profileId;

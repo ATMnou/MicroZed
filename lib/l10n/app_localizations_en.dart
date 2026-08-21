@@ -995,6 +995,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPresetSaveButton => 'Save';
 
   @override
+  String get aiPresetDefaultSectionTitle => 'Default preset';
+
+  @override
+  String get aiPresetApplyDefaultLabel => 'Use as default for new chats/games';
+
+  @override
+  String get aiPresetApplyDefaultDescription =>
+      'Any chat or game that hasn\'t been assigned a preset will use this one. You can still switch presets mid-chat.';
+
+  @override
   String get aiPresetReasoningEffortLabel => 'Reasoning effort';
 
   @override

@@ -49,6 +49,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
   bool _openRouterExcludeTrainingProviders = false;
   AiEndpointFormat _endpointFormat = AiEndpointFormat.openAiCompatible;
   bool _supportsVision = false;
+  bool _applyAsDefault = false;
 
   bool _loading = true;
   bool _saving = false;
@@ -84,6 +85,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       _openRouterExcludeTrainingProviders = preset?.openRouterExcludeTrainingProviders ?? false;
       _endpointFormat = preset?.endpointFormat ?? AiEndpointFormat.openAiCompatible;
       _supportsVision = preset?.supportsVision ?? false;
+      _applyAsDefault = preset?.isDefault ?? false;
       final apiKey = await _repository.readApiKey(widget.presetId!);
       if (apiKey != null) _apiKeyController.text = apiKey;
     }
@@ -117,6 +119,7 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
       openRouterExcludeTrainingProviders: _openRouterExcludeTrainingProviders,
       endpointFormat: _endpointFormat,
       supportsVision: _supportsVision,
+      applyAsDefault: _applyAsDefault,
     );
     if (mounted) Navigator.of(context).pop();
   }
@@ -270,6 +273,22 @@ class _AiPresetEditScreenState extends State<AiPresetEditScreen> {
                       borderSide: BorderSide(color: _purple),
                     ),
                   ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.aiPresetDefaultSectionTitle,
+                  style: TextStyle(
+                    color: _textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                _openRouterSwitch(
+                  label: l10n.aiPresetApplyDefaultLabel,
+                  description: l10n.aiPresetApplyDefaultDescription,
+                  value: _applyAsDefault,
+                  onChanged: (v) => setState(() => _applyAsDefault = v),
                 ),
                 const SizedBox(height: 24),
                 Text(

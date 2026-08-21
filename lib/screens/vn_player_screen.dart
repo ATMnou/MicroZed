@@ -223,6 +223,12 @@ class _VnPlayerScreenState extends State<VnPlayerScreen> {
     AiPreset? preset;
     if (session.presetId != null) {
       preset = await _presetRepo.getById(session.presetId!);
+    } else {
+      final defaultPreset = await _presetRepo.getDefault();
+      if (defaultPreset != null) {
+        preset = defaultPreset;
+        await _sessionRepo.setPreset(sessionId, defaultPreset.id);
+      }
     }
     // 플롯 전용 프로필 선택 화면은 v1 범위에서 생략한다. 세션에 전역 프로필이 이미
     // 붙어있으면 그걸 쓰고, 없으면(예전 세션) 마이페이지 기본 프로필로 채우면서 세션에도

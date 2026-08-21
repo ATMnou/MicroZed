@@ -37,6 +37,8 @@ class AiPresetRepository {
   Future<String?> readApiKey(int presetId) => _apiKeyStore.read(presetId);
 
   /// apiKey가 null/empty면 기존 키를 건드리지 않는다(수정 화면에서 키를 비워두고 저장하는 경우).
+  /// [applyAsDefault]가 true면 다른 프리셋의 기본 표시를 모두 내리고 이 프리셋만 기본으로
+  /// 표시한다 - [ConversationProfileRepository.upsert]와 동일한 "기본은 하나만" 규칙.
   Future<int> upsert({
     int? id,
     required String name,
@@ -57,58 +59,67 @@ class AiPresetRepository {
     bool openRouterExcludeTrainingProviders = false,
     AiEndpointFormat endpointFormat = AiEndpointFormat.openAiCompatible,
     bool supportsVision = false,
+    bool applyAsDefault = false,
   }) async {
-    late int presetId;
-    if (id == null) {
-      presetId = await _db.into(_db.aiPresets).insert(
-            AiPresetsCompanion.insert(
-              name: name,
-              description: Value(description),
-              baseUrl: baseUrl,
-              modelName: modelName,
-              temperature: Value(temperature),
-              topK: Value(topK),
-              maxTokens: Value(maxTokens),
-              contextLength: Value(contextLength),
-              additionalSystemPrompt: Value(additionalSystemPrompt),
-              isLocal: Value(isLocal),
-              localModelSource: Value(localModelSource),
-              reasoningEffort: Value(reasoningEffort),
-              openRouterZdrOnly: Value(openRouterZdrOnly),
-              openRouterExcludeChinaProviders: Value(openRouterExcludeChinaProviders),
-              openRouterExcludeTrainingProviders: Value(openRouterExcludeTrainingProviders),
-              endpointFormat: Value(endpointFormat),
-              supportsVision: Value(supportsVision),
-            ),
-          );
-      await (_db.update(_db.aiPresets)..where((p) => p.id.equals(presetId))).write(
-        AiPresetsCompanion(apiKeyRef: Value(ApiKeyStore.refFor(presetId))),
-      );
-    } else {
-      presetId = id;
-      await (_db.update(_db.aiPresets)..where((p) => p.id.equals(id))).write(
-        AiPresetsCompanion(
-          name: Value(name),
-          description: Value(description),
-          baseUrl: Value(baseUrl),
-          modelName: Value(modelName),
-          temperature: Value(temperature),
-          topK: Value(topK),
-          maxTokens: Value(maxTokens),
-          contextLength: Value(contextLength),
-          additionalSystemPrompt: Value(additionalSystemPrompt),
-          isLocal: Value(isLocal),
-          localModelSource: Value(localModelSource),
-          reasoningEffort: Value(reasoningEffort),
-          openRouterZdrOnly: Value(openRouterZdrOnly),
-          openRouterExcludeChinaProviders: Value(openRouterExcludeChinaProviders),
-          openRouterExcludeTrainingProviders: Value(openRouterExcludeTrainingProviders),
-          endpointFormat: Value(endpointFormat),
-          supportsVision: Value(supportsVision),
-          updatedAt: Value(DateTime.now()),
-        ),
-      );
-    }
+    final presetId = await _db.transaction(() async {
+      late int presetId;
+      if (applyAsDefault) {
+        await _db.update(_db.aiPresets).write(const AiPresetsCompanion(isDefault: Value(false)));
+      }
+      if (id == null) {
+        presetId = await _db.into(_db.aiPresets).insert(
+              AiPresetsCompanion.insert(
+                name: name,
+                description: Value(description),
+                baseUrl: baseUrl,
+                modelName: modelName,
+                temperature: Value(temperature),
+                topK: Value(topK),
+                maxTokens: Value(maxTokens),
+                contextLength: Value(contextLength),
+                additionalSystemPrompt: Value(additionalSystemPrompt),
+                isLocal: Value(isLocal),
+                localModelSource: Value(localModelSource),
+                reasoningEffort: Value(reasoningEffort),
+                openRouterZdrOnly: Value(openRouterZdrOnly),
+                openRouterExcludeChinaProviders: Value(openRouterExcludeChinaProviders),
+                openRouterExcludeTrainingProviders: Value(openRouterExcludeTrainingProviders),
+                endpointFormat: Value(endpointFormat),
+                supportsVision: Value(supportsVision),
+                isDefault: Value(applyAsDefault),
+              ),
+            );
+        await (_db.update(_db.aiPresets)..where((p) => p.id.equals(presetId))).write(
+          AiPresetsCompanion(apiKeyRef: Value(ApiKeyStore.refFor(presetId))),
+        );
+      } else {
+        presetId = id;
+        await (_db.update(_db.aiPresets)..where((p) => p.id.equals(id))).write(
+          AiPresetsCompanion(
+            name: Value(name),
+            description: Value(description),
+            baseUrl: Value(baseUrl),
+            modelName: Value(modelName),
+            temperature: Value(temperature),
+            topK: Value(topK),
+            maxTokens: Value(maxTokens),
+            contextLength: Value(contextLength),
+            additionalSystemPrompt: Value(additionalSystemPrompt),
+            isLocal: Value(isLocal),
+            localModelSource: Value(localModelSource),
+            reasoningEffort: Value(reasoningEffort),
+            openRouterZdrOnly: Value(openRouterZdrOnly),
+            openRouterExcludeChinaProviders: Value(openRouterExcludeChinaProviders),
+            openRouterExcludeTrainingProviders: Value(openRouterExcludeTrainingProviders),
+            endpointFormat: Value(endpointFormat),
+            supportsVision: Value(supportsVision),
+            isDefault: Value(applyAsDefault),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+      }
+      return presetId;
+    });
     if (apiKey != null && apiKey.isNotEmpty) {
       await _apiKeyStore.save(presetId, apiKey);
     }

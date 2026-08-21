@@ -124,6 +124,14 @@ class _ChatScreenState extends State<ChatScreen> {
     _characters = await _characterRepo.getByPlot(session.plotId);
     if (session.presetId != null) {
       _selectedPreset = await _presetRepo.getById(session.presetId!);
+    } else {
+      // 예전에 만들어져 프리셋이 안 붙어있는 세션은 기본 프리셋으로 채우고, 세션에도
+      // 저장해 다음부터는 바로 불러오게 한다 - 프로필 폴백과 동일한 패턴.
+      final defaultPreset = await _presetRepo.getDefault();
+      if (defaultPreset != null) {
+        _selectedPreset = defaultPreset;
+        await _sessionRepo.setPreset(widget.sessionId, defaultPreset.id);
+      }
     }
     if (session.plotConversationProfileId != null) {
       final profile = await _plotProfileRepo.getById(

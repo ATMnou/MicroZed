@@ -968,6 +968,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get aiPresetSaveButton => '저장하기';
 
   @override
+  String get aiPresetDefaultSectionTitle => '기본 프리셋';
+
+  @override
+  String get aiPresetApplyDefaultLabel => '새 대화/게임 상대에 기본으로 사용하기';
+
+  @override
+  String get aiPresetApplyDefaultDescription =>
+      '프리셋을 따로 고르지 않은 모든 대화와 게임이 이 프리셋을 사용해요. 대화 중엔 언제든 다른 프리셋으로 바꿀 수 있어요.';
+
+  @override
   String get aiPresetReasoningEffortLabel => '추론 노력(Reasoning effort)';
 
   @override

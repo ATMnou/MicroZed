@@ -1862,6 +1862,24 @@ abstract class AppLocalizations {
   /// **'저장하기'**
   String get aiPresetSaveButton;
 
+  /// No description provided for @aiPresetDefaultSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 프리셋'**
+  String get aiPresetDefaultSectionTitle;
+
+  /// No description provided for @aiPresetApplyDefaultLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 대화/게임 상대에 기본으로 사용하기'**
+  String get aiPresetApplyDefaultLabel;
+
+  /// No description provided for @aiPresetApplyDefaultDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'프리셋을 따로 고르지 않은 모든 대화와 게임이 이 프리셋을 사용해요. 대화 중엔 언제든 다른 프리셋으로 바꿀 수 있어요.'**
+  String get aiPresetApplyDefaultDescription;
+
   /// No description provided for @aiPresetReasoningEffortLabel.
   ///
   /// In ko, this message translates to:

@@ -103,7 +103,9 @@ class _GameOpponentPickerScreenState extends State<GameOpponentPickerScreen> {
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator(color: p.primary))
-          : Column(
+          : SafeArea(
+              top: false,
+              child: Column(
               children: [
                 if (widget.hasDifficulty) _buildDifficultySelector(l10n, p),
                 _buildOptionToggles(l10n, p),
@@ -169,6 +171,7 @@ class _GameOpponentPickerScreenState extends State<GameOpponentPickerScreen> {
                         ),
                 ),
               ],
+              ),
             ),
     );
   }

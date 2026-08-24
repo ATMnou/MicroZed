@@ -1327,6 +1327,15 @@ class AppLocalizationsKo extends AppLocalizations {
       '먼저 환경설정 > AI 설정에서 AI 프리셋을 만들어주세요.';
 
   @override
+  String get plotAiGeneratePlotTypeLabel => '플롯 종류';
+
+  @override
+  String get plotAiGeneratePlotTypeStoryChat => '스토리챗';
+
+  @override
+  String get plotAiGeneratePlotTypeVisualNovel => '비주얼 노벨';
+
+  @override
   String get plotAiGeneratePromptLabel => '어떤 플롯을 만들까요?';
 
   @override

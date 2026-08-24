@@ -254,7 +254,9 @@ class _UnoGameScreenState extends State<UnoGameScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           OpponentBanner(
             opponent: widget.opponent,
@@ -333,6 +335,7 @@ class _UnoGameScreenState extends State<UnoGameScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

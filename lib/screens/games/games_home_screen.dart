@@ -85,7 +85,9 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
         ),
         centerTitle: true,
       ),
-      body: StreamBuilder<List<GameSummary>>(
+      body: SafeArea(
+        top: false,
+        child: StreamBuilder<List<GameSummary>>(
         stream: _resultRepo.watchSummary(),
         builder: (context, snapshot) {
           final summaries = {for (final s in snapshot.data ?? const <GameSummary>[]) s.gameType: s};
@@ -118,6 +120,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
             },
           );
         },
+        ),
       ),
     );
   }

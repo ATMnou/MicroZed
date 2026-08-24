@@ -306,7 +306,9 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           OpponentBanner(
             opponent: widget.opponent,
@@ -371,6 +373,7 @@ class _ChessGameScreenState extends State<ChessGameScreen> {
           _buildCapturedRow(l10n.chessCapturedByOpponentLabel, _engine.capturedByBlack, p),
           const SizedBox(height: 8),
         ],
+        ),
       ),
     );
   }

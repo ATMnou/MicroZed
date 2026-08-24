@@ -10,6 +10,7 @@ import '../data/repositories/lorebook_repository.dart';
 import '../data/repositories/plot_repository.dart';
 import '../l10n/app_localizations.dart';
 import 'plot_edit_screen.dart';
+import 'vn_plot_edit_screen.dart';
 import '../data/theme/color_palette.dart';
 import '../data/theme/palette_scope.dart';
 
@@ -38,6 +39,7 @@ class _PlotAiGenerateScreenState extends State<PlotAiGenerateScreen> {
 
   List<AiPreset> _presets = const [];
   AiPreset? _selectedPreset;
+  PlotType _plotType = PlotType.storyChat;
   bool _webSearch = false;
   PlotLoreLength _loreLength = PlotLoreLength.medium;
   PlotGenerationAccuracy _accuracy = PlotGenerationAccuracy.mixed;
@@ -98,7 +100,11 @@ class _PlotAiGenerateScreenState extends State<PlotAiGenerateScreen> {
       final plotId = await _commitResult(result);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => PlotEditScreen(plotId: plotId)),
+        MaterialPageRoute(
+          builder: (_) => _plotType == PlotType.visualNovel
+              ? VnPlotEditScreen(plotId: plotId)
+              : PlotEditScreen(plotId: plotId),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -122,6 +128,7 @@ class _PlotAiGenerateScreenState extends State<PlotAiGenerateScreen> {
       description: result.description,
       shortIntro: result.shortIntro,
       hashtags: result.hashtags,
+      plotType: _plotType,
     );
 
     final characterIdByName = <String, int>{};
@@ -213,6 +220,8 @@ class _PlotAiGenerateScreenState extends State<PlotAiGenerateScreen> {
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
+                    _buildPlotTypeSelector(l10n),
+                    const SizedBox(height: 20),
                     _buildPresetSelector(l10n),
                     const SizedBox(height: 20),
                     _buildPromptField(l10n),
@@ -248,6 +257,19 @@ class _PlotAiGenerateScreenState extends State<PlotAiGenerateScreen> {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildPlotTypeSelector(AppLocalizations l10n) {
+    final options = <PlotType, String>{
+      PlotType.storyChat: l10n.plotAiGeneratePlotTypeStoryChat,
+      PlotType.visualNovel: l10n.plotAiGeneratePlotTypeVisualNovel,
+    };
+    return _buildChipRow(
+      label: l10n.plotAiGeneratePlotTypeLabel,
+      options: options,
+      selected: _plotType,
+      onSelected: (v) => setState(() => _plotType = v),
     );
   }
 

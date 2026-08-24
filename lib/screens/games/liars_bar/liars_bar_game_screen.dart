@@ -253,7 +253,9 @@ class _LiarsBarGameScreenState extends State<LiarsBarGameScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           OpponentBanner(
             opponent: widget.opponent,
@@ -386,6 +388,7 @@ class _LiarsBarGameScreenState extends State<LiarsBarGameScreen> {
           else
             const SizedBox(height: 16),
         ],
+        ),
       ),
     );
   }

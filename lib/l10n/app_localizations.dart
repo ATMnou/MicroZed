@@ -2498,6 +2498,24 @@ abstract class AppLocalizations {
   /// **'먼저 환경설정 > AI 설정에서 AI 프리셋을 만들어주세요.'**
   String get plotAiGeneratePresetEmptyHint;
 
+  /// No description provided for @plotAiGeneratePlotTypeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'플롯 종류'**
+  String get plotAiGeneratePlotTypeLabel;
+
+  /// No description provided for @plotAiGeneratePlotTypeStoryChat.
+  ///
+  /// In ko, this message translates to:
+  /// **'스토리챗'**
+  String get plotAiGeneratePlotTypeStoryChat;
+
+  /// No description provided for @plotAiGeneratePlotTypeVisualNovel.
+  ///
+  /// In ko, this message translates to:
+  /// **'비주얼 노벨'**
+  String get plotAiGeneratePlotTypeVisualNovel;
+
   /// No description provided for @plotAiGeneratePromptLabel.
   ///
   /// In ko, this message translates to:

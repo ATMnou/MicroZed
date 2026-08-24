@@ -1364,6 +1364,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Create an AI preset in Preferences > AI settings first.';
 
   @override
+  String get plotAiGeneratePlotTypeLabel => 'Plot type';
+
+  @override
+  String get plotAiGeneratePlotTypeStoryChat => 'Story Chat';
+
+  @override
+  String get plotAiGeneratePlotTypeVisualNovel => 'Visual Novel';
+
+  @override
   String get plotAiGeneratePromptLabel => 'What plot do you want to make?';
 
   @override

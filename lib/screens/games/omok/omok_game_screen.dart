@@ -187,7 +187,9 @@ class _OmokGameScreenState extends State<OmokGameScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           OpponentBanner(
             opponent: widget.opponent,
@@ -245,6 +247,7 @@ class _OmokGameScreenState extends State<OmokGameScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

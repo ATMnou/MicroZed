@@ -1325,6 +1325,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get plotAiGeneratePresetEmptyHint => '先に環境設定 > AI設定でAIプリセットを作成してください。';
 
   @override
+  String get plotAiGeneratePlotTypeLabel => 'プロットの種類';
+
+  @override
+  String get plotAiGeneratePlotTypeStoryChat => 'ストーリーチャット';
+
+  @override
+  String get plotAiGeneratePlotTypeVisualNovel => 'ビジュアルノベル';
+
+  @override
   String get plotAiGeneratePromptLabel => 'どんなプロットを作りますか?';
 
   @override

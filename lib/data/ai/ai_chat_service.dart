@@ -242,16 +242,34 @@ class AiChatService {
     return result;
   }
 
-  /// 세션/턴에 저장하지 않는 단발성 생성(플롯 AI 생성 등)에 쓰는 범용 호출.
-  /// 스트리밍을 다 모아서 완성된 텍스트만 돌려준다.
+  /// 세션/턴에 저장하지 않는 단발성 생성(플롯 AI 생성, 게임 상대 수 선택 등)에 쓰는 범용
+  /// 호출. 스트리밍을 다 모아서 완성된 텍스트만 돌려주되, 채팅 응답과 마찬가지로 토큰
+  /// 사용량이 오면 [_tokenUsageRepo]에 기록해서 마이페이지 내역에서 빠지지 않게 한다.
   Future<String> completeOneShot({
     required AiPreset preset,
     required List<Map<String, String>> messages,
     bool webSearch = false,
   }) async {
     final buffer = StringBuffer();
-    await for (final delta in _streamCompletion(preset: preset, messages: messages, webSearch: webSearch)) {
+    TokenUsage? usage;
+    await for (final delta in _streamCompletion(
+      preset: preset,
+      messages: messages,
+      webSearch: webSearch,
+      onUsage: (u) => usage = u,
+    )) {
       buffer.write(delta);
+    }
+    if (usage != null) {
+      await _tokenUsageRepo.log(
+        presetName: preset.name,
+        baseUrl: preset.baseUrl,
+        modelName: preset.modelName,
+        promptTokens: usage!.promptTokens,
+        completionTokens: usage!.completionTokens,
+        costUsd: usage!.costUsd,
+        provider: usage!.provider,
+      );
     }
     return buffer.toString().trim();
   }
